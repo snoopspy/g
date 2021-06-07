@@ -9,6 +9,7 @@
 * Run the follwing command.
   ```
   make
+  make distclean
   ```
 
 ### Android
@@ -16,4 +17,5 @@
   ```
   source ../android-build/android.profile
   ./android-build.sh
+  make distclean
   ```
