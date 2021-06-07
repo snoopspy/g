@@ -1,2 +1,19 @@
 <img src="img/g.png" width="48" height="48"> Library
-================================================
+===
+
+## Install
+
+### Linux
+* Run ./deps.sh in command line.
+* Install Qt.
+* Run the follwing command.
+  ```
+  make
+  ```
+
+### Android
+* Run the following commands.
+  ```
+  source ../android-build/android.profile
+  ./android-build.sh
+  ```
