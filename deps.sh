@@ -16,3 +16,7 @@ sudo apt install libnetfilter-queue-dev
 # google test
 sudo apt install libgtest-dev
 
+# android build
+cd ..
+git clone https://gitlab.com/gilgil/android-build.git
+cd g
