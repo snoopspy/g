@@ -8,6 +8,7 @@
 //
 // ----------------------------------------------------------------------------
 
+#include "net/gatm.h"
 #include "net/write/gpcapdevicewrite.h"
 #include "net/capture/gsyncpcapdevice.h"
 
@@ -34,9 +35,10 @@ protected:
 protected:
 	GMac myMac_{GMac::nullMac()};
 	GIp myIp_{0};
-	GSyncPcapDevice* device_{nullptr};
+	GAtmScanDevice* device_{nullptr};
 	GEthPacket convertedEthPacket_;
 	gbyte convertedEthBuf_[GPacket::MaxBufSize];
+	GAtm atm_;
 	GMac resolveMacByDip(GPacket* packet);
 
 public slots:

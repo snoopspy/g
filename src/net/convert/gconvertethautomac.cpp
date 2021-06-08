@@ -1,27 +1,5 @@
 #include "gconvertethautomac.h"
 #include <QMap>
-#include "net/gatm.h"
-
-// ----------------------------------------------------------------------------
-// GSyncPcapDeviceMgr
-// ----------------------------------------------------------------------------
-typedef QMap<QString /*intfName*/, GSyncPcapDevice*> GSyncPcapDeviceMap;
-struct GSyncPcapDeviceMgr : GSyncPcapDeviceMap {
-private: // singleton
-	GSyncPcapDeviceMgr() {}
-	virtual ~GSyncPcapDeviceMgr() {
-		GSyncPcapDeviceMap::iterator it = begin();
-		while (it != end()) {
-			delete *it;
-			it = erase(it);
-		}
-	}
-public:
-	static GSyncPcapDeviceMgr& instance() {
-		static GSyncPcapDeviceMgr syncPcapDeviceMgr;
-		return syncPcapDeviceMgr;
-	}
-};
 
 // ----------------------------------------------------------------------------
 // GConvertEthAutoMac
@@ -45,26 +23,26 @@ bool GConvertEthAutoMac::doOpen() {
 		return false;
 	}
 
-	GSyncPcapDeviceMgr& mgr = GSyncPcapDeviceMgr::instance();
-	GSyncPcapDeviceMap::iterator it = mgr.find(intfName_);
-	if (it == mgr.end()) {
-		GSyncPcapDevice* device = new GSyncPcapDevice;
-		device->intfName_ = intfName_;
-		if (!device->active() && !device->open()) {
-			err = device->err;
-			delete device;
-			return false;
-		}
-		it = mgr.insert(intfName_, device);
+	device_ = new GAtmScanDevice(this);
+	device_->intfName_ = intfName_;
+	if (!device_->active() && !device_->open()) {
+		err = device_->err;
+		delete device_;
+		device_ = nullptr;
+		return false;
 	}
-	device_ = it.value();
-	Q_ASSERT(device_ != nullptr);
 
 	return true;
 }
 
 bool GConvertEthAutoMac::doClose() {
-	return GPcapDeviceWrite::doClose();
+	bool res = GPcapDeviceWrite::doClose();
+
+	if (device_ == nullptr) {
+		delete device_;
+		device_ = nullptr;
+	}
+	return res;
 }
 
 GMac GConvertEthAutoMac::resolveMacByDip(GPacket* packet) {
@@ -76,11 +54,10 @@ GMac GConvertEthAutoMac::resolveMacByDip(GPacket* packet) {
 	GIp dip = ipHdr->dip();
 	if (dip == myIp_) return myMac_;
 	GIp adjIp = intf_->getAdjIp(dip);
-	GAtm& atm = GAtm::instance(intfName_);
-	GAtmMap::iterator it = atm.find(adjIp);
-	if (it == atm.end()) {
-		atm.insert(adjIp, GMac::nullMac());
-		bool res = atm.wait(device_);
+	GAtmMap::iterator it = atm_.find(adjIp);
+	if (it == atm_.end()) {
+		atm_.insert(adjIp, GMac::nullMac());
+		bool res = atm_.wait(device_);
 		if (!res) {
 			qCritical() << QString("can not resolve mac for ip %1").arg(QString(adjIp));
 			return GMac::nullMac();

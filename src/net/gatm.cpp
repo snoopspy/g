@@ -2,20 +2,6 @@
 #include <QElapsedTimer>
 
 // ----------------------------------------------------------------------------
-// GAtmMgr
-// ----------------------------------------------------------------------------
-struct GAtmMgr : QMap<QString, GAtm*> {
-	GAtmMgr() {}
-	virtual ~GAtmMgr() {
-		QMap<QString, GAtm*>::iterator it = begin();
-		while (it != end()) {
-			delete *it;
-			it = erase(it);
-		}
-	}
-};
-
-// ----------------------------------------------------------------------------
 // GAtm
 // ----------------------------------------------------------------------------
 bool GAtm::allResolved() {
@@ -35,27 +21,27 @@ void GAtm::deleteUnresolved() {
 	}
 }
 
-bool GAtm::wait(GPcapDevice* pcapDevice, GDuration timeout) {
+bool GAtm::wait(GAtmScanDevice* device, GDuration timeout) {
 	if (allResolved()) return true;
 
-	if (!pcapDevice->active()) {
-		qWarning() << QString("not opened state %1").arg(pcapDevice->metaObject()->className());
+	if (!device->active()) {
+		qWarning() << QString("not opened state %1").arg(device->metaObject()->className());
 		return false;
 	}
 
-	GPacket::Dlt dlt = pcapDevice->dlt();
+	GPacket::Dlt dlt = device->dlt();
 	if (dlt != GPacket::Eth) {
 		qWarning() << QString("invalid dlt %1").arg(GPacket::dltToString(dlt));
 		return false;
 	}
 
-	GInterface* intf = GNetInfo::instance().interfaceList().findByName(pcapDevice->intfName_);
+	GInterface* intf = GNetInfo::instance().interfaceList().findByName(device->intfName_);
 	if (intf == nullptr) {
-		qWarning() << QString("can not find intf for %1").arg(pcapDevice->intfName_);
+		qWarning() << QString("can not find intf for %1").arg(device->intfName_);
 		return false;
 	}
 
-	SendThread thread(this, pcapDevice, intf, timeout);
+	SendThread thread(this, device, intf, timeout);
 	thread.start();
 
 	bool succeed = false;
@@ -80,7 +66,7 @@ bool GAtm::wait(GPcapDevice* pcapDevice, GDuration timeout) {
 		}
 
 		GEthPacket packet;
-		GPacket::Result res = pcapDevice->read(&packet);
+		GPacket::Result res = device->read(&packet);
 		if (res == GPacket::Eof) {
 			qWarning() << "pcapDevice->read return GPacket::Eof";
 			break;
@@ -114,7 +100,7 @@ bool GAtm::wait(GPcapDevice* pcapDevice, GDuration timeout) {
 	return succeed;
 }
 
-bool GAtm::sendQueries(GPcapDevice* pcapDevice, GInterface* intf) {
+bool GAtm::sendQueries(GAtmScanDevice* device, GInterface* intf) {
 	GEthArpHdr query;
 	query.ethHdr_.dmac_ = GMac::broadcastMac();
 	query.ethHdr_.smac_ = intf->mac();
@@ -135,7 +121,7 @@ bool GAtm::sendQueries(GPcapDevice* pcapDevice, GInterface* intf) {
 		GMac mac = it.value();
 		if (mac.isNull()) {
 			query.arpHdr_.tip_ = htonl(ip);
-			GPacket::Result res = pcapDevice->write(queryBuf);
+			GPacket::Result res = device->write(queryBuf);
 			if (res != GPacket::Ok) {
 				return false;
 			}
@@ -144,18 +130,10 @@ bool GAtm::sendQueries(GPcapDevice* pcapDevice, GInterface* intf) {
 	return true;
 }
 
-GAtm& GAtm::instance(QString intfName) {
-	static GAtmMgr instances;
-	QMap<QString, GAtm*>::iterator it = instances.find(intfName);
-	if (it == instances.end())
-		it = instances.insert(intfName, new GAtm);
-	return *it.value();
-}
-
 // --------------------------------------------------------------------------
 // GAtm::SendThread
 // --------------------------------------------------------------------------
-GAtm::SendThread::SendThread(GAtm* resolve, GPcapDevice* device, GInterface* intf, GDuration timeout) {
+GAtm::SendThread::SendThread(GAtm* resolve, GAtmScanDevice* device, GInterface* intf, GDuration timeout) {
 	atm_ = resolve;
 	device_ = device;
 	intf_ = intf;

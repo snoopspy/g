@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 // GArpSpoof
 // ----------------------------------------------------------------------------
-GArpSpoof::GArpSpoof(QObject* parent) : GPcapDevice(parent) {
+GArpSpoof::GArpSpoof(QObject* parent) : GArpSpoofBaseDevice(parent) {
 	GDEBUG_CTOR;
 }
 
@@ -20,11 +20,10 @@ bool GArpSpoof::doOpen() {
 		SET_ERR(GErr::FAIL, "filter must be blank");
 		return false;
 	}
-	if (!GPcapDevice::doOpen()) return false;
+	if (!GArpSpoofBaseDevice::doOpen()) return false;
 
 	flowList_.clear();
-	GAtm& atm = GAtm::instance(intfName_);
-	atm.deleteUnresolved();
+	atm_.deleteUnresolved();
 
 	for (GObj* obj: flows_) {
 		GArpSpoofFlow* propFlow = PArpSpoofFlow(obj);
@@ -56,22 +55,22 @@ bool GArpSpoof::doOpen() {
 
 		Flow flow(senderIp, senderMac, targetIp, targetMac);
 		flowList_.push_back(flow);
-		if (atm.find(senderIp) == atm.end())
-			atm.insert(flow.senderIp_, flow.senderMac_);
-		if (atm.find(targetIp) == atm.end())
-			atm.insert(flow.targetIp_, flow.targetMac_);
+		if (atm_.find(senderIp) == atm_.end())
+			atm_.insert(flow.senderIp_, flow.senderMac_);
+		if (atm_.find(targetIp) == atm_.end())
+			atm_.insert(flow.targetIp_, flow.targetMac_);
 	}
 
-	GSyncPcapDevice device;
+	GArpSpoofScanDevice device;
 	device.intfName_ = this->intfName_;
 	if (!device.open()) {
 		err = device.err;
 		return false;
 	}
-	bool res = atm.wait(&device);
+	bool res = atm_.wait(&device);
 	if (!res) {
 		QString msg = "can not find all host(s) ";
-		for (GAtm::iterator it = atm.begin(); it != atm.end(); it++) {
+		for (GAtm::iterator it = atm_.begin(); it != atm_.end(); it++) {
 			GMac mac = it.value();
 			if (mac.isNull()) {
 				GIp ip = it.key();
@@ -86,9 +85,9 @@ bool GArpSpoof::doOpen() {
 	flowMap_.clear();
 	for(Flow& flow: flowList_) {
 		if (flow.senderMac_.isNull())
-			flow.senderMac_ = atm.find(flow.senderIp_).value();
+			flow.senderMac_ = atm_.find(flow.senderIp_).value();
 		if (flow.targetMac_.isNull())
-			flow.targetMac_ = atm.find(flow.targetIp_).value();
+			flow.targetMac_ = atm_.find(flow.targetIp_).value();
 		GFlow::IpFlowKey ipFlowKey(flow.senderIp_, flow.targetIp_);
 		FlowMap::iterator it = flowMap_.find(ipFlowKey);
 		if (it == flowMap_.end())
@@ -118,19 +117,18 @@ bool GArpSpoof::doClose() {
 	infectThread_.we_.wakeAll();
 	infectThread_.wait();
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 5; i++) {
 		sendARPReciverAll();
 		QThread::msleep(sendInterval_);
 	}
 
-	GCapture::doClose();
-
-	return GPcapDevice::doClose();
+	// GCapture::doClose(); // gilgil temp 2021.06.09
+	return GArpSpoofBaseDevice::doClose();
 }
 
 GPacket::Result GArpSpoof::read(GPacket* packet) {
 	while (true) {
-		GPacket::Result res = GPcapDevice::read(packet);
+		GPacket::Result res = GArpSpoofBaseDevice::read(packet);
 		if (res == GPacket::Eof || res == GPacket::Fail) return res;
 		if (res == GPacket::Timeout) continue;
 
@@ -177,11 +175,11 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 }
 
 GPacket::Result GArpSpoof::write(GBuf buf) {
-	return GPcapCapture::write(buf);
+	return GArpSpoofBaseDevice::write(buf);
 }
 
 GPacket::Result GArpSpoof::write(GPacket* packet) {
-	return GPcapCapture::write(packet);
+	return GArpSpoofBaseDevice::write(packet);
 }
 
 GPacket::Result GArpSpoof::relay(GPacket* packet) {
