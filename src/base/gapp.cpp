@@ -6,6 +6,7 @@
 #include "base/log/glogfile.h"
 #include "base/log/glogstderr.h"
 #include "base/log/glogudp.h"
+#include "base/sys/gprocess.h"
 
 // ----------------------------------------------------------------------------
 // GApp
@@ -25,6 +26,16 @@ GApp::GApp(int &argc, char** argv) : QCoreApplication(argc, argv) {
 }
 
 GApp::~GApp() {
+	if (pid_ != 0) {
+		std::string error;
+		GProcess::stop(pid_, error);
+		if (error != "")
+			qDebug() << QString("GProcess::stop(%1) error=%2").arg(pid_).arg(error.data());
+		pid_ = 0;
+#ifdef Q_OS_ANDROID
+		system("su -c 'pkill ssdemon'"); // On android ssdemon is not killed properly, so call pkill
+#endif // Q_OS_ANDROID
+	}
 	QString appName = QCoreApplication::applicationName();
 	qInfo() << appName << "terminated";
 }
@@ -57,12 +68,15 @@ void GApp::launchDemon() {
 	QString ssdemonFile = "ssdemon";
 	if (QFile::exists(ssdemonFile)) {
 #ifdef Q_OS_ANDROID
-		QString command = QString("su -c 'cd %1; export LD_LIBRARY_PATH=%2; ./%3 &'").arg(QDir::currentPath(), QDir::currentPath() + "/../lib", ssdemonFile);
+		QString command = QString("su -c 'cd %1; export LD_LIBRARY_PATH=%2; ./%3'").arg(QDir::currentPath(), QDir::currentPath() + "/../lib", ssdemonFile);
 #else // Q_OS_ANDROID
-		QString command = QString("su -c 'cd %1; ./%2 &'").arg(QDir::currentPath(), ssdemonFile);
+		QString command = QString("su -c 'cd %1; ./%2'").arg(QDir::currentPath(), ssdemonFile);
 #endif // Q_OS_ANDROID
-		int res = system(qPrintable(command));
-		qDebug() << command << "return" << res;
+
+		std::string error;
+		pid_ = GProcess::start(qPrintable(command), error);
+		if (pid_ <= 0)
+		qDebug() << QString("GProcess::start(%1) return %2 error=%3").arg(command).arg(pid_).arg(error.data());
 	}
 }
 

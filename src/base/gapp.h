@@ -30,7 +30,10 @@ struct G_EXPORT GApp : QCoreApplication {
 public:
 	GApp(int &argc, char** argv);
 	~GApp() override;
+
+	pid_t pid_{0};
+
 	static void initLogger();
-	static void launchDemon();
+	void launchDemon();
 	static bool copyFileFromAssets(QString fileName, QFile::Permissions permissions);
 };
