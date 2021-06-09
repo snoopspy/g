@@ -35,13 +35,7 @@ bool GAtm::wait(GDuration timeout) {
 		return false;
 	}
 
-	GInterface* intf = GNetInfo::instance().interfaceList().findByName(intfName_);
-	if (intf == nullptr) {
-		qWarning() << QString("can not find intf for %1").arg(intfName_);
-		return false;
-	}
-
-	SendThread thread(this, intf, timeout);
+	SendThread thread(this, intf_, timeout);
 	thread.start();
 
 	bool succeed = false;
