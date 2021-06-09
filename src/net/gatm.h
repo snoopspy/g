@@ -18,8 +18,6 @@
 	typedef GSyncPcapDevice GAtmBaseDevice;
 #endif // Q_OS_ANDROID_GILGIL
 
-#include "net/packet/gpacket.h"
-#include "net/gnetinfo.h"
 #include "base/sys/gwaitevent.h"
 
 // ----------------------------------------------------------------------------
