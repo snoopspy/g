@@ -10,14 +10,13 @@
 
 #pragma once
 
+#include "net/capture/gsyncpcapdevice.h"
+#include "net/capture/gsyncremotepcapdevice.h"
 #ifdef Q_OS_ANDROID_GILGIL
-	#include "net/capture/gsyncremotepcapdevice.h"
-	typedef GRemotePcapDevice GAtmScanDevice;
+	typedef GSyncRemotePcapDevice GAtmBaseDevice;
 #else // Q_OS_ANDROID_GILGIL
-	#include "net/capture/gsyncpcapdevice.h"
-	typedef GPcapDevice GAtmScanDevice;
+	typedef GSyncPcapDevice GAtmBaseDevice;
 #endif // Q_OS_ANDROID_GILGIL
-
 
 #include "net/packet/gpacket.h"
 #include "net/gnetinfo.h"
@@ -37,22 +36,24 @@ struct GEthArpHdr {
 // GAtm(Arp Table Manager)
 // ----------------------------------------------------------------------------
 typedef QMap<GIp, GMac> GAtmMap;
-struct G_EXPORT GAtm : GAtmMap {
+struct G_EXPORT GAtm : GAtmBaseDevice, GAtmMap {
+	Q_INVOKABLE GAtm(QObject* parent = nullptr) : GAtmBaseDevice(parent) {}
+	~GAtm() override {}
+
 	bool allResolved();
 	void deleteUnresolved();
-	bool wait(GAtmScanDevice* device, GDuration timeout = G::Timeout);
+	bool wait(GDuration timeout = G::Timeout);
 
 protected:
-	bool sendQueries(GAtmScanDevice* device, GInterface* intf);
+	bool sendQueries(GInterface* intf);
 
 protected:
 	// --------------------------------------------------------------------------
 	// SendThread
 	// --------------------------------------------------------------------------
 	struct SendThread : QThread {
-		SendThread(GAtm* resolve, GAtmScanDevice* device, GInterface* intf, GDuration timeout);
+		SendThread(GAtm* atm, GInterface* intf, GDuration timeout);
 		GAtm* atm_;
-		GAtmScanDevice* device_;
 		GInterface* intf_;
 		GDuration timeout_;
 		GWaitEvent we_;

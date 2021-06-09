@@ -23,12 +23,10 @@ bool GConvertEthAutoMac::doOpen() {
 		return false;
 	}
 
-	device_ = new GAtmScanDevice(this);
-	device_->intfName_ = intfName_;
-	if (!device_->active() && !device_->open()) {
-		err = device_->err;
-		delete device_;
-		device_ = nullptr;
+	atm_.intfName_ = intfName_;
+	if (!atm_.open()) {
+		err = atm_.err;
+		atm_.close();
 		return false;
 	}
 
@@ -37,11 +35,7 @@ bool GConvertEthAutoMac::doOpen() {
 
 bool GConvertEthAutoMac::doClose() {
 	bool res = GPcapDeviceWrite::doClose();
-
-	if (device_ == nullptr) {
-		delete device_;
-		device_ = nullptr;
-	}
+	atm_.close();
 	return res;
 }
 
@@ -57,7 +51,7 @@ GMac GConvertEthAutoMac::resolveMacByDip(GPacket* packet) {
 	GAtmMap::iterator it = atm_.find(adjIp);
 	if (it == atm_.end()) {
 		atm_.insert(adjIp, GMac::nullMac());
-		bool res = atm_.wait(device_);
+		bool res = atm_.wait();
 		if (!res) {
 			qCritical() << QString("can not resolve mac for ip %1").arg(QString(adjIp));
 			return GMac::nullMac();

@@ -61,13 +61,13 @@ bool GArpSpoof::doOpen() {
 			atm_.insert(flow.targetIp_, flow.targetMac_);
 	}
 
-	GArpSpoofScanDevice device;
-	device.intfName_ = this->intfName_;
-	if (!device.open()) {
-		err = device.err;
+	atm_.intfName_ = intfName_;
+	if (!atm_.open()) {
+		err = atm_.err;
 		return false;
 	}
-	bool res = atm_.wait(&device);
+	bool res = atm_.wait();
+	atm_.close();
 	if (!res) {
 		QString msg = "can not find all host(s) ";
 		for (GAtm::iterator it = atm_.begin(); it != atm_.end(); it++) {
@@ -80,7 +80,6 @@ bool GArpSpoof::doOpen() {
 		SET_ERR(GErr::FAIL, msg);
 		return false;
 	}
-	device.close();
 
 	flowMap_.clear();
 	for(Flow& flow: flowList_) {

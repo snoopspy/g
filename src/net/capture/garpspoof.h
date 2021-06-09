@@ -10,14 +10,12 @@
 
 #pragma once
 
+#include "gsyncpcapdevice.h"
+#include "gsyncremotepcapdevice.h"
 #ifdef Q_OS_ANDROID_GILGIL
-	#include "gsyncremotepcapdevice.h"
 	typedef GRemotePcapDevice GArpSpoofBaseDevice;
-	typedef GSyncRemotePcapDevice GArpSpoofScanDevice;
 #else // Q_OS_ANDROID_GILGIL
-	#include "gsyncpcapdevice.h"
 	typedef GPcapDevice GArpSpoofBaseDevice;
-	typedef GSyncPcapDevice GArpSpoofScanDevice;
 #endif // Q_OS_ANDROID_GILGIL
 
 #include "net/gatm.h"

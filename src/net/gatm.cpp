@@ -21,27 +21,27 @@ void GAtm::deleteUnresolved() {
 	}
 }
 
-bool GAtm::wait(GAtmScanDevice* device, GDuration timeout) {
+bool GAtm::wait(GDuration timeout) {
 	if (allResolved()) return true;
 
-	if (!device->active()) {
-		qWarning() << QString("not opened state %1").arg(device->metaObject()->className());
+	if (!active()) {
+		qWarning() << QString("not opened state %1").arg(metaObject()->className());
 		return false;
 	}
 
-	GPacket::Dlt dlt = device->dlt();
-	if (dlt != GPacket::Eth) {
-		qWarning() << QString("invalid dlt %1").arg(GPacket::dltToString(dlt));
+	GPacket::Dlt _dlt = dlt();
+	if (_dlt != GPacket::Eth) {
+		qWarning() << QString("invalid dlt %1").arg(GPacket::dltToString(_dlt));
 		return false;
 	}
 
-	GInterface* intf = GNetInfo::instance().interfaceList().findByName(device->intfName_);
+	GInterface* intf = GNetInfo::instance().interfaceList().findByName(intfName_);
 	if (intf == nullptr) {
-		qWarning() << QString("can not find intf for %1").arg(device->intfName_);
+		qWarning() << QString("can not find intf for %1").arg(intfName_);
 		return false;
 	}
 
-	SendThread thread(this, device, intf, timeout);
+	SendThread thread(this, intf, timeout);
 	thread.start();
 
 	bool succeed = false;
@@ -66,7 +66,7 @@ bool GAtm::wait(GAtmScanDevice* device, GDuration timeout) {
 		}
 
 		GEthPacket packet;
-		GPacket::Result res = device->read(&packet);
+		GPacket::Result res = read(&packet);
 		if (res == GPacket::Eof) {
 			qWarning() << "pcapDevice->read return GPacket::Eof";
 			break;
@@ -100,7 +100,7 @@ bool GAtm::wait(GAtmScanDevice* device, GDuration timeout) {
 	return succeed;
 }
 
-bool GAtm::sendQueries(GAtmScanDevice* device, GInterface* intf) {
+bool GAtm::sendQueries(GInterface* intf) {
 	GEthArpHdr query;
 	query.ethHdr_.dmac_ = GMac::broadcastMac();
 	query.ethHdr_.smac_ = intf->mac();
@@ -121,7 +121,7 @@ bool GAtm::sendQueries(GAtmScanDevice* device, GInterface* intf) {
 		GMac mac = it.value();
 		if (mac.isNull()) {
 			query.arpHdr_.tip_ = htonl(ip);
-			GPacket::Result res = device->write(queryBuf);
+			GPacket::Result res = write(queryBuf);
 			if (res != GPacket::Ok) {
 				return false;
 			}
@@ -133,9 +133,8 @@ bool GAtm::sendQueries(GAtmScanDevice* device, GInterface* intf) {
 // --------------------------------------------------------------------------
 // GAtm::SendThread
 // --------------------------------------------------------------------------
-GAtm::SendThread::SendThread(GAtm* resolve, GAtmScanDevice* device, GInterface* intf, GDuration timeout) {
-	atm_ = resolve;
-	device_ = device;
+GAtm::SendThread::SendThread(GAtm* atm, GInterface* intf, GDuration timeout) {
+	atm_ = atm;
 	intf_ = intf;
 	timeout_ = timeout;
 }
@@ -144,7 +143,7 @@ void GAtm::SendThread::run() {
 	QElapsedTimer timer; timer.start();
 	qint64 first = timer.elapsed();
 	while (true) {
-		if (!atm_->sendQueries(device_, intf_))
+		if (!atm_->sendQueries(intf_))
 			break;
 		bool res = we_.wait(1000);
 		if (res) break;
@@ -154,6 +153,8 @@ void GAtm::SendThread::run() {
 			break;
 		}
 	}
+	if (dynamic_cast<GSyncRemotePcapDevice*>(atm_) != nullptr)
+		atm_->close();
 }
 
 // ----------------------------------------------------------------------------

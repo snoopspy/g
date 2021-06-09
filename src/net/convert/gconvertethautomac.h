@@ -35,7 +35,6 @@ protected:
 protected:
 	GMac myMac_{GMac::nullMac()};
 	GIp myIp_{0};
-	GAtmScanDevice* device_{nullptr};
 	GEthPacket convertedEthPacket_;
 	gbyte convertedEthBuf_[GPacket::MaxBufSize];
 	GAtm atm_;
