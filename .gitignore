@@ -9,6 +9,7 @@ lib/libg_d/
 lib/libg_gui/
 lib/libg_gui_d/
 setup/linux-setup/
+android-build/
 *.stash
 *.a
 *.autosave
