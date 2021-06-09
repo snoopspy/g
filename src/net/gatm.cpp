@@ -35,7 +35,7 @@ bool GAtm::wait(GDuration timeout) {
 		return false;
 	}
 
-	SendThread thread(this, intf_, timeout);
+	SendThread thread(this, timeout);
 	thread.start();
 
 	bool succeed = false;
@@ -94,10 +94,10 @@ bool GAtm::wait(GDuration timeout) {
 	return succeed;
 }
 
-bool GAtm::sendQueries(GInterface* intf) {
+bool GAtm::sendQueries() {
 	GEthArpHdr query;
 	query.ethHdr_.dmac_ = GMac::broadcastMac();
-	query.ethHdr_.smac_ = intf->mac();
+	query.ethHdr_.smac_ = intf_->mac();
 	query.ethHdr_.type_ = htons(GEthHdr::Arp);
 
 	query.arpHdr_.hrd_ = htons(GArpHdr::ETHER);
@@ -105,8 +105,8 @@ bool GAtm::sendQueries(GInterface* intf) {
 	query.arpHdr_.hln_ = sizeof(GMac);
 	query.arpHdr_.pln_ = sizeof(GIp);
 	query.arpHdr_.op_ = htons(GArpHdr::Request);
-	query.arpHdr_.smac_ = intf->mac();
-	query.arpHdr_.sip_ = htonl(intf->ip());
+	query.arpHdr_.smac_ = intf_->mac();
+	query.arpHdr_.sip_ = htonl(intf_->ip());
 	query.arpHdr_.tmac_ = GMac::nullMac();
 	GBuf queryBuf(pbyte(&query), sizeof(query));
 
@@ -127,9 +127,8 @@ bool GAtm::sendQueries(GInterface* intf) {
 // --------------------------------------------------------------------------
 // GAtm::SendThread
 // --------------------------------------------------------------------------
-GAtm::SendThread::SendThread(GAtm* atm, GInterface* intf, GDuration timeout) {
+GAtm::SendThread::SendThread(GAtm* atm, GDuration timeout) {
 	atm_ = atm;
-	intf_ = intf;
 	timeout_ = timeout;
 }
 
@@ -137,7 +136,7 @@ void GAtm::SendThread::run() {
 	QElapsedTimer timer; timer.start();
 	qint64 first = timer.elapsed();
 	while (true) {
-		if (!atm_->sendQueries(intf_))
+		if (!atm_->sendQueries())
 			break;
 		bool res = we_.wait(1000);
 		if (res) break;
@@ -165,6 +164,7 @@ TEST(GAtm, resolveTest) {
 
 	QString intfName = device.intfName_;
 	ASSERT_NE(intfName, "");
+	device.close();
 
 	GInterface* intf = GNetInfo::instance().interfaceList().findByName(intfName);
 	ASSERT_TRUE(intf != nullptr);
@@ -172,9 +172,11 @@ TEST(GAtm, resolveTest) {
 	GIp ip = intf->gateway();
 	ASSERT_NE(ip, 0);
 
-	GAtm& atm = GAtm::instance(intfName);
+	GAtm atm;
+	atm.intfName_ = intfName;
+	EXPECT_TRUE(atm.open());
 	atm.insert(ip, GMac::nullMac());
-	EXPECT_TRUE(atm.wait(&device));
+	EXPECT_TRUE(atm.wait());
 
 	GMac mac = atm.find(ip).value();
 	qDebug() << QString("ip:%1 mac:%2").arg(QString(ip), QString(mac));

@@ -45,16 +45,15 @@ struct G_EXPORT GAtm : GAtmBaseDevice, GAtmMap {
 	bool wait(GDuration timeout = G::Timeout);
 
 protected:
-	bool sendQueries(GInterface* intf);
+	bool sendQueries();
 
 protected:
 	// --------------------------------------------------------------------------
 	// SendThread
 	// --------------------------------------------------------------------------
 	struct SendThread : QThread {
-		SendThread(GAtm* atm, GInterface* intf, GDuration timeout);
+		SendThread(GAtm* atm, GDuration timeout);
 		GAtm* atm_;
-		GInterface* intf_;
 		GDuration timeout_;
 		GWaitEvent we_;
 	protected:
