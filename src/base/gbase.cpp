@@ -1,7 +1,6 @@
 #include "gbase.h"
 #include <pcap.h>
 
-
 const char* G::version() {
 #ifdef _DEBUG
 	return "version "
