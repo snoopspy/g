@@ -112,8 +112,10 @@ public slots:
 	void actionLinkTriggered(bool);
 	void actionDeleteTriggered(bool);
 	void actionAboutTriggered(bool);
-
 	void factoryWidgetClicked(const QModelIndex&);
+
+protected:
+	static QRect getScreenRect();
 };
 
 #endif // QT_GUI_LIB

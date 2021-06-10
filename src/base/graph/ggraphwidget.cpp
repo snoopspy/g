@@ -136,6 +136,9 @@ void GGraphWidget::init() {
 
 	midSplitter_->setHandleWidth(midSplitter_->handleWidth() * 5);
 	midLeftSplitter_->setHandleWidth(midLeftSplitter_->handleWidth() * 5);
+	QRect rect = getScreenRect();
+	midSplitter_->setSizes(QList<int>{ rect.width() / 2, rect.width() / 2});
+	midLeftSplitter_->setSizes(QList<int>{ rect.height() / 2, rect.height() / 2});
 
 	factoryWidget_->setItemDelegate(new MyHeightItemDelegate(this));
 	factoryWidget_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -492,6 +495,30 @@ void GGraphWidget::actionAboutTriggered(bool) {
 void GGraphWidget::factoryWidgetClicked(const QModelIndex&) {
 	if (factoryWidget_->selectedItems().isEmpty()) return;
 	scene_->setMode(GGScene::InsertItem);
+}
+
+#include <QApplication>
+#include <QScreen>
+QRect GGraphWidget::getScreenRect() {
+	QGuiApplication* a = dynamic_cast<QGuiApplication*>(QApplication::instance());
+	if (a == nullptr) {
+		qCritical() << "application is nullptr";
+		return QRect();
+	}
+	if (a->screens().count() == 0) {
+		qCritical() << "screen count is zero";
+		return QRect();
+	}
+
+	QScreen* screen = *(a->screens().begin());
+	if (a == nullptr) {
+		qCritical() << "screen is nullptr";
+		return QRect();
+	}
+
+	QRect rect = screen->geometry();
+	return rect;
+	rect = screen->geometry();
 }
 
 #endif // QT_GUI_LIB
