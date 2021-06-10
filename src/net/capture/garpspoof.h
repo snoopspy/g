@@ -118,4 +118,7 @@ protected:
 	bool sendArpInfect(Flow* flow);
 	bool sendARPReciverAll();
 	bool sendArpRecover(Flow* flow);
+
+protected:
+	virtual void processArp(GPacket* packet); // for GAutoArpSpoof
 };

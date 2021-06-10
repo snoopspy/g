@@ -121,7 +121,6 @@ bool GArpSpoof::doClose() {
 		QThread::msleep(sendInterval_);
 	}
 
-	// GCapture::doClose(); // gilgil temp 2021.06.09
 	return GArpSpoofBaseDevice::doClose();
 }
 
@@ -140,6 +139,7 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 		switch (ethHdr->type()) {
 			case GEthHdr::Arp: {
 				GArpHdr* arpHdr = packet->arpHdr_;
+				processArp(packet);
 				Q_ASSERT(arpHdr != nullptr);
 				for (Flow& flow: flowList_) {
 					bool infect = false;
@@ -243,4 +243,8 @@ bool GArpSpoof::sendARPReciverAll() {
 bool GArpSpoof::sendArpRecover(Flow* flow) {
 	GPacket::Result res = write(GBuf(pbyte(&flow->recoverPacket_), sizeof(flow->recoverPacket_)));
 	return res == GPacket::Ok;
+}
+
+void GArpSpoof::processArp(GPacket* packet) {
+	(void)packet;
 }
