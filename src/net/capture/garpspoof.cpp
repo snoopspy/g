@@ -117,7 +117,7 @@ bool GArpSpoof::doClose() {
 	infectThread_.wait();
 
 	for (int i = 0; i < 5; i++) {
-		sendARPReciverAll();
+		sendARPRecoverAll();
 		QThread::msleep(sendInterval_);
 	}
 
@@ -218,6 +218,7 @@ void GArpSpoof::InfectThread::run() {
 }
 
 bool GArpSpoof::sendArpInfectAll() {
+	QMutexLocker(&flowList_.m_);
 	for (Flow& flow: flowList_) {
 		if (!sendArpInfect(&flow))
 			return false;
@@ -231,7 +232,8 @@ bool GArpSpoof::sendArpInfect(Flow* flow) {
 	return res == GPacket::Ok;
 }
 
-bool GArpSpoof::sendARPReciverAll() {
+bool GArpSpoof::sendARPRecoverAll() {
+	QMutexLocker(&flowList_.m_);
 	for (Flow& flow: flowList_) {
 		if (!sendArpRecover(&flow))
 			return false;

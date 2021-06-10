@@ -101,7 +101,10 @@ protected:
 		Flow(GIp senderIp, GMac senderMac, GIp targetIp, GMac targetMac);
 		void makePacket(GEthArpHdr* packet, GMac myMac, bool infect);
 	};
-	QList<Flow> flowList_; // for arp infect and recover
+	struct FlowList : QList<Flow> { // for arp infect and recover
+		QMutex m_;
+	};
+	FlowList flowList_;
 	typedef QMap<GFlow::IpFlowKey, Flow> FlowMap;
 	FlowMap flowMap_; // for relay
 
@@ -116,7 +119,7 @@ protected:
 
 	bool sendArpInfectAll();
 	bool sendArpInfect(Flow* flow);
-	bool sendARPReciverAll();
+	bool sendARPRecoverAll();
 	bool sendArpRecover(Flow* flow);
 
 protected:
