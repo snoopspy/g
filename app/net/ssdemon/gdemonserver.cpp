@@ -724,7 +724,7 @@ bool GDemonPcap::processPcapClose(pchar buf, int32_t size) {
 }
 
 bool GDemonPcap::processPcapWrite(pchar buf, int32_t size) {
-	GTRACE("");
+	// GTRACE("");
 
 	PcapWrite write;
 	int32_t decLen = write.decode(buf, size);
