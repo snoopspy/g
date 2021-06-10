@@ -26,10 +26,16 @@ struct G_EXPORT GVirtualPcapDevice : GPcapCapture {
 
 public:
 	QString intfName_{""};
-	int snapLen_{65536}; // 65536 bytes
+	int snapLen_{GPacket::MaxBufSize};
 	int flags_{1}; // PCAP_OPENFLAG_PROMISCUOUS
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	int readTimeout_{-1}; // -1 msec
 	int waitTimeout_{1}; // 1 msec
+#endif // Q_OS_LINUX
+#if defined(Q_OS_WIN) || defined(Q_OS_ANDROID)
+	int readTimeout_{1}; // 1 msec
+	int waitTimeout_{0}; // 0 msec
+#endif
 
 public:
 	Q_INVOKABLE GVirtualPcapDevice(QObject* parent = nullptr) : GPcapCapture(parent) {}

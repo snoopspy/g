@@ -23,7 +23,7 @@ struct G_EXPORT GPcapFileWrite : GPcapWrite {
 	Q_PROPERTY(bool resolveFileNameByTime MEMBER resolveFileNameByTime_)
 
 public:
-	int snapLen_{65536};
+	int snapLen_{GPacket::MaxBufSize};
 	QString fileName_{"pcap/yyMMdd-hhmmss-zzz.'pcap'"};
 	bool resolveFileNameByTime_{true};
 
