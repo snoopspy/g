@@ -4,11 +4,9 @@
 // GRemotePcapDevice
 // ----------------------------------------------------------------------------
 GRemotePcapDevice::GRemotePcapDevice(QObject* parent) : GVirtualPcapDevice(parent) {
-#ifdef Q_OS_ANDROID
 	GRtmEntry* entry = GRemoteNetInfo::instance(ip_, port_).rtm().getBestEntry(QString("8.8.8.8"));
 	if (entry != nullptr)
 		intfName_ = entry->intf()->name();
-#endif // Q_OS_ANDROID
 }
 
 GRemotePcapDevice::~GRemotePcapDevice() {
