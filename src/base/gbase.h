@@ -12,6 +12,8 @@
 
 #include <cstddef>
 
+extern __thread int _gilgil;
+
 typedef void *pvoid;
 typedef char *pchar;
 typedef unsigned char gbyte, *pbyte;
