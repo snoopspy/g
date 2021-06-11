@@ -5,8 +5,11 @@
 // ----------------------------------------------------------------------------
 GRemotePcapDeviceWrite::GRemotePcapDeviceWrite(QObject* parent) : GPcapDeviceWrite(parent) {
 	GRtmEntry* entry = GRemoteNetInfo::instance(ip_, port_).rtm().getBestEntry(QString("8.8.8.8"));
-	if (entry != nullptr)
-		intfName_ = entry->intf()->name();
+	if (entry != nullptr) {
+		GInterface* intf = entry->intf();
+		if (intf != nullptr)
+			intfName_ = intf->name();
+	}
 }
 
 GRemotePcapDeviceWrite::~GRemotePcapDeviceWrite() {
