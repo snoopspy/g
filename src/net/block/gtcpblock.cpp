@@ -70,7 +70,7 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 		tcpHdr->flags_ = GTcpHdr::Rst | GTcpHdr::Ack;
 		tcpHdr->win_ = 0;
 	} else {
-		tcpHdr->flags_ |= GTcpHdr::Fin | GTcpHdr::Ack | GTcpHdr::Psh;
+		tcpHdr->flags_ = GTcpHdr::Fin | GTcpHdr::Ack | GTcpHdr::Psh;
 	}
 	tcpHdr->off_rsvd_ = (sizeof(GTcpHdr) / 4) << 4;
 	tcpHdr->flags_ &= ~GTcpHdr::Syn;
@@ -90,9 +90,27 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 		std::swap(ipHdr->sip_, ipHdr->dip_);
 	}
 
+	//
 	// checksum
+	//
 	tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
 	ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
+
+	//
+	// Ethernet
+	//
+	if (packet->ethHdr_ != nullptr) {
+		GEthHdr* ethHdr = packet->ethHdr_;
+		Q_ASSERT(writer_->intf() != nullptr);
+		GMac myMac = writer_->intf()->mac();
+		if (direction == Backward) {
+			ethHdr->dmac_ = ethHdr->smac();
+			ethHdr->smac_ = myMac;
+		} else {
+			//ethHdr->dmac_ = ethHdr->dmac();
+			ethHdr->smac_ = myMac;
+		}
+	}
 
 	// buf size
 	size_t bufSize = 0;
@@ -100,6 +118,9 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	bufSize += sizeof(GIpHdr) + sizeof(GTcpHdr);
 	if (blockType == Fin) bufSize += msg.size();
 	packet->buf_.size_ = bufSize;
+
+	if (packet->ethHdr_ != nullptr)
+		qDebug() << QString(packet->ethHdr_->smac()) << QString(packet->ethHdr_->dmac());
 
 	// write
 	writer_->write(packet);
