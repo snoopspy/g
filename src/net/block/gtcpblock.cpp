@@ -99,9 +99,12 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	//
 	// Ethernet
 	//
+	GMac backupsMac, backupdMac;
 	if (packet->ethHdr_ != nullptr) {
 		GEthHdr* ethHdr = packet->ethHdr_;
 		Q_ASSERT(writer_->intf() != nullptr);
+		backupsMac = ethHdr->smac();
+		backupdMac = ethHdr->dmac();
 		GMac myMac = writer_->intf()->mac();
 		if (direction == Backward) {
 			ethHdr->dmac_ = ethHdr->smac();
@@ -119,12 +122,15 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	if (blockType == Fin) bufSize += msg.size();
 	packet->buf_.size_ = bufSize;
 
-	if (packet->ethHdr_ != nullptr)
-		qDebug() << QString(packet->ethHdr_->smac()) << QString(packet->ethHdr_->dmac());
-
 	// write
 	writer_->write(packet);
 	qDebug() << "block packet sent";
+
+	if (packet->ethHdr_ != nullptr) {
+		GEthHdr* ethHdr = packet->ethHdr_;
+		ethHdr->smac_ = backupsMac;
+		ethHdr->dmac_ = backupdMac;
+	}
 }
 
 void GTcpBlock::block(GPacket* packet) {
