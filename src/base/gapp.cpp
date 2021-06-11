@@ -77,8 +77,9 @@ void GApp::launchDemon() {
 
 		std::string error;
 		pid_ = GProcess::start(qPrintable(command), error);
+		qDebug() << "GProcess::start return" << pid_;
 		if (pid_ <= 0)
-		qDebug() << QString("GProcess::start(%1) return %2 error=%3").arg(command).arg(pid_).arg(error.data());
+			qWarning() << QString("GProcess::start(%1) return %2 error=%3").arg(command).arg(pid_).arg(error.data());
 	}
 }
 
