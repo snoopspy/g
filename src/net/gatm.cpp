@@ -146,8 +146,9 @@ void GAtm::SendThread::run() {
 			break;
 		}
 	}
-	if (dynamic_cast<GSyncRemotePcapDevice*>(atm_) != nullptr)
-		atm_->close();
+#ifdef Q_OS_ANDROID_GILGIL
+	atm_->demonClient_->pcapClose(); // awaken read(&packet) in wait function
+#endif // Q_OS_ANDROID_GILGIL
 }
 
 // ----------------------------------------------------------------------------
