@@ -151,8 +151,11 @@ void GObjList::load(QJsonArray ja) {
 	QList<GObj*>::iterator it = begin();
 	for (QJsonValue jv: ja) {
 		QJsonObject nodeJo = jv.toObject();
-		GObj* obj = *it++;
-		obj->propLoad(nodeJo);
+		if (it != end()) {
+			GObj* obj = *it++;
+			if (obj != nullptr)
+				obj->propLoad(nodeJo);
+		}
 	}
 }
 

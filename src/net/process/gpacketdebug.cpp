@@ -1,4 +1,4 @@
-#include "gpacketdebugger.h"
+#include "gpacketdebug.h"
 #include <iostream>
 
 QString dump(u_char* data, size_t size) {
@@ -33,9 +33,9 @@ QString dump(u_char* data, size_t size) {
 }
 
 // ----------------------------------------------------------------------------
-// GPacketDebugger
+// GPacketDebug
 // ----------------------------------------------------------------------------
-void GPacketDebugger::debug(GPacket* packet) {
+void GPacketDebug::debug(GPacket* packet) {
 	if (!enabled_) return;
 
 	QString msg;

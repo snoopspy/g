@@ -111,8 +111,8 @@ SOURCES += \
 	$${PWD}/../src/net/process/gclienthellosplit.cpp \
 	$${PWD}/../src/net/process/gcorrectchecksum.cpp \
 	$${PWD}/../src/net/process/gdnsprocessor.cpp \
-	$${PWD}/../src/net/process/gflowmgrdebugger.cpp \
-	$${PWD}/../src/net/process/gpacketdebugger.cpp \
+	$${PWD}/../src/net/process/gflowmgrdebug.cpp \
+	$${PWD}/../src/net/process/gpacketdebug.cpp \
 	$${PWD}/../src/net/write/gpcapdevicewrite.cpp \
 	$${PWD}/../src/net/write/gpcapfilewrite.cpp \
 	$${PWD}/../src/net/write/gpcapwrite.cpp \
@@ -234,8 +234,8 @@ HEADERS += \
 	$${PWD}/../src/net/process/gclienthellosplit.h \
 	$${PWD}/../src/net/process/gcorrectchecksum.h \
 	$${PWD}/../src/net/process/gdnsprocessor.h \
-	$${PWD}/../src/net/process/gflowmgrdebugger.h \
-	$${PWD}/../src/net/process/gpacketdebugger.h \
+	$${PWD}/../src/net/process/gflowmgrdebug.h \
+	$${PWD}/../src/net/process/gpacketdebug.h \
 	$${PWD}/../src/net/write/gpcapdevicewrite.h \
 	$${PWD}/../src/net/write/gpcapfilewrite.h \
 	$${PWD}/../src/net/write/gpcapwrite.h \

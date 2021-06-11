@@ -14,9 +14,9 @@
 #include "net/packet/gpacket.h"
 
 // ----------------------------------------------------------------------------
-// GPacketDebugger
+// GPacketDebug
 // ----------------------------------------------------------------------------
-struct G_EXPORT GPacketDebugger : GStateObj {
+struct G_EXPORT GPacketDebug : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(bool enabled MEMBER enabled_)
 
@@ -24,8 +24,8 @@ public:
 	bool enabled_{true};
 
 public:
-	Q_INVOKABLE GPacketDebugger(QObject* parent = nullptr) : GStateObj(parent) {}
-	~GPacketDebugger() override {}
+	Q_INVOKABLE GPacketDebug(QObject* parent = nullptr) : GStateObj(parent) {}
+	~GPacketDebug() override {}
 
 protected:
 	bool doOpen() override { return true; }

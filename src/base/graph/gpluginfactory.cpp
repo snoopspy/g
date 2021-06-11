@@ -204,22 +204,22 @@ void GPluginFactory::loadOther() {
 #include <GClientHelloSplit>
 #include <GCorrectChecksum>
 #include <GDnsProcessor>
-#include <GFlowMgrDebugger>
-#include <GPacketDebugger>
+#include <GFlowMgrDebug>
+#include <GPacketDebug>
 
 void GPluginFactory::loadProcess() {
 	qRegisterMetaType<GClientHelloSplit*>();
 	qRegisterMetaType<GCorrectChecksum*>();
 	qRegisterMetaType<GDnsProcessor*>();
-	qRegisterMetaType<GFlowMgrDebugger*>();
-	qRegisterMetaType<GPacketDebugger*>();
+	qRegisterMetaType<GFlowMgrDebug*>();
+	qRegisterMetaType<GPacketDebug*>();
 
 	ItemCategory* category = new ItemCategory("process");
 	category->items_.push_back(new ItemNode(GClientHelloSplit::staticMetaObject.className()));
 	category->items_.push_back(new ItemNode(GCorrectChecksum::staticMetaObject.className()));
 	category->items_.push_back(new ItemNode(GDnsProcessor::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GFlowMgrDebugger::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GPacketDebugger::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode(GFlowMgrDebug::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode(GPacketDebug::staticMetaObject.className()));
 
 	items_.push_back(category);
 }
