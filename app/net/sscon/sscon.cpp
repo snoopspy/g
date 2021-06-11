@@ -124,7 +124,6 @@ public slots:
 
 int main(int argc, char* argv[]) {
 	GApp a(argc, argv);
-	a.launchDemon();
 	GSsCon sc;
 	sc.prepareSignal();
 	return sc.exec(&a);

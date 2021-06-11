@@ -23,6 +23,8 @@ GApp::GApp(int &argc, char** argv) : QCoreApplication(argc, argv) {
 	qInfo() << appName << G::version();
 	qInfo() << "Copyright (c) Gilbert Lee All rights reserved";
 	qInfo() << G::pcap_lib_version();
+
+	launchDemon();
 }
 
 GApp::~GApp() {

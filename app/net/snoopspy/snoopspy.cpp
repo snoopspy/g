@@ -28,7 +28,6 @@ int exec(GApp* a, GGraph* graph, GPluginFactory* pluginFactory) {
 
 int main(int argc, char *argv[]) {
 	GApp a(argc, argv);
-	a.launchDemon();
 	GGraph graph;
 	MyFactory factory;
 	return exec(&a, &graph, &factory);
