@@ -17,6 +17,7 @@
 // GWrite
 // ----------------------------------------------------------------------------
 struct G_EXPORT GWrite : GStateObj {
+	Q_OBJECT
 
 public:
 	Q_INVOKABLE GWrite(QObject* parent = nullptr) : GStateObj(parent) {}
@@ -30,5 +31,8 @@ protected:
 public:
 	virtual GPacket::Result write(GBuf buf);
 	virtual GPacket::Result write(GPacket* packet);
+
+signals:
+	void written(GPacket* packet);
 };
 

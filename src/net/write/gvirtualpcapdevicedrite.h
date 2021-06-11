@@ -10,18 +10,26 @@
 
 #pragma once
 
-#include "gwrite.h"
+#include "gpcapwrite.h"
+#include "net/gnetinfo.h"
 
 // ----------------------------------------------------------------------------
-// GPcapWrite
+// GVirtualPcapDeviceWrite
 // ----------------------------------------------------------------------------
-struct G_EXPORT GPcapWrite : GWrite {
+struct G_EXPORT GVirtualPcapDeviceWrite : GPcapWrite {
 	Q_OBJECT
+	Q_PROPERTY(QString intfName MEMBER intfName_)
 
 public:
-	Q_INVOKABLE GPcapWrite(QObject* parent = nullptr) : GWrite(parent) {}
-	~GPcapWrite() override {}
+	QString intfName_{""};
+
+public:
+	Q_INVOKABLE GVirtualPcapDeviceWrite(QObject* parent = nullptr) : GPcapWrite(parent) {}
+	~GVirtualPcapDeviceWrite() override {}
+
+public:
+	GInterface* intf() { return intf_; }
 
 protected:
-	pcap_t* pcap_{nullptr};
+	GInterface* intf_{nullptr};
 };

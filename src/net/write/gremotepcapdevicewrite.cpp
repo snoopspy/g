@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 // GRemotePcapDeviceWrite
 // ----------------------------------------------------------------------------
-GRemotePcapDeviceWrite::GRemotePcapDeviceWrite(QObject* parent) : GPcapDeviceWrite(parent) {
+GRemotePcapDeviceWrite::GRemotePcapDeviceWrite(QObject* parent) : GVirtualPcapDeviceWrite(parent) {
 	GRtmEntry* entry = GRemoteNetInfo::instance(ip_, port_).rtm().getBestEntry(QString("8.8.8.8"));
 	if (entry != nullptr) {
 		GInterface* intf = entry->intf();

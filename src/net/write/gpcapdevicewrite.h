@@ -10,18 +10,13 @@
 
 #pragma once
 
-#include "gpcapwrite.h"
-#include "net/gnetinfo.h"
+#include "gvirtualpcapdevicedrite.h"
 
 // ----------------------------------------------------------------------------
 // GPcapDeviceWrite
 // ----------------------------------------------------------------------------
-struct G_EXPORT GPcapDeviceWrite : GPcapWrite {
+struct G_EXPORT GPcapDeviceWrite : GVirtualPcapDeviceWrite {
 	Q_OBJECT
-	Q_PROPERTY(QString intfName MEMBER intfName_)
-
-public:
-	QString intfName_{""};
 
 public:
 	Q_INVOKABLE GPcapDeviceWrite(QObject* parent = nullptr);
@@ -32,19 +27,10 @@ protected:
 	bool doClose() override;
 
 public:
-	GInterface* intf() { return intf_; }
-
-protected:
-	GInterface* intf_{nullptr};
-
-public:
 	GPacket::Result write(GBuf buf) override;
 
 public slots:
 	GPacket::Result write(GPacket* packet) override;
-
-signals:
-	void written(GPacket* packet);
 
 #ifdef QT_GUI_LIB
 public:

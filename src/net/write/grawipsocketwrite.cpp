@@ -60,5 +60,6 @@ GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
 		SET_ERR(GErr::FAIL, msg);
 		return GPacket::Fail;
 	}
+	emit written(packet);
 	return GPacket::Ok;
 }

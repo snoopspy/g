@@ -41,6 +41,9 @@ public:
 	Q_INVOKABLE GVirtualPcapDevice(QObject* parent = nullptr) : GPcapCapture(parent) {}
 	~GVirtualPcapDevice() override {}
 
+public:
+	GInterface* intf() { return intf_; }
+
 protected:
 	GInterface* intf_{nullptr};
 };

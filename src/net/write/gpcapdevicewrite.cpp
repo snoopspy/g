@@ -1,10 +1,9 @@
 #include "gpcapdevicewrite.h"
-#include "net/gnetinfo.h"
 
 // ----------------------------------------------------------------------------
 // GPcapDeviceWrite
 // ----------------------------------------------------------------------------
-GPcapDeviceWrite::GPcapDeviceWrite(QObject* parent) : GPcapWrite(parent) {
+GPcapDeviceWrite::GPcapDeviceWrite(QObject* parent) : GVirtualPcapDeviceWrite(parent) {
 	GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
 	if (entry != nullptr) {
 		GInterface* intf = entry->intf();

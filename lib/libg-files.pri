@@ -118,6 +118,7 @@ SOURCES += \
 	$${PWD}/../src/net/write/gpcapwrite.cpp \
 	$${PWD}/../src/net/write/grawipsocketwrite.cpp \
 	$${PWD}/../src/net/write/gremotepcapdevicewrite.cpp \
+	$${PWD}/../src/net/write/gvirtualpcapdevicedrite.cpp \
 	$${PWD}/../src/net/write/gwrite.cpp
 
 HEADERS += \
@@ -241,6 +242,7 @@ HEADERS += \
 	$${PWD}/../src/net/write/gpcapwrite.h \
 	$${PWD}/../src/net/write/grawipsocketwrite.h \
 	$${PWD}/../src/net/write/gremotepcapdevicewrite.h \
+	$${PWD}/../src/net/write/gvirtualpcapdevicedrite.h \
 	$${PWD}/../src/net/write/gwrite.h
 
 linux {
