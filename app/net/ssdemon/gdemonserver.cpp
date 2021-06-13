@@ -649,10 +649,11 @@ void GDemonPcap::run(int waitTimeout) {
 		const u_char* data;
 		int i = pcap_next_ex(pcap_, &pktHdr, &data);
 		switch (i) {
-			case -2:
-			case -1:
-				GTRACE("pcap_next_ex return %d", i);
+			case PCAP_ERROR:
+			case PCAP_ERROR_BREAK:
+				GTRACE("pcap_next_ex returnnnn %d", i);
 				active_ = false;
+				::close(session_->sd_); // disconnect connection
 				return;
 			case 0:
 				if (waitTimeout != 0)
