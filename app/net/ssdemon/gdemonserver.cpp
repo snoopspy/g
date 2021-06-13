@@ -651,13 +651,13 @@ void GDemonPcap::run(int waitTimeout) {
 		switch (i) {
 			case PCAP_ERROR:
 			case PCAP_ERROR_BREAK:
-				GTRACE("pcap_next_ex returnnnn %d", i);
+				GTRACE("pcap_next_ex return %d", i);
 				active_ = false;
 				::close(session_->sd_); // disconnect connection
 				return;
 			case 0:
 				if (waitTimeout != 0)
-					std::this_thread::sleep_for(std::chrono::microseconds(waitTimeout));
+					std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeout));
 				continue;
 			default:
 				break;

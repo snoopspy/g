@@ -83,7 +83,7 @@ void GCapture::run() {
 	PathType pt = pathType();
 	while (active()) {
 		GPacket::Result res = read(packet);
-		if (res == GPacket::Timeout) continue;
+		if (res == GPacket::None) continue;
 		if (res == GPacket::Eof || res == GPacket::Fail) break;
 		emit captured(packet);
 		if (pt == InPath) {

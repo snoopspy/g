@@ -128,7 +128,7 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 	while (true) {
 		GPacket::Result res = GArpSpoofBaseDevice::read(packet);
 		if (res == GPacket::Eof || res == GPacket::Fail) return res;
-		if (res == GPacket::Timeout) continue;
+		if (res == GPacket::None) continue;
 
 		GEthHdr* ethHdr = packet->ethHdr_;
 		Q_ASSERT(ethHdr != nullptr);

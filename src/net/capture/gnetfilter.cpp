@@ -156,7 +156,7 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 	} else {
 		if (errno == ENOBUFS) {
 			qWarning() << "losing packets!";
-			return GPacket::Timeout;
+			return GPacket::None;
 		}
 		qWarning() << "recv failed";
 		return GPacket::Fail;
@@ -164,7 +164,7 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 	if (ipPacket_ != nullptr)
 		return GPacket::Ok;
 	else
-		return GPacket::Timeout;
+		return GPacket::None;
 }
 
 GPacket::Result GNetFilter::write(GBuf buf) {

@@ -39,7 +39,16 @@ GPacket::Result GPcapCapture::read(GPacket* packet) {
 	if (state_ != Opened) return GPacket::Fail; // may be pcap_close called
 	GPacket::Result res;
 	switch (i) {
-		case -2: { // if EOF was reached reading from an offline capture
+		case PCAP_ERROR: { // if an error occurred
+			char* e = pcap_geterr(pcap_);
+			if (e != nullptr && strlen(e) > 0) {
+				QString msg = QString("pcap_next_ex return -1 error=%1").arg(e);
+				SET_ERR(GErr::READ_FAILED, msg);
+			}
+			res = GPacket::Eof;
+			break;
+		}
+		case PCAP_ERROR_BREAK: { // if EOF was reached reading from an offline capture
 			char* e = pcap_geterr(pcap_);
 			if (e != nullptr && strlen(e) > 0) {
 				QString msg = QString("pcap_next_ex return -2 error=%1").arg(e);
@@ -49,17 +58,8 @@ GPacket::Result GPcapCapture::read(GPacket* packet) {
 			break;
 
 		}
-		case -1: { // if an error occurred
-			char* e = pcap_geterr(pcap_);
-			if (e != nullptr && strlen(e) > 0) {
-				QString msg = QString("pcap_next_ex return -1 error=%1").arg(e);
-				SET_ERR(GErr::READ_FAILED, msg);
-			}
-			res = GPacket::Eof;
-			break;
-		}
 		case 0 : // if a timeout occured
-			res = GPacket::Timeout;
+			res = GPacket::None;
 			break;
 		default: // packet captured
 			packet->ts_ = pktHdr->ts;
