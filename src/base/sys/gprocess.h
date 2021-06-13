@@ -10,9 +10,6 @@
 
 #pragma once
 
-#include <csignal>
-#include <unistd.h>
-#include <wait.h>
 #include <string>
 #include <vector>
 

@@ -13,6 +13,7 @@ bool GProcess::execute(std::string command, std::string& error) {
 	return true;
 }
 
+#include <unistd.h> // for fork() and execvp()
 pid_t GProcess::start(std::string command, std::string& error) {
 	std::vector<std::string> arguments = splitCommand(command);
 	size_t count = arguments.size();
@@ -41,6 +42,7 @@ pid_t GProcess::start(std::string command, std::string& error) {
 	return pid;
 }
 
+#include <wait.h> // for waitpid
 bool GProcess::stop(pid_t pid, std::string& error) {
 	pid_t _pid = pid;
 	int killRes = kill(_pid, SIGTERM);
