@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 	char wd[BUFSIZ];
 	memset(wd, 0, BUFSIZ);
 	getcwd(wd, BUFSIZ);
-	GTRACE("ssdemon started argv[0]=%s getcwd=%s", argv[0], wd);
+	GTRACE("ssdemon started login=%s argv[0]=%s getcwd=%s", getlogin(), argv[0], wd);
 	runServer();
 	GTRACE("ssdemon terminated");
 }
