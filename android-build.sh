@@ -9,6 +9,7 @@ if true; then
 	cd app/net/ssdemon
 	make clean
 	make -j$(nproc)
+	$ANDROID_STRIP_DIR/strip ../../../bin/ssdemon
 	cd ../../..
 fi
 
