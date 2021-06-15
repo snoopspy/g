@@ -54,6 +54,7 @@ void GPluginFactory::loadBlock() {
 #include <GAutoArpSpoof>
 #include <GPcapDevice>
 #include <GPcapFile>
+#include <GPcapPipe>
 #include <GNetFilter>
 #include <GRemotePcapDevice>
 #include <GWinDivert>
@@ -66,6 +67,7 @@ void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GAutoArpSpoof*>();
 	qRegisterMetaType<GPcapDevice*>();
 	qRegisterMetaType<GPcapFile*>();
+	qRegisterMetaType<GPcapPipe*>();
 #ifdef Q_OS_LINUX
 	qRegisterMetaType<GNetFilter*>();
 #endif
@@ -82,6 +84,7 @@ void GPluginFactory::loadCapture() {
 	category->items_.push_back(new ItemNode(GAutoArpSpoof::staticMetaObject.className()));
 	category->items_.push_back(new ItemNode(GPcapDevice::staticMetaObject.className()));
 	category->items_.push_back(new ItemNode(GPcapFile::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode(GPcapPipe::staticMetaObject.className()));
 #ifdef Q_OS_LINUX
 	category->items_.push_back(new ItemNode(GNetFilter::staticMetaObject.className()));
 #endif
