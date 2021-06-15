@@ -23,7 +23,7 @@ struct G_EXPORT GPcapPipe : GCapture {
 	Q_PROPERTY(bool removeCr MEMBER removeCr_)
 
 public:
-	QString command_{"adb exec-out su -c \"corepcap dev wlan0 -filter '' file -\""};
+	QString command_{"adb exec-out su -c \"corepcap dev wlan0 file -\""};
 	int readTimeout_{100};
 	bool removeCr_{true};
 

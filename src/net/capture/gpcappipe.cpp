@@ -110,6 +110,7 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 		*p = removeCrLastBytes_;
 		p++;
 		remain--;
+		removeCrLastBytesBuffered_ = false;
 	}
 	while (true) {
 		if (process_->bytesAvailable() == 0) {
@@ -146,7 +147,7 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 				}
 				p++;
 			}
-			if (remain == 1 && recvLen == 1 && removeCr_) {
+			if (remain == recvLen && removeCr_) {
 				if (p[recvLen - 1] == 0x0d) {
 					if (process_->bytesAvailable() > 0) {
 						char c;
