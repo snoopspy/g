@@ -26,17 +26,19 @@ bool GRemoteCommand::cmdExecute(QString command) {
 	return true;
 }
 
-pid_t GRemoteCommand::cmdStart(QString command) {
+void* GRemoteCommand::cmdStart(QString command) {
 	GDemon::CmdStartRes res = demonClient_->cmdStart(qPrintable(command));
 	if (res.pid_ == 0) {
 		SET_ERR(GErr::FAIL, demonClient_->error_.data());
 		return 0;
 	}
-	return res.pid_;
+	return (void*)res.pid_;
 }
 
-bool GRemoteCommand::cmdStop(pid_t pid) {
-	GDemon::CmdStopRes res = demonClient_->cmdStop(pid);
+bool GRemoteCommand::cmdStop(void* pid) {
+	if (pid == 0) return true;
+	uint64_t _pid = (uint64_t)pid;
+	GDemon::CmdStopRes res = demonClient_->cmdStop(_pid);
 	if (!res.result_) {
 		SET_ERR(GErr::FAIL, demonClient_->error_.data());
 		return false;
@@ -44,11 +46,11 @@ bool GRemoteCommand::cmdStop(pid_t pid) {
 	return true;
 }
 
-bool GRemoteCommand::cmdStartDetached(QString command) {
+void* GRemoteCommand::cmdStartDetached(QString command) {
 	GDemon::CmdStartDetachedRes res = demonClient_->cmdStartDetached(qPrintable(command));
 	if (!res.result_) {
 		SET_ERR(GErr::FAIL, demonClient_->error_.data());
-		return false;
+		return (void*)-1;
 	}
-	return true;
+	return 0;
 }

@@ -45,7 +45,6 @@ SOURCES += \
 	$${PWD}/../src/base/prop/gpropitem-widget.cpp \
 	$${PWD}/../src/base/prop/gpropitem.cpp \
 	$${PWD}/../src/base/prop/gpropwidget.cpp \
-	$${PWD}/../src/base/sys/gprocess.cpp \
 	$${PWD}/../src/base/sys/gsignal.cpp \
 	$${PWD}/../src/base/sys/gthread.cpp \
 	$${PWD}/../src/base/sys/gwaitevent.cpp \
@@ -169,7 +168,6 @@ HEADERS += \
 	$${PWD}/../src/base/prop/gpropitem-widget.h \
 	$${PWD}/../src/base/prop/gpropitem.h \
 	$${PWD}/../src/base/prop/gpropwidget.h \
-	$${PWD}/../src/base/sys/gprocess.h \
 	$${PWD}/../src/base/sys/gsignal.h \
 	$${PWD}/../src/base/sys/gthread.h \
 	$${PWD}/../src/base/sys/gwaitevent.h \

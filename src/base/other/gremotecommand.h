@@ -37,7 +37,7 @@ protected:
 	GDemonClient* demonClient_{nullptr};
 
 	bool cmdExecute(QString command) override;
-	pid_t cmdStart(QString command) override;
-	bool cmdStop(pid_t pid) override;
-	bool cmdStartDetached(QString command) override;
+	void* cmdStart(QString command) override;
+	bool cmdStop(void* pid) override;
+	void* cmdStartDetached(QString command) override;
 };

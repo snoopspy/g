@@ -28,21 +28,23 @@ bool GCommand::doOpen() {
 		for (QString command: item->commands_) {
 			if (command == "") continue;
 			qDebug() << command;
+
+			void* pid = nullptr;
 			switch (item->commandType_) {
 				case GCommandItem::Execute: {
 					res = cmdExecute(command);
 					break;
 				}
 				case GCommandItem::StartStop: {
-					pid_t pid = cmdStart(command);
-					if (pid != 0)
-						item->processList_.push_back(pid);
-					else
-						res = false;
+					pid = cmdStart(command);
+					if (pid == (void*)-1) res = false;
+					else item->processList_.push_back(pid);
 					break;
 				}
 				case GCommandItem::StartDetach: {
-					res = cmdStartDetached(command);
+					pid = cmdStartDetached(command);
+					if (pid == (void*)-1) res = false;
+					else item->processList_.push_back(pid);
 					break;
 				}
 			}
@@ -50,29 +52,21 @@ bool GCommand::doOpen() {
 		}
 	}
 
+	if (!res) stopCommands();
 	return res;
 }
 
 bool GCommand::doClose() {
 	bool res = true;
 
-	for (GObj* obj: openCommands_) {
-		GCommandItem* item = PCommandItem(obj);
-		if (item->commandType_ == GCommandItem::StartStop) {
-			for (QList<pid_t>::iterator it = item->processList_.begin(); it != item->processList_.end();) {
-				pid_t  pid = *it;
-				if (!cmdStop(pid))
-					res = false;
-				it = item->processList_.erase(it);
-			}
-		}
-	}
+	stopCommands();
 
 	for (GObj* obj: closeCommands_) {
 		GCommandItem* item = PCommandItem(obj);
 		for (QString command: item->commands_) {
 			if (command == "") continue;
 			qDebug() << command;
+
 			switch (item->commandType_) {
 				case GCommandItem::Execute: {
 					res = cmdExecute(command);
@@ -85,7 +79,9 @@ bool GCommand::doClose() {
 					break;
 				}
 				case GCommandItem::StartDetach:{
-					res = cmdStartDetached(command);
+					QString msg = QString("Invalid commandType %1 for '%2'").arg(item->commandType_).arg(command);
+					SET_ERR(GErr::FAIL, msg);
+					res = false;
 					break;
 				}
 			}
@@ -96,35 +92,73 @@ bool GCommand::doClose() {
 	return res;
 }
 
+bool GCommand::split(QString command, QString& program, QStringList &arguments) {
+	arguments = QProcess::splitCommand(command);
+	if (arguments.count() == 0) {
+		SET_ERR(GErr::FAIL, "count is zero");
+		return false;
+	}
+	program = arguments.at(0);
+	arguments.removeAt(0);
+	return true;
+}
+
+bool GCommand::stopCommands() {
+	bool res = true;
+	for (GObj* obj: openCommands_) {
+		GCommandItem* item = PCommandItem(obj);
+		for (QList<void*>::iterator it = item->processList_.begin(); it != item->processList_.end();) {
+			void* pid = *it;
+			if (!cmdStop(pid))
+				res = false;
+			it = item->processList_.erase(it);
+		}
+	}
+	return res;
+}
+
 bool GCommand::cmdExecute(QString command) {
-	std::string error;
-	bool res = GProcess::execute(qPrintable(command), error);
-	if (!res)
-		SET_ERR(GErr::FAIL, QString(error.data()));
-	return res;
+	QString program;
+	QStringList arguments;
+	if (!split(command, program, arguments)) return false;
+	int res = QProcess::execute(program, arguments);
+	if (res != 0) {
+		SET_ERR(GErr::FAIL, QString("QProcess::execute(%1, %2) return %3").arg(program, arguments.join(' ')).arg(res));
+		return false;
+	}
+	return true;
 }
 
-
-pid_t GCommand::cmdStart(QString command) {
-	std::string error;
-	pid_t pid = GProcess::execute(qPrintable(command), error);
-	if (pid == 0)
-		SET_ERR(GErr::FAIL, QString(error.data()));
-	return pid;
+void* GCommand::cmdStart(QString command) {
+	QString program;
+	QStringList arguments;
+	if (!split(command, program, arguments)) return (void*)-1;
+	QProcess* process = new QProcess;
+	process->start(program, arguments);
+	return process;
 }
 
-bool GCommand::cmdStop(pid_t pid) {
-	std::string error;
-	bool res = GProcess::stop(pid, error);
-	if (!res)
-		SET_ERR(GErr::FAIL, QString(error.data()));
-	return res;
+bool GCommand::cmdStop(void* pid) {
+	if (pid == nullptr) return true;
+	QProcess* process = reinterpret_cast<QProcess*>(pid);
+	if (dynamic_cast<QProcess*>(process) == nullptr) {
+		SET_ERR(GErr::FAIL, QString("invalid process pointer(0x%1)").arg(QString::number(uintptr_t(pid), 16)));
+		return false;
+	}
+	delete process;
+	return true;
 }
 
-bool GCommand::cmdStartDetached(QString command) {
-	std::string error;
-	bool res = GProcess::startDetached(qPrintable(command), error);
-	if (!res)
-		SET_ERR(GErr::FAIL, QString(error.data()));
-	return res;
+void* GCommand::cmdStartDetached(QString command) {
+	QString program;
+	QStringList arguments;
+	if (!split(command, program, arguments)) return (void*)-1;
+	QProcess* process = new QProcess;
+	bool res = process->startDetached(program, arguments);
+	if (!res) {
+		SET_ERR(GErr::FAIL, process->errorString());
+		delete process;
+		return (void*)-1;
+	}
+	return process;
 }

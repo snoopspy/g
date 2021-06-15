@@ -16,6 +16,7 @@
 #include <QCoreApplication>
 #endif // QT_GUI_LIB
 #include <QFile>
+#include <QProcess>
 #include "base/gbase.h"
 
 // ----------------------------------------------------------------------------
@@ -31,7 +32,7 @@ public:
 	GApp(int &argc, char** argv);
 	~GApp() override;
 
-	pid_t pid_{0};
+	QProcess demon_;
 
 	static void initLogger();
 	void launchDemon();
