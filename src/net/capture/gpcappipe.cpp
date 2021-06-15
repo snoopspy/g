@@ -52,7 +52,9 @@ bool GPcapPipe::doOpen() {
 	int dataLink =hdr.network;
 	dlt_ = GPacket::intToDlt(dataLink);
 
-	return GCapture::doOpen();
+	bool res = GCapture::doOpen();
+	process_->moveToThread(&thread_);
+	return res;
 }
 
 bool GPcapPipe::doClose() {
@@ -134,18 +136,19 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 		}
 
 		if (removeCr_) {
-			char* end = p + recvLen - 1;
-			while (p < end) {
-				uint16_t two = *reinterpret_cast<uint16_t*>(p);
+			char* begin = p;
+			char* end = begin + recvLen - 1;
+			while (begin < end) {
+				uint16_t two = *reinterpret_cast<uint16_t*>(begin);
 				if (ntohs(two) == 0x0d0a) { // \r\n
-					char* shift = p;
+					char* shift = begin;
 					while (shift < end) {
 						*shift = *(shift + 1);
 						shift++;
 					}
 					recvLen--;
 				}
-				p++;
+				begin++;
 			}
 			if (remain == recvLen && removeCr_) {
 				if (p[recvLen - 1] == 0x0d) {
@@ -164,6 +167,7 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 				}
 			}
 		}
+		p += recvLen;
 		remain -= recvLen;
 		Q_ASSERT(remain >= 0);
 		if (remain == 0) break;
