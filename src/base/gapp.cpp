@@ -66,12 +66,14 @@ void GApp::launchDemon() {
 	QString ssdemonFile = "ssdemon";
 	if (QFile::exists(ssdemonFile)) {
 #ifdef Q_OS_ANDROID
+		QString path = QDir::currentPath();
 		QString program = "su";
-		QStringList arguments{"-c", QString("cd %1; export LD_LIBRARY_PATH=%2; ./%3").arg(QDir::currentPath(), QDir::currentPath() + "/../lib", ssdemonFile)};
+		QStringList arguments{"-c", QString("cd %1; export LD_LIBRARY_PATH=%2; ./%3").arg(path, path + "/../lib", ssdemonFile)};
 		demon_.start(program, arguments);
 #else // Q_OS_ANDROID
+		QString path = QDir::currentPath();
 		QString program = "su";
-		QStringList arguments{"-c", QString("cd %1; ./%2").arg(QDir::currentPath(), ssdemonFile)};
+		QStringList arguments{"-c", QString("cd %1; ./%2").arg(path, ssdemonFile)};
 		demon_.start(program, arguments);
 #endif // Q_OS_ANDROID
 	}
