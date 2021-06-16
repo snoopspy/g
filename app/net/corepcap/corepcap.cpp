@@ -57,20 +57,6 @@ void prepareSignal() {
 	std::signal(SIGSYS, signalHandler);
 	std::signal(SIGPIPE, SIG_IGN); // Ignore SIGPIPE which can be signaled when TCP socket operation on linux
 	std::signal(SIGALRM, signalHandler);
-	std::signal(SIGURG, signalHandler);
-	std::signal(SIGSTOP, signalHandler);
-	std::signal(SIGTSTP, signalHandler);
-	std::signal(SIGCONT, signalHandler);
-	std::signal(SIGCHLD, signalHandler);
-	std::signal(SIGTTIN, signalHandler);
-	std::signal(SIGTTOU, signalHandler);
-	std::signal(SIGPOLL, signalHandler);
-	std::signal(SIGXCPU, signalHandler);
-	std::signal(SIGXFSZ, signalHandler);
-	std::signal(SIGVTALRM, signalHandler);
-	std::signal(SIGPROF, signalHandler);
-	std::signal(SIGUSR1, signalHandler);
-	std::signal(SIGUSR2, signalHandler);
 }
 
 int main(int argc, char* argv[]) {
