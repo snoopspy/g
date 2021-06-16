@@ -65,12 +65,12 @@ void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GAsyncNetFilter*>();
 #endif
 	qRegisterMetaType<GAutoArpSpoof*>();
-	qRegisterMetaType<GPcapDevice*>();
-	qRegisterMetaType<GPcapFile*>();
-	qRegisterMetaType<GPcapPipe*>();
 #ifdef Q_OS_LINUX
 	qRegisterMetaType<GNetFilter*>();
 #endif
+	qRegisterMetaType<GPcapDevice*>();
+	qRegisterMetaType<GPcapFile*>();
+	qRegisterMetaType<GPcapPipe*>();
 	qRegisterMetaType<GRemotePcapDevice*>();
 #ifdef Q_OS_WIN
 	qRegisterMetaType<GWinDivert*>();
@@ -82,12 +82,12 @@ void GPluginFactory::loadCapture() {
 	category->items_.push_back(new ItemNode(GAsyncNetFilter::staticMetaObject.className()));
 #endif
 	category->items_.push_back(new ItemNode(GAutoArpSpoof::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GPcapDevice::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GPcapFile::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GPcapPipe::staticMetaObject.className()));
 #ifdef Q_OS_LINUX
 	category->items_.push_back(new ItemNode(GNetFilter::staticMetaObject.className()));
 #endif
+	category->items_.push_back(new ItemNode(GPcapDevice::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode(GPcapFile::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode(GPcapPipe::staticMetaObject.className()));
 	category->items_.push_back(new ItemNode(GRemotePcapDevice::staticMetaObject.className()));
 #ifdef Q_OS_WIN
 	category->items_.push_back(new ItemNode(GWinDivert::staticMetaObject.className()));
