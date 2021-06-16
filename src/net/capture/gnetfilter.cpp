@@ -153,7 +153,7 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 		if (++count != 1)
 			qWarning() << "count is" << count;
 		#endif // _DEBUG
-		int res = nfq_handle_packet(h_, pchar(recvBuf_), res); // gilgil temp 2021.06.17
+		nfq_handle_packet(h_, pchar(recvBuf_), res);
 	} else {
 		if (errno == ENOBUFS) {
 			qWarning() << "losing packets!";
