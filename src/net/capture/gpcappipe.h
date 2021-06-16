@@ -44,10 +44,10 @@ public:
 	PathType pathType() override { return OutOfPath; }
 
 protected:
+	bool removeCrLastBytesBuffered_;
+	char removeCrLastBytes_;
 	GPacket::Dlt dlt_{GPacket::Null};
 	QProcess* process_{nullptr};
 	gbyte recvBuf_[GPacket::MaxBufSize];
-	bool removeCrLastBytesBuffered_{false};
-	char removeCrLastBytes_{0};
 	qint64 recvAll(char *data, size_t size);
 };

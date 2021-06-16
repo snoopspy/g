@@ -56,6 +56,10 @@ bool GPcapPipe::doOpen() {
 
 	bool res = GCapture::doOpen();
 	process_->moveToThread(&thread_);
+
+	removeCrLastBytesBuffered_ = false;
+	removeCrLastBytes_ = 0;
+
 	return res;
 }
 
@@ -110,7 +114,13 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 	char* p = data;
 	qint64 remain = size;
 
+	bool debug = false; // gilgil temp
 	while (true) {
+		if (state_ != Opening && state_ != Opened) {
+			SET_ERR(GErr::FAIL, QString("states is %1").arg(int(state_)));
+			return -1;
+		}
+
 		if (removeCr_ && removeCrLastBytesBuffered_) {
 			*p = removeCrLastBytes_;
 			p++;
@@ -118,21 +128,22 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 			removeCrLastBytesBuffered_ = false;
 		}
 
-		if (process_->bytesAvailable() == 0) {
+		qint64 available = process_->bytesAvailable();
+		if (debug) qDebug() << QString("bytesAvailable return %1 size=%2 remain=%3").arg(available).arg(size).arg(remain);
+		if (available < qint64(remain)) {
 			bool ready = process_->waitForReadyRead(readTimeout_);
-			if (!ready) {
-				if (state_ != Opening && state_ != Opened) {
-					SET_ERR(GErr::FAIL, QString("states is %1").arg(int(state_)));
-					return -1;
-				}
+			if (debug) qDebug() << QString("waitForReadyRead(%1) return %2 size=%3 remain=%4").arg(readTimeout_).arg(ready).arg(size).arg(remain);
+			if (!ready)
 				continue;
-			}
 		}
 
 		qint64 recvLen = process_->read(p, remain);
+		if (debug) qDebug() << QString("read return %1 size=%2 remain=%3").arg(recvLen).arg(size).arg(remain);
 		if (recvLen == 0) {
-			SET_ERR(GErr::FAIL, "process_->read return zero");
-			return -1;
+			qWarning() << "process_->read return zero";
+			QThread::sleep(1); // gilgil temp 2021.06.17
+			debug = true;
+			continue;
 		}
 		if (recvLen == -1) {
 			SET_ERR(GErr::FAIL, QString("process_->read return %1").arg(recvLen));
