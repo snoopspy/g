@@ -92,7 +92,12 @@ GPacket::Result GPcapPipe::read(GPacket* packet) {
 	if (recvLen != sizeof(pktHdr))
 		return GPacket::Fail;
 
+	Q_ASSERT(pktHdr.incl_len == pktHdr.orig_len); // gilgil temp 2021.06.17
 	qint64 len = pktHdr.incl_len;
+	if (int(len) > bufSize_) {
+		qWarning() << QString("len(%1) > bufSize_(%2)").arg(len).arg(bufSize_);
+		return GPacket::None;
+	}
 	recvLen = recvAll(pchar(recvBuf_), len);
 	if (recvLen != len)
 		return GPacket::Fail;
