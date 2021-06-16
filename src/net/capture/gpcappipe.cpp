@@ -21,6 +21,8 @@ struct packet_hdr_t {
 // GPcapPipe
 // ----------------------------------------------------------------------------
 GPcapPipe::GPcapPipe(QObject* parent) : GCapture(parent) {
+	QString path = "/data/data/net.gilgil.snoopspy/files";
+	command_ = QString("adb exec-out su -c \"cd %1; export LD_LIBRARY_PATH=%2/../lib; ./corepcap dev wlan0 -f '' file -\"").arg(path, path);
 }
 
 GPcapPipe::~GPcapPipe() {
