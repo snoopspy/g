@@ -38,6 +38,8 @@ void signalHandler(int signo) {
 	}
 	char* msg = strsignal(signo);
 	GTRACE("signo=%s(%d) %s", signal, signo, msg);
+	if (signo == SIGSEGV)
+		exit(-1);
 	if (cp.active())
 		cp.close();
 }
