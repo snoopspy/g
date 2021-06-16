@@ -59,6 +59,7 @@ void GApp::initLogger() {
 
 void GApp::launchDemon() {
 #ifdef Q_OS_ANDROID
+	copyFileFromAssets("corepcap", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 	copyFileFromAssets("ssdemon", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 #endif // Q_OS_ANDROID
 

@@ -3,17 +3,6 @@ export QMAKE_OPTION="-spec android-clang CONFIG+=release ANDROID_ABIS=armeabi-v7
 export MAKEDIR=$ANDROID_NDK_ROOT/prebuilt/linux-x86_64/bin
 
 #
-# ssdemon
-#
-if true; then
-	cd app/net/ssdemon
-	make clean
-	make -j$(nproc)
-	$ANDROID_STRIP_DIR/strip ../../../bin/ssdemon
-	cd ../../..
-fi
-
-#
 # corepcap
 #
 if true; then
@@ -21,6 +10,17 @@ if true; then
 	make clean
 	make -j$(nproc)
 	$ANDROID_STRIP_DIR/strip ../../../bin/corepcap
+	cd ../../..
+fi
+
+#
+# ssdemon
+#
+if true; then
+	cd app/net/ssdemon
+	make clean
+	make -j$(nproc)
+	$ANDROID_STRIP_DIR/strip ../../../bin/ssdemon
 	cd ../../..
 fi
 
