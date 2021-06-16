@@ -4,12 +4,11 @@
 __thread int _gilgil;
 
 const char* G::version() {
+	return
 #ifdef _DEBUG
-	return "version "
 #include "../../version.txt"
 	" Debug Build(" __DATE__ " " __TIME__ ")";
 #else // RELEASE
-	return "version "
 #include "../../version.txt"
 	" Release Build(" __DATE__ " " __TIME__ ")";
 #endif // _DEBUG

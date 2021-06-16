@@ -34,7 +34,7 @@ GApp::~GApp() {
 #endif // Q_OS_ANDROID
 
 	QString appName = QCoreApplication::applicationName();
-	qInfo() << appName << "terminated";
+	qInfo() << appName << "terminated successfully";
 }
 
 void GApp::initLogger() {

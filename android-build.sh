@@ -14,6 +14,17 @@ if true; then
 fi
 
 #
+# corepcap
+#
+if true; then
+	cd app/net/corepcap
+	make clean
+	make -j$(nproc)
+	$ANDROID_STRIP_DIR/strip ../../../bin/corepcap
+	cd ../../..
+fi
+
+#
 # lib
 #
 if true; then

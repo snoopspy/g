@@ -1,32 +1,8 @@
 #include <csignal>
-#include <cstring>
-#include <iostream>
 #include <unistd.h>
-#include "gdemonserver.h"
-#include "gtrace.h"
+#include "cpcorepcap.h"
 
-using namespace std;
-
-GDemonServer server;
-
-struct Param {
-	uint16_t port_{GDemon::DefaultPort};
-
-	bool parse(int argc, char* argv[]) {
-		if (argc == 2)
-			port_ = stoi(argv[1]);
-		if (argc > 2) {
-			usage();
-			return false;
-		}
-		return true;
-	}
-
-	void usage() {
-		cerr << "syntax: ssdemon [<port>]\n";
-		cerr << "sample: ssdemon 8908\n";
-	}
-} param;
+LCorePcap cp;
 
 void signalHandler(int signo) {
 	const char* signal = "unknown";
@@ -62,7 +38,8 @@ void signalHandler(int signo) {
 	}
 	char* msg = strsignal(signo);
 	GTRACE("signo=%s(%d) %s", signal, signo, msg);
-	server.stop();
+	if (cp.active())
+		cp.close();
 }
 
 void prepareSignal() {
@@ -96,22 +73,13 @@ void prepareSignal() {
 	std::signal(SIGUSR2, signalHandler);
 }
 
-
-void runServer() {
-	if (!server.start(param.port_)) {
-		return;
-	}
-	server.exec();
-	server.stop();
-	server.wait();
-}
-
 int main(int argc, char* argv[]) {
 	gtrace_default("127.0.0.1", 8908, false, nullptr);
 
 	prepareSignal();
 
-	if (!param.parse(argc, argv)) {
+	if (!cp.parse(argc, argv)) {
+		fprintf(stderr, "%s\n", cp.error_.c_str());
 		return -1;
 	}
 
@@ -121,9 +89,13 @@ int main(int argc, char* argv[]) {
 	const char* version =
 #include "../../../version.txt"
 	;
-	GTRACE("ssdemon %s started login=%s argv[0]=%s getcwd=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
+	GTRACE("corepcap %s started login=%s argv[0]=%s getcwd=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
 
-	runServer();
+	if (!cp.open())
+		return -1;
+	cp.run();
+	if (cp.active())
+		cp.close();
 
-	GTRACE("ssdemon terminated successfully");
+	GTRACE("corepcap terminated successfully");
 }

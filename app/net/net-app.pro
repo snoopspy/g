@@ -1,5 +1,6 @@
 TEMPLATE = subdirs
 SUBDIRS += \
+	corepcap \
 	netclient \
 	netinfo \
 	netserver \
