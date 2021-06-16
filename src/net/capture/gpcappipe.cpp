@@ -22,7 +22,7 @@ struct packet_hdr_t {
 // ----------------------------------------------------------------------------
 GPcapPipe::GPcapPipe(QObject* parent) : GCapture(parent) {
 	QString path = "/data/data/net.gilgil.snoopspy/files";
-	command_ = QString("adb exec-out su -c \"cd %1; export LD_LIBRARY_PATH=%2/../lib; ./corepcap dev wlan0 -f '' file -\"").arg(path, path);
+	command_ = QString("adb exec-out su -c \"cd %1; export LD_LIBRARY_PATH=%2/../lib; export LD_PRELOAD=libfakeioctl.so;./corepcap dev wlan0 -f '' file -\"").arg(path, path);
 }
 
 GPcapPipe::~GPcapPipe() {
@@ -110,13 +110,14 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 	char* p = data;
 	qint64 remain = size;
 
-	if (removeCr_ && removeCrLastBytesBuffered_) {
-		*p = removeCrLastBytes_;
-		p++;
-		remain--;
-		removeCrLastBytesBuffered_ = false;
-	}
 	while (true) {
+		if (removeCr_ && removeCrLastBytesBuffered_) {
+			*p = removeCrLastBytes_;
+			p++;
+			remain--;
+			removeCrLastBytesBuffered_ = false;
+		}
+
 		if (process_->bytesAvailable() == 0) {
 			bool ready = process_->waitForReadyRead(readTimeout_);
 			if (!ready) {
@@ -127,6 +128,7 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 				continue;
 			}
 		}
+
 		qint64 recvLen = process_->read(p, remain);
 		if (recvLen == 0) {
 			SET_ERR(GErr::FAIL, "process_->read return zero");
@@ -152,18 +154,16 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 				}
 				begin++;
 			}
-			if (remain == recvLen && removeCr_) {
-				if (p[recvLen - 1] == 0x0d) {
-					if (process_->bytesAvailable() > 0) {
-						char c;
-						if (process_->read(&c, 1) == 1) {
-							if (c == 0x0a) {
-								p[recvLen - 1] = 0x0a;
-								removeCrLastBytesBuffered_ = false;
-							} else {
-								removeCrLastBytesBuffered_ = true;
-								removeCrLastBytes_ = c;
-							}
+			if (p[recvLen - 1] == 0x0d) {
+				if (process_->bytesAvailable() > 0) {
+					char c;
+					if (process_->read(&c, 1) == 1) {
+						if (c == 0x0a) {
+							p[recvLen - 1] = 0x0a;
+							removeCrLastBytesBuffered_ = false;
+						} else {
+							removeCrLastBytesBuffered_ = true;
+							removeCrLastBytes_ = c;
 						}
 					}
 				}
