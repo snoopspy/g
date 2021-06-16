@@ -30,12 +30,21 @@ bool GConvertEthAutoMac::doOpen() {
 		return false;
 	}
 
+	Q_ASSERT(convertedEthBuf_ == nullptr);
+	convertedEthBuf_ = new gbyte[bufSize_];
+
 	return true;
 }
 
 bool GConvertEthAutoMac::doClose() {
 	bool res = GPcapDeviceWrite::doClose();
 	atm_.close();
+
+	if (convertedEthBuf_ != nullptr) {
+		delete[] convertedEthBuf_;
+		convertedEthBuf_ = nullptr;
+	}
+
 	return res;
 }
 
@@ -79,6 +88,10 @@ void GConvertEthAutoMac::convert(GPacket* packet) {
 			ethHdr->type_ = htons(type_);
 
 			size_t copyLen = packet->buf_.size_;
+			if ((int)copyLen > bufSize_) {
+				qWarning() << QString("copyLen(%1) > bufSize_(%2)").arg(copyLen).arg(bufSize_);
+				return;
+			}
 			memcpy(convertedEthBuf_ + sizeof(GEthHdr), packet->buf_.data_, copyLen);
 			convertedEthPacket_.copyFrom(packet, GBuf(convertedEthBuf_, sizeof(GEthHdr) + copyLen));
 			emit converted(&convertedEthPacket_);

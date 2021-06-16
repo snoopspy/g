@@ -27,6 +27,7 @@ struct G_EXPORT GTcpBlock : GStateObj {
 	Q_PROPERTY(bool backwardRst MEMBER backwardRst_)
 	Q_PROPERTY(bool backwardFin MEMBER backwardFin_)
 	Q_PROPERTY(QStringList backwardFinMsg MEMBER backwardFinMsg_)
+	Q_PROPERTY(int bufSize MEMBER bufSize_)
 	Q_PROPERTY(GObjPtr writer READ getWriter WRITE setWriter)
 
 public:
@@ -43,6 +44,7 @@ public:
 	QStringList forwardFinMsg_;
 	bool backwardRst_{true};
 	bool backwardFin_{false};
+	int bufSize_{GPacket::MaxBufSize};
 	QStringList backwardFinMsg_;
 
 public:
@@ -59,7 +61,7 @@ protected:
 
 	GEthPacket blockEthPacket_;
 	GIpPacket blockIpPacket_;
-	gbyte blockBuf_[GPacket::MaxBufSize];
+	gbyte* blockBuf_{nullptr};
 
 	enum Direction {
 		Forward,

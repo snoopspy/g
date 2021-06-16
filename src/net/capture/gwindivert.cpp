@@ -129,6 +129,9 @@ bool GWinDivert::doOpen() {
 		return false;
 	}
 
+	Q_ASSERT(pktBuf_ == nullptr);
+	pktBuf_ = new gbyte[bufSize_];
+
 	return GCapture::doOpen();
 }
 
@@ -148,6 +151,11 @@ bool GWinDivert::doClose() {
 	}
 	handle_ = nullptr;
 
+	if (pktBuf_ != nullptr) {
+		delete[] pktBuf_;
+		pktBuf_ = nullptr;
+	}
+
 	return GCapture::doClose();
 }
 
@@ -157,16 +165,22 @@ GPacket::Result GWinDivert::read(GPacket* packet) {
 
 	packet->clear();
 	UINT recvLen;
-	BOOL res = lib.WinDivertRecv(handle_, pktData_, GPacket::MaxBufSize, &recvLen, &windivertAddress_);
+	BOOL res = lib.WinDivertRecv(handle_, pktBuf_, GPacket::MaxBufSize, &recvLen, &windivertAddress_);
 	if (!res) {
 		DWORD lastError = GetLastError();
 		QString msg = QString("WinDivertRecv return FALSE last error=%1(0x%2)").arg(lastError).arg(QString::number(lastError, 16));
 		SET_ERR(GErr::FAIL, msg);
 		return GPacket::Fail;
 	}
-	packet->buf_.data_ = pktData_;
+	packet->buf_.data_ = pktBuf_;
 	packet->buf_.size_ = size_t(recvLen);
+	if (int(recvLen) > bufSize_) {
+		qWarning() << QString("copyLen(%1) > bufSize_(%2)").arg(copyLen).arg(bufSize_);
+		return;
+	}
+
 	if (autoParse_) packet->parse();
+
 	if (correctIpChecksum_) {
 		GIpHdr* ipHdr = packet->ipHdr_;
 		if (ipHdr != nullptr) {

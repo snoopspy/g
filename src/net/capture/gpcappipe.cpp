@@ -57,6 +57,9 @@ bool GPcapPipe::doOpen() {
 	bool res = GCapture::doOpen();
 	process_->moveToThread(&thread_);
 
+	Q_ASSERT(recvBuf_ == nullptr);
+	recvBuf_ = new gbyte[bufSize_];
+
 	removeCrLastBytesBuffered_ = false;
 	removeCrLastBytes_ = 0;
 
@@ -73,6 +76,11 @@ bool GPcapPipe::doClose() {
 		process_->waitForFinished();
 		delete process_;
 		process_ = nullptr;
+	}
+
+	if (recvBuf_ != nullptr) {
+		delete[] recvBuf_;
+		recvBuf_ = nullptr;
 	}
 
 	return false; // gilgil temp

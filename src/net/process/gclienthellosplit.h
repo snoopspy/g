@@ -19,10 +19,10 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GClientHelloSplit : GStateObj, GTcpFlowMgr::Managable {
 	Q_OBJECT
+	Q_PROPERTY(int bufSize MEMBER bufSize_)
 	Q_PROPERTY(GObjPtr tcpFlowMgr READ getTcpFlowMgr WRITE setTcpFlowMgr)
 	Q_PROPERTY(GObjPtr write READ getWrite WRITE setWrite)
 
-public:
 	GObjPtr getTcpFlowMgr() { return tcpFlowMgr_; }
 	void setTcpFlowMgr(GObjPtr value) { tcpFlowMgr_ = dynamic_cast<GTcpFlowMgr*>(value.data()); }
 	GObjPtr getWrite() { return write_; }
@@ -31,6 +31,7 @@ public:
 public:
 	GWrite* write_;
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
+	int bufSize_{GPacket::MaxBufSize};
 
 	// --------------------------------------------------------------------------
 	// FlowItem
@@ -51,7 +52,7 @@ protected:
 
 protected:
 	size_t tcpFlowOffset_{0};
-	gbyte splittedTcpData_[GPacket::MaxBufSize];
+	gbyte* splittedTcpDataBuf_{nullptr};
 
 public:
 	// GTcpFlowMgr::Managable

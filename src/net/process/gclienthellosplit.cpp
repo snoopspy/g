@@ -16,10 +16,17 @@ bool GClientHelloSplit::doOpen() {
 		return false;
 	}
 
+	Q_ASSERT(splittedTcpDataBuf_ == nullptr);
+	splittedTcpDataBuf_ = new gbyte[bufSize_];
+
 	return true;
 }
 
 bool GClientHelloSplit::doClose() {
+	if (splittedTcpDataBuf_ != nullptr) {
+		delete[] splittedTcpDataBuf_;
+		splittedTcpDataBuf_ = nullptr;
+	}
 	return true;
 }
 
@@ -68,8 +75,11 @@ void GClientHelloSplit::split(GPacket* packet) {
 	size_t firstDataSize = 16;
 	size_t secondDataSize = orgDataSize - firstDataSize;
 
-	Q_ASSERT(tcpData.size_ < GPacket::MaxBufSize);
-	memcpy(splittedTcpData_, tcpData.data_, tcpData.size_);
+	if (int(tcpData.size_) > bufSize_) {
+		qWarning() << QString("tcpData.size_(%1) > bufSize_(%2").arg(tcpData.size_).arg(bufSize_);
+		return;
+	}
+	memcpy(splittedTcpDataBuf_, tcpData.data_, tcpData.size_);
 
 	{
 		//
@@ -96,7 +106,7 @@ void GClientHelloSplit::split(GPacket* packet) {
 		uint16_t newIpHdrLen = ipHdr->hl() * 4 + tcpHdr->off() * 4 + uint16_t(secondDataSize);
 		ssize_t ipHdrLenDiff = newIpHdrLen - oldIpHdrLen;
 		ipHdr->len_ = htons(newIpHdrLen);
-		memcpy(tcpData.data_, splittedTcpData_ + firstDataSize, secondDataSize);
+		memcpy(tcpData.data_, splittedTcpDataBuf_ + firstDataSize, secondDataSize);
 		tcpHdr->seq_ = htonl(tcpHdr->seq() + 16);
 		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
 		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));

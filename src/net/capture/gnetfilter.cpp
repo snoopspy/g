@@ -76,7 +76,8 @@ bool GNetFilter::doOpen() {
 	fd_ = nfq_fd(h_);
 	qDebug() << QString("fd=%1").arg(fd_); // gilgil temp 2016.09.25
 
-	recvBuf_ = new char[GPacket::MaxBufSize];
+	Q_ASSERT(recvBuf_ == nullptr);
+	recvBuf_ = new gbyte[bufSize_];
 
 	id_ = 0;
 	ipPacket_ = nullptr;
@@ -152,7 +153,7 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 		if (++count != 1)
 			qWarning() << "count is" << count;
 		#endif // _DEBUG
-		nfq_handle_packet(h_, recvBuf_, res);
+		int res = nfq_handle_packet(h_, pchar(recvBuf_), res); // gilgil temp 2021.06.17
 	} else {
 		if (errno == ENOBUFS) {
 			qWarning() << "losing packets!";
@@ -227,6 +228,11 @@ int GNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struc
 	if (res == -1) {
 		qCritical() << "nfq_get_payload return -1";
 		return -1;
+	}
+
+	if (res > netFilter->bufSize_) {
+		qWarning() << QString("res(%1) > bufSize_(%2)").arg(res).arg(netFilter->bufSize_);
+		return -1; // gilgil temp 2021.06.17
 	}
 	ipPacket->buf_.size_ = size_t(res);
 	if (netFilter->autoParse_) ipPacket->parse();

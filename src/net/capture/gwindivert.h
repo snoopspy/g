@@ -29,6 +29,7 @@ struct G_EXPORT GWinDivert : GCapture {
 	Q_PROPERTY(quint64 queueTime MEMBER queueTime_)
 	Q_PROPERTY(int tos MEMBER tos_)
 	Q_PROPERTY(bool correctIpChecksum MEMBER correctIpChecksum_)
+	Q_PROPERTY(int bufSize MEMBER bufSize_)
 
 public:
 	QString filter_{"true"};
@@ -39,6 +40,7 @@ public:
 	UINT64 queueTime_{1024};
 	int tos_{0};
 	bool correctIpChecksum_{true};
+	int bufSize_{GPacket::MaxBufSize};
 
 public:
 	Q_INVOKABLE GWinDivert(QObject* parent = nullptr);
@@ -50,7 +52,7 @@ protected:
 
 protected:
 	HANDLE handle_{nullptr};
-	gbyte pktData_[GPacket::MaxBufSize];
+	gbyte* pktBuf_{nullptr};
 	WINDIVERT_ADDRESS windivertAddress_;
 
 public:

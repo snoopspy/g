@@ -52,7 +52,7 @@ void GAsyncNetFilter::run() {
 		int res = int(::recv(fd_, recvBuf_, GPacket::MaxBufSize, 0));
 		// qDebug() << "aft call recv" << res; // gilgil temp 2016.09.27
 		if (res >= 0) {
-			nfq_handle_packet(h_, recvBuf_, res);
+			nfq_handle_packet(h_, pchar(recvBuf_), res);
 			continue;
 		} else {
 			if (errno == ENOBUFS) {

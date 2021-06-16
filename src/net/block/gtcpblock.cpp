@@ -22,10 +22,18 @@ bool GTcpBlock::doOpen() {
 		return false;
 	}
 
+	Q_ASSERT(blockBuf_ == nullptr);
+	blockBuf_ = new gbyte[bufSize_];
+
 	return true;
 }
 
 bool GTcpBlock::doClose() {
+	if (blockBuf_ != nullptr) {
+		delete[] blockBuf_;
+		blockBuf_ = nullptr;
+	}
+
 	return true;
 }
 
@@ -42,6 +50,11 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	}
 	if (blockPacket == nullptr) {
 		SET_ERR(GErr::NOT_SUPPORTED, QString("Not supported dlt(%d)").arg(GPacket::dltToInt(dlt)));
+		return;
+	}
+
+	if (int(copyLen) > bufSize_) {
+		qWarning() << QString("copyLen(%1) > bufSize_(%2)").arg(copyLen).arg(bufSize_);
 		return;
 	}
 	memcpy(blockBuf_, packet->buf_.data_, copyLen);

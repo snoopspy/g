@@ -27,6 +27,7 @@ struct G_EXPORT GNetFilter : GCapture {
 	Q_PROPERTY(int queueNum MEMBER queueNum_)
 	Q_PROPERTY(Verdict acceptVerdict MEMBER acceptVerdict_)
 	Q_PROPERTY(quint32 mark MEMBER mark_)
+	Q_PROPERTY(int bufSize MEMBER bufSize_)
 	Q_PROPERTY(GObjRef command READ getCommand)
 	Q_ENUMS(Verdict)
 
@@ -41,6 +42,7 @@ public:
 	int queueNum_{0};
 	Verdict acceptVerdict_{ACCEPT};
 	uint32_t mark_{0};
+	int bufSize_{GPacket::MaxBufSize};
 	GCommand command_;
 
 public:
@@ -66,7 +68,7 @@ protected:
 	struct nfq_q_handle* qh_{nullptr};
 	int fd_{0};
 
-	char* recvBuf_{nullptr};
+	gbyte* recvBuf_{nullptr};
 	nfq_callback* cb_;
 
 private:

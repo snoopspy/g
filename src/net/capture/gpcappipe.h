@@ -21,11 +21,13 @@ struct G_EXPORT GPcapPipe : GCapture {
 	Q_PROPERTY(QString command MEMBER command_)
 	Q_PROPERTY(int readTimeout MEMBER readTimeout_)
 	Q_PROPERTY(bool removeCr MEMBER removeCr_)
+	Q_PROPERTY(int bufSize MEMBER bufSize_)
 
 public:
 	QString command_{"adb exec-out su -c \"corepcap dev wlan0 file -\""};
 	int readTimeout_{100};
 	bool removeCr_{true};
+	int bufSize_{GPacket::MaxBufSize};
 
 public:
 	Q_INVOKABLE GPcapPipe(QObject* parent = nullptr);
@@ -48,6 +50,6 @@ protected:
 	char removeCrLastBytes_;
 	GPacket::Dlt dlt_{GPacket::Null};
 	QProcess* process_{nullptr};
-	gbyte recvBuf_[GPacket::MaxBufSize];
+	gbyte* recvBuf_{nullptr};
 	qint64 recvAll(char *data, size_t size);
 };
