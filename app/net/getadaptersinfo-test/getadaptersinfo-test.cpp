@@ -51,7 +51,7 @@ int __cdecl main()
 	if ((dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen)) == NO_ERROR) {
 		pAdapter = pAdapterInfo;
 		while (pAdapter) {
-			printf("\tComboIndex: \t%d\n", pAdapter->ComboIndex);
+			printf("\tComboIndex: \t%lu\n", pAdapter->ComboIndex);
 			printf("\tAdapter Name: \t%s\n", pAdapter->AdapterName);
 			printf("\tAdapter Desc: \t%s\n", pAdapter->Description);
 			printf("\tAdapter Addr: \t");
@@ -61,7 +61,7 @@ int __cdecl main()
 				else
 					printf("%.2X-", (int) pAdapter->Address[i]);
 			}
-			printf("\tIndex: \t%d\n", pAdapter->Index);
+			printf("\tIndex: \t%lu\n", pAdapter->Index);
 			printf("\tType: \t");
 			switch (pAdapter->Type) {
 				case MIB_IF_TYPE_OTHER:
@@ -86,7 +86,7 @@ int __cdecl main()
 					printf("Slip\n");
 					break;
 				default:
-					printf("Unknown type %ld\n", pAdapter->Type);
+					printf("Unknown type %u\n", pAdapter->Type);
 					break;
 			}
 
@@ -145,7 +145,7 @@ int __cdecl main()
 			printf("\n");
 		}
 	} else {
-		printf("GetAdaptersInfo failed with error: %d\n", dwRetVal);
+		printf("GetAdaptersInfo failed with error: %lu\n", dwRetVal);
 
 	}
 	if (pAdapterInfo)

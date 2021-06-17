@@ -40,6 +40,8 @@ public:
 	}
 
 	void prepareSignal() {
+#ifdef Q_OS_WIN
+#else // Q_OS_WIN
 		GSignal& signal = GSignal::instance();
 
 		signal.setup(SIGINT);
@@ -59,6 +61,7 @@ public:
 
 		QObject::connect(&signal, &GSignal::signaled, this, &GSsCon::processSignal);
 		QObject::connect(&graph_, &GStateObj::closed, this, &GSsCon::processClose);
+#endif // Q_OS_WIN
 	}
 
 	int exec(GApp* a) {
@@ -98,6 +101,9 @@ public slots:
 	}
 
 	void processSignal(int signo) {
+#ifdef Q_OS_WIN
+		(void)signo;
+#else // Q_OS_WIN
 		QString signal = "unknown";
 		switch (signo) {
 			case SIGINT: signal = "SIGINT"; break;
@@ -119,6 +125,7 @@ public slots:
 		qWarning() << QString("signo=%1 signal=%2 msg=%3").arg(signo).arg(signal, msg);
 
 		graph_.close();
+#endif // Q_OS_WIN
 	}
 };
 

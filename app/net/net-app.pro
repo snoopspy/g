@@ -1,6 +1,5 @@
 TEMPLATE = subdirs
 SUBDIRS += \
-	corepcap \
 	netclient \
 	netinfo \
 	netserver \
@@ -8,7 +7,13 @@ SUBDIRS += \
 	pcap-findalldevs-test \
 	snoopspy \
 	sscon \
+
+linux {
+SUBDIRS += \
+	corepcap
 	ssdemon
+}
+
 win32 {
 SUBDIRS += \
 	getipforwardtable-test \

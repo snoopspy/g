@@ -25,6 +25,7 @@ android-build/
 *.user
 Makefile
 Makefile.*
+makefile-win
 moc_*
 qrc_*
 ui_*

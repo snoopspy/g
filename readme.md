@@ -12,6 +12,14 @@
   make distclean
   ```
 
+### Windows
+* Install Qt(MinGW).
+* Run the follwing command.
+  ```
+  mingw32-make -f makefile-wni
+  mingw32-make distclean -f makefile-wni
+  ```
+
 ### Android
 * Run the following commands.
   ```
