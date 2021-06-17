@@ -39,10 +39,10 @@ cd setup
 		rem
 		rem g files
 		rem
-		strip ..\..\bin\netclient.exe & copy ..\..\bin\netclient.exe .
-		strip ..\..\bin\netserver.exe & copy ..\..\bin\netserver.exe .
-		strip ..\..\bin\snoopspy.exe & copy ..\..\bin\snoopspy.exe . 
-		strip ..\..\bin\sscon.exe & copy ..\..\bin\sscon.exe . 
+		copy ..\..\bin\netclient.exe . & strip netclient.exe
+		copy ..\..\bin\netserver.exe . & strip netserver.exe
+		copy ..\..\bin\snoopspy.exe . & strip snoopspy.exe
+		copy ..\..\bin\sscon.exe . & strip sscon.exe
 		copy ..\..\bin\WinDivert.dll . 
 		copy ..\..\bin\WinDivert64.sys . 
 		mkdir ss

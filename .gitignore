@@ -8,7 +8,7 @@ lib/libg/
 lib/libg-d/
 lib/libg-gui/
 lib/libg-gui-d/
-setup/linux-setup/
+setup/linux/
 setup/win/
 android-build/
 *.stash

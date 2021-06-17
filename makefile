@@ -14,7 +14,7 @@ plugin:
 	cd plugin && qmake "CONFIG+=release" && make -j$(NPROC)
 
 setup:
-	cd setup && ./linux-setup.sh
+	./build-linux.sh
 
 clean:
 	cd lib && make clean; true
