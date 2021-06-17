@@ -21,19 +21,12 @@ LPacket::Result LPcap::read(LPacket* packet) {
 	if (state_ != Opened) return LPacket::Fail; // may be pcap_close called
 	LPacket::Result res;
 	switch (i) {
-		case PCAP_ERROR_BREAK: { // if EOF was reached reading from an offline capture
-			char* e = pcap_geterr(pcap_);
-			if (e == nullptr || strlen(e) == 0)
-				e = const_cast<char*>("unknown");
-			GTRACE("pcap_next_ex return PCAP_ERROR_BREAK error=%s", e);
-			res = LPacket::Eof;
-			break;
-		}
+		case PCAP_ERROR_BREAK: // if EOF was reached reading from an offline capture
 		case PCAP_ERROR: { // if an error occurred
 			char* e = pcap_geterr(pcap_);
 			if (e == nullptr || strlen(e) == 0)
 				e = const_cast<char*>("unknown");
-			GTRACE("pcap_next_ex return PCAP_ERROR error=%s", e);
+			GTRACE("pcap_next_ex return PCAP_ERROR_BREAK error=%s", e);
 			res = LPacket::Eof;
 			break;
 		}

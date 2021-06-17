@@ -649,12 +649,15 @@ void GDemonPcap::run(int waitTimeout) {
 		const u_char* data;
 		int i = pcap_next_ex(pcap_, &pktHdr, &data);
 		switch (i) {
-			case PCAP_ERROR:
-			case PCAP_ERROR_BREAK:
-				GTRACE("pcap_next_ex return %d", i);
+			case PCAP_ERROR_BREAK: // if EOF was reached reading from an offline capture
+			case PCAP_ERROR: { // if an error occurred
+				char* e = pcap_geterr(pcap_);
+				if (e == nullptr || strlen(e) == 0)
+					e = const_cast<char*>("unknown");
+				GTRACE("pcap_next_ex return %d error=%s", i, e);
 				active_ = false;
 				::close(session_->sd_); // disconnect connection
-				return;
+			}
 			case 0:
 				if (waitTimeout != 0)
 					std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeout));
