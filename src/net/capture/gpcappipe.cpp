@@ -132,7 +132,7 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 	bool debug = false; // gilgil temp 2012.06.17
 	while (true) {
 		if (state_ != Opening && state_ != Opened) {
-			SET_ERR(GErr::FAIL, QString("state is neither opening nor opened(%1)").arg(int(state_)));
+			qDebug() << QString("state is neither opening nor opened(%1)").arg(int(state_));
 			return -1;
 		}
 		if (removeCr_ && removeCrLastBytesBuffered_) {
@@ -151,7 +151,7 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 				QProcess::ProcessState state = process_->state();
 				if (debug) qDebug() << QString("proce state is %1").arg(int(state));
 				if (state != QProcess::Running) {
-					SET_ERR(GErr::FAIL, QString("process state is %1").arg(int(state)));
+					qDebug() << QString("process state is %1").arg(int(state));
 					return -1;
 				}
 				continue;
