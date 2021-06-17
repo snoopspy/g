@@ -65,5 +65,10 @@ cd setup
 		copy %QT_DIR%\bin\Qt5Widgets.dll .
 		mkdir platforms
 		copy %QT_DIR%\plugins\platforms\*.dll platforms\
+		
+		rem
+		rem compress
+		rem 
+		tar czf ..\snoopspy-win-v.tar.gz *
 		cd ..
 	cd ..
