@@ -12,7 +12,7 @@ plugin:
 	cd plugin && qmake "CONFIG+=release" && mingw32-make -j4
 
 setup:
-	cd setup && ./linux-setup.sh
+	cd setup && setup-windows.bat
 
 clean:
 	cd lib && mingw32-make clean -f makefile-win; true

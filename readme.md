@@ -6,18 +6,16 @@
 ### Linux
 * Run ./deps.sh in command line.
 * Install Qt.
-* Run the follwing command.
+* Run the following command.
   ```
   make
-  make distclean
   ```
 
 ### Windows
 * Install Qt(MinGW).
-* Run the follwing command.
+* Run the following command.
   ```
-  mingw32-make -f makefile-wni
-  mingw32-make distclean -f makefile-wni
+  build-windows.bat
   ```
 
 ### Android
@@ -25,5 +23,4 @@
   ```
   source ../android-build/android.profile
   ./android-build.sh
-  make distclean
   ```
