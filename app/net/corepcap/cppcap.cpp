@@ -26,7 +26,7 @@ LPacket::Result LPcap::read(LPacket* packet) {
 			char* e = pcap_geterr(pcap_);
 			if (e == nullptr || strlen(e) == 0)
 				e = const_cast<char*>("unknown");
-			GTRACE("pcap_next_ex return PCAP_ERROR_BREAK error=%s", e);
+			GTRACE("pcap_next_ex return %d error=%s", i, e);
 			res = LPacket::Eof;
 			break;
 		}
