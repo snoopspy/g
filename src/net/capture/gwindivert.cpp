@@ -175,8 +175,8 @@ GPacket::Result GWinDivert::read(GPacket* packet) {
 	packet->buf_.data_ = pktBuf_;
 	packet->buf_.size_ = size_t(recvLen);
 	if (int(recvLen) > bufSize_) {
-		qWarning() << QString("copyLen(%1) > bufSize_(%2)").arg(copyLen).arg(bufSize_);
-		return;
+		qWarning() << QString("copyLen(%1) > bufSize_(%2)").arg(recvLen).arg(bufSize_);
+		return GPacket::None;
 	}
 
 	if (autoParse_) packet->parse();
