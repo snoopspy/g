@@ -135,41 +135,40 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 			qDebug() << QString("state is neither opening nor opened(%1)").arg(int(state_));
 			return -1;
 		}
-		if (removeCr_ && removeCrLastBytesBuffered_) {
-			*p = removeCrLastBytes_;
-			p++;
-			remain--;
-			removeCrLastBytesBuffered_ = false;
-			if (remain == 0) break;
-		}
 
-		qint64 available = process_->bytesAvailable();
-		if (debug) qDebug() << QString("bytesAvailable return %1 size=%2 remain=%3").arg(available).arg(size).arg(remain);
-		if (available < qint64(remain)) {
-			bool ready = process_->waitForReadyRead(readTimeout_);
-			if (debug) qDebug() << QString("waitForReadyRead(%1) return %2 size=%3 remain=%4").arg(readTimeout_).arg(ready).arg(size).arg(remain);
-			if (!ready) {
-				QProcess::ProcessState state = process_->state();
-				if (debug) qDebug() << QString("proce state is %1").arg(int(state));
-				if (state != QProcess::Running) {
-					qDebug() << QString("process state is %1").arg(int(state));
-					return -1;
+		qint64 recvLen;
+		if (removeCr_ && removeCrLastBytesBuffered_) {
+			removeCrLastBytesBuffered_ = false;
+			*p = removeCrLastBytes_;
+			recvLen = 1;
+		} else {
+			qint64 available = process_->bytesAvailable();
+			if (debug) qDebug() << QString("bytesAvailable return %1 size=%2 remain=%3").arg(available).arg(size).arg(remain);
+			if (available < qint64(remain)) {
+				bool ready = process_->waitForReadyRead(readTimeout_);
+				if (debug) qDebug() << QString("waitForReadyRead(%1) return %2 size=%3 remain=%4").arg(readTimeout_).arg(ready).arg(size).arg(remain);
+				if (!ready) {
+					QProcess::ProcessState state = process_->state();
+					if (debug) qDebug() << QString("proce state is %1").arg(int(state));
+					if (state != QProcess::Running) {
+						qDebug() << QString("process state is %1").arg(int(state));
+						return -1;
+					}
+					continue;
 				}
+			}
+
+			recvLen = process_->read(p, remain);
+			if (debug) qDebug() << QString("read return %1 size=%2 remain=%3").arg(recvLen).arg(size).arg(remain);
+			if (recvLen == 0) {
+				qWarning() << "process_->read return zero"; QThread::sleep(1); // gilgil temp 2021.06.17
+				debug = true;
 				continue;
 			}
-		}
-
-		qint64 recvLen = process_->read(p, remain);
-		if (debug) qDebug() << QString("read return %1 size=%2 remain=%3").arg(recvLen).arg(size).arg(remain);
-		if (recvLen == 0) {
-			qWarning() << "process_->read return zero";
-			QThread::sleep(1); // gilgil temp 2021.06.17
-			debug = true;
-			continue;
-		}
-		if (recvLen == -1) {
-			SET_ERR(GErr::FAIL, QString("process_->read return %1").arg(recvLen));
-			return -1;
+			if (recvLen == -1) {
+				SET_ERR(GErr::FAIL, QString("process_->read return %1").arg(recvLen));
+				return -1;
+			}
 		}
 
 		if (removeCr_) {
@@ -202,9 +201,9 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 				}
 			}
 		}
+
 		p += recvLen;
-		remain -= recvLen;
-		Q_ASSERT(remain >= 0);
+		remain -= recvLen; Q_ASSERT(remain >= 0);
 		if (remain == 0) break;
 	}
 	return size;
