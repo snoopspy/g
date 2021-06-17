@@ -657,6 +657,7 @@ void GDemonPcap::run(int waitTimeout) {
 				GTRACE("pcap_next_ex return %d error=%s", i, e);
 				active_ = false;
 				::close(session_->sd_); // disconnect connection
+				break;
 			}
 			case 0:
 				if (waitTimeout != 0)
