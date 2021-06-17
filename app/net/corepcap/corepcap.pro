@@ -16,7 +16,7 @@ HEADERS += \
 	cppcapfilewrite.h
 
 SOURCES += \
-	corepcap.cpp \
+	cpmain.cpp \
 	gtrace.cpp \
 	cpcorepcap.cpp \
 	cpobj.cpp \
