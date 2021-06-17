@@ -9,7 +9,6 @@
 * Install Qt.
 ```
 make
-./build-linux.sh
 ```
 
 ### Windows
