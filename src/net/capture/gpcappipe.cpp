@@ -92,7 +92,9 @@ GPacket::Result GPcapPipe::read(GPacket* packet) {
 	if (recvLen != sizeof(pktHdr))
 		return GPacket::Fail;
 
-	Q_ASSERT(pktHdr.incl_len == pktHdr.orig_len); // gilgil temp 2021.06.17
+	if (pktHdr.incl_len != pktHdr.orig_len)
+		qWarning() << QString("incl_len(%1) and orig_len(%2) is not same").arg(pktHdr.incl_len).arg(pktHdr.orig_len);
+
 	qint64 len = pktHdr.incl_len;
 	if (int(len) > bufSize_) {
 		qWarning() << QString("len(%1) > bufSize_(%2)").arg(len).arg(bufSize_);
@@ -127,13 +129,12 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 	char* p = data;
 	qint64 remain = size;
 
-	bool debug = false; // gilgil temp
+	bool debug = false; // gilgil temp 2012.06.17
 	while (true) {
 		if (state_ != Opening && state_ != Opened) {
-			SET_ERR(GErr::FAIL, QString("states is %1").arg(int(state_)));
+			SET_ERR(GErr::FAIL, QString("state is neither opening nor opened(%1)").arg(int(state_)));
 			return -1;
 		}
-
 		if (removeCr_ && removeCrLastBytesBuffered_) {
 			*p = removeCrLastBytes_;
 			p++;
@@ -146,8 +147,15 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 		if (available < qint64(remain)) {
 			bool ready = process_->waitForReadyRead(readTimeout_);
 			if (debug) qDebug() << QString("waitForReadyRead(%1) return %2 size=%3 remain=%4").arg(readTimeout_).arg(ready).arg(size).arg(remain);
-			if (!ready)
+			if (!ready) {
+				QProcess::ProcessState state = process_->state();
+				if (debug) qDebug() << QString("proce state is %1").arg(int(state));
+				if (state != QProcess::Running) {
+					SET_ERR(GErr::FAIL, QString("process state is %1").arg(int(state)));
+					return -1;
+				}
 				continue;
+			}
 		}
 
 		qint64 recvLen = process_->read(p, remain);
