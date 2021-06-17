@@ -140,6 +140,7 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 			p++;
 			remain--;
 			removeCrLastBytesBuffered_ = false;
+			if (remain == 0) break;
 		}
 
 		qint64 available = process_->bytesAvailable();
