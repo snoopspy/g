@@ -19,8 +19,9 @@ build-win.bat
 ```
 
 ### Android
+* Install Qt supporting android.
 * Run the following commands.
 ```
 source ../android-build/android.profile
-./android-build.sh
+./build-android.sh
 ```
