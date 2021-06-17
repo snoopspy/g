@@ -4,8 +4,8 @@ CONFIG -= app_bundle
 CONFIG -= qt
 DESTDIR = $${PWD}/../../../bin
 LIBS += -lpcap
+
 HEADERS += \
-	gtrace.h \
 	cpcorepcap.h \
 	cpobj.h \
 	cppacket.h \
@@ -13,16 +13,17 @@ HEADERS += \
 	cppcapdevice.h \
 	cppcapdevicewrite.h \
 	cppcapfile.h \
-	cppcapfilewrite.h
+	cppcapfilewrite.h \
+	gtrace.h
 
 SOURCES += \
-	cpmain.cpp \
-	gtrace.cpp \
 	cpcorepcap.cpp \
+	cpmain.cpp \
 	cpobj.cpp \
 	cppacket.cpp \
 	cppcap.cpp \
 	cppcapdevice.cpp \
 	cppcapdevicewrite.cpp \
 	cppcapfile.cpp \
-	cppcapfilewrite.cpp
+	cppcapfilewrite.cpp \
+	gtrace.cpp
