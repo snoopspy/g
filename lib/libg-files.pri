@@ -242,7 +242,7 @@ HEADERS += \
 	$${PWD}/../src/net/write/gpcapwrite.h \
 	$${PWD}/../src/net/write/grawipsocketwrite.h \
 	$${PWD}/../src/net/write/gremotepcapdevicewrite.h \
-	$${PWD}/../src/net/write/gvirtualpcapdevicedrite.h \
+	$${PWD}/../src/net/write/gvirtualpcapdevicewrite.h \
 	$${PWD}/../src/net/write/gwrite.h
 
 linux {
