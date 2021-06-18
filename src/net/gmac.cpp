@@ -18,7 +18,7 @@ GMac::GMac(const QString& rhs) {
 
 GMac::operator QString() const {
 	char s[20]; // enough size
-	sprintf(s, "%02X%02X%02X-%02X%02X%02X", mac_[0], mac_[1], mac_[2], mac_[3], mac_[4], mac_[5]);
+	sprintf(s, "%02X:%02X:%02X:%02X:%02X:%02X", mac_[0], mac_[1], mac_[2], mac_[3], mac_[4], mac_[5]);
 	return QString(s);
 }
 
