@@ -38,8 +38,8 @@ public:
 	GPacket::Result write(GPacket* packet) override;
 	GPacket::Result relay(GPacket* packet) override;
 
-protected:
-	GDemonClient* demonClient_{nullptr};
+public:
+	GDemonClient* demonClient_{nullptr}; // accessed in GVirtualAtm function
 
 #ifdef QT_GUI_LIB
 public:

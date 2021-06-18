@@ -12,12 +12,6 @@
 
 #include "net/capture/gsyncpcapdevice.h"
 #include "net/capture/gsyncremotepcapdevice.h"
-#ifdef Q_OS_ANDROID_GILGIL
-	typedef GSyncRemotePcapDevice GAtmBaseDevice;
-#else // Q_OS_ANDROID_GILGIL
-	typedef GSyncPcapDevice GAtmBaseDevice;
-#endif // Q_OS_ANDROID_GILGIL
-
 #include "base/sys/gwaitevent.h"
 
 // ----------------------------------------------------------------------------
@@ -34,9 +28,11 @@ struct GEthArpHdr {
 // GAtm(Arp Table Manager)
 // ----------------------------------------------------------------------------
 typedef QMap<GIp, GMac> GAtmMap;
-struct G_EXPORT GAtm : GAtmBaseDevice, GAtmMap {
-	Q_INVOKABLE GAtm(QObject* parent = nullptr) : GAtmBaseDevice(parent) {}
-	~GAtm() override {}
+
+template <typename BaseClass>
+struct G_EXPORT GAtm_ : public BaseClass, GAtmMap {
+	Q_INVOKABLE GAtm_(QObject* parent = nullptr) : BaseClass(parent) {}
+	~GAtm_() override {}
 
 	bool allResolved();
 	void deleteUnresolved();
@@ -50,8 +46,8 @@ protected:
 	// SendThread
 	// --------------------------------------------------------------------------
 	struct SendThread : QThread {
-		SendThread(GAtm* atm, GDuration timeout);
-		GAtm* atm_;
+		SendThread(GAtm_* atm, GDuration timeout) : atm_(atm), timeout_(timeout) {}
+		GAtm_* atm_;
 		GDuration timeout_;
 		GWaitEvent we_;
 	protected:
@@ -59,3 +55,5 @@ protected:
 	};
 };
 
+typedef GAtm_<GSyncPcapDevice> GAtm;
+typedef GAtm_<GSyncRemotePcapDevice> GRemoteAtm;
