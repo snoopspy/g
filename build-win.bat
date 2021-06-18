@@ -70,6 +70,6 @@ copy %QT_DIR%\plugins\platforms\*.dll platforms\
 rem
 rem compress
 rem 
-tar czf ..\snoopspy-win-v.tar.gz *
+"C:\Program Files\7-Zip\7z.exe" a ..\snoopspy-v.zip *
 cd ..
 cd ..
