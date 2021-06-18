@@ -18,7 +18,7 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GThread : QThread {
 	GThread(QObject *parent = nullptr) : QThread(parent) {}
-	void start(Priority = InheritPriority);
+	void start(Priority priority = InheritPriority);
 	bool wait(GDuration timeout = G::Timeout);
 };
 

@@ -147,9 +147,9 @@ void GAtm_<BaseClass>::SendThread::run() {
 		}
 	}
 
-	GRemoteAtm* device = dynamic_cast<GRemoteAtm*>(this);
-	if (device != nullptr) {
-		device->demonClient_->pcapClose(); // awaken read(&packet) in wait function by disconnect socket
+	GRemoteAtm* atm = dynamic_cast<GRemoteAtm*>(atm_);
+	if (atm != nullptr) {
+		atm->demonClient_->pcapClose(); // awaken read(&packet) in wait function by disconnect socket
 	}
 }
 
