@@ -10,7 +10,7 @@ SUBDIRS += \
 
 linux {
 SUBDIRS += \
-	corepcap
+	corepcap \
 	ssdemon
 }
 
