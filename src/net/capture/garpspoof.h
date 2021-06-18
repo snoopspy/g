@@ -14,6 +14,7 @@
 #include "gsyncremotepcapdevice.h"
 #include "net/gatm.h"
 #include "net/flow/gflowkey.h"
+#include "net/filter/gbpfilter.h"
 
 #ifdef Q_OS_ANDROID_GILGIL
 	typedef GRemotePcapDevice GArpSpoofBaseDevice;
@@ -84,6 +85,7 @@ public:
 
 public:
 	GMac virtualMac_{GMac::nullMac()};
+	GBpFilter* bpFilter_{nullptr};
 	GDuration infectInterval_{1000};
 	GDuration sendInterval_{1};
 	GObjRefArray<GArpSpoofFlow> flows_; // for property

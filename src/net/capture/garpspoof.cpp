@@ -13,11 +13,46 @@ GArpSpoof::~GArpSpoof() {
 bool GArpSpoof::doOpen() {
 	if (!enabled_) return true;
 
-	if (filter_ != "") {
-		SET_ERR(GErr::FAIL, "filter must be blank");
+	// ----- by gilgil 2021.06.18 -----
+	// intf_ is determined in GPcapDevice::doOpen or GRemovePcapDevice::doOpen.
+	// To set filter, intf_ must be determined before open base class doOpen
+#if Q_OS_ANDROID_GILGIL
+	intf_ = GRemoteNetInfo::instance(ip_, port_).interfaceList().findByName(intfName_);
+	if (intf_ == nullptr) {
+		QString msg = QString("can not find interface for %1").arg(intfName_);
+		SET_ERR(GErr::VALUE_IS_NULL, msg);
 		return false;
 	}
+#else // Q_OS_ANDROID_GILGIL
+	intf_ = GNetInfo::instance().interfaceList().findByName(intfName_);
+	if (intf_ == nullptr) {
+		QString msg = QString("can not find interface for %1").arg(intfName_);
+		SET_ERR(GErr::VALUE_IS_NULL, msg);
+		return false;
+	}
+#endif // Q_OS_ANDROID_GILGIL
+	// --------------------------------
+
+	QString internalFilter;
+	if (virtualMac_.isNull()) {
+		myMac_ = intf()->mac();
+		internalFilter = QString("!(ether src %1)").arg(QString(intf()->mac()));
+	} else {
+		myMac_ = virtualMac_;
+		internalFilter = QString("!(ether src %1) and !(ether src %2)").arg(QString(intf()->mac()), QString(virtualMac_));
+	}
+	QString backupFilter = filter_;
+	filter_ = internalFilter;
 	if (!GArpSpoofBaseDevice::doOpen()) return false;
+	filter_ = backupFilter;
+
+	if (filter_ != "") {
+		bpFilter_ = new GBpFilter(this);
+		if (!bpFilter_->open())
+			err = bpFilter_->err;
+		delete bpFilter_;
+		return false;
+	}
 
 	flowList_.clear();
 	atm_.deleteUnresolved();
@@ -92,8 +127,6 @@ bool GArpSpoof::doOpen() {
 			*it = flow;
 	}
 
-	myMac_ = virtualMac_.isNull() ? intf_->mac() : virtualMac_;
-
 	for (Flow& flow: flowList_) {
 		flow.makePacket(&flow.infectPacket_, myMac_, true);
 		flow.makePacket(&flow.recoverPacket_, myMac_, false);
@@ -116,6 +149,11 @@ bool GArpSpoof::doClose() {
 	for (int i = 0; i < 5; i++) {
 		sendARPRecoverAll();
 		QThread::msleep(sendInterval_);
+	}
+
+	if (bpFilter_ != nullptr) {
+		delete bpFilter_;
+		bpFilter_ = nullptr;
 	}
 
 	return GArpSpoofBaseDevice::doClose();
