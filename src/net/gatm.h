@@ -29,9 +29,9 @@ struct GEthArpHdr {
 // ----------------------------------------------------------------------------
 typedef QMap<GIp, GMac> GAtmMap;
 
-template <typename BaseClass>
-struct G_EXPORT GAtm_ : public BaseClass, GAtmMap {
-	Q_INVOKABLE GAtm_(QObject* parent = nullptr) : BaseClass(parent) {}
+template <typename Base>
+struct G_EXPORT GAtm_ : public Base, GAtmMap {
+	Q_INVOKABLE GAtm_(QObject* parent = nullptr) : Base(parent) {}
 	~GAtm_() override {}
 
 	bool allResolved();

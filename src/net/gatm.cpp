@@ -4,15 +4,15 @@
 // ----------------------------------------------------------------------------
 // GAtm
 // ----------------------------------------------------------------------------
-template <typename BaseClass>
-bool GAtm_<BaseClass>::allResolved() {
+template <typename Base>
+bool GAtm_<Base>::allResolved() {
 	for (GMac& mac: *this)
 		if (mac.isNull()) return false;
 	return true;
 }
 
-template <typename BaseClass>
-void GAtm_<BaseClass>::deleteUnresolved() {
+template <typename Base>
+void GAtm_<Base>::deleteUnresolved() {
 	for (GAtmMap::iterator it = begin(); it != end();) {
 		GMac mac = it.value();
 		if (mac.isNull()) {
@@ -23,8 +23,8 @@ void GAtm_<BaseClass>::deleteUnresolved() {
 	}
 }
 
-template <typename BaseClass>
-bool GAtm_<BaseClass>::wait(GDuration timeout) {
+template <typename Base>
+bool GAtm_<Base>::wait(GDuration timeout) {
 	if (allResolved()) return true;
 
 	if (!this->active()) {
@@ -97,8 +97,8 @@ bool GAtm_<BaseClass>::wait(GDuration timeout) {
 	return succeed;
 }
 
-template <typename BaseClass>
-bool GAtm_<BaseClass>::sendQueries() {
+template <typename Base>
+bool GAtm_<Base>::sendQueries() {
 	GEthArpHdr query;
 	query.ethHdr_.dmac_ = GMac::broadcastMac();
 	query.ethHdr_.smac_ = this->intf_->mac();
@@ -131,8 +131,8 @@ bool GAtm_<BaseClass>::sendQueries() {
 // --------------------------------------------------------------------------
 // GAtm::SendThread
 // --------------------------------------------------------------------------
-template <typename BaseClass>
-void GAtm_<BaseClass>::SendThread::run() {
+template <typename Base>
+void GAtm_<Base>::SendThread::run() {
 	QElapsedTimer timer; timer.start();
 	qint64 first = timer.elapsed();
 	while (true) {
