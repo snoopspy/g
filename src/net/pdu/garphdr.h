@@ -37,7 +37,7 @@ struct G_EXPORT GArpHdr final {
 	GMac tmac() { return tmac_; }
 	GIp tip() { return ntohl(tip_); }
 
-	// HardwareType
+	// HardwareType(hrd_)
 	enum: uint16_t {
 		NETROM = 0, // from KA9Q: NET/ROM pseudo
 		ETHER = 1, // Ethernet 10Mbps
@@ -55,7 +55,7 @@ struct G_EXPORT GArpHdr final {
 		IPSEC = 31 // IPsec tunnel
 	};
 
-	// Operation
+	// Operation(op_)
 	enum: uint16_t {
 		Request = 1, // req to resolve address
 		Reply = 2, // resp to previous request

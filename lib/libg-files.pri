@@ -99,6 +99,7 @@ SOURCES += \
 	$${PWD}/../src/net/packet/gnullpacket.cpp \
 	$${PWD}/../src/net/packet/gpacket.cpp \
 	$${PWD}/../src/net/pdu/garphdr.cpp \
+	$${PWD}/../src/net/pdu/gdhcphdr.cpp \
 	$${PWD}/../src/net/pdu/gdnshdr.cpp \
 	$${PWD}/../src/net/pdu/gdnsinfo.cpp \
 	$${PWD}/../src/net/pdu/gethhdr.cpp \
@@ -223,6 +224,7 @@ HEADERS += \
 	$${PWD}/../src/net/packet/gnullpacket.h \
 	$${PWD}/../src/net/packet/gpacket.h \
 	$${PWD}/../src/net/pdu/garphdr.h \
+	$${PWD}/../src/net/pdu/gdhcphdr.h \
 	$${PWD}/../src/net/pdu/gdnshdr.h \
 	$${PWD}/../src/net/pdu/gdnsinfo.h \
 	$${PWD}/../src/net/pdu/gethhdr.h \

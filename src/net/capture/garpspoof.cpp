@@ -170,11 +170,11 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 
 		// attacker sending packet?
 		if (ethHdr->smac() == myMac_) continue;
+		processPacket(packet);
 
 		switch (ethHdr->type()) {
 			case GEthHdr::Arp: {
 				GArpHdr* arpHdr = packet->arpHdr_;
-				processArp(packet);
 				Q_ASSERT(arpHdr != nullptr);
 				for (Flow& flow: flowList_) {
 					bool infect = false;
@@ -282,6 +282,6 @@ bool GArpSpoof::sendArpRecover(Flow* flow) {
 	return res == GPacket::Ok;
 }
 
-void GArpSpoof::processArp(GPacket* packet) {
+void GArpSpoof::processPacket(GPacket* packet) {
 	(void)packet;
 }

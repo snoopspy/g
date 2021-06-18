@@ -127,5 +127,5 @@ protected:
 	bool sendArpRecover(Flow* flow);
 
 protected:
-	virtual void processArp(GPacket* packet); // for GAutoArpSpoof
+	virtual void processPacket(GPacket* packet); // for GAutoArpSpoof
 };
