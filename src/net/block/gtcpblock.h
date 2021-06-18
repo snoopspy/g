@@ -11,7 +11,7 @@
 #pragma once
 
 #include "base/gstateobj.h"
-#include "net/write/gvirtualpcapdevicedrite.h"
+#include "net/write/gvirtualpcapdevicewrite.h"
 #include "net/packet/gethpacket.h"
 #include "net/packet/gippacket.h"
 

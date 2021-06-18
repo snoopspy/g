@@ -118,7 +118,7 @@ SOURCES += \
 	$${PWD}/../src/net/write/gpcapwrite.cpp \
 	$${PWD}/../src/net/write/grawipsocketwrite.cpp \
 	$${PWD}/../src/net/write/gremotepcapdevicewrite.cpp \
-	$${PWD}/../src/net/write/gvirtualpcapdevicedrite.cpp \
+	$${PWD}/../src/net/write/gvirtualpcapdevicewrite.cpp \
 	$${PWD}/../src/net/write/gwrite.cpp
 
 HEADERS += \

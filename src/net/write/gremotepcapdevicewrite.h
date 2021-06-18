@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "gvirtualpcapdevicedrite.h"
+#include "gvirtualpcapdevicewrite.h"
 
 // ----------------------------------------------------------------------------
 // GRemotePcapDeviceWrite
