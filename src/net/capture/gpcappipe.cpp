@@ -131,10 +131,7 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 
 	bool debug = false; // gilgil temp 2012.06.17
 	while (true) {
-		if (state_ != Opening && state_ != Opened) {
-			qDebug() << QString("state(%1) is neither opening nor opened").arg(int(state_));
-			return -1;
-		}
+		if (state_ != Opening && state_ != Opened) return -1;
 
 		qint64 recvLen;
 		if (removeCr_ && removeCrLastBytesBuffered_) {
