@@ -41,6 +41,6 @@ cp $QTDIR/plugins/platforms/* platforms/
 #
 # compress
 #
-tar czf ../snoopspy-linux-$(sed 's/"//g' ../../version.txt).tar.gz *
+tar czf ../snoopspy-$(sed 's/"//g' ../../version.txt).tar.gz *
 cd ..
 cd ..
