@@ -31,11 +31,9 @@ bool GThread::wait(GDuration timeout) {
 // GThreadMgr
 // ----------------------------------------------------------------------------
 GThreadMgr::GThreadMgr() {
-	GDEBUG_CTOR;
 }
 
 GThreadMgr::~GThreadMgr() {
-	GDEBUG_DTOR;
 }
 
 void GThreadMgr::suspendStart() {

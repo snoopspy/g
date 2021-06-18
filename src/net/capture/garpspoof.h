@@ -12,14 +12,16 @@
 
 #include "gsyncpcapdevice.h"
 #include "gsyncremotepcapdevice.h"
-#ifdef Q_OS_ANDROID_GILGIL
-	typedef GRemotePcapDevice GArpSpoofBaseDevice;
-#else // Q_OS_ANDROID_GILGIL
-	typedef GPcapDevice GArpSpoofBaseDevice;
-#endif // Q_OS_ANDROID_GILGIL
-
 #include "net/gatm.h"
 #include "net/flow/gflowkey.h"
+
+#ifdef Q_OS_ANDROID_GILGIL
+	typedef GRemotePcapDevice GArpSpoofBaseDevice;
+	typedef GRemoteAtm GArpSpoofAtm;
+#else // Q_OS_ANDROID_GILGIL
+	typedef GPcapDevice GArpSpoofBaseDevice;
+	typedef GAtm GArpSpoofAtm;
+#endif // Q_OS_ANDROID_GILGIL
 
 // ----------------------------------------------------------------------------
 // GArpSpoofFlow
@@ -85,7 +87,7 @@ public:
 	GDuration infectInterval_{1000};
 	GDuration sendInterval_{1};
 	GObjRefArray<GArpSpoofFlow> flows_; // for property
-	GAtm atm_;
+	GArpSpoofAtm atm_;
 
 protected:
 	struct Flow {

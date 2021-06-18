@@ -32,14 +32,14 @@ protected:
 	bool doOpen() override;
 	bool doClose() override;
 
-protected:
-	GDemonClient* demonClient_{nullptr};
-
 public:
 	GPacket::Result write(GBuf buf) override;
 
 public slots:
 	GPacket::Result write(GPacket* packet) override;
+
+protected:
+	GDemonClient* demonClient_{nullptr};
 
 #ifdef QT_GUI_LIB
 public:
