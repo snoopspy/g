@@ -1,9 +1,7 @@
 export QTDIR=/opt/Qt/5.15.2/gcc_64
 
 cd setup
-#
-# directory
-#
+
 rm -rf linux
 mkdir -p linux
 cd linux
@@ -24,16 +22,15 @@ cp ../../bin/ss/* ss/
 #
 # qt files
 #
+cp $QTDIR/lib/libicudata.so.56 .
+cp $QTDIR/lib/libicui18n.so.56 .
+cp $QTDIR/lib/libicuuc.so.56 .
 cp $QTDIR/lib/libQt5Core.so.5 .
 cp $QTDIR/lib/libQt5DBus.so.5 .
 cp $QTDIR/lib/libQt5Gui.so.5 .
 cp $QTDIR/lib/libQt5Network.so.5 .
 cp $QTDIR/lib/libQt5Widgets.so.5 .
 cp $QTDIR/lib/libQt5XcbQpa.so.5 .
-
-cp $QTDIR/lib/libicudata.so.56 .
-cp $QTDIR/lib/libicui18n.so.56 .
-cp $QTDIR/lib/libicuuc.so.56 .
 
 #
 # platforms files

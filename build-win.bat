@@ -33,6 +33,7 @@ cd plugin
 rem
 rem setup
 rem
+
 cd setup
 mkdir win
 cd win
