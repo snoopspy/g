@@ -5,7 +5,7 @@ OBJS=$(SRCS:%.cpp=%.o)
 CPPFLAGS+=-g
 CPPFLAGS+=-O2 # for release
 CPPFLAGS+=-Wall -Wextra
-CPPFLAGS+=-I../../../src/base/sys -I../../../src/net/demon
+CPPFLAGS+=-I../../../src/net/demon
 LDLIBS+=-lpcap -pthread
 
 all: $(TARGET)
