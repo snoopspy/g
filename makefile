@@ -27,8 +27,8 @@ distclean: clean
 	cd plugin && make distclean; true
 	find bin -type f -executable -delete
 	find bin -type f -name "*.json" -delete
-	rm -rf setup/linux-setup
 	find -type f -name 'Makefile*'  -delete
+	rm -rf setup/linux
 	rm -rf lib/android-build
 	rm -rf app/net/snoopspy/android-build
 	#rm -rf setup/*.gz
