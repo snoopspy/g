@@ -1,5 +1,7 @@
 export QTDIR=/opt/Qt/5.15.2/gcc_64
 
+make
+
 cd setup
 
 rm -rf linux
