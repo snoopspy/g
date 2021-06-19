@@ -96,6 +96,7 @@ bool GArpSpoof::doOpen() {
 	atm_.intfName_ = intfName_;
 	if (!atm_.open()) {
 		err = atm_.err;
+		atm_.close();
 		return false;
 	}
 	bool res = atm_.wait();

@@ -14,7 +14,6 @@ bool GAutoArpSpoof::doOpen() {
 
 	if (!GArpSpoof::doOpen()) return false;
 
-
 	Q_ASSERT(intf_ != nullptr);
 	myMac_ = intf_->mac();
 	myIp_ = intf_->ip();
@@ -25,9 +24,11 @@ bool GAutoArpSpoof::doOpen() {
 		atm_.insert(gwIp_, GMac::nullMac());
 		if (!atm_.open()) {
 			err = atm_.err;
+			atm_.close();
 			return false;
 		}
 		bool res = atm_.wait();
+		atm_.close();
 		if (!res) {
 			qWarning() << QString("can not find mac for %s").arg(QString(gwIp_));
 			return false;
