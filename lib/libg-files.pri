@@ -63,6 +63,7 @@ SOURCES += \
 	$${PWD}/../src/net/capture/gsyncnetfilter.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapfile.cpp \
+	$${PWD}/../src/net/capture/gsyncpcappipe.cpp \
 	$${PWD}/../src/net/capture/gsyncremotepcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncwindivert.cpp \
 	$${PWD}/../src/net/capture/gvirtualpcapdevice.cpp \
@@ -188,6 +189,7 @@ HEADERS += \
 	$${PWD}/../src/net/capture/gsyncnetfilter.h \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncpcapfile.h \
+	$${PWD}/../src/net/capture/gsyncpcappipe.h \
 	$${PWD}/../src/net/capture/gsyncremotepcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncwindivert.h \
 	$${PWD}/../src/net/capture/gvirtualpcapdevice.h \
