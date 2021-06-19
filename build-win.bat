@@ -70,6 +70,8 @@ copy %QT_DIR%\plugins\platforms\*.dll platforms\
 rem
 rem compress
 rem 
-"C:\Program Files\7-Zip\7z.exe" a ..\snoopspy-v.zip *
+set /p VERSION=<..\..\version.txt
+set VERSION=%VERSION:"=%
+"C:\Program Files\7-Zip\7z.exe" a ..\snoopspy-v%VERSION%.zip *
 cd ..
 cd ..
