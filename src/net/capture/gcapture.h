@@ -34,6 +34,7 @@ public:
 protected:
 	bool autoRead_{true};
 
+public:
 	typedef enum {
 		InPath,
 		OutOfPath
