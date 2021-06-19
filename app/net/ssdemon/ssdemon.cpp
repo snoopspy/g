@@ -94,7 +94,7 @@ void runServer() {
 }
 
 int main(int argc, char* argv[]) {
-	gtrace_default("127.0.0.1", 8908, false, nullptr);
+	gtrace_default("127.0.0.1", 8908, false, "ssdemon.log");
 
 	prepareSignal();
 

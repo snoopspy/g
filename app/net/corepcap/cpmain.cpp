@@ -62,7 +62,7 @@ void prepareSignal() {
 }
 
 int main(int argc, char* argv[]) {
-	gtrace_default("127.0.0.1", 8908, false, nullptr);
+	gtrace_default("127.0.0.1", 8908, false, "corepcap.log");
 
 	prepareSignal();
 
