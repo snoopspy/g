@@ -133,11 +133,11 @@ void GDemonSession::run() {
 
 	bool active = true;
 	while (active) {
-		char buffer[MaxBufferSize];
+		char buffer[MaxBufSize];
 		Header* header = GDemon::PHeader(buffer);
 		if (!recvAll(sd_, header, sizeof(Header)))
 			break;
-		if (header->len_ < 0 || header->len_ > MaxBufferSize) {
+		if (header->len_ < 0 || header->len_ > MaxBufSize) {
 			GTRACE("invalid len_ %d", header->len_);
 			break;
 		}
@@ -223,8 +223,8 @@ bool GDemonCommand::processCmdExecute(pchar buf, int32_t size) {
 		GTRACE("%s", res.error_.data());
 	}
 
-	char buffer[MaxBufferSize];
-	int32_t encLen = res.encode(buffer, MaxBufferSize);
+	char buffer[MaxBufSize];
+	int32_t encLen = res.encode(buffer, MaxBufSize);
 	if (encLen == -1) {
 		GTRACE("res.encode return -1");
 		return false;
@@ -258,8 +258,8 @@ bool GDemonCommand::processCmdStart(pchar buf, int32_t size) {
 	}
 
 	// parent
-	char buffer[MaxBufferSize];
-	int32_t encLen = res.encode(buffer, MaxBufferSize);
+	char buffer[MaxBufSize];
+	int32_t encLen = res.encode(buffer, MaxBufSize);
 	if (encLen == -1) {
 		GTRACE("res.encode return -1");
 		return false;
@@ -292,8 +292,8 @@ bool GDemonCommand::processCmdStop(pchar buf, int32_t size) {
 		GTRACE("%s", res.error_.data());
 	}
 
-	char buffer[MaxBufferSize];
-	int32_t encLen = res.encode(buffer, MaxBufferSize);
+	char buffer[MaxBufSize];
+	int32_t encLen = res.encode(buffer, MaxBufSize);
 	if (encLen == -1) {
 		GTRACE("res.encode return -1");
 		return false;
@@ -325,8 +325,8 @@ bool GDemonCommand::processCmdStartDetached(pchar buf, int32_t size) {
 		GTRACE("%s", res.error_.data());
 	}
 
-	char buffer[MaxBufferSize];
-	int32_t encLen = res.encode(buffer, MaxBufferSize);
+	char buffer[MaxBufSize];
+	int32_t encLen = res.encode(buffer, MaxBufSize);
 	if (encLen == -1) {
 		GTRACE("res.encode return -1");
 		return false;
@@ -414,8 +414,8 @@ bool GDemonNetwork::processGetInterfaceList(pchar buf, int32_t size) {
 	}
 	pcap_freealldevs(allDevs);
 
-	char buffer[MaxBufferSize];
-	int32_t encLen = res.encode(buffer, MaxBufferSize);
+	char buffer[MaxBufSize];
+	int32_t encLen = res.encode(buffer, MaxBufSize);
 	if (encLen == -1) {
 		GTRACE("res.encode return -1");
 		return false;
@@ -466,8 +466,8 @@ bool GDemonNetwork::processGetRtm(pchar, int32_t) {
 	}
 	pclose(p);
 
-	char buffer[MaxBufferSize];
-	int32_t encLen = res.encode(buffer, MaxBufferSize);
+	char buffer[MaxBufSize];
+	int32_t encLen = res.encode(buffer, MaxBufSize);
 	if (encLen == -1) {
 		GTRACE("res.encode return -1");
 		return false;
@@ -673,8 +673,8 @@ void GDemonPcap::run(int waitTimeout) {
 		read.pktHdr_.len = (uint32_t)pktHdr->len;
 		read.data_ = puchar(data);
 
-		char buffer[MaxBufferSize];
-		int32_t encLen = read.encode(buffer, MaxBufferSize);
+		char buffer[MaxBufSize];
+		int32_t encLen = read.encode(buffer, MaxBufSize);
 		if (encLen == -1) {
 			GTRACE("res.encode return -1");
 			return;
@@ -700,8 +700,8 @@ bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
 
 	PcapOpenRes res = open(req);
 
-	char buffer[MaxBufferSize];
-	int32_t encLen = res.encode(buffer, MaxBufferSize);
+	char buffer[MaxBufSize];
+	int32_t encLen = res.encode(buffer, MaxBufSize);
 	if (encLen == -1) {
 		GTRACE("res.encode return -1");
 		return false;
