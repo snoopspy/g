@@ -678,7 +678,6 @@ void GDemonPcap::run(int waitTimeout) {
 					e = const_cast<char*>("unknown");
 				GTRACE("pcap_next_ex return %d error=%s", i, e);
 				active_ = false;
-				::close(session_->sd_); // disconnect connection
 				break;
 			}
 			case 0:
@@ -710,7 +709,9 @@ void GDemonPcap::run(int waitTimeout) {
 			}
 		}
 	}
-	::close(session_->sd_);
+
+	GTRACE("closing sessoin socket=%d", session_->sd_);
+	::close(session_->sd_); // disconnect connection
 }
 
 bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
