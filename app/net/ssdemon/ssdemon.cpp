@@ -64,7 +64,9 @@ void signalHandler(int signo) {
 	GTRACE("signo=%s(%d) %s", signal, signo, msg);
 	if (signo == SIGSEGV)
 		exit(-1);
+	GTRACE("bef server.stop()");
 	server.stop();
+	GTRACE("aft server.stop()");
 }
 
 void prepareSignal() {

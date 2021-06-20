@@ -87,6 +87,8 @@ void GDemonServer::wait() {
 // GDemonSession
 // ----------------------------------------------------------------------------
 GDemonSession::GDemonSession(GDemonServer* server) : server_(server) {
+	recvBuf_ = new char[MaxBufSize];
+	sendBuf_ = new char[MaxBufSize];
 }
 
 GDemonSession::~GDemonSession() {
@@ -109,6 +111,16 @@ GDemonSession::~GDemonSession() {
 		delete pcap_;
 		pcap_ = nullptr;
 	}
+
+	if (recvBuf_ != nullptr) {
+		delete[] recvBuf_;
+		recvBuf_ = nullptr;
+	};
+
+	if (sendBuf_ != nullptr) {
+		delete[] sendBuf_;
+		sendBuf_ = nullptr;
+	};
 }
 
 void GDemonSession::_run(GDemonServer* server, int new_sd) {
@@ -133,8 +145,7 @@ void GDemonSession::run() {
 
 	bool active = true;
 	while (active) {
-		char buffer[MaxBufSize];
-		Header* header = GDemon::PHeader(buffer);
+		Header* header = GDemon::PHeader(recvBuf_);
 		if (!recvAll(sd_, header, sizeof(Header)))
 			break;
 		if (header->len_ < 0 || header->len_ > MaxBufSize) {
@@ -142,10 +153,10 @@ void GDemonSession::run() {
 			break;
 		}
 
-		if (!recvAll(sd_, buffer + sizeof(Header), header->len_))
+		if (!recvAll(sd_, recvBuf_ + sizeof(Header), header->len_))
 			break;
 
-		pchar buf = buffer;
+		pchar buf = recvBuf_;
 		int size = header->len_ + sizeof(Header);
 		switch (header->cmd_) {
 			case CmdCmdExecute:
@@ -223,16 +234,18 @@ bool GDemonCommand::processCmdExecute(pchar buf, int32_t size) {
 		GTRACE("%s", res.error_.data());
 	}
 
-	char buffer[MaxBufSize];
-	int32_t encLen = res.encode(buffer, MaxBufSize);
-	if (encLen == -1) {
-		GTRACE("res.encode return -1");
-		return false;
-	}
+	{
+		GSpinLockGuard guard(session_->sendBufLock_);
+		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return false;
+		}
 
-	int sendLen = ::send(session_->sd_, buffer, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		GTRACE("send return %d", sendLen);
+		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+		}
 	}
 	return true;
 }
@@ -257,17 +270,18 @@ bool GDemonCommand::processCmdStart(pchar buf, int32_t size) {
 		GTRACE("%s", res.error_.data());
 	}
 
-	// parent
-	char buffer[MaxBufSize];
-	int32_t encLen = res.encode(buffer, MaxBufSize);
-	if (encLen == -1) {
-		GTRACE("res.encode return -1");
-		return false;
-	}
+	{
+		GSpinLockGuard guard(session_->sendBufLock_);
+		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return false;
+		}
 
-	int sendLen = ::send(session_->sd_, buffer, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		GTRACE("send return %d", sendLen);
+		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+		}
 	}
 	return true;
 }
@@ -292,16 +306,18 @@ bool GDemonCommand::processCmdStop(pchar buf, int32_t size) {
 		GTRACE("%s", res.error_.data());
 	}
 
-	char buffer[MaxBufSize];
-	int32_t encLen = res.encode(buffer, MaxBufSize);
-	if (encLen == -1) {
-		GTRACE("res.encode return -1");
-		return false;
-	}
+	{
+		GSpinLockGuard guard(session_->sendBufLock_);
+		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return false;
+		}
 
-	int sendLen = ::send(session_->sd_, buffer, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		GTRACE("send return %d", sendLen);
+		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+		}
 	}
 	return true;
 }
@@ -325,16 +341,18 @@ bool GDemonCommand::processCmdStartDetached(pchar buf, int32_t size) {
 		GTRACE("%s", res.error_.data());
 	}
 
-	char buffer[MaxBufSize];
-	int32_t encLen = res.encode(buffer, MaxBufSize);
-	if (encLen == -1) {
-		GTRACE("res.encode return -1");
-		return false;
-	}
+	{
+		GSpinLockGuard guard(session_->sendBufLock_);
+		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return false;
+		}
 
-	int sendLen = ::send(session_->sd_, buffer, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		GTRACE("send return %d", sendLen);
+		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+		}
 	}
 	return true;
 }
@@ -414,17 +432,19 @@ bool GDemonNetwork::processGetInterfaceList(pchar buf, int32_t size) {
 	}
 	pcap_freealldevs(allDevs);
 
-	char buffer[MaxBufSize];
-	int32_t encLen = res.encode(buffer, MaxBufSize);
-	if (encLen == -1) {
-		GTRACE("res.encode return -1");
-		return false;
-	}
+	{
+		GSpinLockGuard guard(session_->sendBufLock_);
+		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return false;
+		}
 
-	int sendLen = ::send(session_->sd_, buffer, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		GTRACE("send return %d", sendLen);
-		return false;
+		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+			return false;
+		}
 	}
 	return true;
 }
@@ -466,17 +486,19 @@ bool GDemonNetwork::processGetRtm(pchar, int32_t) {
 	}
 	pclose(p);
 
-	char buffer[MaxBufSize];
-	int32_t encLen = res.encode(buffer, MaxBufSize);
-	if (encLen == -1) {
-		GTRACE("res.encode return -1");
-		return false;
-	}
+	{
+		GSpinLockGuard guard(session_->sendBufLock_);
+		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return false;
+		}
 
-	int sendLen = ::send(session_->sd_, buffer, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		GTRACE("send return %d", sendLen);
-		return false;
+		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+			return false;
+		}
 	}
 	return true;
 }
@@ -673,19 +695,22 @@ void GDemonPcap::run(int waitTimeout) {
 		read.pktHdr_.len = (uint32_t)pktHdr->len;
 		read.data_ = puchar(data);
 
-		char buffer[MaxBufSize];
-		int32_t encLen = read.encode(buffer, MaxBufSize);
-		if (encLen == -1) {
-			GTRACE("res.encode return -1");
-			return;
-		}
+		{
+			GSpinLockGuard guard(session_->sendBufLock_);
+			int32_t encLen = read.encode(session_->sendBuf_, MaxBufSize);
+			if (encLen == -1) {
+				GTRACE("res.encode return -1");
+				break;
+			}
 
-		int sendLen = ::send(session_->sd_, buffer, encLen, 0);
-		if (sendLen == 0 || sendLen == -1) {
-			GTRACE("send return %d", sendLen);
-			return;
+			int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+			if (sendLen == 0 || sendLen == -1) {
+				GTRACE("send return %d", sendLen);
+				break;
+			}
 		}
 	}
+	::close(session_->sd_);
 }
 
 bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
@@ -700,16 +725,18 @@ bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
 
 	PcapOpenRes res = open(req);
 
-	char buffer[MaxBufSize];
-	int32_t encLen = res.encode(buffer, MaxBufSize);
-	if (encLen == -1) {
-		GTRACE("res.encode return -1");
-		return false;
-	}
+	{
+		GSpinLockGuard guard(session_->sendBufLock_);
+		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return false;
+		}
 
-	int sendLen = ::send(session_->sd_, buffer, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		GTRACE("send return %d", sendLen);
+		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+		}
 	}
 	return true;
 }

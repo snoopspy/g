@@ -26,7 +26,9 @@ struct GDemonClient : GDemon {
 
 	int sd_{0};
 
-	char readBuffer_[MaxBufSize]; // used in pcapRead
+	char* recvBuf_{nullptr};
+	char* sendBuf_{nullptr}; GSpinLock sendBufLock_;
+	char* pktBuf_{nullptr};
 
 	// connection
 	bool connect();

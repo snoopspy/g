@@ -14,9 +14,37 @@
 #include <cstdint>
 #include <cstring>
 #include <list>
-#include <string>
 #include <pcap.h>
+#include <string>
 #include <unistd.h>
+#include <thread>
+
+// ----------------------------------------------------------------------------
+// GSpinLock
+// ----------------------------------------------------------------------------
+struct GSpinLock {
+	std::atomic_flag locked = ATOMIC_FLAG_INIT ;
+
+public:
+	void lock() {
+		while (locked.test_and_set(std::memory_order_acquire)) { ; }
+	}
+	void unlock() {
+		locked.clear(std::memory_order_release);
+	}
+};
+
+// ----------------------------------------------------------------------------
+// GSpinLockGuard
+// ----------------------------------------------------------------------------
+struct GSpinLockGuard {
+protected:
+	GSpinLock* spinLock_;
+
+public:
+	GSpinLockGuard(GSpinLock& spinLock) : spinLock_(&spinLock) { spinLock_->lock(); }
+	~GSpinLockGuard() { spinLock_->unlock(); }
+};
 
 // ----------------------------------------------------------------------------
 // GDemon
@@ -32,7 +60,7 @@ struct GDemon {
 	typedef bool *pbool;
 
 	static const uint16_t DefaultPort = 8908;
-	static const int MaxBufferSize = 32768;
+	static const int MaxBufSize = 600;
 
 	static bool recvAll(int sd, pvoid buffer, int32_t size);
 

@@ -34,7 +34,7 @@ int32_t GDemon::Header::encode(pchar buffer, int32_t size) {
 	*PCmd(buf) = cmd_; buf += sizeof(cmd_); size -= sizeof(cmd_);
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -47,7 +47,7 @@ int32_t GDemon::Header::decode(pchar buffer, int32_t size) {
 	cmd_ = *PCmd(buf); buf += sizeof(cmd_); size -= sizeof(cmd_);
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -71,7 +71,7 @@ int32_t GDemon::CmdExecuteReq::encode(pchar buffer, int32_t size) {
 	Header::encode(buffer, sizeof(Header));
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -82,7 +82,7 @@ int32_t GDemon::CmdExecuteReq::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdCmdExecute) {
-		GTRACE("cmd_ is not CmdCmdExecute %d\n", cmd_);
+		GTRACE("cmd_ is not CmdCmdExecute %d", cmd_);
 		return -1;
 	}
 
@@ -91,7 +91,7 @@ int32_t GDemon::CmdExecuteReq::decode(pchar buffer, int32_t size) {
 	command_ = std::string(buf, len); buf += len; size -= len;
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -115,7 +115,7 @@ int32_t GDemon::CmdExecuteRes::encode(pchar buffer, int32_t size) {
 	Header::encode(buffer, sizeof(Header));
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -126,7 +126,7 @@ int32_t GDemon::CmdExecuteRes::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdCmdExecute) {
-		GTRACE("cmd_ is not CmdCmdExecute %d\n", cmd_);
+		GTRACE("cmd_ is not CmdCmdExecute %d", cmd_);
 		return -1;
 	}
 
@@ -138,7 +138,7 @@ int32_t GDemon::CmdExecuteRes::decode(pchar buffer, int32_t size) {
 	error_ = std::string(buf, len); buf += len; size -= len;
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -159,7 +159,7 @@ int32_t GDemon::CmdStartReq::encode(pchar buffer, int32_t size) {
 	Header::encode(buffer, sizeof(Header));
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -170,7 +170,7 @@ int32_t GDemon::CmdStartReq::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdCmdStart) {
-		GTRACE("cmd_ is not CmdCmdStart %d\n", cmd_);
+		GTRACE("cmd_ is not CmdCmdStart %d", cmd_);
 		return -1;
 	}
 
@@ -179,7 +179,7 @@ int32_t GDemon::CmdStartReq::decode(pchar buffer, int32_t size) {
 	command_ = std::string(buf, len); buf += len; size -= len;
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -203,7 +203,7 @@ int32_t GDemon::CmdStartRes::encode(pchar buffer, int32_t size) {
 	Header::encode(buffer, sizeof(Header));
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -214,7 +214,7 @@ int32_t GDemon::CmdStartRes::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdCmdStart) {
-		GTRACE("cmd_ is not CmdCmdStart %d\n", cmd_);
+		GTRACE("cmd_ is not CmdCmdStart %d", cmd_);
 		return -1;
 	}
 
@@ -226,7 +226,7 @@ int32_t GDemon::CmdStartRes::decode(pchar buffer, int32_t size) {
 	error_ = std::string(buf, len); buf += len; size -= len;
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -245,7 +245,7 @@ int32_t GDemon::CmdStopReq::encode(pchar buffer, int32_t size) {
 	Header::encode(buffer, sizeof(Header));
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -256,7 +256,7 @@ int32_t GDemon::CmdStopReq::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdCmdStop) {
-		GTRACE("cmd_ is not CmdCmdStop %d\n", cmd_);
+		GTRACE("cmd_ is not CmdCmdStop %d", cmd_);
 		return -1;
 	}
 
@@ -264,7 +264,7 @@ int32_t GDemon::CmdStopReq::decode(pchar buffer, int32_t size) {
 	pid_ = *pint64_t(buf); buf += sizeof(pid_); size -= sizeof(pid_);
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -288,7 +288,7 @@ int32_t GDemon::CmdStopRes::encode(pchar buffer, int32_t size) {
 	Header::encode(buffer, sizeof(Header));
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -299,7 +299,7 @@ int32_t GDemon::CmdStopRes::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdCmdStop) {
-		GTRACE("cmd_ is not CmdCmdStop %d\n", cmd_);
+		GTRACE("cmd_ is not CmdCmdStop %d", cmd_);
 		return -1;
 	}
 
@@ -311,7 +311,7 @@ int32_t GDemon::CmdStopRes::decode(pchar buffer, int32_t size) {
 	error_ = std::string(buf, len); buf += len; size -= len;
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -332,7 +332,7 @@ int32_t GDemon::CmdStartDetachedReq::encode(pchar buffer, int32_t size) {
 	Header::encode(buffer, sizeof(Header));
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -343,7 +343,7 @@ int32_t GDemon::CmdStartDetachedReq::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdCmdStartDetached) {
-		GTRACE("cmd_ is not CmdCmdStartDetached %d\n", cmd_);
+		GTRACE("cmd_ is not CmdCmdStartDetached %d", cmd_);
 		return -1;
 	}
 
@@ -352,7 +352,7 @@ int32_t GDemon::CmdStartDetachedReq::decode(pchar buffer, int32_t size) {
 	command_ = std::string(buf, len); buf += len; size -= len;
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -376,7 +376,7 @@ int32_t GDemon::CmdStartDetachedRes::encode(pchar buffer, int32_t size) {
 	Header::encode(buffer, sizeof(Header));
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -387,7 +387,7 @@ int32_t GDemon::CmdStartDetachedRes::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdCmdStartDetached) {
-		GTRACE("cmd_ is not CmdCmdStartDetached %d\n", cmd_);
+		GTRACE("cmd_ is not CmdCmdStartDetached %d", cmd_);
 		return -1;
 	}
 
@@ -399,7 +399,7 @@ int32_t GDemon::CmdStartDetachedRes::decode(pchar buffer, int32_t size) {
 	error_ = std::string(buf, len); buf += len; size -= len;
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -434,7 +434,7 @@ int32_t GDemon::Interface::encode(pchar buffer, int32_t size) {
 	memcpy(buf, &mask_, sizeof(mask_)); buf += sizeof(mask_); size -= sizeof(mask_);
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -468,7 +468,7 @@ int32_t GDemon::Interface::decode(pchar buffer, int32_t size) {
 	memcpy(&mask_, buf, sizeof(mask_)); buf += sizeof(mask_); size -= sizeof(mask_);
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -484,11 +484,12 @@ int32_t GDemon::InterfaceList::encode(pchar buffer, int32_t size) {
 	// InterfaceList
 	for (Interface& intf: *this) {
 		int32_t len = intf.encode(buf, size);
+		if (len == -1) return -1;
 		buf += len; size -= len;
 	}
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -505,14 +506,13 @@ int32_t GDemon::InterfaceList::decode(pchar buffer, int32_t size) {
 		Interface intf;
 
 		int32_t len = intf.decode(buf, size);
-		//GTRACE("len=%d name=%s", len, intf.name_.data());
+		if (len == -1) return -1;
 		push_back(intf);
 		buf += len; size -= len;
-		//GTRACE("len=%d name=%s size=%d", len, intf.name_.data(), size);
 	}
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -539,7 +539,7 @@ int32_t GDemon::RtmEntry::encode(pchar buffer, int32_t size) {
 	memcpy(buf, intfName_.data(), len); buf += len; size -= len;
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -566,7 +566,7 @@ int32_t GDemon::RtmEntry::decode(pchar buffer, int32_t size) {
 	intfName_ = std::string(buf, len); buf += len; size -= len;
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -582,11 +582,12 @@ int32_t GDemon::Rtm::encode(pchar buffer, int32_t size) {
 	// Rtm
 	for (RtmEntry& rtmEntry: *this) {
 		int32_t len = rtmEntry.encode(buf, size);
+		if (len == -1) return -1;
 		buf += len; size -= len;
 	}
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -604,12 +605,13 @@ int32_t GDemon::Rtm::decode(pchar buffer, int32_t size) {
 		RtmEntry rtmEntry;
 
 		int32_t len = rtmEntry.decode(buf, size);
+		if (len == -1) return -1;
 		push_back(rtmEntry);
 		buf += len; size -= len;
 	}
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -624,7 +626,7 @@ int32_t GDemon::GetInterfaceListReq::encode(pchar buffer, int32_t size) {
 	int32_t encLen = Header::encode(buf, size); buf += encLen; size -= encLen;
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -639,7 +641,7 @@ int32_t GDemon::GetInterfaceListReq::decode(pchar buffer, int32_t size) {
 		return -1;
 	}
 	if (cmd_ != CmdGetInterfaceList) {
-		GTRACE("cmd_ is not cmdGetInterfaceList %d\n", cmd_);
+		GTRACE("cmd_ is not cmdGetInterfaceList %d", cmd_);
 		return -1;
 	}
 	return buf - buffer;
@@ -651,13 +653,14 @@ int32_t GDemon::GetInterfaceListRes::encode(pchar buffer, int32_t size) {
 	buf += sizeof(Header); size -= sizeof(Header);
 
 	int32_t encLen = interfaceList_.encode(buf, size); buf += encLen; size -= encLen;
+	if (encLen == -1) return -1;
 
 	len_ = encLen;
 	cmd_ = CmdGetInterfaceList;
 	Header::encode(buffer, sizeof(Header)); // buf += encLen; size -= encLen;
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -668,14 +671,15 @@ int32_t GDemon::GetInterfaceListRes::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdGetInterfaceList) {
-		GTRACE("cmd_ is not cmdGetInterfaceList %d\n", cmd_);
+		GTRACE("cmd_ is not cmdGetInterfaceList %d", cmd_);
 		return -1;
 	}
 
 	decLen = interfaceList_.decode(buf, size); buf += decLen; size -= decLen;
+	if (decLen == -1) return -1;
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -705,7 +709,7 @@ int32_t GDemon::GetRtmReq::decode(pchar buffer, int32_t size) {
 		return -1;
 	}
 	if (cmd_ != CmdGetRtm) {
-		GTRACE("cmd_ is not cmdGetRtm %d\n", cmd_);
+		GTRACE("cmd_ is not cmdGetRtm %d", cmd_);
 		return -1;
 	}
 	return buf - buffer;
@@ -717,6 +721,7 @@ int32_t GDemon::GetRtmRes::encode(pchar buffer, int32_t size) {
 	buf += sizeof(Header); size -= sizeof(Header);
 
 	int32_t encLen = rtm_.encode(buf, size); buf += encLen; size -= encLen;
+	if (encLen == -1) return -1;
 
 	len_ = encLen;
 	cmd_ = CmdGetRtm;
@@ -734,11 +739,12 @@ int32_t GDemon::GetRtmRes::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdGetRtm) {
-		GTRACE("cmd_ is not cmdGetRtm %d\n", cmd_);
+		GTRACE("cmd_ is not cmdGetRtm %d", cmd_);
 		return -1;
 	}
 
 	decLen = rtm_.decode(buf, size); buf += decLen; size -= decLen;
+	if (decLen == -1) return -1;
 
 	if (size < 0) {
 		GTRACE(" size is %d\n", size);
@@ -785,7 +791,7 @@ int32_t GDemon::PcapOpenReq::encode(pchar buffer, int32_t size) {
 	Header::encode(buffer, sizeof(Header));
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -796,7 +802,7 @@ int32_t GDemon::PcapOpenReq::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdPcapOpen) {
-		GTRACE("cmd_ is not CmdPcapOpen %d\n", cmd_);
+		GTRACE("cmd_ is not CmdPcapOpen %d", cmd_);
 		return -1;
 	}
 
@@ -824,7 +830,7 @@ int32_t GDemon::PcapOpenReq::decode(pchar buffer, int32_t size) {
 	captureThread_ = *pbool(buf); buf += sizeof(captureThread_); size -= sizeof(captureThread_);
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -851,7 +857,7 @@ int32_t GDemon::PcapOpenRes::encode(pchar buffer, int32_t size) {
 	Header::encode(buffer, sizeof(Header));
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -862,7 +868,7 @@ int32_t GDemon::PcapOpenRes::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdPcapOpen) {
-		GTRACE("cmd_ is not CmdPcapOpen %d\n", cmd_);
+		GTRACE("cmd_ is not CmdPcapOpen %d", cmd_);
 		return -1;
 	}
 
@@ -877,7 +883,7 @@ int32_t GDemon::PcapOpenRes::decode(pchar buffer, int32_t size) {
 	errBuf_ = std::string(buf, len); buf += len; size -= len;
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -891,7 +897,7 @@ int32_t GDemon::PcapCloseReq::encode(pchar buffer, int32_t size) {
 	int32_t encLen = Header::encode(buf, size); buf += encLen; size -= encLen;
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -902,12 +908,12 @@ int32_t GDemon::PcapCloseReq::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdPcapClose) {
-		GTRACE("cmd_ is not CmdPcapClose %d\n", cmd_);
+		GTRACE("cmd_ is not CmdPcapClose %d", cmd_);
 		return -1;
 	}
 
 	if (size < 0) {
-		GTRACE("decode size is %d\n", size);
+		GTRACE("decode size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -924,10 +930,15 @@ int32_t GDemon::PcapRead::encode(pchar buffer, int32_t size) {
 	memcpy(buf, &pktHdr_, sizeof(pktHdr_)); buf += sizeof(pktHdr_); size -= sizeof(pktHdr_);
 
 	// data_
+	if (size - int(pktHdr_.caplen) < 0) {
+		GTRACE("not enough buffer size=%d caplen=%u", size, pktHdr_.caplen);
+		return -1;
+	}
+
 	memcpy(buf, data_, pktHdr_.caplen); buf += pktHdr_.caplen; size -= pktHdr_.caplen;
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -938,7 +949,7 @@ int32_t GDemon::PcapRead::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdPcapRead) {
-		GTRACE("cmd_ is not CmdPcapRead %d\n", cmd_);
+		GTRACE("cmd_ is not CmdPcapRead %d", cmd_);
 		return -1;
 	}
 
@@ -949,7 +960,7 @@ int32_t GDemon::PcapRead::decode(pchar buffer, int32_t size) {
 	data_ = puchar(buf); buf += pktHdr_.caplen; size -= pktHdr_.caplen;
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -969,7 +980,7 @@ int32_t GDemon::PcapWrite::encode(pchar buffer, int32_t size) {
 	memcpy(buf, data_, size_); buf += size_; size -= size_;
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;
@@ -980,7 +991,7 @@ int32_t GDemon::PcapWrite::decode(pchar buffer, int32_t size) {
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
 	if (cmd_ != CmdPcapWrite) {
-		GTRACE("cmd_ is not CmdPcapWrite %d\n", cmd_);
+		GTRACE("cmd_ is not CmdPcapWrite %d", cmd_);
 		return -1;
 	}
 
@@ -991,7 +1002,7 @@ int32_t GDemon::PcapWrite::decode(pchar buffer, int32_t size) {
 	data_ = puchar(buf); buf += size_; size -= size_;
 
 	if (size < 0) {
-		GTRACE("size is %d\n", size);
+		GTRACE("size is %d", size);
 		return -1;
 	}
 	return buf - buffer;

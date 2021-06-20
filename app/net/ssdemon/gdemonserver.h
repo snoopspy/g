@@ -56,6 +56,9 @@ struct GDemonSession : GDemon {
 	GDemonServer* server_;
 	int sd_{0};
 
+	char* recvBuf_{nullptr};
+	char* sendBuf_{nullptr}; GSpinLock sendBufLock_;
+
 	static void _run(GDemonServer* server, int new_sd);
 	void run();
 
