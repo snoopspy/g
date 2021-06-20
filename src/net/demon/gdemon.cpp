@@ -934,7 +934,6 @@ int32_t GDemon::PcapRead::encode(pchar buffer, int32_t size) {
 		GTRACE("not enough buffer size=%d caplen=%u", size, pktHdr_.caplen);
 		return -1;
 	}
-
 	memcpy(buf, data_, pktHdr_.caplen); buf += pktHdr_.caplen; size -= pktHdr_.caplen;
 
 	if (size < 0) {
@@ -957,6 +956,10 @@ int32_t GDemon::PcapRead::decode(pchar buffer, int32_t size) {
 	pktHdr_ = *reinterpret_cast<PktHdr*>(buf); buf += sizeof(pktHdr_); size -= sizeof(pktHdr_);
 
 	// data_
+	if (size - int(pktHdr_.caplen) < 0) {
+		GTRACE("not enough buffer size=%d caplen=%u", size, pktHdr_.caplen);
+		return -1;
+	}
 	data_ = puchar(buf); buf += pktHdr_.caplen; size -= pktHdr_.caplen;
 
 	if (size < 0) {
