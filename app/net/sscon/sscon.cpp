@@ -123,7 +123,8 @@ public slots:
 		}
 		QString msg = strsignal(signo);
 		qWarning() << QString("signo=%1 signal=%2 msg=%3").arg(signo).arg(signal, msg);
-
+		if (signo == SIGSEGV)
+			exit(-1);
 		graph_.close();
 #endif // Q_OS_WIN
 	}
