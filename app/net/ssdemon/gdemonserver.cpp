@@ -50,11 +50,12 @@ void GDemonServer::exec() {
 	while (true) {
 		struct sockaddr_in cli_addr;
 		socklen_t len = sizeof(cli_addr);
-		int new_sd = accept(accept_, (struct sockaddr *)&cli_addr, &len);
+		int new_sd = ::accept(accept_, (struct sockaddr *)&cli_addr, &len);
 		if (new_sd == -1) {
 			GTRACE("%s", strerror(errno));
 			break;
 		}
+		GTRACE("new socket=%d", new_sd);
 		std::thread* t = new std::thread(GDemonSession::_run, this, new_sd);
 		t->detach();
 	}
@@ -201,7 +202,6 @@ void GDemonSession::run() {
 				break;
 		}
 	}
-
 	GTRACE("end");
 }
 
@@ -709,8 +709,7 @@ void GDemonPcap::run(int waitTimeout) {
 			}
 		}
 	}
-
-	GTRACE("closing sessoin socket=%d", session_->sd_);
+	GTRACE("closing sessoin socket=%d", session_->sd_); // gilgil temp 2021.06.21
 	::close(session_->sd_); // disconnect connection
 }
 
