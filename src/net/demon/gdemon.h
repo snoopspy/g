@@ -60,7 +60,7 @@ struct GDemon {
 	typedef bool *pbool;
 
 	static const uint16_t DefaultPort = 8908;
-	static const int MaxBufSize = 600;
+	static const int MaxBufSize = 32768;
 
 	static bool recvAll(int sd, pvoid buffer, int32_t size);
 
