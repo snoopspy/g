@@ -48,10 +48,13 @@ bool GArpSpoof::doOpen() {
 
 	if (filter_ != "") {
 		bpFilter_ = new GBpFilter(this);
-		if (!bpFilter_->open())
+		bpFilter_->filter_ = filter_;
+		if (!bpFilter_->open()) {
 			err = bpFilter_->err;
-		delete bpFilter_;
-		return false;
+			delete bpFilter_;
+			bpFilter_ = nullptr;
+			return false;
+		}
 	}
 
 	flowList_.clear();
@@ -202,6 +205,12 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 				if (it == flowMap_.end()) break;
 				Flow& flow = it.value();
 				ethHdr->dmac_ = flow.targetMac_;
+				if (bpFilter_ != nullptr) {
+					if (!bpFilter_->check(&packet->buf_)) {
+						relay(packet);
+						break;
+					}
+				}
 				return GPacket::Ok;
 			}
 			default: continue;
