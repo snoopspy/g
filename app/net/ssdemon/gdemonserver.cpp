@@ -55,7 +55,6 @@ void GDemonServer::exec() {
 			GTRACE("%s", strerror(errno));
 			break;
 		}
-		GTRACE("new socket=%d", new_sd);
 		std::thread* t = new std::thread(GDemonSession::_run, this, new_sd);
 		t->detach();
 	}
@@ -712,8 +711,9 @@ void GDemonPcap::run(int waitTimeout) {
 			}
 		}
 	}
-	GTRACE("closing socket=%d", session_->sd_); // gilgil temp 2021.06.21
-	::close(session_->sd_); // disconnect connection
+	// disconnect connection
+	::shutdown(session_->sd_, SHUT_RDWR);
+	::close(session_->sd_);
 }
 
 bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
