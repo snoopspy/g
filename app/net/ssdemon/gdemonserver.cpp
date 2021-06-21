@@ -63,7 +63,7 @@ void GDemonServer::exec() {
 
 void GDemonServer::stop() {
 	if (accept_ != 0) {
-		close(accept_);
+		::close(accept_);
 		accept_ = 0;
 	}
 
@@ -709,7 +709,7 @@ void GDemonPcap::run(int waitTimeout) {
 			}
 		}
 	}
-	GTRACE("closing sessoin socket=%d", session_->sd_); // gilgil temp 2021.06.21
+	GTRACE("closing socket=%d", session_->sd_); // gilgil temp 2021.06.21
 	::close(session_->sd_); // disconnect connection
 }
 
