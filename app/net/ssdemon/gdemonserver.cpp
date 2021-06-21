@@ -63,12 +63,14 @@ void GDemonServer::exec() {
 
 void GDemonServer::stop() {
 	if (accept_ != 0) {
+		::shutdown(accept_, SHUT_RDWR);
 		::close(accept_);
 		accept_ = 0;
 	}
 
 	sessions_.lock();
 	for (GDemonSession* session: sessions_) {
+		::shutdown(session->sd_, SHUT_RDWR);
 		::close(session->sd_);
 	}
 	sessions_.unlock();
@@ -94,6 +96,7 @@ GDemonSession::GDemonSession(GDemonServer* server) : server_(server) {
 
 GDemonSession::~GDemonSession() {
 	if (sd_ != 0) {
+		::shutdown(sd_, SHUT_RDWR);
 		::close(sd_);
 		sd_ = 0;
 	}
