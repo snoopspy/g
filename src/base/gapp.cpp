@@ -59,23 +59,24 @@ void GApp::initLogger() {
 
 void GApp::launchDemon() {
 #ifdef Q_OS_ANDROID
+	copyFileFromAssets("arprecover", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 	copyFileFromAssets("corepcap", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 	copyFileFromAssets("ssdemon", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 #endif // Q_OS_ANDROID
 
 	QString ssdemonFile = "ssdemon";
 	if (QFile::exists(ssdemonFile)) {
+		QStringList arguments;
+		arguments.append("-c");
+		QString path = QDir::currentPath();
 #ifdef Q_OS_ANDROID
-		QString path = QDir::currentPath();
-		QString program = "su";
-		QStringList arguments{"-c", QString("cd %1; export LD_LIBRARY_PATH=%2; export LD_PRELOAD=libfakeioctl.so; ./%3").arg(path, path + "/../lib", ssdemonFile)};
-		demon_.start(program, arguments);
+		QString run = QString("cd %1; export LD_LIBRARY_PATH=%2; export LD_PRELOAD=libfakeioctl.so; ./%3").arg(path, path + "/../lib", ssdemonFile)};
 #else // Q_OS_ANDROID
-		QString path = QDir::currentPath();
-		QString program = "su";
-		QStringList arguments{"-c", QString("cd %1; ./%2").arg(path, ssdemonFile)};
-		demon_.start(program, arguments);
+		QString run = QString("cd %1; ./%2").arg(path, ssdemonFile);
 #endif // Q_OS_ANDROID
+		arguments.append(run);
+		qDebug() << arguments; // gilgil temp 2021.06.23
+		demon_.start("su", arguments);
 	}
 }
 

@@ -11,6 +11,7 @@ cd linux
 #
 # g files 
 #
+cp ../../bin/arprecover .; strip arprecover
 cp ../../bin/corepcap .; strip corepcap
 cp ../../bin/netclient .; strip netclient
 cp ../../bin/netserver .; strip netserver

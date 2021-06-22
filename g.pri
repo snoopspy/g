@@ -69,6 +69,7 @@ CONFIG(qt): contains(QT, gui) {
 # android deploy files
 #------------------------------------------------------------------------------
 android {
+deployment.files += $${G_DIR}/bin/arprecover
 deployment.files += $${G_DIR}/bin/corepcap
 deployment.files += $${G_DIR}/bin/ssdemon
 	deployment.path = /assets

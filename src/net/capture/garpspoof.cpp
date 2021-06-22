@@ -168,15 +168,19 @@ bool GArpSpoof::doClose() {
 			flowString += QString("%1 %2 %3 %4 ").arg(QString(flow.senderIp_), QString(flow.senderMac_), QString(flow.targetIp_), QString(flow.targetMac_));
 	}
 
-	QString program = "su";
 	QStringList arguments;
 	arguments.append("-c");
-	arguments.append(QString("./arprecover -i %1 %2 %3 %4 %5 %6 %7").
-		arg(60).arg(intfName_).
+#ifdef Q_OS_ANDROID
+	QString run = "./arprecover";
+#else // Q_OS_ANDROID
+	QString run = "./arprecover";
+#endif  // Q_OS_ANDROID
+	arguments.append(QString("./%1 %2 %3 %4 %5 %6 %7 %8").
+		arg(run).arg(60).arg(intfName_).
 		arg(QString(intf_->gateway())).arg(QString(intf_->mask())).
 		arg(QString(intf_->ip())).arg(QString(intf_->mac())).arg(flowString));
 	qDebug() << arguments; // gilgil temp 2021.06.22
-	QProcess::startDetached(program, arguments);
+	QProcess::startDetached("su", arguments);
 
 	if (bpFilter_ != nullptr) {
 		delete bpFilter_;

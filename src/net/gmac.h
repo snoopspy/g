@@ -42,7 +42,7 @@ struct G_EXPORT GMac final {
 
 public:
 	void clear() {
-		*this = nullMac();
+		for (int i = 0; i < SIZE; i++) mac_[i] = 0;
 	}
 
 	bool isNull() const {

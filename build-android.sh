@@ -3,6 +3,17 @@ export QMAKE_OPTION="-spec android-clang CONFIG+=release ANDROID_ABIS=armeabi-v7
 export MAKEDIR=$ANDROID_NDK_ROOT/prebuilt/linux-x86_64/bin
 
 #
+# arprecover
+#
+if true; then
+	cd app/net/arprecover
+	make clean
+	make -j$(nproc)
+	$ANDROID_STRIP_DIR/strip ../../../bin/arprecover
+	cd ../../..
+fi
+
+#
 # corepcap
 #
 if true; then

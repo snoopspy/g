@@ -33,15 +33,17 @@ struct Mac final {
 	bool operator == (const uint8_t* r) const { return memcmp(mac_, r, SIZE) == 0; }
 
 	void clear() {
-		*this = nullMac();
+		for (int i = 0; i < SIZE; i++) mac_[i] = 0;
 	}
 
 	bool isNull() const {
-		return *this == nullMac();
+		for (int i = 0; i < SIZE; i++) if (mac_[i] != 0) return false;
+		return true;
 	}
 
 	bool isBroadcast() const { // FF:FF:FF:FF:FF:FF
-		return *this == broadcastMac();
+		for (int i = 0; i < SIZE; i++) if (mac_[i] != 0xFF) return false;
+		return true;
 	}
 
 	bool isMulticast() const { // 01:00:5E:0*
