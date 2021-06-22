@@ -62,7 +62,8 @@ public:
 	}
 
 	bool isBroadcast() const { // FF:FF:FF:FF:FF:FF
-		return *this == broadcastMac();
+		for (int i = 0; i < SIZE; i++) if (mac_[i] != 0xFF) return false;
+		return true;
 	}
 
 	bool isMulticast() const { // 01:00:5E:0*
