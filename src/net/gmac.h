@@ -57,7 +57,8 @@ public:
 	}
 
 	bool isNull() const {
-		return *this == nullMac();
+		for (int i = 0; i < SIZE; i++) if (mac_[i] != 0) return false;
+		return true;
 	}
 
 	bool isBroadcast() const { // FF:FF:FF:FF:FF:FF
