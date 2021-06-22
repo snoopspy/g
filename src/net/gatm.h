@@ -18,7 +18,7 @@
 // GEthArpHdr
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
-struct GEthArpHdr {
+struct GEthArpHdr final {
 	GEthHdr ethHdr_;
 	GArpHdr arpHdr_;
 };
