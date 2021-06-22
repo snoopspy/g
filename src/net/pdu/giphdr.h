@@ -40,7 +40,7 @@ struct G_EXPORT GIpHdr final { // libnet_ipv4_hdr // gilgil temp 2019.05.13
 	GIp sip() { return ntohl(sip_); }
 	GIp dip() { return ntohl(dip_); }
 
-	// Protocol
+	// Protocol(p_)
 	enum: uint8_t {
 		Icmp = 1, // Internet Control Message Protocol
 		Igmp = 2, // Internet Group Management Protocol

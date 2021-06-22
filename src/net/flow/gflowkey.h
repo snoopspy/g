@@ -25,10 +25,10 @@ namespace GFlow {
 		MacFlowKey() {}
 		MacFlowKey(GMac smac, GMac dmac) : smac_(smac), dmac_(dmac) {}
 
-		bool operator < (const MacFlowKey& rhs) const {
-			if (this->smac_ < rhs.smac_) return true;
-			if (this->smac_ > rhs.smac_) return false;
-			if (this->dmac_ < rhs.dmac_) return true;
+		bool operator < (const MacFlowKey& r) const {
+			if (this->smac_ < r.smac_) return true;
+			if (this->smac_ > r.smac_) return false;
+			if (this->dmac_ < r.dmac_) return true;
 			return false;
 		}
 
@@ -47,10 +47,10 @@ namespace GFlow {
 		MacSessionKey() {}
 		MacSessionKey(GMac mac1, GMac mac2) : mac1_(mac1), mac2_(mac2) {}
 
-		bool operator < (const MacSessionKey& rhs) const {
-			if (this->mac1_ < rhs.mac1_) return true;
-			if (this->mac1_ > rhs.mac1_) return false;
-			if (this->mac2_ < rhs.mac2_) return true;
+		bool operator < (const MacSessionKey& r) const {
+			if (this->mac1_ < r.mac1_) return true;
+			if (this->mac1_ > r.mac1_) return false;
+			if (this->mac2_ < r.mac2_) return true;
 			return false;
 		}
 	};
@@ -66,10 +66,10 @@ namespace GFlow {
 		IpFlowKey() {}
 		IpFlowKey(GIp sip, GIp dip) : sip_(sip), dip_(dip) {}
 
-		bool operator < (const IpFlowKey& rhs) const {
-			if (this->sip_ < rhs.sip_) return true;
-			if (this->sip_ > rhs.sip_) return false;
-			if (this->dip_ < rhs.dip_) return true;
+		bool operator < (const IpFlowKey& r) const {
+			if (this->sip_ < r.sip_) return true;
+			if (this->sip_ > r.sip_) return false;
+			if (this->dip_ < r.dip_) return true;
 			return false;
 		}
 
@@ -89,10 +89,10 @@ namespace GFlow {
 		IpSessionKey() {}
 		IpSessionKey(GIp ip1, GIp ip2) : ip1_(ip1), ip2_(ip2) {}
 
-		bool operator < (const IpSessionKey& rhs) const {
-			if (this->ip1_ < rhs.ip1_) return true;
-			if (this->ip1_ > rhs.ip1_) return false;
-			if (this->ip2_ < rhs.ip2_) return true;
+		bool operator < (const IpSessionKey& r) const {
+			if (this->ip1_ < r.ip1_) return true;
+			if (this->ip1_ > r.ip1_) return false;
+			if (this->ip2_ < r.ip2_) return true;
 			return false;
 		}
 	};
@@ -108,10 +108,10 @@ namespace GFlow {
 		PortFlowKey() {}
 		PortFlowKey(uint16_t sport, uint16_t dport) : sport_(sport), dport_(dport) {}
 
-		bool operator < (const PortFlowKey& rhs) const {
-			if (this->sport_ < rhs.sport_) return true;
-			if (this->sport_ > rhs.sport_) return false;
-			if (this->dport_ < rhs.dport_) return true;
+		bool operator < (const PortFlowKey& r) const {
+			if (this->sport_ < r.sport_) return true;
+			if (this->sport_ > r.sport_) return false;
+			if (this->dport_ < r.dport_) return true;
 			return false;
 		}
 
@@ -131,10 +131,10 @@ namespace GFlow {
 		PortSessionKey() {}
 		PortSessionKey(uint16_t port1, uint16_t port2) : port1_(port1), port2_(port2) {}
 
-		bool operator < (const PortSessionKey& rhs) const {
-			if (this->port1_ < rhs.port1_) return true;
-			if (this->port1_ > rhs.port1_) return false;
-			if (this->port2_ < rhs.port2_) return true;
+		bool operator < (const PortSessionKey& r) const {
+			if (this->port1_ < r.port1_) return true;
+			if (this->port1_ > r.port1_) return false;
+			if (this->port2_ < r.port2_) return true;
 			return false;
 		}
 	};
@@ -150,10 +150,10 @@ namespace GFlow {
 		TransportKey() {}
 		TransportKey(GIp ip, uint16_t port) : ip_(ip), port_(port) {}
 
-		bool operator < (const TransportKey& rhs) const {
-			if (this->ip_ < rhs.ip_) return true;
-			if (this->ip_ > rhs.ip_) return false;
-			if (this->port_ < rhs.port_) return true;
+		bool operator < (const TransportKey& r) const {
+			if (this->ip_ < r.ip_) return true;
+			if (this->ip_ > r.ip_) return false;
+			if (this->port_ < r.port_) return true;
 			return false;
 		}
 	};
@@ -174,25 +174,25 @@ namespace GFlow {
 		TransportFlowKey() {}
 		TransportFlowKey(GIp sip, uint16_t sport, GIp dip, uint16_t dport) : sip_(sip), sport_(sport), dip_(dip), dport_(dport) {}
 
-		bool operator < (const TransportFlowKey& rhs) const {
-			if (this->sip_ < rhs.sip_) return true;
-			if (this->sip_ > rhs.sip_) return false;
-			if (this->sport_ < rhs.sport_) return true;
-			if (this->sport_ > rhs.sport_)return false;
-			if (this->dip_ < rhs.dip_) return true;
-			if (this->dip_ > rhs.dip_) return false;
-			if (this->dport_ < rhs.dport_) return true;
+		bool operator < (const TransportFlowKey& r) const {
+			if (this->sip_ < r.sip_) return true;
+			if (this->sip_ > r.sip_) return false;
+			if (this->sport_ < r.sport_) return true;
+			if (this->sport_ > r.sport_)return false;
+			if (this->dip_ < r.dip_) return true;
+			if (this->dip_ > r.dip_) return false;
+			if (this->dport_ < r.dport_) return true;
 			return false;
 		}
 
-		bool operator == (const TransportFlowKey& rhs) const {
-			if (this->sip_ != rhs.sip_) return false;
-			if (this->sip_ != rhs.sip_) return false;
-			if (this->sport_ != rhs.sport_) return false;
-			if (this->sport_ != rhs.sport_) return false;
-			if (this->dip_ != rhs.dip_) return false;
-			if (this->dip_ != rhs.dip_) return false;
-			if (this->dport_ != rhs.dport_) return false;
+		bool operator == (const TransportFlowKey& r) const {
+			if (this->sip_ != r.sip_) return false;
+			if (this->sip_ != r.sip_) return false;
+			if (this->sport_ != r.sport_) return false;
+			if (this->sport_ != r.sport_) return false;
+			if (this->dip_ != r.dip_) return false;
+			if (this->dip_ != r.dip_) return false;
+			if (this->dport_ != r.dport_) return false;
 			return true;
 		}
 
@@ -217,14 +217,14 @@ namespace GFlow {
 		TransportSessionKey() {}
 		TransportSessionKey(GIp ip1, uint16_t port1, GIp ip2, uint16_t port2) : ip1_(ip1), port1_(port1), ip2_(ip2), port2_(port2) {}
 
-		bool operator < (const TransportSessionKey& rhs) const {
-			if (this->ip1_ < rhs.ip1_) return true;
-			if (this->ip1_ > rhs.ip1_) return false;
-			if (this->port1_ < rhs.port1_) return true;
-			if (this->port1_ > rhs.port1_) return false;
-			if (this->ip2_ < rhs.ip2_) return true;
-			if (this->ip2_ > rhs.ip2_) return false;
-			if (this->port2_ < rhs.port2_) return true;
+		bool operator < (const TransportSessionKey& r) const {
+			if (this->ip1_ < r.ip1_) return true;
+			if (this->ip1_ > r.ip1_) return false;
+			if (this->port1_ < r.port1_) return true;
+			if (this->port1_ > r.port1_) return false;
+			if (this->ip2_ < r.ip2_) return true;
+			if (this->ip2_ > r.ip2_) return false;
+			if (this->port2_ < r.port2_) return true;
 			return false;
 		}
 	};
@@ -243,10 +243,10 @@ namespace GFlow {
 		TupleFlowKey() {}
 		TupleFlowKey(uint8_t proto, TransportFlowKey flow) : proto_(proto), flow_(flow) {}
 
-		bool operator < (const TupleFlowKey& rhs) const {
-			if (this->proto_ < rhs.proto_) return true;
-			if (this->proto_ > rhs.proto_) return false;
-			return this->flow_ < rhs.flow_;
+		bool operator < (const TupleFlowKey& r) const {
+			if (this->proto_ < r.proto_) return true;
+			if (this->proto_ > r.proto_) return false;
+			return this->flow_ < r.flow_;
 		}
 
 		TupleFlowKey reverse() {
