@@ -200,4 +200,7 @@ void GTcpBlock::block(GPacket* packet) {
 
 	if (_blocked)
 		emit blocked(packet);
+
+	if (forwardRst_ || forwardFin_)
+		packet->ctrl.block_ = true;
 }
