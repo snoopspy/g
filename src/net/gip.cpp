@@ -5,12 +5,12 @@
 // ----------------------------------------------------------------------------
 // GIp
 // ----------------------------------------------------------------------------
-GIp::GIp(const QString& rhs) {
-	std::string s = rhs.toStdString();
+GIp::GIp(const QString& r) {
+	std::string s = r.toStdString();
 	pbyte p = pbyte(&ip_);
 	int res = sscanf(s.c_str(), "%hhu.%hhu.%hhu.%hhu", &p[0], &p[1], &p[2], &p[3]);
 	if (res != SIZE) {
-		qWarning() << QString("sscanf(%1) return %2").arg(rhs).arg(res);
+		qWarning() << QString("sscanf(%1) return %2").arg(r).arg(res);
 		ip_ = 0;
 		return;
 	}
@@ -36,15 +36,15 @@ GIp::operator QString() const {
 TEST(GIp, ctorTest) {
 	GIp ip1; // ()
 
-	GIp ip2{ip1}; // (const GIp& rhs)
+	GIp ip2{ip1}; // (const GIp& r)
 
-	GIp ip3{0x7F000001}; // (const uint32_t rhs)
+	GIp ip3{0x7F000001}; // (const uint32_t r)
 	EXPECT_EQ(ip3, 0x7F000001);
 
-	GIp ip4{QString("127.0.0.1")}; // (const QString& rhs)
+	GIp ip4{QString("127.0.0.1")}; // (const QString& r)
 	EXPECT_EQ(ip4, 0x7F000001);
 
-	GIp ip5{"127.0.0.1"}; // (const QString& rhs)
+	GIp ip5{"127.0.0.1"}; // (const QString& r)
 	EXPECT_EQ(ip5, 0x7F000001);
 }
 

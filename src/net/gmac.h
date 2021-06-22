@@ -16,40 +16,29 @@
 // GMac
 // ----------------------------------------------------------------------------
 struct G_EXPORT GMac final {
-public:
 	static constexpr int SIZE = 6;
 
-protected:
-	gbyte mac_[SIZE];
-
-public:
-	//
 	// constructor
-	//
 	GMac() {}
-	GMac(const GMac& rhs) { memcpy(this->mac_, rhs.mac_, SIZE); }
-	GMac(const gbyte* rhs) { memcpy(this->mac_, rhs, SIZE); }
-	GMac(const QString& rhs);
+	GMac(const GMac& r) { memcpy(this->mac_, r.mac_, SIZE); }
+	GMac(const gbyte* r) { memcpy(this->mac_, r, SIZE); }
+	GMac(const QString& r);
 
 	// assign operator
-	GMac& operator = (const GMac& rhs) { memcpy(this->mac_, rhs.mac_, SIZE); return *this; }
+	GMac& operator = (const GMac& r) { memcpy(this->mac_, r.mac_, SIZE); return *this; }
 
-	//
 	// casting operator
-	//
 	explicit operator gbyte*() const { return const_cast<gbyte*>(mac_); }
 	explicit operator QString() const;
 
-	//
 	// comparison operator
-	//
-	bool operator == (const GMac& rhs) const { return memcmp(mac_, rhs.mac_, SIZE) == 0; }
-	bool operator != (const GMac& rhs) const { return memcmp(mac_, rhs.mac_, SIZE) != 0; }
-	bool operator < (const GMac& rhs) const { return memcmp(mac_, rhs.mac_, SIZE) < 0; }
-	bool operator > (const GMac& rhs) const { return memcmp(mac_, rhs.mac_, SIZE) > 0; }
-	bool operator <= (const GMac& rhs) const { return memcmp(mac_, rhs.mac_, SIZE) <= 0; }
-	bool operator >= (const GMac& rhs) const { return memcmp(mac_, rhs.mac_, SIZE) >= 0; }
-	bool operator == (const pbyte rhs) const { return memcmp(mac_, rhs, SIZE) == 0; }
+	bool operator == (const GMac& r) const { return memcmp(mac_, r.mac_, SIZE) == 0; }
+	bool operator != (const GMac& r) const { return memcmp(mac_, r.mac_, SIZE) != 0; }
+	bool operator < (const GMac& r) const { return memcmp(mac_, r.mac_, SIZE) < 0; }
+	bool operator > (const GMac& r) const { return memcmp(mac_, r.mac_, SIZE) > 0; }
+	bool operator <= (const GMac& r) const { return memcmp(mac_, r.mac_, SIZE) <= 0; }
+	bool operator >= (const GMac& r) const { return memcmp(mac_, r.mac_, SIZE) >= 0; }
+	bool operator == (const pbyte r) const { return memcmp(mac_, r, SIZE) == 0; }
 
 public:
 	void clear() {
@@ -73,16 +62,16 @@ public:
 	static GMac randomMac();
 	static GMac& nullMac();
 	static GMac& broadcastMac();
+
+protected:
+	gbyte mac_[SIZE];
 };
 
 namespace std {
 	template<>
 	struct hash<GMac> {
-		size_t operator() (const GMac & rhs) const {
-			gbyte* p = (gbyte*)rhs;
-			uint16_t* p1 = (uint16_t*)p;
-			uint32_t* p2 = (uint32_t*)(p + 2);
-			return *p1 + *p2;
+		size_t operator() (const GMac& r) const {
+			return std::_Hash_impl::hash(&r, GMac::SIZE);
 		}
 	};
 }

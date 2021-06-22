@@ -4,8 +4,8 @@
 // ----------------------------------------------------------------------------
 // GIp6
 // ----------------------------------------------------------------------------
-GIp6::GIp6(const QString& rhs) {
-	std::string s = rhs.toStdString();
+GIp6::GIp6(const QString& r) {
+	std::string s = r.toStdString();
 	char* p = pchar(s.c_str());
 
 #ifdef Q_OS_LINUX
@@ -14,7 +14,7 @@ GIp6::GIp6(const QString& rhs) {
 	} else { // fail
 		switch (res) {
 			case 0:
-				qWarning() << "inet_pton return zero ip=" << rhs;
+				qWarning() << "inet_pton return zero ip=" << r;
 				break;
 			default:
 				qWarning() << "inet_pton return " << res << " " << GLastErr();
@@ -54,15 +54,15 @@ static u_char _loopback[GIp6::SIZE] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
 TEST(GIp6, ctorTest) {
 	GIp6 ip61; // ()
 
-	GIp6 ip62{ip61}; // GIp6(const GIp6& rhs)
+	GIp6 ip62{ip61}; // GIp6(const GIp6& r)
 
-	GIp6 ip63{_loopback}; // GIp6(const u_char* rhs)
+	GIp6 ip63{_loopback}; // GIp6(const u_char* r)
 	EXPECT_EQ(ip63, _loopback);
 
-	GIp6 ip64{QString("::1")}; // GIp6(const QString rhs)
+	GIp6 ip64{QString("::1")}; // GIp6(const QString r)
 	EXPECT_EQ(ip64, _loopback);
 
-	GIp6 ip65{"::1"}; // GIp6(const QString rhs)
+	GIp6 ip65{"::1"}; // GIp6(const QString r)
 	EXPECT_EQ(ip65, _loopback);
 }
 

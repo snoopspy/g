@@ -3,15 +3,15 @@
 // ----------------------------------------------------------------------------
 // GMac
 // ----------------------------------------------------------------------------
-GMac::GMac(const QString& rhs) {
+GMac::GMac(const QString& r) {
 	std::string s;
-	for (QChar ch : rhs) {
+	for (QChar ch : r) {
 		if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'))
 			s += ch.toLatin1();
 	}
 	int res = sscanf(s.c_str(), "%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx", &mac_[0], &mac_[1], &mac_[2], &mac_[3], &mac_[4], &mac_[5]);
 	if (res != SIZE) {
-		qWarning() << QString("sscanf(%1) return %2").arg(rhs).arg(res);
+		qWarning() << QString("sscanf(%1) return %2").arg(r).arg(res);
 		memset(mac_, 0, SIZE);
 	}
 }
@@ -53,14 +53,14 @@ static constexpr gbyte _temp[] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55};
 TEST(GMac, ctorTest) {
 	GMac mac1; // ()
 
-	GMac mac2{mac1}; // (const GMac& rhs)
+	GMac mac2{mac1}; // (const GMac& r)
 
-	GMac mac3(_temp); // (const gbyte* rhs)
+	GMac mac3(_temp); // (const gbyte* r)
 
-	GMac mac4(QString("001122-334455")); // (const QString& rhs)
+	GMac mac4(QString("001122-334455")); // (const QString& r)
 	EXPECT_EQ(mac3, mac4);
 
-	GMac mac5("001122-334455"); // (const QString& rhs)
+	GMac mac5("001122-334455"); // (const QString& r)
 	EXPECT_EQ(mac3, mac5);
 }
 
