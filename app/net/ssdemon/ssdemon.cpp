@@ -5,8 +5,6 @@
 #include "gdemonserver.h"
 #include "gtrace.h"
 
-using namespace std;
-
 GDemonServer server;
 
 struct Param {
@@ -14,7 +12,7 @@ struct Param {
 
 	bool parse(int argc, char* argv[]) {
 		if (argc == 2)
-			port_ = stoi(argv[1]);
+			port_ = std::stoi(argv[1]);
 		if (argc > 2) {
 			usage();
 			return false;
@@ -23,8 +21,8 @@ struct Param {
 	}
 
 	void usage() {
-		cerr << "syntax: ssdemon [<port>]\n";
-		cerr << "sample: ssdemon 8908\n";
+		std::cerr << "syntax: ssdemon [<port>]\n";
+		std::cerr << "sample: ssdemon 8908\n";
 	}
 } param;
 
@@ -100,9 +98,7 @@ int main(int argc, char* argv[]) {
 
 	prepareSignal();
 
-	if (!param.parse(argc, argv)) {
-		return -1;
-	}
+	if (!param.parse(argc, argv)) return -1;
 
 	char wd[BUFSIZ];
 	memset(wd, 0, BUFSIZ);

@@ -13,6 +13,12 @@ GArpSpoof::~GArpSpoof() {
 bool GArpSpoof::doOpen() {
 	if (!enabled_) return true;
 
+	QString program = "su";
+	QStringList arguments;
+	arguments.append("-c");
+	arguments.append("pkill arprecover");
+	QProcess::startDetached(program, arguments);
+
 	// ----- by gilgil 2021.06.18 -----
 	// intf_ is determined in GPcapDevice::doOpen or GRemovePcapDevice::doOpen.
 	// To set filter, intf_ must be determined before open base class doOpen
@@ -36,10 +42,10 @@ bool GArpSpoof::doOpen() {
 	QString internalFilter;
 	if (virtualMac_.isNull()) {
 		myMac_ = intf()->mac();
-		internalFilter = QString("!(ether src %1)").arg(QString(intf()->mac()));
+		internalFilter = QString("!(ether src %1) && !(ether dst FF:FF:FF:FF:FF:FF)").arg(QString(intf()->mac()));
 	} else {
 		myMac_ = virtualMac_;
-		internalFilter = QString("!(ether src %1) and !(ether src %2)").arg(QString(intf()->mac()), QString(virtualMac_));
+		internalFilter = QString("!(ether src %1) && !(ether src %2) && !(ether dst FF:FF:FF:FF:FF:FF)").arg(QString(intf()->mac()), QString(virtualMac_));
 	}
 	QString backupFilter = filter_;
 	filter_ = internalFilter;
@@ -150,10 +156,27 @@ bool GArpSpoof::doClose() {
 	infectThread_.we_.wakeAll();
 	infectThread_.wait();
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 3; i++) {
 		sendARPRecoverAll();
 		QThread::msleep(sendInterval_);
 	}
+
+	QString flowString;
+	{
+		QMutexLocker(&flowList_.m_);
+		for (Flow& flow: flowList_)
+			flowString += QString("%1 %2 %3 %4 ").arg(QString(flow.senderIp_), QString(flow.senderMac_), QString(flow.targetIp_), QString(flow.targetMac_));
+	}
+
+	QString program = "su";
+	QStringList arguments;
+	arguments.append("-c");
+	arguments.append(QString("./arprecover -i %1 %2 %3 %4 %5 %6 %7").
+		arg(60).arg(intfName_).
+		arg(QString(intf_->gateway())).arg(QString(intf_->mask())).
+		arg(QString(intf_->ip())).arg(QString(intf_->mac())).arg(flowString));
+	qDebug() << arguments; // gilgil temp 2021.06.22
+	QProcess::startDetached(program, arguments);
 
 	if (bpFilter_ != nullptr) {
 		delete bpFilter_;
@@ -174,6 +197,7 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 
 		// attacker sending packet?
 		if (ethHdr->smac() == myMac_) continue;
+		if (ethHdr->dmac().isBroadcast()) continue;
 		processPacket(packet);
 
 		switch (ethHdr->type()) {

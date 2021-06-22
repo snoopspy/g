@@ -16,7 +16,7 @@ bool GBpFilter::doOpen() {
 	code_ = static_cast<bpf_program*>(malloc(sizeof(bpf_program)));
 	res = pcap_compile(pcap_, code_, qPrintable(filter_), 1, 0xFFFFFFFF);
 	if (res < 0) {
-		SET_ERR(GErr::FAIL, QString("error in pcap_compile %1(%2)").arg(pcap_geterr(pcap_)).arg(filter_));
+		SET_ERR(GErr::FAIL, QString("error in pcap_compile %1 - %2").arg(pcap_geterr(pcap_)).arg(filter_));
 		return false;
 	}
 
