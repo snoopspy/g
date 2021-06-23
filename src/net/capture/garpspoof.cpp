@@ -209,46 +209,45 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 		processPacket(packet);
 		if (smac.isBroadcast() || smac.isMulticast()) continue;
 
-		switch (ethHdr->type()) {
-			case GEthHdr::Arp: {
-				GArpHdr* arpHdr = packet->arpHdr_;
-				Q_ASSERT(arpHdr != nullptr);
-				for (Flow& flow: flowList_) {
-					bool infect = false;
-					if (arpHdr->sip() == flow.senderIp_ && arpHdr->tip() == flow.targetIp_) { // sender > target ARP packet
-						qDebug() << QString("sender(%1) to target(%2) ARP packet").arg(QString(flow.senderIp_), QString(flow.targetIp_));
-						infect = true;
-					} else
+		uint16_t type = ethHdr->type();
+		if (type == GEthHdr::Arp) {
+			GArpHdr* arpHdr = packet->arpHdr_;
+			Q_ASSERT(arpHdr != nullptr);
+			for (Flow& flow: flowList_) {
+				bool infect = false;
+				if (arpHdr->sip() == flow.senderIp_ && arpHdr->tip() == flow.targetIp_) { // sender > target ARP packet
+					qDebug() << QString("sender(%1) to target(%2) ARP packet").arg(QString(flow.senderIp_), QString(flow.targetIp_));
+					infect = true;
+				} else
 					if (arpHdr->sip() == flow.targetIp_ && ethHdr->dmac() == GMac::broadcastMac()) { // target to any ARP packet
 						qDebug() << QString("target(%1) to any(%2) ARP packet").arg(QString(flow.targetIp_), QString(flow.senderIp_));
 						infect = true;
 					}
-					if (infect)
-						sendArpInfect(&flow);
-				}
-				continue;
+				if (infect)
+					sendArpInfect(&flow);
 			}
-			case GEthHdr::Ip4: {
-				GIpHdr* ipHdr = packet->ipHdr_;
-				Q_ASSERT(ipHdr != nullptr);
-				GIp adjSrcIp = intf_->getAdjIp(ipHdr->sip());
-				GIp adjDstIp = intf_->getAdjIp(ipHdr->dip());
-				GFlow::IpFlowKey key(adjSrcIp, adjDstIp);
-				FlowMap::iterator it = flowMap_.find(key);
-				if (it == flowMap_.end()) break;
-				Flow& flow = it.value();
-				ethHdr->dmac_ = flow.targetMac_;
-				if (bpFilter_ != nullptr) {
-					if (!bpFilter_->check(&packet->buf_)) {
-						relay(packet);
-						break;
-					}
+			continue;
+		} else if (type == GEthHdr::Ip4) {
+			GIpHdr* ipHdr = packet->ipHdr_;
+			Q_ASSERT(ipHdr != nullptr);
+			GIp adjSrcIp = intf_->getAdjIp(ipHdr->sip());
+			GIp adjDstIp = intf_->getAdjIp(ipHdr->dip());
+			GFlow::IpFlowKey key(adjSrcIp, adjDstIp);
+			FlowMap::iterator it = flowMap_.find(key);
+			if (it == flowMap_.end()) break;
+			Flow& flow = it.value();
+			ethHdr->dmac_ = flow.targetMac_;
+			if (bpFilter_ != nullptr) {
+				if (!bpFilter_->check(&packet->buf_)) {
+					relay(packet);
+					break;
 				}
-				return GPacket::Ok;
 			}
-			default: continue;
+			return GPacket::Ok;
 		}
+		continue;
 	}
+	return GPacket::Fail; // remove warning: non-void function does not return a value in all control paths
 }
 
 GPacket::Result GArpSpoof::write(GBuf buf) {
