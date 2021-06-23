@@ -61,8 +61,17 @@ protected:
 namespace std {
 	template<>
 	struct hash<Mac> {
+		typedef unsigned char byte;
+		typedef unsigned char *pbyte;
 		size_t operator() (const Mac& r) const {
+#ifdef __ANDROID__
+			byte* p = pbyte(&r);
+			size_t res = 0;
+			for(size_t i = 0; i < Mac::SIZE; ++i) res = res * 31 + size_t(*p++);
+			return res;
+#else // __ANDROID__
 			return std::_Hash_impl::hash(&r, Mac::SIZE);
+#endif // __ANDROID__
 		}
 	};
 }

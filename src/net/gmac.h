@@ -71,7 +71,14 @@ namespace std {
 	template<>
 	struct hash<GMac> {
 		size_t operator() (const GMac& r) const {
+#ifdef Q_OS_ANDROID
+			gbyte* p = pbyte(&r);
+			size_t res = 0;
+			for(size_t i = 0; i < GMac::SIZE; ++i) res = res * 31 + size_t(*p++);
+			return res;
+#else // Q_OS_ANDROID
 			return std::_Hash_impl::hash(&r, GMac::SIZE);
+#endif // Q_OS_ANDROID
 		}
 	};
 }

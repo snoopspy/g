@@ -64,7 +64,14 @@ namespace std {
 	template<>
 	struct hash<GIp6> {
 		size_t operator() (const GIp6& r) const {
+#ifdef Q_OS_ANDROID
+			gbyte* p = pbyte(&r);
+			size_t res = 0;
+			for(size_t i = 0; i < GIp6::SIZE; ++i) res = res * 31 + size_t(*p++);
+			return res;
+#else // Q_OS_ANDROID
 			return std::_Hash_impl::hash(&r, GIp6::SIZE);
+#endif // Q_OS_ANDROID
 		}
 	};
 }
