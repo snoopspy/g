@@ -247,6 +247,7 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 		}
 		continue;
 	}
+	qWarning() << "unreachable routine";
 	return GPacket::Fail; // remove warning: non-void function does not return a value in all control paths
 }
 
