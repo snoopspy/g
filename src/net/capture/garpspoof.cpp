@@ -42,10 +42,10 @@ bool GArpSpoof::doOpen() {
 	QString internalFilter;
 	if (virtualMac_.isNull()) {
 		myMac_ = intf()->mac();
-		internalFilter = QString("!(ether src %1) && !(ether dst FF:FF:FF:FF:FF:FF)").arg(QString(intf()->mac()));
+		internalFilter = QString("!(ether src %1)").arg(QString(intf()->mac()));
 	} else {
 		myMac_ = virtualMac_;
-		internalFilter = QString("!(ether src %1) && !(ether src %2) && !(ether dst FF:FF:FF:FF:FF:FF)").arg(QString(intf()->mac()), QString(virtualMac_));
+		internalFilter = QString("!(ether src %1) && !(ether src %2)").arg(QString(intf()->mac()), QString(virtualMac_));
 	}
 	QString backupFilter = filter_;
 	filter_ = internalFilter;
@@ -161,26 +161,30 @@ bool GArpSpoof::doClose() {
 		QThread::msleep(sendInterval_);
 	}
 
-	QString flowString;
-	{
-		QMutexLocker(&flowList_.m_);
-		for (Flow& flow: flowList_)
-			flowString += QString("%1 %2 %3 %4 ").arg(QString(flow.senderIp_), QString(flow.senderMac_), QString(flow.targetIp_), QString(flow.targetMac_));
-	}
+	if (flowList_.count() > 0) {
+		QString flowString;
+		{
+			QMutexLocker(&flowList_.m_);
+			for (Flow& flow: flowList_)
+				flowString += QString("%1 %2 %3 %4 ").arg(QString(flow.senderIp_), QString(flow.senderMac_), QString(flow.targetIp_), QString(flow.targetMac_));
+		}
 
-	QStringList arguments;
-	arguments.append("-c");
-#ifdef Q_OS_ANDROID
-	QString run = "./arprecover";
-#else // Q_OS_ANDROID
-	QString run = "./arprecover";
-#endif  // Q_OS_ANDROID
-	arguments.append(QString("./%1 %2 %3 %4 %5 %6 %7 %8").
-		arg(run).arg(60).arg(intfName_).
-		arg(QString(intf_->gateway())).arg(QString(intf_->mask())).
-		arg(QString(intf_->ip())).arg(QString(intf_->mac())).arg(flowString));
-	qDebug() << arguments; // gilgil temp 2021.06.22
-	QProcess::startDetached("su", arguments);
+		QString arprecoverFile = "arprecover";
+		QStringList arguments;
+		arguments.append("-c");
+		QString path = QDir::currentPath();
+	#ifdef Q_OS_ANDROID
+		QString run = QString("cd %1; export LD_LIBRARY_PATH=%2; ./%3").arg(path, path + "/../lib", arprecoverFile);
+	#else // Q_OS_ANDROID
+		QString run = QString("cd %1; ./%2").arg(path, arprecoverFile);
+	#endif  // Q_OS_ANDROID
+		arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").
+			arg(run).arg(60).arg(
+			intfName_, QString(intf_->gateway()), QString(intf_->mask()),
+			QString(intf_->ip()), QString(intf_->mac()), flowString));
+		qDebug() << arguments; // gilgil temp 2021.06.22
+		QProcess::startDetached("su", arguments);
+	}
 
 	if (bpFilter_ != nullptr) {
 		delete bpFilter_;
@@ -191,7 +195,7 @@ bool GArpSpoof::doClose() {
 }
 
 GPacket::Result GArpSpoof::read(GPacket* packet) {
-	while (true) {
+	while (active()) {
 		GPacket::Result res = GArpSpoofBaseDevice::read(packet);
 		if (res == GPacket::Eof || res == GPacket::Fail) return res;
 		if (res == GPacket::None) continue;
@@ -200,9 +204,10 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 		Q_ASSERT(ethHdr != nullptr);
 
 		// attacker sending packet?
-		if (ethHdr->smac() == myMac_) continue;
-		if (ethHdr->dmac().isBroadcast()) continue;
+		GMac smac = ethHdr->smac();
+		if (smac == myMac_) continue;
 		processPacket(packet);
+		if (smac.isBroadcast() || smac.isMulticast()) continue;
 
 		switch (ethHdr->type()) {
 			case GEthHdr::Arp: {

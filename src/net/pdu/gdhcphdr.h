@@ -23,7 +23,7 @@ struct G_EXPORT GDhcpHdr final {
 	uint8_t hops_; // Hops
 	uint32_t transaction_; // Transaction ID
 	uint16_t elapsed_; // Seconds elapsed
-	uint8_t bootp_; // Bootp flags
+	uint16_t bootp_; // Bootp flags
 	GIp clientIp_; // Client IP address
 	GIp yourIp_; // Your (client) IP address
 	GIp serverIp_; // Next srever IP address
@@ -40,7 +40,7 @@ struct G_EXPORT GDhcpHdr final {
 	uint8_t hops() { return hops_; }
 	uint32_t transaction() { return ntohl(transaction_); }
 	uint16_t elapsed() { return ntohs(elapsed_); }
-	uint8_t bootp() { return bootp_; }
+	uint16_t bootp() { return ntohs(bootp_); }
 	GIp clientIp() { return ntohl(clientIp_); }
 	GIp yourIp() { return ntohl(yourIp_); }
 	GIp serverIp() { return ntohl(serverIp_); }

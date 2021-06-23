@@ -87,6 +87,7 @@ bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
 
 	GEthHdr* ethHdr = packet->ethHdr_;
 	if (ethHdr == nullptr) return false;
+	gbyte* end = packet->buf_.data_ + packet->buf_.size_;
 	GDhcpHdr::Option* option = dhcpHdr->first();
 	while (true) {
 		if (option->type_ == GDhcpHdr::RequestedIpAddress) {
@@ -94,11 +95,11 @@ bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
 			*mac = ethHdr->smac();
 			*ip = ntohl(ipAddress->ip_);
 			return true;
-			option = option->next();
-			if (option == nullptr) break;
 		}
+		option = option->next();
+		if (option == nullptr) break;
+		if (pbyte(option) >= end) break;
 	}
-
 	return false;
 }
 
@@ -107,9 +108,12 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	GIp ip;
 
 	bool attack = false;
-	if (checkIp_ && processIp(packet, &mac, &ip)) attack = true;
-	if (checkArp_ && processArp(packet, &mac, &ip)) attack = true;
-	if (checkDhcp_ && processArp(packet, &mac, &ip)) attack = true;
+	if (checkIp_ && processIp(packet, &mac, &ip))
+		attack = true;
+	if (checkArp_ && processArp(packet, &mac, &ip))
+		attack = true;
+	if (checkDhcp_ && processDhcp(packet, &mac, &ip))
+		attack = true;
 	if (!attack) return;
 
 	if (ip == myIp_ || ip == gwIp_) return;
@@ -121,6 +125,8 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	Flow flow(ip, mac, gwIp_, gwMac_);
 	flow.makePacket(&flow.infectPacket_, myMac_, true);
 	flow.makePacket(&flow.recoverPacket_, myMac_, false);
+
+	qDebug() << QString("new host(%1 %2) detected").arg(QString(mac), QString(ip));
 
 	flowMap_.insert(ipFlowKey, flow);
 	flowList_.push_back(flow);
@@ -137,6 +143,4 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 		flowList_.push_back(revFlow);
 	}
 	sendArpInfect(&revFlow);
-
-	qDebug() << QString("new host(%1 %2) is detected").arg(QString(mac), QString(ip));
 }

@@ -493,7 +493,7 @@ void GDemonClient::pcapClose() {
 	int sendLen = ::send(sd_, sendBuf_, encLen, 0);
 	if (sendLen == 0 || sendLen == -1) {
 		error_ = qPrintable(QString("send return %1").arg(sendLen));
-		qWarning() << error_.data();
+		// qWarning() << error_.data(); // do not log for disconnected state
 		return;
 	}
 
