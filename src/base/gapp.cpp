@@ -70,7 +70,7 @@ void GApp::launchDemon() {
 		arguments.append("-c");
 		QString path = QDir::currentPath();
 #ifdef Q_OS_ANDROID
-		QString run = QString("cd %1; export LD_LIBRARY_PATH=%2; export LD_PRELOAD=libfakeioctl.so; ./%3").arg(path, path + "/../lib", ssdemonFile)};
+		QString run = QString("cd %1; export LD_LIBRARY_PATH=%2; export LD_PRELOAD=libfakeioctl.so; ./%3").arg(path, path + "/../lib", ssdemonFile);
 #else // Q_OS_ANDROID
 		QString run = QString("cd %1; ./%2").arg(path, ssdemonFile);
 #endif // Q_OS_ANDROID
