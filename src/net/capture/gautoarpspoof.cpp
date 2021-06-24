@@ -30,7 +30,7 @@ bool GAutoArpSpoof::doOpen() {
 		bool res = atm_.wait();
 		atm_.close();
 		if (!res) {
-			qWarning() << QString("can not find mac for %s").arg(QString(gwIp_));
+			SET_ERR(GErr::FAIL, QString("can not find mac for %1").arg(QString(gwIp_)));
 			return false;
 		}
 		it = atm_.find(gwIp_);

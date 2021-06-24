@@ -234,20 +234,20 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 			GIp adjDstIp = intf_->getAdjIp(ipHdr->dip());
 			GFlow::IpFlowKey key(adjSrcIp, adjDstIp);
 			FlowMap::iterator it = flowMap_.find(key);
-			if (it == flowMap_.end()) break;
+			if (it == flowMap_.end()) continue;
 			Flow& flow = it.value();
 			ethHdr->dmac_ = flow.targetMac_;
 			if (bpFilter_ != nullptr) {
 				if (!bpFilter_->check(&packet->buf_)) {
 					relay(packet);
-					break;
+					continue;
 				}
 			}
 			return GPacket::Ok;
 		}
 		continue;
 	}
-	qWarning() << "unreachable routine";
+	qWarning() << QString("unreachable routine state_=%1").arg(state_);
 	return GPacket::Fail; // remove warning: non-void function does not return a value in all control paths
 }
 
