@@ -17,10 +17,13 @@ cd ..
 rem
 rem app
 rem
+move app\net\arprecover\makefile app\net\arprecover\makefile.gilgil
 cd app
 	qmake "CONFIG+=release" 
 	mingw32-make -j4
 	cd ..
+del app\net\arprecover\Makefile	
+move app\net\arprecover\makefile.gilgil app\net\arprecover\makefile
 
 rem
 rem plugin
@@ -40,10 +43,12 @@ cd win
 rem
 rem g files
 rem
+copy ..\..\bin\arprecover.exe . & strip arprecover.exe
 copy ..\..\bin\netclient.exe . & strip netclient.exe
 copy ..\..\bin\netserver.exe . & strip netserver.exe
 copy ..\..\bin\snoopspy.exe . & strip snoopspy.exe
 copy ..\..\bin\sscon.exe . & strip sscon.exe
+copy ..\..\bin\sslog.exe . & strip sslog.exe
 copy ..\..\bin\WinDivert.dll . 
 copy ..\..\bin\WinDivert64.sys . 
 mkdir ss
