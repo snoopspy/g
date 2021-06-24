@@ -29,7 +29,6 @@ protected:
 	void loadCapture();
 	void loadConvert();
 	void loadDelay();
-	void loadExtract();
 	void loadFilter();
 	void loadFlow();
 	void loadOther();

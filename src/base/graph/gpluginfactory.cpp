@@ -21,7 +21,6 @@ void GPluginFactory::loadDefault() {
 	loadCapture();
 	loadConvert();
 	loadDelay();
-	loadExtract();
 	loadFilter();
 	loadFlow();
 	loadOther();
@@ -40,8 +39,8 @@ void GPluginFactory::loadBlock() {
 	qRegisterMetaType<GTcpBlock*>();
 
 	ItemCategory* category = new ItemCategory("block");
-	category->items_.push_back(new ItemNode(GBlock::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GTcpBlock::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GBlock"));
+	category->items_.push_back(new ItemNode("GTcpBlock"));
 
 	items_.push_back(category);
 }
@@ -77,18 +76,20 @@ void GPluginFactory::loadCapture() {
 #endif
 
 	ItemCategory* category = new ItemCategory("capture");
-	category->items_.push_back(new ItemNode(GArpSpoof::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GArpSpoof"));
 #ifdef Q_OS_LINUX
-	category->items_.push_back(new ItemNode(GAsyncNetFilter::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GAsyncNetFilter"));
 #endif
-	category->items_.push_back(new ItemNode(GAutoArpSpoof::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GAutoArpSpoof"));
 #ifdef Q_OS_LINUX
-	category->items_.push_back(new ItemNode(GNetFilter::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GNetFilter"));
 #endif
-	category->items_.push_back(new ItemNode(GPcapDevice::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GPcapFile::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GPcapPipe::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GRemotePcapDevice::staticMetaObject.className()));
+#ifndef Q_OS_LINUX
+	category->items_.push_back(new ItemNode("GPcapDevice"));
+#endif
+	category->items_.push_back(new ItemNode("GPcapFile"));
+	category->items_.push_back(new ItemNode("GPcapPipe"));
+	category->items_.push_back(new ItemNode("GRemotePcapDevice"));
 #ifdef Q_OS_WIN
 	category->items_.push_back(new ItemNode(GWinDivert::staticMetaObject.className()));
 #endif
@@ -109,9 +110,9 @@ void GPluginFactory::loadConvert() {
 	qRegisterMetaType<GConvertIp*>();
 
 	ItemCategory* category = new ItemCategory("convert");
-	category->items_.push_back(new ItemNode(GConvertEth::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GConvertEthAutoMac::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GConvertIp::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GConvertEth"));
+	category->items_.push_back(new ItemNode("GConvertEthAutoMac"));
+	category->items_.push_back(new ItemNode("GConvertIp"));
 
 	items_.push_back(category);
 }
@@ -129,23 +130,9 @@ void GPluginFactory::loadDelay() {
 	qRegisterMetaType<GTimeStampSyncDelay*>();
 
 	ItemCategory* category = new ItemCategory("delay");
-	category->items_.push_back(new ItemNode(GDelay::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GSyncDelay::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GTimeStampSyncDelay::staticMetaObject.className()));
-
-	items_.push_back(category);
-}
-
-// ----------------------------------------------------------------------------
-// Extract
-// ----------------------------------------------------------------------------
-#include <GHttpExtract>
-
-void GPluginFactory::loadExtract() {
-	qRegisterMetaType<GHttpExtract*>();
-
-	ItemCategory* category = new ItemCategory("extract");
-	category->items_.push_back(new ItemNode(GHttpExtract::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GDelay"));
+	category->items_.push_back(new ItemNode("GSyncDelay"));
+	category->items_.push_back(new ItemNode("GTimeStampSyncDelay"));
 
 	items_.push_back(category);
 }
@@ -159,7 +146,7 @@ void GPluginFactory::loadFilter() {
 	qRegisterMetaType<GBpFilter*>();
 
 	ItemCategory* category = new ItemCategory("filter");
-	category->items_.push_back(new ItemNode(GBpFilter::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GBpFilter"));
 
 	items_.push_back(category);
 }
@@ -177,9 +164,9 @@ void GPluginFactory::loadFlow() {
 	qRegisterMetaType<GUdpFlowMgr*>();
 
 	ItemCategory* category = new ItemCategory("flow");
-	category->items_.push_back(new ItemNode(GIpFlowMgr::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GTcpFlowMgr::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GUdpFlowMgr::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GIpFlowMgr"));
+	category->items_.push_back(new ItemNode("GTcpFlowMgr"));
+	category->items_.push_back(new ItemNode("GUdpFlowMgr"));
 
 	items_.push_back(category);
 }
@@ -195,8 +182,10 @@ void GPluginFactory::loadOther() {
 	qRegisterMetaType<GRemoteCommand*>();
 
 	ItemCategory* category = new ItemCategory("other");
-	category->items_.push_back(new ItemNode(GCommand::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GRemoteCommand::staticMetaObject.className()));
+#ifndef Q_OS_ANDROID
+	category->items_.push_back(new ItemNode("GCommand"));
+#endif
+	category->items_.push_back(new ItemNode("GRemoteCommand"));
 
 	items_.push_back(category);
 }
@@ -218,11 +207,11 @@ void GPluginFactory::loadProcess() {
 	qRegisterMetaType<GPacketDebug*>();
 
 	ItemCategory* category = new ItemCategory("process");
-	category->items_.push_back(new ItemNode(GClientHelloSplit::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GCorrectChecksum::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GDnsProcessor::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GFlowMgrDebug::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GPacketDebug::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GClientHelloSplit"));
+	category->items_.push_back(new ItemNode("GCorrectChecksum"));
+	category->items_.push_back(new ItemNode("GDnsProcessor"));
+	category->items_.push_back(new ItemNode("GFlowMgrDebug"));
+	category->items_.push_back(new ItemNode("GPacketDebug"));
 
 	items_.push_back(category);
 }
@@ -242,10 +231,12 @@ void GPluginFactory::loadWrite() {
 	qRegisterMetaType<GRemotePcapDeviceWrite*>();
 
 	ItemCategory* category = new ItemCategory("write");
-	category->items_.push_back(new ItemNode(GPcapDeviceWrite::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GPcapFileWrite::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GRawIpSocketWrite::staticMetaObject.className()));
-	category->items_.push_back(new ItemNode(GRemotePcapDeviceWrite::staticMetaObject.className()));
+#ifndef Q_OS_ANDROID_GILGIL
+	category->items_.push_back(new ItemNode("GPcapDeviceWrite"));
+#endif
+	category->items_.push_back(new ItemNode("GPcapFileWrite"));
+	category->items_.push_back(new ItemNode("GRawIpSocketWrite"));
+	category->items_.push_back(new ItemNode("GRemotePcapDeviceWrite"));
 
 	items_.push_back(category);
 }

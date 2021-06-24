@@ -74,8 +74,6 @@ SOURCES += \
 	$${PWD}/../src/net/delay/gdelay.cpp \
 	$${PWD}/../src/net/delay/gsyncdelay.cpp \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.cpp \
-	$${PWD}/../src/net/extract/gextract.cpp \
-	$${PWD}/../src/net/extract/ghttpextract.cpp \
 	$${PWD}/../src/net/filter/gbpfilter.cpp \
 	$${PWD}/../src/net/flow/gflow.cpp \
 	$${PWD}/../src/net/flow/gflowkey.cpp \
@@ -200,8 +198,6 @@ HEADERS += \
 	$${PWD}/../src/net/delay/gdelay.h \
 	$${PWD}/../src/net/delay/gsyncdelay.h \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.h \
-	$${PWD}/../src/net/extract/gextract.h \
-	$${PWD}/../src/net/extract/ghttpextract.h \
 	$${PWD}/../src/net/filter/gbpfilter.h \
 	$${PWD}/../src/net/flow/gflow.h \
 	$${PWD}/../src/net/flow/gflowkey.h \

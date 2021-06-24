@@ -1,4 +1,4 @@
-#include <GHttpExtract>
+#include "ghttpextract.h"
 
 #ifdef Q_OS_WIN
 #define EXPORT __declspec(dllexport)
