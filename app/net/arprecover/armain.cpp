@@ -47,6 +47,7 @@ struct Param {
 	}
 } param;
 
+#ifdef __linux__
 void signalHandler(int signo) {
 	const char* signal = "unknown";
 	switch (signo) {
@@ -104,21 +105,30 @@ void prepareSignal() {
 	std::signal(SIGPIPE, SIG_IGN); // Ignore SIGPIPE which can be signaled when TCP socket operation on linux
 	std::signal(SIGALRM, signalHandler);
 }
+#endif // __linux__
 
 int main(int argc, char* argv[]) {
 	gtrace_default("127.0.0.1", 8908, false, "arprecover.log");
 
+#ifdef __linux__
 	prepareSignal();
+#endif // __linux__
 
 	if (!param.parse(argc, argv)) return -1;
 
-	char wd[BUFSIZ];
-	memset(wd, 0, BUFSIZ);
-	getcwd(wd, BUFSIZ);
 	const char* version =
 #include "../../../version.txt"
 	;
-	GTRACE("arprecover %s started login=%s argv[0]=%s getcwd=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
+	char wd[BUFSIZ];
+	memset(wd, 0, BUFSIZ);
+#ifdef __linux__
+	getcwd(wd, BUFSIZ);
+	GTRACE("arprecover %s started login=%s argv[0]=%s dir=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
+#endif // __linux__
+#ifdef WIN32
+	GetCurrentDirectoryA(BUFSIZ, wd);
+	GTRACE("arprecover %s started argv[0]=%s dir=%s %s %s", version, argv[0], wd, __DATE__, __TIME__);
+#endif // WIN32
 
 	if (!recover.open()) return -1;
 	recover.exec();

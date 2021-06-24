@@ -1,6 +1,11 @@
 #pragma once
 
+#ifdef __linux__
 #include <arpa/inet.h>
+#endif // __linux__
+#ifdef WIN32
+#include <winsock2.h>
+#endif // WIN32
 #include "mac.h"
 
 #pragma pack(push, 1)
