@@ -25,10 +25,10 @@
                     {
                         "commandType": "Execute",
                         "commands": [
-                            "su -c 'iptables -D OUTPUT -d 127.0.0.1 -j ACCEPT'",
-                            "su -c 'iptables -D INPUT -d 127.0.0.1 -j ACCEPT'",
-                            "su -c 'iptables -D OUTPUT -j NFQUEUE'",
-                            "su -c 'iptables -D INPUT -j NFQUEUE'"
+                            "su -c \"iptables -D OUTPUT -d 127.0.0.1 -j ACCEPT\"",
+                            "su -c \"iptables -D INPUT -d 127.0.0.1 -j ACCEPT\"",
+                            "su -c \"iptables -D OUTPUT -j NFQUEUE\"",
+                            "su -c \"iptables -D INPUT -j NFQUEUE\""
                         ],
                         "objectName": ""
                     }
@@ -38,11 +38,11 @@
                     {
                         "commandType": "Execute",
                         "commands": [
-                            "su -c 'iptables -F'",
-                            "su -c 'iptables -A OUTPUT -d 127.0.0.1 -j ACCEPT'",
-                            "su -c 'iptables -A INPUT -d 127.0.0.1 -j ACCEPT'",
-                            "su -c 'iptables -A OUTPUT -j NFQUEUE'",
-                            "su -c 'iptables -A INPUT -j NFQUEUE'"
+                            "su -c \"iptables -F\"",
+                            "su -c \"iptables -A OUTPUT -d 127.0.0.1 -j ACCEPT\"",
+                            "su -c \"iptables -A INPUT -d 127.0.0.1 -j ACCEPT\"",
+                            "su -c \"iptables -A OUTPUT -j NFQUEUE\"",
+                            "su -c \"iptables -A INPUT -j NFQUEUE\""
                         ],
                         "objectName": ""
                     }
