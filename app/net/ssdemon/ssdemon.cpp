@@ -100,13 +100,13 @@ int main(int argc, char* argv[]) {
 
 	if (!param.parse(argc, argv)) return -1;
 
-	char wd[BUFSIZ];
-	memset(wd, 0, BUFSIZ);
-	getcwd(wd, BUFSIZ);
 	const char* version =
 #include "../../../version.txt"
 	;
-	GTRACE("ssdemon %s started login=%s argv[0]=%s getcwd=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
+	char wd[BUFSIZ];
+	memset(wd, 0, BUFSIZ);
+	getcwd(wd, BUFSIZ);
+	GTRACE("ssdemon %s started login=%s argv[0]=%s dir=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
 
 	runServer();
 
