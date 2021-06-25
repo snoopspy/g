@@ -84,7 +84,7 @@ void GPluginFactory::loadCapture() {
 #ifdef Q_OS_LINUX
 	category->items_.push_back(new ItemNode("GNetFilter"));
 #endif
-#ifndef Q_OS_LINUX
+#ifndef Q_OS_ANDROID
 	category->items_.push_back(new ItemNode("GPcapDevice"));
 #endif
 	category->items_.push_back(new ItemNode("GPcapFile"));
@@ -231,7 +231,7 @@ void GPluginFactory::loadWrite() {
 	qRegisterMetaType<GRemotePcapDeviceWrite*>();
 
 	ItemCategory* category = new ItemCategory("write");
-#ifndef Q_OS_ANDROID_GILGIL
+#ifndef Q_OS_ANDROID
 	category->items_.push_back(new ItemNode("GPcapDeviceWrite"));
 #endif
 	category->items_.push_back(new ItemNode("GPcapFileWrite"));
