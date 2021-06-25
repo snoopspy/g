@@ -79,21 +79,21 @@ bool ArpRecover::exec() {
 
 		EthHdr* ethHdr = PEthHdr(packet);
 		if (ethHdr->smac() == myMac_) continue;
-		if (ethHdr->dmac().isBroadcast()) continue;
+		if (ethHdr->dmac().isBroadcast() || ethHdr->dmac().isMulticast()) continue;
 
 		if (ethHdr->type() != EthHdr::Ip4) continue;
 
 		IpHdr* ipHdr = PIpHdr(packet + sizeof(EthHdr));
 		Ip sip = ipHdr->sip();
 		Ip dip = ipHdr->dip();
-		Ip adjSrcIp = network_.getAdjIp(sip);
-		Ip adjDstIp = network_.getAdjIp(dip);
-		IpFlowKey key(adjSrcIp, adjDstIp);
+		Ip adjSip = network_.getAdjIp(sip);
+		Ip adjDip = network_.getAdjIp(dip);
+		IpFlowKey key(adjSip, adjDip);
 		FlowMap::iterator it = flowMap_.find(key);
 		if (it == flowMap_.end()) continue;
 
 		Flow& flow = it->second;
-		GTRACE("relay!!!");
+		GTRACE("relay!!! sip=%s dip=%s", std::string(sip).data(), std::string(dip).data());
 		ethHdr->smac_ = myMac_;
 		ethHdr->dmac_ = flow.targetMac_;
 		i = pcap_sendpacket(pcap_, packet, pktHdr->caplen); // relay

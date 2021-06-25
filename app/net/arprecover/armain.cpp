@@ -29,12 +29,24 @@ struct Param {
 		if ((argc - i) % 4 != 0)
 			return false;
 
+		GTRACE("interval=%d", recover.interval_);
+		GTRACE("intfName=%s", recover.intfName_.data());
+		GTRACE("gateway=%s", std::string(recover.network_.gateway_).data());
+		GTRACE("mask=%s", std::string(recover.network_.mask_).data());
+		GTRACE("ip=%s", std::string(recover.network_.ip_).data());
+		GTRACE("mac=%s", std::string(recover.myMac_).data());
+
 		while (i < argc) {
 			Flow flow;
 			flow.senderIp_ = Ip(argv[i++]);
 			flow.senderMac_ = Mac(argv[i++]);
 			flow.targetIp_ = Ip(argv[i++]);
 			flow.targetMac_ = Mac(argv[i++]);
+			GTRACE("sip=%s smac=%s tip=%s tmac=%s",
+				std::string(flow.senderIp_).data(),
+				std::string(flow.senderMac_).data(),
+				std::string(flow.targetIp_).data(),
+				std::string(flow.targetMac_).data());
 			IpFlowKey key(flow.senderIp_, flow.targetIp_);
 			recover.flowMap_[key] = flow;
 		}

@@ -23,7 +23,7 @@ struct Network {
 	Ip mask_;
 	Ip gateway_;
 
-	bool isSameLanIp(Ip ip) { return (ip & mask_) == (ip & mask_); }
+	bool isSameLanIp(Ip ip) { return (ip_ & mask_) == (ip & mask_); }
 	Ip getAdjIp(Ip ip) { return isSameLanIp(ip) ? ip : gateway_; }
 };
 
