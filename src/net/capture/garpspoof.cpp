@@ -156,7 +156,7 @@ bool GArpSpoof::doClose() {
 	infectThread_.we_.wakeAll();
 	infectThread_.wait();
 
-	sendARPRecoverAll();
+	sendArpRecoverAll();
 
 	if (flowList_.count() > 0) {
 		QString flowString;
@@ -307,7 +307,7 @@ bool GArpSpoof::sendArpInfect(Flow* flow) {
 	return res == GPacket::Ok;
 }
 
-bool GArpSpoof::sendARPRecoverAll() {
+bool GArpSpoof::sendArpRecoverAll() {
 	QMutexLocker(&flowList_.m_);
 	for (Flow& flow: flowList_) {
 		if (!sendArpRecover(&flow))

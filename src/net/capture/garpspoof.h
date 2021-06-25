@@ -123,7 +123,7 @@ protected:
 
 	bool sendArpInfectAll();
 	bool sendArpInfect(Flow* flow);
-	bool sendARPRecoverAll();
+	bool sendArpRecoverAll();
 	bool sendArpRecover(Flow* flow);
 
 protected:
