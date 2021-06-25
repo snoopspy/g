@@ -49,8 +49,9 @@ copy ..\..\bin\netserver.exe . & strip netserver.exe
 copy ..\..\bin\snoopspy.exe . & strip snoopspy.exe
 copy ..\..\bin\sscon.exe . & strip sscon.exe
 copy ..\..\bin\sslog.exe . & strip sslog.exe
-copy ..\..\bin\WinDivert.dll . 
-copy ..\..\bin\WinDivert64.sys . 
+copy ..\..\bin\WinDivert.dll .
+copy ..\..\bin\WinDivert64.sys .
+cp ../../setup/setup-win.txt .
 mkdir ss
 copy ..\..\bin\ss\* ss\
 
