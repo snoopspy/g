@@ -24,7 +24,7 @@ struct G_EXPORT GPcapPipe : GCapture {
 	Q_PROPERTY(int bufSize MEMBER bufSize_)
 
 public:
-	QString command_{"adb exec-out su -c \"corepcap dev wlan0 file -\""};
+	QString command_;
 	int readTimeout_{100};
 	bool removeCr_{true};
 	int bufSize_{GPacket::MaxBufSize};
