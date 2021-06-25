@@ -50,9 +50,7 @@ void GApp::initLogger() {
 #ifdef Q_OS_LINUX
 	logManager.push_back(new GLogStderr);
 #endif // Q_OS_LINUX
-#ifdef Q_OS_ANDROID
 	logManager.push_back(new GLogFile);
-#endif // Q_OS_ANDROID
 	logManager.push_back(new GLogUdp);
 	}
 }
