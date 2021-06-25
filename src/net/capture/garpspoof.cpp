@@ -156,10 +156,7 @@ bool GArpSpoof::doClose() {
 	infectThread_.we_.wakeAll();
 	infectThread_.wait();
 
-	for (int i = 0; i < 3; i++) {
-		sendARPRecoverAll();
-		QThread::msleep(sendInterval_);
-	}
+	sendARPRecoverAll();
 
 	if (flowList_.count() > 0) {
 		QString flowString;
