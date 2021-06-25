@@ -22,7 +22,11 @@ struct packet_hdr_t {
 // ----------------------------------------------------------------------------
 GPcapPipe::GPcapPipe(QObject* parent) : GCapture(parent) {
 	QString path = "/data/data/com.snoopspy/files";
-	command_ = QString("adb exec-out su -c \"cd %1; export LD_LIBRARY_PATH=%2/../lib; export LD_PRELOAD=libfakeioctl.so;./corepcap dev wlan0 -f '' file -\"").arg(path, path);
+	QString preloadStr = " ";
+	if (QFile::exists("/system/lib/libfakeioctl.so"))
+		preloadStr = " export LD_PRELOAD=libfakeioctl.so; ";
+	command_ = QString("adb exec-out su -c \"cd %1; export LD_LIBRARY_PATH=%2/../lib; %3./corepcap dev wlan0 -f '' file -\"").arg(path, path, preloadStr);
+	qDebug() << command_;
 }
 
 GPcapPipe::~GPcapPipe() {

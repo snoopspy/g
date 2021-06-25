@@ -171,7 +171,10 @@ bool GArpSpoof::doClose() {
 		arguments.append("-c");
 		QString path = QDir::currentPath();
 	#ifdef Q_OS_ANDROID
-		QString run = QString("cd %1; export LD_LIBRARY_PATH=%2; ./%3").arg(path, path + "/../lib", arprecoverFile);
+		QString preloadStr = " ";
+		if (QFile::exists("/system/lib/libfakeioctl.so"))
+			preloadStr = " export LD_PRELOAD=libfakeioctl.so; ";
+		QString run = QString("cd %1; export LD_LIBRARY_PATH=%2;%3./%4").arg(path, path + "/../lib", preloadStr, arprecoverFile);
 	#else // Q_OS_ANDROID
 		QString run = QString("cd %1; ./%2").arg(path, arprecoverFile);
 	#endif  // Q_OS_ANDROID
@@ -179,7 +182,7 @@ bool GArpSpoof::doClose() {
 			arg(run).arg(60).arg(
 			intfName_, QString(intf_->gateway()), QString(intf_->mask()),
 			QString(intf_->ip()), QString(intf_->mac()), flowString));
-		qDebug() << arguments; // gilgil temp 2021.06.22
+		qDebug() << arguments;
 		QProcess::startDetached("su", arguments);
 	}
 
