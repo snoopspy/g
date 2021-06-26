@@ -20,6 +20,14 @@ struct MyHeightItemDelegate : QStyledItemDelegate
 	}
 };
 
+struct MyScrollBar : public QScrollBar {
+	MyScrollBar(QWidget * parent): QScrollBar(parent) {}
+
+protected:
+	QSize sizeHint() const override { return QSize(64, 64); }
+	QSize minimumSizeHint() const override { return QSize(64, 64); }
+};
+
 // ----------------------------------------------------------------------------
 // GGraphWidget
 // ----------------------------------------------------------------------------
@@ -155,6 +163,8 @@ void GGraphWidget::init() {
 	QRect rect = getScreenRect();
 	midSplitter_->setSizes(QList<int>{ rect.width() / 2, rect.width() / 2});
 	midLeftSplitter_->setSizes(QList<int>{ rect.height() / 2, rect.height() / 2});
+
+	plainTextEdit_->setVerticalScrollBar(new MyScrollBar(plainTextEdit_->verticalScrollBar()));
 
 	factoryWidget_->setItemDelegate(new MyHeightItemDelegate(this));
 	factoryWidget_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -455,6 +465,7 @@ void GGraphWidget::actionStartTriggered(bool) {
 		QString msg = graph_->err->msg();
 		QMessageBox::warning(nullptr, "Error", msg);
 	}
+	plainTextEdit_->clear();
 	setControl();
 }
 
