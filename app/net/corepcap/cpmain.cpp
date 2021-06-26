@@ -66,13 +66,6 @@ void prepareSignal() {
 int main(int argc, char* argv[]) {
 	gtrace_default("127.0.0.1", 8908, false, "corepcap.log");
 
-	prepareSignal();
-
-	if (!cp.parse(argc, argv)) {
-		fprintf(stderr, "%s\n", cp.error_.c_str());
-		return -1;
-	}
-
 	const char* version =
 #include "../../../version.txt"
 	;
@@ -80,6 +73,13 @@ int main(int argc, char* argv[]) {
 	memset(wd, 0, BUFSIZ);
 	getcwd(wd, BUFSIZ);
 	GTRACE("corepcap %s started login=%s argv[0]=%s dir=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
+
+	prepareSignal();
+
+	if (!cp.parse(argc, argv)) {
+		fprintf(stderr, "%s\n", cp.error_.c_str());
+		return -1;
+	}
 
 	if (!cp.open())
 		return -1;

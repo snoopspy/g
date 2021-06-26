@@ -122,12 +122,6 @@ void prepareSignal() {
 int main(int argc, char* argv[]) {
 	gtrace_default("127.0.0.1", 8908, false, "arprecover.log");
 
-#ifdef __linux__
-	prepareSignal();
-#endif // __linux__
-
-	if (!param.parse(argc, argv)) return -1;
-
 	const char* version =
 #include "../../../version.txt"
 	;
@@ -141,6 +135,12 @@ int main(int argc, char* argv[]) {
 	GetCurrentDirectoryA(BUFSIZ, wd);
 	GTRACE("arprecover %s started argv[0]=%s dir=%s %s %s", version, argv[0], wd, __DATE__, __TIME__);
 #endif // WIN32
+
+#ifdef __linux__
+	prepareSignal();
+#endif // __linux__
+
+	if (!param.parse(argc, argv)) return -1;
 
 	if (!recover.open()) return -1;
 	recover.exec();

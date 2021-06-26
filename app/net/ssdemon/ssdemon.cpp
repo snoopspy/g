@@ -96,10 +96,6 @@ void runServer() {
 int main(int argc, char* argv[]) {
 	gtrace_default("127.0.0.1", 8908, false, "ssdemon.log");
 
-	prepareSignal();
-
-	if (!param.parse(argc, argv)) return -1;
-
 	const char* version =
 #include "../../../version.txt"
 	;
@@ -107,6 +103,10 @@ int main(int argc, char* argv[]) {
 	memset(wd, 0, BUFSIZ);
 	getcwd(wd, BUFSIZ);
 	GTRACE("ssdemon %s started login=%s argv[0]=%s dir=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
+
+	prepareSignal();
+
+	if (!param.parse(argc, argv)) return -1;
 
 	runServer();
 
