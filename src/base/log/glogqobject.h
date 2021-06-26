@@ -10,8 +10,6 @@
 
 #pragma once
 
-#ifdef QT_GUI_LIB
-
 #include "glog.h"
 
 // ----------------------------------------------------------------------------
@@ -29,5 +27,3 @@ public:
 signals:
 	void writeLogRequred(QString msg);
 };
-
-#endif // QT_GUI_LIB
