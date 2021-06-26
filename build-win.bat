@@ -51,7 +51,7 @@ copy ..\..\bin\sscon.exe . & strip sscon.exe
 copy ..\..\bin\sslog.exe . & strip sslog.exe
 copy ..\..\bin\WinDivert.dll .
 copy ..\..\bin\WinDivert64.sys .
-cp ../../setup/setup-win.txt .
+copy ..\..\setup\setup-win.txt .
 mkdir ss
 copy ..\..\bin\ss\* ss\
 
