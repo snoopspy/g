@@ -16,8 +16,9 @@
 #include <QFileDialog>
 #include <QGraphicsView>
 #include <QHBoxLayout>
+#include <QPlainTextEdit>
 #include <QSplitter>
-#include <QStatusBar>
+#include <QTabWidget>
 #include <QTreeWidget>
 #include <QTreeView>
 #include <QToolBar>
@@ -87,19 +88,21 @@ protected:
 	QAction* actionDelete_;
 	QAction* actionAbout_;
 
-	QVBoxLayout* mainLayout_;
-	QToolBar*    toolBar_;
-	QSplitter*   midSplitter_;
-	QSplitter*     midLeftSplitter_;
-	QTreeWidget*     factoryWidget_;
-	GPropWidget*     propWidget_;
-	GGScene*         scene_;
-	QGraphicsView* graphView_;
-	QStatusBar*  statusBar_;
+	QVBoxLayout*  mainLayout_;
+	QToolBar*     toolBar_;
+	QTabWidget*   tabWidget_;
+	QSplitter*      midSplitter_;
+	QSplitter*        midLeftSplitter_;
+	QTreeWidget*        factoryWidget_;
+	GPropWidget*        propWidget_;
+	GGScene*            scene_;
+	QGraphicsView*    graphView_;
+	QPlainTextEdit* plainTextEdit_;
 
 public slots:
 	void setControl();
 	void stop();
+	void writeLog(QString msg);
 
 public slots:
 	void actionNewFileTriggered(bool);

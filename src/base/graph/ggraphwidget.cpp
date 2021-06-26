@@ -3,8 +3,11 @@
 #include "ggraphwidget.h"
 
 #include <QStyledItemDelegate>
+#include <QScrollBar>
 #include <QScroller>
 #include "base/gjson.h"
+#include "base/log/glogmanager.h"
+#include "base/log/glogqobject.h"
 
 struct MyHeightItemDelegate : QStyledItemDelegate
 {
@@ -75,6 +78,10 @@ void GGraphWidget::init() {
 	toolBar_ = new QToolBar(this);
 	toolBar_->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
+	tabWidget_ = new QTabWidget(this);
+	tabWidget_->setTabPosition(QTabWidget::South);
+	setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+
 	midSplitter_ = new QSplitter(Qt::Horizontal, this);
 	midLeftSplitter_ = new QSplitter(Qt::Vertical, this);
 	factoryWidget_ = new QTreeWidget(this);
@@ -86,12 +93,21 @@ void GGraphWidget::init() {
 	graphView_->setRenderHint(QPainter::Antialiasing);
 	graphView_->setAcceptDrops(true);
 	graphView_->setScene(scene_);
-	statusBar_ = new QStatusBar(this);
+
+	plainTextEdit_ = new QPlainTextEdit(this);
+	plainTextEdit_->setReadOnly(true);
+
+	GLogManager& logManager = GLogManager::instance();
+	GLogQObject* log = new GLogQObject;
+	QObject::connect(log, &GLogQObject::writeLogRequred, this, &GGraphWidget::writeLog);
+	logManager.push_back(log);
 
 	mainLayout_->addWidget(toolBar_ , 0);
-	mainLayout_->addWidget(midSplitter_, 1);
-	mainLayout_->addWidget(statusBar_, 0);
+	mainLayout_->addWidget(tabWidget_, 1);
 	this->setLayout(mainLayout_);
+
+	tabWidget_->addTab(midSplitter_, "Graph");
+	tabWidget_->addTab(plainTextEdit_, "Log");
 
 	midSplitter_->addWidget(midLeftSplitter_);
 	midSplitter_->addWidget(graphView_);
@@ -392,6 +408,12 @@ void GGraphWidget::setControl() {
 void GGraphWidget::stop() {
 	graph_->close();
 	setControl();
+}
+
+void GGraphWidget::writeLog(QString msg) {
+	msg = msg.mid(7); // Omit year and date
+	plainTextEdit_->insertPlainText(msg);
+	plainTextEdit_->verticalScrollBar()->setValue(plainTextEdit_->verticalScrollBar()->maximum());
 }
 
 void GGraphWidget::actionNewFileTriggered(bool) {
