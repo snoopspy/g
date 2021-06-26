@@ -60,8 +60,8 @@ rem mingw files
 rem
 set MINGW_DIR=C:\Qt\5.15.2\mingw81_64\bin
 copy %MINGW_DIR%\libgcc_s_seh-1.dll .
-copy %MINGW_DIR%\libwinpthread-1.dll .
 copy %MINGW_DIR%\"libstdc++-6.dll" .
+copy %MINGW_DIR%\libwinpthread-1.dll .
 
 rem
 rem qt files
