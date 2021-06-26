@@ -167,23 +167,25 @@ bool GArpSpoof::doClose() {
 		}
 
 		QString arprecoverFile = "arprecover";
-		QStringList arguments;
-		arguments.append("-c");
-		QString path = QDir::currentPath();
-	#ifdef Q_OS_ANDROID
-		QString preloadStr = " ";
-		if (QFile::exists("/system/lib/libfakeioctl.so"))
-			preloadStr = " export LD_PRELOAD=libfakeioctl.so; ";
-		QString run = QString("cd %1; export LD_LIBRARY_PATH=%2;%3./%4").arg(path, path + "/../lib", preloadStr, arprecoverFile);
-	#else // Q_OS_ANDROID
-		QString run = QString("cd %1; ./%2").arg(path, arprecoverFile);
-	#endif  // Q_OS_ANDROID
-		arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").
-			arg(run).arg(60).arg(
-			intfName_, QString(intf_->gateway()), QString(intf_->mask()),
-			QString(intf_->ip()), QString(intf_->mac()), flowString));
-		qDebug() << arguments;
-		QProcess::startDetached("su", arguments);
+		if (QFile::exists(arprecoverFile)) {
+			QStringList arguments;
+			arguments.append("-c");
+			QString path = QDir::currentPath();
+		#ifdef Q_OS_ANDROID
+			QString preloadStr = " ";
+			if (QFile::exists("/system/lib/libfakeioctl.so"))
+				preloadStr = " export LD_PRELOAD=libfakeioctl.so; ";
+			QString run = QString("cd %1; export LD_LIBRARY_PATH=%2;%3./%4").arg(path, path + "/../lib", preloadStr, arprecoverFile);
+		#else // Q_OS_ANDROID
+			QString run = QString("cd %1; ./%2").arg(path, arprecoverFile);
+		#endif  // Q_OS_ANDROID
+			arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").
+				arg(run).arg(60).arg(
+				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
+				QString(intf_->ip()), QString(intf_->mac()), flowString));
+			qDebug() << arguments;
+			QProcess::startDetached("su", arguments);
+		}
 	}
 
 	if (bpFilter_ != nullptr) {
