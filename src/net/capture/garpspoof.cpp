@@ -200,10 +200,8 @@ bool GArpSpoof::doClose() {
 
 GPacket::Result GArpSpoof::read(GPacket* packet) {
 	while (true) {
-		if (state_ != Opened) {
-			qWarning() << QString("not opened state(%1)").arg(int(state_));
+		if (state_ != Opened)
 			return GPacket::Fail;
-		}
 
 		GPacket::Result res = GArpSpoofBaseDevice::read(packet);
 		if (res == GPacket::Eof || res == GPacket::Fail) return res;
