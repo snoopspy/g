@@ -198,6 +198,18 @@ void GDemonSession::run() {
 				if (pcap_ == nullptr) pcap_ = new GDemonPcap(this);
 				active = pcap_->processPcapWrite(buf, size);
 				break;
+			case CmdNfOpen:
+				if (nf_ == nullptr) nf_ = new GDemonNetFilter(this);
+				active = nf_->processNfOpen(buf, size);
+				break;
+			case CmdNfClose:
+				if (nf_ == nullptr) nf_ = new GDemonNetFilter(this);
+				active = nf_->processNfClose(buf, size);
+				break;
+			case CmdNfVerdict:
+				if (nf_ == nullptr) nf_ = new GDemonNetFilter(this);
+				active = nf_->processNfVerdict(buf, size);
+				break;
 			default:
 				GTRACE("invalid cmd %d", header->cmd_);
 				active = false;
@@ -612,39 +624,46 @@ GDemonPcap::~GDemonPcap() {
 
 GDemon::PcapOpenRes GDemonPcap::open(PcapOpenReq req) {
 	PcapOpenRes res;
+	res.result_ = false;
+
 	if (pcap_ != nullptr) {
 		res.errBuf_ = "pcap is already opened";
-	} else {
-		char errBuf[PCAP_ERRBUF_SIZE];
-		pcap_ = pcap_open_live(req.intfName_.data(), req.snaplen_, req.flags_, req.readTimeout_, errBuf);
-		if (pcap_ == nullptr) {
-			res.errBuf_ = errBuf;
-			GTRACE("pcap_open_live return null %s", res.errBuf_.data());
-		} else {
-			res.result_ = true;
-			if (req.filter_ != "") {
-				u_int uNetMask;
-				bpf_program code;
+		return res;
+	}
+	waitTimeout_ = req.waitTimeout_;
+	char errBuf[PCAP_ERRBUF_SIZE];
+	pcap_ = pcap_open_live(req.intfName_.data(), req.snaplen_, req.flags_, req.readTimeout_, errBuf);
+	if (pcap_ == nullptr) {
+		res.errBuf_ = errBuf;
+		GTRACE("pcap_open_live return null %s", res.errBuf_.data());
+		return res;
+	}
 
-				uNetMask = 0xFFFFFFFF;
-				if (pcap_compile(pcap_, &code, req.filter_.data(),  1, uNetMask) < 0) {
-					res.result_ = false;
-					res.errBuf_ = pcap_geterr(pcap_);
-					GTRACE("error in pcap_compile(%s)", res.errBuf_.data()) ;
-				} else
-				if (pcap_setfilter(pcap_, &code) < 0) {
-					res.result_ = false;
-					res.errBuf_ = pcap_geterr(pcap_);
-					GTRACE("error in pcap_setfilter(%s)", res.errBuf_.data()) ;
-				}
-			}
-			res.dataLink_ = pcap_datalink(pcap_);
-			if (req.captureThread_) {
-				active_ = true;
-				thread_ = new std::thread(GDemonPcap::_run, this, req.waitTimeout_);
-			}
+	if (req.filter_ != "") {
+		u_int uNetMask;
+		bpf_program code;
+
+		uNetMask = 0xFFFFFFFF;
+		if (pcap_compile(pcap_, &code, req.filter_.data(),  1, uNetMask) < 0) {
+			res.errBuf_ = pcap_geterr(pcap_);
+			GTRACE("error in pcap_compile(%s)", res.errBuf_.data()) ;
+			return res;
+		}
+		if (pcap_setfilter(pcap_, &code) < 0) {
+			res.errBuf_ = pcap_geterr(pcap_);
+			GTRACE("error in pcap_setfilter(%s)", res.errBuf_.data()) ;
+			return res;
 		}
 	}
+
+	res.result_ = true;
+	res.dataLink_ = pcap_datalink(pcap_);
+
+	if (req.captureThread_) {
+		active_ = true;
+		thread_ = new std::thread(GDemonPcap::_run, this);
+	}
+
 	return res;
 }
 
@@ -662,12 +681,13 @@ void GDemonPcap::close() {
 	}
 }
 
-void GDemonPcap::_run(GDemonPcap* pcap, int waitTimeout) {
-	pcap->run(waitTimeout);
+void GDemonPcap::_run(GDemonPcap* pcap) {
+	pcap->run();
 }
 
-void GDemonPcap::run(int waitTimeout) {
+void GDemonPcap::run() {
 	PcapRead read;
+
 	while (active_) {
 		pcap_pkthdr* pktHdr;
 		const u_char* data;
@@ -683,17 +703,17 @@ void GDemonPcap::run(int waitTimeout) {
 				break;
 			}
 			case 0:
-				if (waitTimeout != 0)
-					std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeout));
+				if (waitTimeout_ != 0)
+					std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeout_));
 				continue;
 			default:
 				break;
 		}
 
-		read.pktHdr_.tv_sec = (uint64_t)pktHdr->ts.tv_sec;
-		read.pktHdr_.tv_usec = (uint64_t)pktHdr->ts.tv_usec;
-		read.pktHdr_.caplen = (uint32_t)pktHdr->caplen;
-		read.pktHdr_.len = (uint32_t)pktHdr->len;
+		read.pktHdr_.tv_sec_ = (uint64_t)pktHdr->ts.tv_sec;
+		read.pktHdr_.tv_usec_ = (uint64_t)pktHdr->ts.tv_usec;
+		read.pktHdr_.caplen_ = (uint32_t)pktHdr->caplen;
+		read.pktHdr_.len_ = (uint32_t)pktHdr->len;
 		read.data_ = puchar(data);
 
 		{
@@ -778,3 +798,240 @@ bool GDemonPcap::processPcapWrite(pchar buf, int32_t size) {
 	return true;
 }
 
+// ----------------------------------------------------------------------------
+// GDemonNetFilter
+// ----------------------------------------------------------------------------
+GDemonNetFilter::GDemonNetFilter(GDemonSession* session) : session_(session) {
+}
+
+GDemonNetFilter::~GDemonNetFilter() {
+	close();
+}
+
+GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
+	NfOpenRes res;
+	res.result_ = false;
+
+	if (h_ != nullptr) {
+		res.errBuf_ = "netfilter is already opened";
+		return res;
+	}
+
+	// opening library handle
+	h_ = nfq_open();
+	if (!h_) {
+		res.errBuf_ = "nfq_open return null";
+		GTRACE("nfq_open return null");
+		return res;
+	}
+
+	// unbinding existing nf_queue handler for AF_INET (if any)
+	if (nfq_unbind_pf(h_, AF_INET) < 0) {
+		GTRACE("error during nfq_unbind_pf()");
+		return res;
+	}
+
+	// binding nfnetlink_queue as nf_queue handler for AF_INET
+	if (nfq_bind_pf(h_, AF_INET) < 0) {
+		GTRACE("error during nfq_bind_pf()");
+		return res;
+	}
+
+	// binding this socket to queue
+	qh_ = nfq_create_queue(h_, req.queueNum_, &_callback, this);
+	if (!qh_) {
+		GTRACE("error during nfq_create_queue()");
+		return res;
+	}
+
+	// setting copy_packet mode
+	if (nfq_set_mode(qh_, NFQNL_COPY_PACKET, 0xffff) < 0) {
+		GTRACE("can't set packet_copy mode");
+		return res;
+	}
+	fd_ = nfq_fd(h_);
+
+	recvBuf_ = new char[MaxBufSize];
+
+	id_ = 0;
+	packet_ = nullptr;
+
+	res.result_ = true;
+
+	active_ = true;
+	thread_ = new std::thread(GDemonNetFilter::_run, this);
+
+	return res;
+}
+
+void GDemonNetFilter::close() {
+	if (fd_ != 0) {
+		GTRACE("bef call ::shutdown"); // gilgil temp 2016.09.25
+		::shutdown(fd_, SHUT_RDWR);
+		GTRACE("aft call ::shutdown"); // gilgil temp 2016.09.25
+
+		GTRACE("bef call ::close"); // gilgil temp 2016.09.25
+		::close(fd_);
+		GTRACE("aft call ::close"); // gilgil temp 2016.09.25
+		fd_ = 0;
+	}
+
+	active_ = false;
+	GTRACE("bef thread_->join"); // gilgil temp 2021.06.27
+	thread_->join();
+	GTRACE("aft thread_->join"); // gilgil temp 2021.06.27
+
+	if (qh_ != nullptr) {
+		GTRACE("bef call nfq_destroy_queue"); // gilgil temp 2016.09.25
+		nfq_destroy_queue(qh_);
+		GTRACE("aft call nfq_destroy_queue"); // gilgil temp 2016.09.25
+		qh_ = nullptr;
+	}
+
+	if (h_ != nullptr) {
+#ifdef INSANE
+		// normally, applications SHOULD NOT issue this command, since
+		// it detaches other programs/sockets from AF_INET, too !
+		// unbinding from AF_INET
+		nfq_unbind_pf(h, AF_INET);
+#endif // INSANE
+
+		// closing library handle
+		GTRACE("bef call nfq_close"); // gilgil temp 2016.09.25
+		nfq_close(h_);
+		GTRACE("aft call nfq_close"); // gilgil temp 2016.09.25
+		h_ = nullptr;
+	}
+
+	if (recvBuf_ != nullptr) {
+		delete[] recvBuf_ ;
+		recvBuf_ = nullptr;
+	}
+}
+
+void GDemonNetFilter::_run(GDemonNetFilter* nf) {
+	nf->run();
+}
+
+void GDemonNetFilter::run() {
+	GTRACE("beg"); // gilgil temp 2016.09.27
+	while (active_) {
+		GTRACE("bef call recv"); // gilgil temp 2016.09.27
+		int res = int(::recv(fd_, recvBuf_, MaxBufSize, 0));
+		GTRACE("aft call recv %d", res); // gilgil temp 2016.09.27
+		if (res >= 0) {
+			nfq_handle_packet(h_, pchar(recvBuf_), res);
+			continue;
+		} else {
+			if (errno == ENOBUFS) {
+				GTRACE("losing packets!");
+				continue;
+			}
+			GTRACE("recv failed");
+			break;
+		}
+	}
+	GTRACE("end"); // gilgil temp 2016.09.27
+}
+
+bool GDemonNetFilter::processNfOpen(pchar buf, int32_t size) {
+	NfOpenReq req;
+
+	int32_t decLen = req.decode(buf, size);
+	if (decLen == -1) {
+		GTRACE("req.decode return =1");
+		return false;
+	}
+	client_ = req.client_;
+	GTRACE("%s", client_.data());
+
+	NfOpenRes res = open(req);
+
+	{
+		GSpinLockGuard guard(session_->sendBufLock_);
+		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return false;
+		}
+
+		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+		}
+	}
+	return true;
+}
+
+bool GDemonNetFilter::processNfClose(pchar buf, int32_t size) {
+	GTRACE("%s", client_.data());
+
+	NfCloseReq req;
+	int32_t decLen = req.decode(buf, size);
+	if (decLen == -1) {
+		GTRACE("req.decode return =1");
+		return false;
+	}
+
+	close();
+	return false;
+}
+
+bool GDemonNetFilter::processNfVerdict(pchar buf, int32_t size) {
+	// GTRACE("");
+
+	NfVerdict verdict;
+	int32_t decLen = verdict.decode(buf, size);
+	if (decLen == -1) {
+		GTRACE("req.decode return -1");
+		return false;
+	}
+
+	int res = nfq_set_verdict2(qh_, verdict.id_, verdict.acceptVerdict_, verdict.mark_, verdict.size_, verdict.data_);
+	GTRACE("nfq_set_verdict2 return %d", res);
+
+	return true;
+}
+
+int GDemonNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struct nfq_data* nfad, void* data) {
+	(void)qh;
+	(void)nfmsg;
+
+	NfRead read;
+
+	timeval ts;
+	gettimeofday(&ts, nullptr);
+	unsigned char* packet;
+	int res = nfq_get_payload(nfad, &packet);
+	if (res == -1) {
+		GTRACE("nfq_get_payload return -1");
+		return -1;
+	}
+
+	read.pktHdr_.tv_sec_ = (uint64_t)ts.tv_sec;
+	read.pktHdr_.tv_usec_ = (uint64_t)ts.tv_usec;
+	read.pktHdr_.len_ = (uint32_t)res;
+	read.id_ = 0;
+	struct nfqnl_msg_packet_hdr* ph = nfq_get_msg_packet_hdr(nfad);
+	if (ph != nullptr)
+		read.id_ = ntohl(ph->packet_id);
+	read.data_ = puchar(packet);
+
+	GDemonNetFilter* nf = reinterpret_cast<GDemonNetFilter*>(data);
+	{
+		GSpinLockGuard guard(nf->session_->sendBufLock_);
+		int32_t encLen = read.encode(nf->session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return -1;
+		}
+
+		int sendLen = ::send(nf->session_->sd_, nf->session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+			return -1;
+		}
+	}
+
+	return 0; // gilgil temp 2021.06.27
+}

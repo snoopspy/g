@@ -73,10 +73,10 @@ GPacket::Result GRemotePcapDevice::read(GPacket* packet) {
 		return GPacket::Fail;
 	}
 
-	packet->ts_.tv_sec = read.pktHdr_.tv_sec;
-	packet->ts_.tv_usec = read.pktHdr_.tv_usec;
+	packet->ts_.tv_sec = read.pktHdr_.tv_sec_;
+	packet->ts_.tv_usec = read.pktHdr_.tv_usec_;
 	packet->buf_.data_ = read.data_;
-	packet->buf_.size_ = read.pktHdr_.caplen;
+	packet->buf_.size_ = read.pktHdr_.caplen_;
 	if (autoParse_) packet->parse();
 
 	return GPacket::Ok;

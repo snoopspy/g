@@ -480,7 +480,6 @@ GDemon::PcapOpenRes GDemonClient::pcapOpen(std::string client, std::string filte
 }
 
 void GDemonClient::pcapClose() {
-
 	PcapCloseReq req;
 
 	GSpinLockGuard guard(sendBufLock_);
@@ -530,6 +529,123 @@ GDemon::PcapRead GDemonClient::pcapRead() {
 void GDemonClient::pcapWrite(PcapWrite write) {
 	GSpinLockGuard guard(sendBufLock_);
 	int32_t encLen = write.encode(sendBuf_, MaxBufSize);
+	if (encLen == -1) {
+		error_ = "req.encode return -1";
+		qWarning() << error_.data();
+		return;
+	}
+
+	int sendLen = ::send(sd_, sendBuf_, encLen, 0);
+	if (sendLen == 0 || sendLen == -1) {
+		error_ = qPrintable(QString("send return %1").arg(sendLen));
+		qWarning() << error_.data();
+		return;
+	}
+}
+
+GDemon::NfOpenRes GDemonClient::nfOpen(std::string client, uint16_t queueNum) {
+	GDemon::NfOpenRes res;
+
+	if (sd_ == 0) {
+		error_ = "not connected state";
+		qWarning() << error_.data();
+		return res;
+	}
+
+	NfOpenReq req;
+
+	req.client_ = client;
+	req.queueNum_ = queueNum;
+	{
+		GSpinLockGuard guard(sendBufLock_);
+		int32_t encLen = req.encode(sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			error_ = "req.encode return -1";
+			return res;
+		}
+
+		int sendLen = ::send(sd_, sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			error_ = qPrintable(QString("send return %1").arg(sendLen));
+			qWarning() << error_.data();
+			return res;
+		}
+	}
+
+	Header* header = GDemon::PHeader(recvBuf_);
+	if (!recvAll(sd_, header, sizeof(Header))) {
+		error_ = "recvAll(header) return false";
+		qWarning() << error_.data();
+		return res;
+	}
+
+	if (!recvAll(sd_, recvBuf_ + sizeof(Header), header->len_)) {
+		error_ = "recvAll(body) return false";
+		qWarning() << error_.data();
+		return res;
+	}
+
+	int32_t decLen = res.decode(recvBuf_, sizeof(Header) + header->len_);
+	if (decLen == -1) {
+		qWarning() << "res.decode return -1";
+	}
+
+	if (!res.result_)
+		error_ = res.errBuf_;
+
+	return res;
+}
+
+void GDemonClient::nfClose() {
+	NfCloseReq req;
+
+	GSpinLockGuard guard(sendBufLock_);
+	int32_t encLen = req.encode(sendBuf_, MaxBufSize);
+	if (encLen == -1) {
+		error_ = "req.encode return -1";
+		qWarning() << error_.data();
+		return;
+	}
+
+	int sendLen = ::send(sd_, sendBuf_, encLen, 0);
+	if (sendLen == 0 || sendLen == -1) {
+		error_ = qPrintable(QString("send return %1").arg(sendLen));
+		// qWarning() << error_.data(); // do not log for disconnected state
+		return;
+	}
+
+	disconnect();
+}
+
+GDemon::NfRead GDemonClient::nfRead() {
+	GDemon::NfRead read;
+
+	Header* header = GDemon::PHeader(pktBuf_);
+	if (!recvAll(sd_, header, sizeof(Header))) {
+		error_ = "recvAll(header) return false";
+		qWarning() << error_.data();
+		return read;
+	}
+
+	if (!recvAll(sd_, pktBuf_ + sizeof(Header), header->len_)) {
+		error_ = "recvAll(body) return false";
+		qWarning() << error_.data();
+		return read;
+	}
+
+	int32_t decLen = read.decode(pktBuf_, sizeof(Header) + header->len_);
+	if (decLen == -1) {
+		error_ = "res.decode return -1";
+		qWarning() << error_.data();
+		read.data_ = nullptr;
+	}
+
+	return read;
+}
+
+void GDemonClient::nfVerdict(GDemon::NfVerdict verdict) {
+	GSpinLockGuard guard(sendBufLock_);
+	int32_t encLen = verdict.encode(sendBuf_, MaxBufSize);
 	if (encLen == -1) {
 		error_ = "req.encode return -1";
 		qWarning() << error_.data();

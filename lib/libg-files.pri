@@ -61,14 +61,17 @@ SOURCES += \
 	$${PWD}/../src/net/capture/gpcapfile.cpp \
 	$${PWD}/../src/net/capture/gpcappipe.cpp \
 	$${PWD}/../src/net/capture/gpcappipenexmon.cpp \
+	$${PWD}/../src/net/capture/gremotenetfilter.cpp \
 	$${PWD}/../src/net/capture/gremotepcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncnetfilter.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapfile.cpp \
 	$${PWD}/../src/net/capture/gsyncpcappipe.cpp \
 	$${PWD}/../src/net/capture/gsyncpcappipenexmon.cpp \
+	$${PWD}/../src/net/capture/gsyncremotenetfilter.cpp \
 	$${PWD}/../src/net/capture/gsyncremotepcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncwindivert.cpp \
+	$${PWD}/../src/net/capture/gvirtualnetfilter.cpp \
 	$${PWD}/../src/net/capture/gvirtualpcapdevice.cpp \
 	$${PWD}/../src/net/capture/gwindivert.cpp \
 	$${PWD}/../src/net/convert/gconverteth.cpp \
@@ -188,14 +191,17 @@ HEADERS += \
 	$${PWD}/../src/net/capture/gpcapfile.h \
 	$${PWD}/../src/net/capture/gpcappipe.h \
 	$${PWD}/../src/net/capture/gpcappipenexmon.h \
+	$${PWD}/../src/net/capture/gremotenetfilter.h \
 	$${PWD}/../src/net/capture/gremotepcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncnetfilter.h \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncpcapfile.h \
 	$${PWD}/../src/net/capture/gsyncpcappipe.h \
 	$${PWD}/../src/net/capture/gsyncpcappipenexmon.h \
+	$${PWD}/../src/net/capture/gsyncremotenetfilter.h \
 	$${PWD}/../src/net/capture/gsyncremotepcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncwindivert.h \
+	$${PWD}/../src/net/capture/gvirtualnetfilter.h \
 	$${PWD}/../src/net/capture/gvirtualpcapdevice.h \
 	$${PWD}/../src/net/capture/gwindivert.h \
 	$${PWD}/../src/net/convert/gconverteth.h \

@@ -50,7 +50,11 @@ struct GDemonClient : GDemon {
 	PcapRead pcapRead();
 	void pcapWrite(PcapWrite write);
 
-	//
+	// netfilter
+	NfOpenRes nfOpen(std::string client, uint16_t queueNum);
+	void nfClose();
+	NfRead nfRead();
+	void nfVerdict(NfVerdict verdict);
 
 	static GDemonClient& instance(std::string ip, uint16_t port);
 };

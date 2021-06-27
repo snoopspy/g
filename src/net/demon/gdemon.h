@@ -14,10 +14,13 @@
 #include <cstdint>
 #include <cstring>
 #include <list>
-#include <pcap.h>
 #include <string>
 #include <unistd.h>
 #include <thread>
+
+#include <pcap.h>
+#include <linux/netfilter.h>
+#include <libnetfilter_queue/libnetfilter_queue.h>
 
 // ----------------------------------------------------------------------------
 // GSpinLock
@@ -53,6 +56,8 @@ struct GDemon {
 	typedef char *pchar;
 	typedef unsigned char *puchar;
 	typedef void *pvoid;
+	typedef int16_t *pint16_t;
+	typedef uint16_t *puint16_t;
 	typedef int32_t *pint32_t;
 	typedef uint32_t *puint32_t;
 	typedef int64_t *pint64_t;
@@ -72,12 +77,19 @@ struct GDemon {
 		CmdCmdStart = 1,
 		CmdCmdStop = 2,
 		CmdCmdStartDetached = 3,
+
 		CmdGetInterfaceList = 4,
 		CmdGetRtm = 5,
+
 		CmdPcapOpen = 6,
 		CmdPcapClose = 7,
 		CmdPcapRead = 8,
-		CmdPcapWrite = 9
+		CmdPcapWrite = 9,
+
+		CmdNfOpen = 10,
+		CmdNfClose = 11,
+		CmdNfRead = 12,
+		CmdNfVerdict = 13
 	};
 	typedef Cmd *PCmd;
 
@@ -235,10 +247,10 @@ struct GDemon {
 
 	struct PcapRead : Header {
 		struct PktHdr {
-			uint64_t tv_sec;
-			uint64_t tv_usec;
-			uint32_t caplen;
-			uint32_t len;
+			uint64_t tv_sec_;
+			uint64_t tv_usec_;
+			uint32_t caplen_;
+			uint32_t len_;
 		} pktHdr_;
 		unsigned char* data_{nullptr};
 		int32_t encode(pchar buffer, int32_t size);
@@ -247,6 +259,50 @@ struct GDemon {
 
 	struct PcapWrite : Header {
 		int32_t size_;
+		unsigned char* data_{nullptr};
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	//
+	// netfilter
+	//
+	struct NfOpenReq : Header {
+		std::string client_;
+		uint16_t queueNum_;
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	struct NfOpenRes : Header {
+		bool result_{false};
+		std::string errBuf_{"no error"};
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	struct NfCloseReq : Header {
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	struct NfRead : Header {
+		struct PktHdr {
+			uint64_t tv_sec_;
+			uint64_t tv_usec_;
+			uint32_t len_;
+		} pktHdr_;
+		unsigned char* data_{nullptr};
+		uint32_t id_;
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	struct NfVerdict : Header {
+		uint32_t id_;
+		uint32_t acceptVerdict_;
+		uint32_t mark_;
+		uint32_t size_;
 		unsigned char* data_{nullptr};
 		int32_t encode(pchar buffer, int32_t size);
 		int32_t decode(pchar buffer, int32_t size);

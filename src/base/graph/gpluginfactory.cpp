@@ -56,6 +56,7 @@ void GPluginFactory::loadBlock() {
 #include <GPcapPipe>
 #include <GPcapPipeNexmon>
 #include <GNetFilter>
+#include <GRemoteNetFilter>
 #include <GRemotePcapDevice>
 #include <GWinDivert>
 
@@ -72,6 +73,7 @@ void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GPcapFile*>();
 	qRegisterMetaType<GPcapPipe*>();
 	qRegisterMetaType<GPcapPipeNexmon*>();
+	qRegisterMetaType<GRemoteNetFilter*>();
 	qRegisterMetaType<GRemotePcapDevice*>();
 #ifdef Q_OS_WIN
 	qRegisterMetaType<GWinDivert*>();
@@ -92,9 +94,10 @@ void GPluginFactory::loadCapture() {
 	category->items_.push_back(new ItemNode("GPcapFile"));
 	category->items_.push_back(new ItemNode("GPcapPipe"));
 	category->items_.push_back(new ItemNode("GPcapPipeNexmon"));
+	category->items_.push_back(new ItemNode("GRemoteNetFilter"));
 	category->items_.push_back(new ItemNode("GRemotePcapDevice"));
 #ifdef Q_OS_WIN
-	category->items_.push_back(new ItemNode(GWinDivert::staticMetaObject.className()));
+	category->items_.push_back(new ItemNode("GWinDivert"));
 #endif
 
 	items_.push_back(category);

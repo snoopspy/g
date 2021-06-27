@@ -2,13 +2,10 @@
 
 #ifdef Q_OS_LINUX
 
-#include <linux/netfilter.h>
-#include <libnetfilter_queue/libnetfilter_queue.h>
-
 // ----------------------------------------------------------------------------
 // GNetFilter
 // ----------------------------------------------------------------------------
-GNetFilter::GNetFilter(QObject* parent) : GCapture(parent) {
+GNetFilter::GNetFilter(QObject* parent) : GVirtualNetFilter(parent) {
 	command_.openCommands_.clear();
 	command_.openCommands_.push_back(new GCommandItem(this, QStringList{
 #ifdef _DEBUG
@@ -61,7 +58,7 @@ bool GNetFilter::doOpen() {
 	}
 
 	// binding this socket to queue
-	qh_ = nfq_create_queue(h_, uint16_t(queueNum_), cb_, this);
+	qh_ = nfq_create_queue(h_, queueNum_, cb_, this);
 	if (!qh_) {
 		SET_ERR(GErr::FAIL, "error during nfq_create_queue()");
 		return false;
@@ -74,7 +71,6 @@ bool GNetFilter::doOpen() {
 	}
 
 	fd_ = nfq_fd(h_);
-	qDebug() << QString("fd=%1").arg(fd_); // gilgil temp 2016.09.25
 
 	Q_ASSERT(recvBuf_ == nullptr);
 	recvBuf_ = new gbyte[bufSize_];
