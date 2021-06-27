@@ -42,9 +42,7 @@ bool GRemoteNetFilter::doOpen() {
 		return false;
 	}
 
-	command_.close();
-
-	return true;
+	return GCapture::doOpen();
 }
 
 bool GRemoteNetFilter::doClose() {
@@ -59,6 +57,8 @@ bool GRemoteNetFilter::doClose() {
 		delete demonClient_;
 		demonClient_ = nullptr;
 	}
+
+	command_.close();
 
 	return true;
 }
