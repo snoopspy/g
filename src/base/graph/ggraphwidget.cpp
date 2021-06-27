@@ -460,12 +460,12 @@ void GGraphWidget::actionSaveFileAsTriggered(bool) {
 }
 
 void GGraphWidget::actionStartTriggered(bool) {
+	plainTextEdit_->clear();
 	bool res = graph_->open();
 	if (!res) {
 		QString msg = graph_->err->msg();
 		QMessageBox::warning(nullptr, "Error", msg);
 	}
-	plainTextEdit_->clear();
 	setControl();
 }
 
