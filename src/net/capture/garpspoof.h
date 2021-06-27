@@ -16,13 +16,13 @@
 #include "net/flow/gflowkey.h"
 #include "net/filter/gbpfilter.h"
 
-#ifdef Q_OS_ANDROID_GILGIL
+#ifdef Q_OS_ANDROID
 	typedef GRemotePcapDevice GArpSpoofBaseDevice;
 	typedef GRemoteAtm GArpSpoofAtm;
-#else // Q_OS_ANDROID_GILGIL
+#else // Q_OS_ANDROID
 	typedef GPcapDevice GArpSpoofBaseDevice;
 	typedef GAtm GArpSpoofAtm;
-#endif // Q_OS_ANDROID_GILGIL
+#endif // Q_OS_ANDROID
 
 // ----------------------------------------------------------------------------
 // GArpSpoofFlow

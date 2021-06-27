@@ -22,21 +22,21 @@ bool GArpSpoof::doOpen() {
 	// ----- by gilgil 2021.06.18 -----
 	// intf_ is determined in GPcapDevice::doOpen or GRemovePcapDevice::doOpen.
 	// To set filter, intf_ must be determined before open base class doOpen
-#if Q_OS_ANDROID_GILGIL
+#ifdef Q_OS_ANDROID
 	intf_ = GRemoteNetInfo::instance(ip_, port_).interfaceList().findByName(intfName_);
 	if (intf_ == nullptr) {
 		QString msg = QString("can not find interface for %1").arg(intfName_);
 		SET_ERR(GErr::VALUE_IS_NULL, msg);
 		return false;
 	}
-#else // Q_OS_ANDROID_GILGIL
+#else // Q_OS_ANDROID
 	intf_ = GNetInfo::instance().interfaceList().findByName(intfName_);
 	if (intf_ == nullptr) {
 		QString msg = QString("can not find interface for %1").arg(intfName_);
 		SET_ERR(GErr::VALUE_IS_NULL, msg);
 		return false;
 	}
-#endif // Q_OS_ANDROID_GILGIL
+#endif // Q_OS_ANDROID
 	// --------------------------------
 
 	QString internalFilter;
@@ -102,25 +102,27 @@ bool GArpSpoof::doOpen() {
 			atm_.insert(flow.targetIp_, flow.targetMac_);
 	}
 
-	atm_.intfName_ = intfName_;
-	if (!atm_.open()) {
-		err = atm_.err;
-		atm_.close();
-		return false;
-	}
-	bool res = atm_.wait();
-	atm_.close();
-	if (!res) {
-		QString msg = "can not find all host(s) ";
-		for (GAtm::iterator it = atm_.begin(); it != atm_.end(); it++) {
-			GMac mac = it.value();
-			if (mac.isNull()) {
-				GIp ip = it.key();
-				msg += QString(ip) += " ";
-			}
+	if (!atm_.allResolved()) {
+		atm_.intfName_ = intfName_;
+		if (!atm_.open()) {
+			err = atm_.err;
+			atm_.close();
+			return false;
 		}
-		SET_ERR(GErr::FAIL, msg);
-		return false;
+		bool res = atm_.wait();
+		atm_.close();
+		if (!res) {
+			QString msg = "can not find all host(s) ";
+			for (GAtm::iterator it = atm_.begin(); it != atm_.end(); it++) {
+				GMac mac = it.value();
+				if (mac.isNull()) {
+					GIp ip = it.key();
+					msg += QString(ip) += " ";
+				}
+			}
+			SET_ERR(GErr::FAIL, msg);
+			return false;
+		}
 	}
 
 	flowMap_.clear();
