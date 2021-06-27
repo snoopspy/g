@@ -1,7 +1,9 @@
+#include <csignal>
 #include <GApp>
 #include <GGraphWidget>
 #include "myfactory.h"
 
+GGraphWidget* _graphWidget{nullptr};
 int exec(GApp* a, GGraph* graph, GPluginFactory* pluginFactory) {
 	Q_ASSERT(graph != nullptr);
 
@@ -10,21 +12,83 @@ int exec(GApp* a, GGraph* graph, GPluginFactory* pluginFactory) {
 	}
 	graph->setFactory(pluginFactory);
 
-	GGraphWidget graphWidget;
-	graphWidget.setGraph(graph);
+	_graphWidget = new GGraphWidget;
+	_graphWidget->setGraph(graph);
 
 	QJsonObject jo = GJson::loadFromFile();
-	jo["graphWidget"] >> graphWidget;
+	jo["graphWidget"] >> _graphWidget;
 
-	graphWidget.update();
-	graphWidget.show();
+	_graphWidget->update();
+	_graphWidget->show();
 	int res = a->exec();
 
-	jo["graphWidget"] << graphWidget;
+	jo["graphWidget"] << *_graphWidget;
+	delete _graphWidget;
+	_graphWidget = nullptr;
 
 	GJson::saveToFile(jo);
 	return res;
 }
+
+void signalHandler(int signo) {
+	const char* signal = "unknown";
+	switch (signo) {
+		case SIGINT: signal = "SIGINT"; break;
+		case SIGILL: signal = "SIGILL"; break;
+		case SIGABRT: signal = "SIGABRT"; break;
+		case SIGFPE: signal = "SIGFPE"; break;
+		case SIGSEGV: signal = "SIGSEGV"; break;
+		case SIGTERM: signal = "SIGTERM"; break;
+		case SIGHUP: signal = "SIGHUP"; break;
+		case SIGQUIT: signal = "SIGQUIT"; break;
+		case SIGTRAP: signal = "SIGTRAP"; break;
+		case SIGKILL: signal = "SIGKILL"; break;
+		case SIGBUS: signal = "SIGBUS"; break;
+		case SIGSYS: signal = "SIGSYS"; break;
+		case SIGPIPE: signal = "SIGPIPE"; break;
+		case SIGALRM: signal = "SIGALRM"; break;
+		case SIGURG: signal = "SIGURG"; break;
+		case SIGSTOP: signal = "SIGSTOP"; break;
+		case SIGTSTP: signal = "SIGTSTP"; break;
+		case SIGCONT: signal = "SIGCONT"; break;
+		case SIGCHLD: signal = "SIGCHLD"; break;
+		case SIGTTIN: signal = "SIGTTIN"; break;
+		case SIGTTOU: signal = "SIGTTOU"; break;
+		case SIGPOLL: signal = "SIGPOLL"; break;
+		case SIGXCPU: signal = "SIGXCPU"; break;
+		case SIGXFSZ: signal = "SIGXFSZ"; break;
+		case SIGVTALRM: signal = "SIGVTALRM"; break;
+		case SIGPROF: signal = "SIGPROF"; break;
+		case SIGUSR1: signal = "SIGUSR1"; break;
+		case SIGUSR2: signal = "SIGUSR2"; break;
+	}
+	char* msg = strsignal(signo);
+	qCritical() << QString("signo=%1(%2) %3").arg(signal).arg(signo).arg(msg);
+	if (signo == SIGSEGV)
+		exit(-1);
+	qDebug() << "bef server.stop()";
+	if (_graphWidget != nullptr)
+		_graphWidget->close();
+	qDebug() << "aft server.stop()";
+}
+
+void prepareSignal() {
+	std::signal(SIGINT, signalHandler);
+	std::signal(SIGILL, signalHandler);
+	std::signal(SIGABRT, signalHandler);
+	std::signal(SIGFPE, signalHandler);
+	std::signal(SIGSEGV, signalHandler);
+	std::signal(SIGTERM, signalHandler);
+	std::signal(SIGHUP, signalHandler);
+	std::signal(SIGQUIT, signalHandler);
+	std::signal(SIGTRAP, signalHandler);
+	std::signal(SIGKILL, signalHandler);
+	std::signal(SIGBUS, signalHandler);
+	std::signal(SIGSYS, signalHandler);
+	std::signal(SIGPIPE, SIG_IGN); // Ignore SIGPIPE which can be signaled when TCP socket operation on linux
+	std::signal(SIGALRM, signalHandler);
+}
+
 
 int main(int argc, char *argv[]) {
 	GApp a(argc, argv);
