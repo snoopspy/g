@@ -90,6 +90,7 @@ void prepareSignal() {
 }
 
 int main(int argc, char *argv[]) {
+	prepareSignal();
 	GApp a(argc, argv);
 	GGraph graph;
 	MyFactory factory;
