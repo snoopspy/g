@@ -20,10 +20,10 @@ struct G_EXPORT GStateObj : GObj {
 
 public:
 	typedef enum {
-		Closed,
-		Opening,
-		Opened,
-		Closing
+		Closed, // 0
+		Opening, // 1
+		Opened, // 2
+		Closing // 3
 	} State;
 
 	GStateObj(QObject* parent = nullptr) : GObj(parent) {}
