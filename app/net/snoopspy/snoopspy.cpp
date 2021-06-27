@@ -66,10 +66,10 @@ void signalHandler(int signo) {
 	qCritical() << QString("signo=%1(%2) %3").arg(signal).arg(signo).arg(msg);
 	if (signo == SIGSEGV)
 		exit(-1);
-	qDebug() << "bef server.stop()";
+	qDebug() << "bef _graphWidget->close()";
 	if (_graphWidget != nullptr)
 		_graphWidget->close();
-	qDebug() << "aft server.stop()";
+	qDebug() << "aft _graphWidget->close()";
 }
 
 void prepareSignal() {
