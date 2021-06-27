@@ -89,7 +89,6 @@ void prepareSignal() {
 	std::signal(SIGALRM, signalHandler);
 }
 
-
 int main(int argc, char *argv[]) {
 	GApp a(argc, argv);
 	GGraph graph;
