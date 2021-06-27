@@ -108,7 +108,7 @@ void GGScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 		case MoveItem:
 			break;
 		case InsertLine:
-			if (dragLine_ != nullptr) {
+			if (dragLine_ != nullptr && signalSlotForm_ == nullptr) {
 				QLineF line(dragLine_->line().p1(), event->scenePos());
 				dragLine_->setLine(line);
 				return;
@@ -185,6 +185,8 @@ void GGScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 
 						createArrow(startText, endText, connection);
 					}
+					delete signalSlotForm_;
+					signalSlotForm_ = nullptr;
 				}
 				removeItem(dragLine_);
 				delete dragLine_;
