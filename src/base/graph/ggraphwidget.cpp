@@ -88,7 +88,6 @@ void GGraphWidget::init() {
 
 	tabWidget_ = new QTabWidget(this);
 	tabWidget_->setTabPosition(QTabWidget::South);
-	setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
 	midSplitter_ = new QSplitter(Qt::Horizontal, this);
 	midLeftSplitter_ = new QSplitter(Qt::Vertical, this);
@@ -104,6 +103,7 @@ void GGraphWidget::init() {
 
 	plainTextEdit_ = new QPlainTextEdit(this);
 	plainTextEdit_->setReadOnly(true);
+	plainTextEdit_->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
 	GLogManager& logManager = GLogManager::instance();
 	GLogQObject* log = new GLogQObject;
