@@ -208,6 +208,7 @@ struct GDemon {
 	// pcap
 	//
 	struct PcapOpenReq : Header {
+		std::string client_;
 		std::string filter_;
 		std::string intfName_;
 		int32_t snaplen_;

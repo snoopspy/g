@@ -761,8 +761,13 @@ int32_t GDemon::PcapOpenReq::encode(pchar buffer, int32_t size) {
 
 	buf += sizeof(Header); size -= sizeof(Header);
 
+	// clientName_
+	int32_t len = client_.size();
+	*pint32_t(buf) = int32_t(len); buf += sizeof(len); size -= sizeof(len);
+	memcpy(buf, client_.data(), len); buf += len; size -= len;
+
 	// filter_
-	int32_t len = filter_.size();
+	len = filter_.size();
 	*pint32_t(buf) = int32_t(len); buf += sizeof(len); size -= sizeof(len);
 	memcpy(buf, filter_.data(), len); buf += len; size -= len;
 
@@ -806,8 +811,12 @@ int32_t GDemon::PcapOpenReq::decode(pchar buffer, int32_t size) {
 		return -1;
 	}
 
-	// filter_
+	// clientName_;
 	int32_t len = *pint32_t(buf); buf += sizeof(len); size -= sizeof(len);
+	client_ = std::string(buf, len); buf += len; size -= len;
+
+	// filter_
+	len = *pint32_t(buf); buf += sizeof(len); size -= sizeof(len);
 	filter_ = std::string(buf, len); buf += len; size -= len;
 
 	// intfName_

@@ -25,7 +25,7 @@ bool GRemotePcapDeviceWrite::doOpen() {
 	}
 
 	demonClient_ = new GDemonClient(std::string(qPrintable(ip_)), port_);
-	GDemon::PcapOpenRes res = demonClient_->pcapOpen("", std::string(qPrintable(intfName_)), 0, 0, 0, 0, false);
+	GDemon::PcapOpenRes res = demonClient_->pcapOpen(qPrintable(objectName()), "", std::string(qPrintable(intfName_)), 0, 0, 0, 0, false);
 	if (!res.result_) {
 		SET_ERR(GErr::FAIL, demonClient_->error_.data());
 		delete demonClient_; demonClient_ = nullptr;

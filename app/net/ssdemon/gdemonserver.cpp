@@ -717,14 +717,14 @@ void GDemonPcap::run(int waitTimeout) {
 }
 
 bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
-	GTRACE("");
-
 	PcapOpenReq req;
 	int32_t decLen = req.decode(buf, size);
 	if (decLen == -1) {
 		GTRACE("req.decode return =1");
 		return false;
 	}
+	client_ = req.client_;
+	GTRACE("%s", client_.data());
 
 	PcapOpenRes res = open(req);
 
@@ -745,7 +745,7 @@ bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
 }
 
 bool GDemonPcap::processPcapClose(pchar buf, int32_t size) {
-	GTRACE("");
+	GTRACE("%s", client_.data());
 
 	PcapCloseReq req;
 	int32_t decLen = req.decode(buf, size);

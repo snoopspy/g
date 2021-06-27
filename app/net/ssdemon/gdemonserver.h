@@ -115,6 +115,7 @@ struct GDemonPcap : GDemon {
 	pcap_t* pcap_{nullptr};
 	bool active_{false};
 	std::thread* thread_{nullptr};
+	std::string client_;
 
 	PcapOpenRes open(PcapOpenReq res);
 	void close();

@@ -419,7 +419,7 @@ GDemon::GetRtmRes GDemonClient::getRtm() {
 	return res;
 }
 
-GDemon::PcapOpenRes GDemonClient::pcapOpen(std::string filter, std::string intfName, int32_t snapLen, int32_t flags, int32_t readTimeout, int32_t waitTimeout, bool captureThread) {
+GDemon::PcapOpenRes GDemonClient::pcapOpen(std::string client, std::string filter, std::string intfName, int32_t snapLen, int32_t flags, int32_t readTimeout, int32_t waitTimeout, bool captureThread) {
 	GDemon::PcapOpenRes res;
 
 	if (sd_ == 0) {
@@ -430,6 +430,7 @@ GDemon::PcapOpenRes GDemonClient::pcapOpen(std::string filter, std::string intfN
 
 	PcapOpenReq req;
 
+	req.client_ = client;
 	req.filter_ = filter;
 	req.intfName_ = intfName;
 	req.snaplen_ = snapLen;
