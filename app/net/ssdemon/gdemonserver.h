@@ -144,9 +144,9 @@ struct GDemonNetFilter : GDemon {
 	bool active_{false};
 	std::thread* thread_{nullptr};
 	std::string client_;
+	int waitTimeout_{1}; // 1 msec
 	struct nfq_handle* h_{nullptr};
 	struct nfq_q_handle* qh_{nullptr};
-	int waitTimeout_{1}; // 1 msec
 	int fd_{0};
 	char* nfRecvBuf_{nullptr};
 
