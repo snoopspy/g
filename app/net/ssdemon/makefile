@@ -6,7 +6,7 @@ CPPFLAGS+=-g
 CPPFLAGS+=-O2 # for release
 CPPFLAGS+=-Wall -Wextra
 CPPFLAGS+=-I../../../src/net/demon
-LDLIBS+=-lpcap -pthread -lnetfilter_queue
+LDLIBS+=-lpcap -pthread -lnetfilter_queue -lmnl -lnfnetlink
 
 all: $(TARGET)
 
