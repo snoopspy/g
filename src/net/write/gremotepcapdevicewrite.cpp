@@ -57,8 +57,8 @@ GPacket::Result GRemotePcapDeviceWrite::write(GBuf buf) {
 	GDemon::PcapWrite write;
 	write.size_ = buf.size_;
 	write.data_ = buf.data_;
-	demonClient_->pcapWrite(write);
-	return GPacket::Ok;
+	bool res = demonClient_->pcapWrite(write);
+	return res ? GPacket::Ok : GPacket::Fail;
 }
 
 GPacket::Result GRemotePcapDeviceWrite::write(GPacket* packet) {

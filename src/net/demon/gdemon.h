@@ -101,6 +101,7 @@ struct GDemon {
 		Cmd cmd_;
 		int32_t encode(pchar buffer, int32_t size);
 		int32_t decode(pchar buffer, int32_t size);
+		int32_t recv(int sd);
 	};
 	typedef Header* PHeader;
 
@@ -292,8 +293,8 @@ struct GDemon {
 			uint64_t tv_usec_;
 			uint32_t len_;
 		} pktHdr_;
-		unsigned char* data_{nullptr};
 		uint32_t id_;
+		unsigned char* data_{nullptr};
 		int32_t encode(pchar buffer, int32_t size);
 		int32_t decode(pchar buffer, int32_t size);
 	};

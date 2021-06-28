@@ -115,6 +115,11 @@ GDemonSession::~GDemonSession() {
 		pcap_ = nullptr;
 	}
 
+	if (nf_ != nullptr) {
+		delete nf_;
+		nf_ = nullptr;
+	}
+
 	if (recvBuf_ != nullptr) {
 		delete[] recvBuf_;
 		recvBuf_ = nullptr;
@@ -149,15 +154,14 @@ void GDemonSession::run() {
 	bool active = true;
 	while (active) {
 		Header* header = GDemon::PHeader(recvBuf_);
-		if (!recvAll(sd_, header, sizeof(Header)))
+
+		if (!header->recv(sd_))
 			break;
-		if (header->len_ < 0 || header->len_ > MaxBufSize) {
-			GTRACE("invalid len_ %d", header->len_);
+
+		if (!recvAll(sd_, recvBuf_ + sizeof(Header), header->len_)) {
+			GTRACE("recvAll(%d) return false", header->len_);
 			break;
 		}
-
-		if (!recvAll(sd_, recvBuf_ + sizeof(Header), header->len_))
-			break;
 
 		pchar buf = recvBuf_;
 		int size = header->len_ + sizeof(Header);
@@ -216,6 +220,7 @@ void GDemonSession::run() {
 				break;
 		}
 	}
+
 	GTRACE("end");
 }
 
@@ -659,11 +664,6 @@ GDemon::PcapOpenRes GDemonPcap::open(PcapOpenReq req) {
 	res.result_ = true;
 	res.dataLink_ = pcap_datalink(pcap_);
 
-	if (req.captureThread_) {
-		active_ = true;
-		thread_ = new std::thread(GDemonPcap::_run, this);
-	}
-
 	return res;
 }
 
@@ -686,6 +686,8 @@ void GDemonPcap::_run(GDemonPcap* pcap) {
 }
 
 void GDemonPcap::run() {
+	GTRACE("GDemonPcap beg");
+
 	PcapRead read;
 
 	while (active_) {
@@ -731,6 +733,8 @@ void GDemonPcap::run() {
 			}
 		}
 	}
+
+	GTRACE("GDemonPcap end");
 	// disconnect connection
 	::shutdown(session_->sd_, SHUT_RDWR);
 	::close(session_->sd_);
@@ -761,6 +765,12 @@ bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
 			GTRACE("send return %d", sendLen);
 		}
 	}
+
+	if (req.captureThread_) {
+		active_ = true;
+		thread_ = new std::thread(GDemonPcap::_run, this);
+	}
+
 	return true;
 }
 
@@ -851,15 +861,12 @@ GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 	}
 	fd_ = nfq_fd(h_);
 
-	recvBuf_ = new char[MaxBufSize];
+	nfRecvBuf_ = new char[MaxBufSize];
 
 	id_ = 0;
 	packet_ = nullptr;
 
 	res.result_ = true;
-
-	active_ = true;
-	thread_ = new std::thread(GDemonNetFilter::_run, this);
 
 	return res;
 }
@@ -903,9 +910,9 @@ void GDemonNetFilter::close() {
 		h_ = nullptr;
 	}
 
-	if (recvBuf_ != nullptr) {
-		delete[] recvBuf_ ;
-		recvBuf_ = nullptr;
+	if (nfRecvBuf_ != nullptr) {
+		delete[] nfRecvBuf_ ;
+		nfRecvBuf_ = nullptr;
 	}
 }
 
@@ -914,13 +921,13 @@ void GDemonNetFilter::_run(GDemonNetFilter* nf) {
 }
 
 void GDemonNetFilter::run() {
-	GTRACE("beg"); // gilgil temp 2016.09.27
+	GTRACE("GDemonNetFilter beg");
 	while (active_) {
 		GTRACE("bef call recv"); // gilgil temp 2016.09.27
-		int res = int(::recv(fd_, recvBuf_, MaxBufSize, 0));
+		int res = int(::recv(fd_, nfRecvBuf_, MaxBufSize, 0));
 		GTRACE("aft call recv %d", res); // gilgil temp 2016.09.27
 		if (res >= 0) {
-			nfq_handle_packet(h_, pchar(recvBuf_), res);
+			nfq_handle_packet(h_, pchar(nfRecvBuf_), res);
 			continue;
 		} else {
 			if (errno == ENOBUFS) {
@@ -931,8 +938,13 @@ void GDemonNetFilter::run() {
 			break;
 		}
 	}
-	GTRACE("end"); // gilgil temp 2016.09.27
+
+	GTRACE("GDemonNetFilter end");
+	// disconnect connection
+	::shutdown(session_->sd_, SHUT_RDWR);
+	::close(session_->sd_);
 }
+
 
 bool GDemonNetFilter::processNfOpen(pchar buf, int32_t size) {
 	NfOpenReq req;
@@ -960,6 +972,10 @@ bool GDemonNetFilter::processNfOpen(pchar buf, int32_t size) {
 			GTRACE("send return %d", sendLen);
 		}
 	}
+
+	active_ = true;
+	thread_ = new std::thread(GDemonNetFilter::_run, this);
+
 	return true;
 }
 

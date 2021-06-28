@@ -48,13 +48,13 @@ struct GDemonClient : GDemon {
 	PcapOpenRes pcapOpen(std::string client, std::string filter, std::string intfName, int32_t snapLen, int32_t flags, int32_t readTimeout, int32_t waitTimeout, bool captureThread);
 	void pcapClose();
 	PcapRead pcapRead();
-	void pcapWrite(PcapWrite write);
+	bool pcapWrite(PcapWrite write);
 
 	// netfilter
 	NfOpenRes nfOpen(std::string client, uint16_t queueNum);
 	void nfClose();
 	NfRead nfRead();
-	void nfVerdict(NfVerdict verdict);
+	bool nfVerdict(NfVerdict verdict);
 
 	static GDemonClient& instance(std::string ip, uint16_t port);
 };

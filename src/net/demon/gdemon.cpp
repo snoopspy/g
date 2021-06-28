@@ -53,6 +53,20 @@ int32_t GDemon::Header::decode(pchar buffer, int32_t size) {
 	return buf - buffer;
 }
 
+int32_t GDemon::Header::recv(int sd) {
+	if (!recvAll(sd, pvoid(this), sizeof(Header))) {
+		GTRACE("recvAll(Header) return false");
+		return -1;
+	}
+
+	if (this->len_ < 0 || sizeof(Header) + len_ > MaxBufSize) {
+		GTRACE("invalid header len(%d)", len_);
+		return -1;
+	}
+
+	return sizeof(Header);
+}
+
 //
 // command
 //
@@ -965,7 +979,7 @@ int32_t GDemon::PcapRead::decode(pchar buffer, int32_t size) {
 	pktHdr_ = *reinterpret_cast<PktHdr*>(buf); buf += sizeof(pktHdr_); size -= sizeof(pktHdr_);
 
 	// data_
-	if (size - int(pktHdr_.caplen_) < 0) {
+	if (size - int32_t(pktHdr_.caplen_) < 0) {
 		GTRACE("not enough buffer size=%d caplen=%u", size, pktHdr_.caplen_);
 		return -1;
 	}
@@ -1151,12 +1165,15 @@ int32_t GDemon::NfCloseReq::decode(pchar buffer, int32_t size) {
 int32_t GDemon::NfRead::encode(pchar buffer, int32_t size) {
 	volatile pchar buf = buffer;
 
-	len_ = sizeof(pktHdr_) + pktHdr_.len_;
+	len_ = sizeof(pktHdr_) + sizeof(id_) + pktHdr_.len_;
 	cmd_ = CmdNfRead;
 	int32_t encLen = Header::encode(buf, size); buf += encLen; size -= encLen;
 
 	// pktHdr_
 	memcpy(buf, &pktHdr_, sizeof(pktHdr_)); buf += sizeof(pktHdr_); size -= sizeof(pktHdr_);
+
+	// id_
+	*puint32_t(buf) = id_; buf += sizeof(id_); size -= sizeof(id_);
 
 	// data_
 	if (size < int(pktHdr_.len_)) {
@@ -1184,8 +1201,11 @@ int32_t GDemon::NfRead::decode(pchar buffer, int32_t size) {
 	// pktHdr_
 	pktHdr_ = *reinterpret_cast<PktHdr*>(buf); buf += sizeof(pktHdr_); size -= sizeof(pktHdr_);
 
+	// id_
+	id_ = *puint32_t(buf); buf += sizeof(id_); size -= sizeof(id_);
+
 	// data_
-	if (size - int(pktHdr_.len_) < 0) {
+	if (size - int32_t(pktHdr_.len_) < 0) {
 		GTRACE("not enough buffer size=%d caplen=%u", size, pktHdr_.len_);
 		return -1;
 	}
@@ -1202,7 +1222,7 @@ int32_t GDemon::NfVerdict::encode(pchar buffer, int32_t size) {
 	volatile pchar buf = buffer;
 
 	len_ = sizeof(size_) + size_;
-	cmd_ = CmdPcapWrite;
+	cmd_ = CmdNfVerdict;
 	int32_t encLen = Header::encode(buf, size); buf += encLen; size -= encLen;
 
 	// id_;
@@ -1215,7 +1235,7 @@ int32_t GDemon::NfVerdict::encode(pchar buffer, int32_t size) {
 	*puint32_t(buf) = mark_; buf += sizeof(mark_); size -= sizeof(mark_);
 
 	// size_
-	*pint32_t(buf) = size_; buf += sizeof(size_); size -= sizeof(size_);
+	*puint32_t(buf) = size_; buf += sizeof(size_); size -= sizeof(size_);
 
 	// data_
 	if (size < int32_t(size_)) {
@@ -1235,8 +1255,8 @@ int32_t GDemon::NfVerdict::decode(pchar buffer, int32_t size) {
 	volatile pchar buf = buffer;
 
 	int32_t decLen = Header::decode(buf, size); buf += decLen; size -= decLen;
-	if (cmd_ != CmdPcapWrite) {
-		GTRACE("cmd_ is not CmdPcapWrite %d", cmd_);
+	if (cmd_ != CmdNfVerdict) {
+		GTRACE("cmd_ is not CmdNfVerdict %d", cmd_);
 		return -1;
 	}
 
@@ -1250,7 +1270,7 @@ int32_t GDemon::NfVerdict::decode(pchar buffer, int32_t size) {
 	mark_ = *puint32_t(buf); buf += sizeof(mark_); size -= sizeof(mark_);
 
 	// size_
-	size_ = *pint32_t(buf); buf += sizeof(size_); size -= sizeof(size_);
+	size_ = *puint32_t(buf); buf += sizeof(size_); size -= sizeof(size_);
 
 	// data_
 	data_ = puchar(buf); buf += size_; size -= size_;

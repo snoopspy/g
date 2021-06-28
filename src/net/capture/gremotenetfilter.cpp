@@ -108,8 +108,8 @@ GPacket::Result GRemoteNetFilter::relay(GPacket* packet) {
 		verdict.size_ = 0;
 		verdict.data_ = nullptr;
 	}
-	demonClient_->nfVerdict(verdict);
-	return GPacket::Ok;
+	bool res = demonClient_->nfVerdict(verdict);
+	return res ? GPacket::Ok : GPacket::Fail;
 }
 
 GPacket::Result GRemoteNetFilter::drop(GPacket* packet) {
@@ -120,6 +120,6 @@ GPacket::Result GRemoteNetFilter::drop(GPacket* packet) {
 	verdict.mark_ = mark_;
 	verdict.size_ = 0;
 	verdict.data_ = nullptr;
-	demonClient_->nfVerdict(verdict);
-	return GPacket::Ok;
+	bool res = demonClient_->nfVerdict(verdict);
+	return res ? GPacket::Ok : GPacket::Fail;
 }

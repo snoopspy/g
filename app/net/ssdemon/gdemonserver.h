@@ -144,7 +144,7 @@ struct GDemonNetFilter : GDemon {
 	struct nfq_handle* h_{nullptr};
 	struct nfq_q_handle* qh_{nullptr};
 	int fd_{0};
-	char* recvBuf_{nullptr};
+	char* nfRecvBuf_{nullptr};
 
 	NfOpenRes open(NfOpenReq req);
 	void close();
