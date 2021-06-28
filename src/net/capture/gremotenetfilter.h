@@ -13,8 +13,6 @@
 #include "gvirtualnetfilter.h"
 #include "base/other/gremotecommand.h"
 
-#ifdef Q_OS_LINUX
-
 // ----------------------------------------------------------------------------
 // GRemoteNetFilter
 // ----------------------------------------------------------------------------
@@ -54,5 +52,3 @@ private:
 	uint32_t id_;
 	GIpPacket* ipPacket_;
 };
-
-#endif // Q_OS_LINUX
