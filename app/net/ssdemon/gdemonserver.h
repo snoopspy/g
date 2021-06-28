@@ -19,6 +19,9 @@
 #include "gdemon.h"
 #include "gprocess.h"
 
+#include <linux/netfilter.h>
+#include <libnetfilter_queue/libnetfilter_queue.h>
+
 // ----------------------------------------------------------------------------
 // GDemonServer
 // ----------------------------------------------------------------------------

@@ -19,14 +19,12 @@
 #include <thread>
 
 #include <pcap.h>
-#include <linux/netfilter.h>
-#include <libnetfilter_queue/libnetfilter_queue.h>
 
 // ----------------------------------------------------------------------------
 // GSpinLock
 // ----------------------------------------------------------------------------
 struct GSpinLock {
-	std::atomic_flag locked = ATOMIC_FLAG_INIT ;
+	std::atomic_flag locked = ATOMIC_FLAG_INIT;
 
 public:
 	void lock() {
