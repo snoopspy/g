@@ -62,13 +62,9 @@ void GPluginFactory::loadBlock() {
 
 void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GArpSpoof*>();
-#ifdef Q_OS_LINUX
 	qRegisterMetaType<GAsyncNetFilter*>();
-#endif
 	qRegisterMetaType<GAutoArpSpoof*>();
-#ifdef Q_OS_LINUX
 	qRegisterMetaType<GNetFilter*>();
-#endif
 	qRegisterMetaType<GPcapDevice*>();
 	qRegisterMetaType<GPcapFile*>();
 	qRegisterMetaType<GPcapPipe*>();
@@ -81,11 +77,11 @@ void GPluginFactory::loadCapture() {
 
 	ItemCategory* category = new ItemCategory("capture");
 	category->items_.push_back(new ItemNode("GArpSpoof"));
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	category->items_.push_back(new ItemNode("GAsyncNetFilter"));
 #endif
 	category->items_.push_back(new ItemNode("GAutoArpSpoof"));
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	category->items_.push_back(new ItemNode("GNetFilter"));
 #endif
 #ifndef Q_OS_ANDROID
@@ -117,7 +113,9 @@ void GPluginFactory::loadConvert() {
 
 	ItemCategory* category = new ItemCategory("convert");
 	category->items_.push_back(new ItemNode("GConvertEth"));
+#ifndef Q_OS_ANDROID
 	category->items_.push_back(new ItemNode("GConvertEthAutoMac"));
+#endif
 	category->items_.push_back(new ItemNode("GConvertIp"));
 
 	items_.push_back(category);
@@ -241,7 +239,9 @@ void GPluginFactory::loadWrite() {
 	category->items_.push_back(new ItemNode("GPcapDeviceWrite"));
 #endif
 	category->items_.push_back(new ItemNode("GPcapFileWrite"));
+#ifndef Q_OS_ANDROID
 	category->items_.push_back(new ItemNode("GRawIpSocketWrite"));
+#endif
 	category->items_.push_back(new ItemNode("GRemotePcapDeviceWrite"));
 
 	items_.push_back(category);
