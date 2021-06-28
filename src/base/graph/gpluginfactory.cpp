@@ -316,7 +316,7 @@ void GPluginFactory::loadFolder(GGraph::Factory::ItemCategory* category, QString
 	QStringList files = QStringList("*.dll");
 #endif
 	QFileInfoList fileList = dir.entryInfoList(files);
-	for (QFileInfo fileInfo: fileList) {
+	for (QFileInfo& fileInfo: fileList) {
 		QString fileName = fileInfo.filePath();
 		loadFile(category, fileName);
 	}
@@ -325,7 +325,7 @@ void GPluginFactory::loadFolder(GGraph::Factory::ItemCategory* category, QString
 	// dir
 	//
 	QFileInfoList dirList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-	for (QFileInfo fileInfo: dirList) {
+	for (QFileInfo& fileInfo: dirList) {
 		QString fileName = fileInfo.fileName();
 		QString subFolder = folder + fileName + "/";
 		ItemCategory* subCategory = new ItemCategory(fileName);
