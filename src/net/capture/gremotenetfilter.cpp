@@ -37,7 +37,7 @@ bool GRemoteNetFilter::doOpen() {
 	}
 
 	demonClient_ = new GDemonClient(std::string(qPrintable(ip_)), port_);
-	GDemon::NfOpenRes res = demonClient_->nfOpen(qPrintable(objectName()), queueNum_);
+	GDemon::NfOpenRes res = demonClient_->nfOpen(qPrintable(objectName()), queueNum_, waitTimeout_);
 	if (!res.result_) {
 		SET_ERR(GErr::FAIL, demonClient_->error_.data());
 		delete demonClient_; demonClient_ = nullptr;

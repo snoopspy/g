@@ -2,6 +2,8 @@
 
 #ifdef Q_OS_LINUX
 
+#include <fcntl.h> // for F_GETFL
+
 // ----------------------------------------------------------------------------
 // GNetFilter
 // ----------------------------------------------------------------------------
@@ -73,6 +75,8 @@ bool GNetFilter::doOpen() {
 	}
 
 	fd_ = nfq_fd(h_);
+	int flags = fcntl(fd_, F_GETFL);
+	fcntl(fd_, F_SETFL,flags| O_NONBLOCK);
 
 	Q_ASSERT(recvBuf_ == nullptr);
 	recvBuf_ = new gbyte[bufSize_];
@@ -138,32 +142,39 @@ static int count = 0; // gilgil temp 2021.05.21
 GPacket::Result GNetFilter::read(GPacket* packet) {
 #ifdef _DEBUG
 	if (id_ != 0 || ipPacket_ != nullptr) {
-		qWarning() << "relay() or drop() called after read?";
+		qWarning() << "relay() or drop() must be called after read";
 	}
 #endif // _DEBUG
 
 	ipPacket_ = PIpPacket(packet);
-	// qDebug() << "bef call recv"; // gilgil temp 2021.05.22
-	int res = int(::recv(fd_, recvBuf_, GPacket::MaxBufSize, 0));
-	// qDebug() << "aft call recv" << res; // gilgil temp 2021.05.22
-	if (res >= 0) {
-		#ifdef _DEBUG
-		if (++count != 1)
-			qWarning() << "count is" << count;
-		#endif // _DEBUG
-		nfq_handle_packet(h_, pchar(recvBuf_), res);
-	} else {
-		if (errno == ENOBUFS) {
-			qWarning() << "losing packets!";
-			return GPacket::None;
+	int res;
+	while (true) {
+		if (!active()) return GPacket::Fail;
+		// qDebug() << "bef call recv"; // gilgil temp 2021.05.22
+		res = int(::recv(fd_, recvBuf_, GPacket::MaxBufSize, 0));
+		// qDebug() << "aft call recv" << res; // gilgil temp 2021.05.22
+		if (res >= 0) break;
+		if (res < 0) {
+			if(errno == EWOULDBLOCK) {
+				qDebug() << "errno == EWOULDBLOCK";
+				if (waitTimeout_ != 0)
+					QThread::msleep(waitTimeout_);
+				continue;
+			}
+			if (errno == ENOBUFS) {
+				qWarning() << "losing packets!";
+				return GPacket::None;
+			}
+			qWarning() << QString("recv return %1 errno=%2").arg(res, errno);
+			return GPacket::Fail;
 		}
-		qWarning() << "recv failed";
-		return GPacket::Fail;
 	}
-	if (ipPacket_ != nullptr)
-		return GPacket::Ok;
-	else
-		return GPacket::None;
+	#ifdef _DEBUG
+	if (++count != 1)
+		qWarning() << "count is" << count;
+	#endif // _DEBUG
+	nfq_handle_packet(h_, pchar(recvBuf_), res);
+	return GPacket::Ok;
 }
 
 GPacket::Result GNetFilter::write(GBuf buf) {

@@ -26,6 +26,8 @@ struct G_EXPORT GVirtualNetFilter : GCapture {
 	Q_PROPERTY(quint16 queueNum MEMBER queueNum_)
 	Q_PROPERTY(Verdict acceptVerdict MEMBER acceptVerdict_)
 	Q_PROPERTY(quint32 mark MEMBER mark_)
+	Q_PROPERTY(int waitTimeout MEMBER waitTimeout_)
+
 	Q_ENUMS(Verdict)
 
 public:
@@ -37,6 +39,7 @@ public:
 	uint16_t queueNum_{0};
 	Verdict acceptVerdict_{ACCEPT};
 	uint32_t mark_{0};
+	int waitTimeout_{1}; // 1 msec
 
 public:
 	Q_INVOKABLE GVirtualNetFilter(QObject* parent = nullptr) : GCapture(parent) {}

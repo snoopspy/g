@@ -818,6 +818,7 @@ GDemonNetFilter::~GDemonNetFilter() {
 	close();
 }
 
+#include <fcntl.h> // for F_GETFL
 GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 	NfOpenRes res;
 	res.result_ = false;
@@ -863,7 +864,10 @@ GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 		GTRACE("%s", res.errBuf_.data());
 		return res;
 	}
+
 	fd_ = nfq_fd(h_);
+	int flags = fcntl(fd_, F_GETFL);
+	fcntl(fd_, F_SETFL,flags| O_NONBLOCK);
 
 	nfRecvBuf_ = new char[MaxBufSize];
 
@@ -931,20 +935,23 @@ void GDemonNetFilter::_run(GDemonNetFilter* nf) {
 void GDemonNetFilter::run() {
 	GTRACE("GDemonNetFilter beg");
 	while (active_) {
-		GTRACE("bef call recv"); // gilgil temp 2016.09.27
+		// GTRACE("bef call recv"); // gilgil temp 2016.09.27
 		int res = int(::recv(fd_, nfRecvBuf_, MaxBufSize, 0));
-		GTRACE("aft call recv %d", res); // gilgil temp 2016.09.27
-		if (res >= 0) {
-			nfq_handle_packet(h_, pchar(nfRecvBuf_), res);
-			continue;
-		} else {
+		// GTRACE("aft call recv %d", res); // gilgil temp 2016.09.27
+		if (res < 0) {
+			if (errno == EWOULDBLOCK) {
+				if (waitTimeout_ != 0)
+					std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeout_));
+				continue;
+			}
 			if (errno == ENOBUFS) {
 				GTRACE("losing packets!");
 				continue;
 			}
-			GTRACE("recv failed");
+			GTRACE("recv return %d errno=%d", res, errno);
 			break;
 		}
+		nfq_handle_packet(h_, pchar(nfRecvBuf_), res);
 	}
 
 	GTRACE("GDemonNetFilter end");
@@ -1012,7 +1019,7 @@ bool GDemonNetFilter::processNfVerdict(pchar buf, int32_t size) {
 	}
 
 	int res = nfq_set_verdict2(qh_, verdict.id_, verdict.acceptVerdict_, verdict.mark_, verdict.size_, verdict.data_);
-	GTRACE("nfq_set_verdict2 return %d", res);
+	// GTRACE("nfq_set_verdict2 return %d", res); // gilgil temp 2021.06.28
 
 	return true;
 }

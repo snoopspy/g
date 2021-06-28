@@ -118,7 +118,7 @@ struct GDemonPcap : GDemon {
 	std::thread* thread_{nullptr};
 	std::string client_;
 	pcap_t* pcap_{nullptr};
-	int waitTimeout_;
+	int waitTimeout_{1}; // 1 msec
 
 	PcapOpenRes open(PcapOpenReq req);
 	void close();
@@ -143,6 +143,7 @@ struct GDemonNetFilter : GDemon {
 	std::string client_;
 	struct nfq_handle* h_{nullptr};
 	struct nfq_q_handle* qh_{nullptr};
+	int waitTimeout_{1}; // 1 msec
 	int fd_{0};
 	char* nfRecvBuf_{nullptr};
 

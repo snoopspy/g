@@ -51,7 +51,7 @@ struct GDemonClient : GDemon {
 	bool pcapWrite(PcapWrite write);
 
 	// netfilter
-	NfOpenRes nfOpen(std::string client, uint16_t queueNum);
+	NfOpenRes nfOpen(std::string client, uint16_t queueNum, uint32_t waitTimeout);
 	void nfClose();
 	NfRead nfRead();
 	bool nfVerdict(NfVerdict verdict);

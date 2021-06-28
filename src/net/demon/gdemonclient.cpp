@@ -537,7 +537,7 @@ bool GDemonClient::pcapWrite(PcapWrite write) {
 	return true;
 }
 
-GDemon::NfOpenRes GDemonClient::nfOpen(std::string client, uint16_t queueNum) {
+GDemon::NfOpenRes GDemonClient::nfOpen(std::string client, uint16_t queueNum, uint32_t waitTimeout) {
 	GDemon::NfOpenRes res;
 
 	if (sd_ == 0) {
@@ -550,6 +550,7 @@ GDemon::NfOpenRes GDemonClient::nfOpen(std::string client, uint16_t queueNum) {
 
 	req.client_ = client;
 	req.queueNum_ = queueNum;
+	req.waitTimeout_ = waitTimeout;
 	{
 		GSpinLockGuard guard(sendBufLock_);
 		int32_t encLen = req.encode(sendBuf_, MaxBufSize);
