@@ -1221,7 +1221,7 @@ int32_t GDemon::NfRead::decode(pchar buffer, int32_t size) {
 int32_t GDemon::NfVerdict::encode(pchar buffer, int32_t size) {
 	volatile pchar buf = buffer;
 
-	len_ = sizeof(size_) + size_;
+	len_ = sizeof(id_) + sizeof(acceptVerdict_) + sizeof(mark_) + sizeof(size_) + size_;
 	cmd_ = CmdNfVerdict;
 	int32_t encLen = Header::encode(buf, size); buf += encLen; size -= encLen;
 
@@ -1242,7 +1242,9 @@ int32_t GDemon::NfVerdict::encode(pchar buffer, int32_t size) {
 		GTRACE("not enough buffer size=%d size_=%u", size, size_);
 		return -1;
 	}
-	memcpy(buf, data_, size_); buf += size_; size -= size_;
+	if (size_ > 0) {
+		memcpy(buf, data_, size_); buf += size_; size -= size_;
+	}
 
 	if (size < 0) {
 		GTRACE("size is %d", size);

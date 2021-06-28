@@ -831,32 +831,36 @@ GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 	h_ = nfq_open();
 	if (!h_) {
 		res.errBuf_ = "nfq_open return null";
-		GTRACE("nfq_open return null");
+		GTRACE("%s", res.errBuf_.data());
 		return res;
 	}
 
 	// unbinding existing nf_queue handler for AF_INET (if any)
 	if (nfq_unbind_pf(h_, AF_INET) < 0) {
-		GTRACE("error during nfq_unbind_pf()");
+		res.errBuf_ = "error during nfq_unbind_pf()";
+		GTRACE("%s", res.errBuf_.data());
 		return res;
 	}
 
 	// binding nfnetlink_queue as nf_queue handler for AF_INET
 	if (nfq_bind_pf(h_, AF_INET) < 0) {
-		GTRACE("error during nfq_bind_pf()");
+		res.errBuf_ = "error during nfq_bind_pf()";
+		GTRACE("%s", res.errBuf_.data());
 		return res;
 	}
 
 	// binding this socket to queue
 	qh_ = nfq_create_queue(h_, req.queueNum_, &_callback, this);
 	if (!qh_) {
-		GTRACE("error during nfq_create_queue()");
+		res.errBuf_ = "error during nfq_create_queue()";
+		GTRACE("%s", res.errBuf_.data());
 		return res;
 	}
 
 	// setting copy_packet mode
 	if (nfq_set_mode(qh_, NFQNL_COPY_PACKET, 0xffff) < 0) {
-		GTRACE("can't set packet_copy mode");
+		res.errBuf_ = "can't set packet_copy mode";
+		GTRACE("%s", res.errBuf_.data());
 		return res;
 	}
 	fd_ = nfq_fd(h_);
@@ -883,10 +887,14 @@ void GDemonNetFilter::close() {
 		fd_ = 0;
 	}
 
-	active_ = false;
-	GTRACE("bef thread_->join"); // gilgil temp 2021.06.27
-	thread_->join();
-	GTRACE("aft thread_->join"); // gilgil temp 2021.06.27
+	if (thread_ != nullptr) {
+		active_ = false;
+		GTRACE("bef thread_->join"); // gilgil temp 2021.06.27
+		thread_->join();
+		GTRACE("aft thread_->join"); // gilgil temp 2021.06.27
+		delete thread_;
+		thread_ = nullptr;
+	}
 
 	if (qh_ != nullptr) {
 		GTRACE("bef call nfq_destroy_queue"); // gilgil temp 2016.09.25
