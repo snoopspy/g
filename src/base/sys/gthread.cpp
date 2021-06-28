@@ -19,10 +19,8 @@ bool GThread::wait(GDuration timeout) {
 		QObject* _parent = parent();
 		if (_parent != nullptr)
 			msg += QString(" for (%1)").arg(_parent->metaObject()->className());
-		qCritical() << "*********************************************************";
 		qCritical() << msg;
-		qCritical() << "*********************************************************";
-		QThread::terminate(); // gilgil temp 2019.06.02
+		QThread::terminate();
 	}
 	return res;
 }
