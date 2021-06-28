@@ -1018,7 +1018,7 @@ bool GDemonNetFilter::processNfVerdict(pchar buf, int32_t size) {
 		return false;
 	}
 
-	int res = nfq_set_verdict2(qh_, verdict.id_, verdict.acceptVerdict_, verdict.mark_, verdict.size_, verdict.data_);
+	nfq_set_verdict2(qh_, verdict.id_, verdict.acceptVerdict_, verdict.mark_, verdict.size_, verdict.data_);
 	// GTRACE("nfq_set_verdict2 return %d", res); // gilgil temp 2021.06.28
 
 	return true;
