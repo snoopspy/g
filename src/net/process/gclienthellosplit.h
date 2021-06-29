@@ -29,7 +29,7 @@ struct G_EXPORT GClientHelloSplit : GStateObj, GTcpFlowMgr::Managable {
 	void setWrite(GObjPtr value) { write_ = dynamic_cast<GWrite*>(value.data()); }
 
 public:
-	GWrite* write_;
+	GWrite* write_{nullptr};
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 	int bufSize_{GPacket::MaxBufSize};
 
