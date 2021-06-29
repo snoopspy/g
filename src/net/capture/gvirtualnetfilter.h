@@ -13,11 +13,6 @@
 #include "gcapture.h"
 #include "net/packet/gippacket.h"
 
-#ifdef Q_OS_LINUX
-
-#include <linux/netfilter.h>
-#include <libnetfilter_queue/libnetfilter_queue.h>
-
 // ----------------------------------------------------------------------------
 // GVirtualNetFilter
 // ----------------------------------------------------------------------------
@@ -32,8 +27,8 @@ struct G_EXPORT GVirtualNetFilter : GCapture {
 
 public:
 	enum Verdict {
-		ACCEPT = 1,
-		REPEAT = 4
+		ACCEPT = 1, // NF_ACCEPT
+		REPEAT = 4 // NF_REPEAT
 	};
 
 	uint16_t queueNum_{0};
@@ -49,5 +44,3 @@ public:
 	GPacket::Dlt dlt() override { return GPacket::Ip; }
 	PathType pathType() override { return InPath; }
 };
-
-#endif // Q_OS_LINUX

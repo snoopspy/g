@@ -116,7 +116,7 @@ GPacket::Result GRemoteNetFilter::drop(GPacket* packet) {
 	(void)packet;
 	GDemon::NfVerdict verdict;
 	verdict.id_ = id_;
-	verdict.acceptVerdict_ = NF_DROP;
+	verdict.acceptVerdict_ = 0; // NF_DROP
 	verdict.mark_ = mark_;
 	verdict.size_ = 0;
 	verdict.data_ = nullptr;

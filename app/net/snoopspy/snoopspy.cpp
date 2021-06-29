@@ -30,6 +30,7 @@ int exec(GApp* a, GGraph* graph, GPluginFactory* pluginFactory) {
 	return res;
 }
 
+#ifdef Q_OS_LINUX
 void signalHandler(int signo) {
 	const char* signal = "unknown";
 	switch (signo) {
@@ -88,9 +89,12 @@ void prepareSignal() {
 	std::signal(SIGPIPE, SIG_IGN); // Ignore SIGPIPE which can be signaled when TCP socket operation on linux
 	std::signal(SIGALRM, signalHandler);
 }
+#endif // Q_OS_LINUX
 
 int main(int argc, char *argv[]) {
+#ifdef Q_OS_LINUX
 	prepareSignal();
+#endif // #ifdef Q_OS_LINUX
 	GApp a(argc, argv);
 	GGraph graph;
 	MyFactory factory;

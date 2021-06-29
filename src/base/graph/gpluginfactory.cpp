@@ -62,9 +62,13 @@ void GPluginFactory::loadBlock() {
 
 void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GArpSpoof*>();
+#ifndef Q_OS_WIN
 	qRegisterMetaType<GAsyncNetFilter*>();
+#endif
 	qRegisterMetaType<GAutoArpSpoof*>();
+#ifndef Q_OS_WIN
 	qRegisterMetaType<GNetFilter*>();
+#endif
 	qRegisterMetaType<GPcapDevice*>();
 	qRegisterMetaType<GPcapFile*>();
 	qRegisterMetaType<GPcapPipe*>();

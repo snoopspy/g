@@ -15,6 +15,9 @@
 
 #ifdef Q_OS_LINUX
 
+#include <linux/netfilter.h>
+#include <libnetfilter_queue/libnetfilter_queue.h>
+
 // ----------------------------------------------------------------------------
 // GNetFilter
 // ----------------------------------------------------------------------------
