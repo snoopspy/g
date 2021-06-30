@@ -269,6 +269,7 @@ struct GDemon {
 	struct NfOpenReq : Header {
 		std::string client_;
 		uint16_t queueNum_;
+		bool nonBlock_;
 		uint32_t waitTimeout_;
 		int32_t encode(pchar buffer, int32_t size);
 		int32_t decode(pchar buffer, int32_t size);

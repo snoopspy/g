@@ -866,8 +866,10 @@ GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 	}
 
 	fd_ = nfq_fd(h_);
-	int flags = fcntl(fd_, F_GETFL);
-	fcntl(fd_, F_SETFL,flags| O_NONBLOCK);
+	if (req.nonBlock_) {
+		int flags = fcntl(fd_, F_GETFL);
+		fcntl(fd_, F_SETFL,flags| O_NONBLOCK);
+	}
 
 	nfRecvBuf_ = new char[MaxBufSize];
 

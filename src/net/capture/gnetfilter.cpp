@@ -75,8 +75,10 @@ bool GNetFilter::doOpen() {
 	}
 
 	fd_ = nfq_fd(h_);
-	int flags = fcntl(fd_, F_GETFL);
-	fcntl(fd_, F_SETFL,flags| O_NONBLOCK);
+	if (nonBlock_) {
+		int flags = fcntl(fd_, F_GETFL);
+		fcntl(fd_, F_SETFL,flags| O_NONBLOCK);
+	}
 
 	Q_ASSERT(recvBuf_ == nullptr);
 	recvBuf_ = new gbyte[bufSize_];
@@ -156,7 +158,6 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 		if (res >= 0) break;
 		if (res < 0) {
 			if(errno == EWOULDBLOCK) {
-				qDebug() << "errno == EWOULDBLOCK";
 				if (waitTimeout_ != 0)
 					QThread::msleep(waitTimeout_);
 				continue;
