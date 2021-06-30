@@ -21,12 +21,16 @@ struct GAutoArpSpoof : GArpSpoof {
 	Q_PROPERTY(bool checkArp MEMBER checkArp_)
 	Q_PROPERTY(bool checkDhcp MEMBER checkDhcp_)
 	Q_PROPERTY(ulong duration MEMBER duration_)
+	Q_PROPERTY(ulong floodingInterval MEMBER floodingInterval_)
+	Q_PROPERTY(ulong floodingSendInterval MEMBER floodingSendInterval_)
 
 public:
 	bool checkIp_{false};
 	bool checkArp_{false};
 	bool checkDhcp_{true};
 	GDuration duration_{60000}; // 1 minute
+	GDuration floodingInterval_{5000}; // 5 sec
+	GDuration floodingSendInterval_{100}; // 100 msec
 
 public:
 	Q_INVOKABLE GAutoArpSpoof(QObject* parent = nullptr) : GArpSpoof(parent) {}
@@ -35,6 +39,9 @@ public:
 protected:
 	bool doOpen() override;
 	bool doClose() override;
+
+protected:
+	void processPacket(GPacket* packet) override;
 
 protected:
 	GMac myMac_;
@@ -46,6 +53,15 @@ protected:
 	bool processArp(GPacket* packet, GMac* mac, GIp* ip);
 	bool processDhcp(GPacket* packet, GMac* mac, GIp* ip);
 
-protected:
-	void processPacket(GPacket* packet) override;
+	struct FloodingThread : QThread {
+		FloodingThread(GAutoArpSpoof* parent, GEthArpHdr* infectPacket1, GEthArpHdr* infectPacket2);
+		~FloodingThread() override;
+		void run() override;
+	protected:
+		GAutoArpSpoof* parent_;
+		GEthArpHdr infectPacket_[2];
+	};
+
+public slots:
+	void myDeleteLater();
 };
