@@ -33,8 +33,8 @@ public:
 	GDuration floodingSendInterval_{100}; // 100 msec
 
 public:
-	Q_INVOKABLE GAutoArpSpoof(QObject* parent = nullptr) : GArpSpoof(parent) {}
-	~GAutoArpSpoof() override { close(); }
+	Q_INVOKABLE GAutoArpSpoof(QObject* parent = nullptr);
+	~GAutoArpSpoof() override;
 
 protected:
 	bool doOpen() override;
@@ -54,7 +54,7 @@ protected:
 	bool processDhcp(GPacket* packet, GMac* mac, GIp* ip);
 
 	struct FloodingThread : QThread {
-		FloodingThread(GAutoArpSpoof* parent, GEthArpHdr* infectPacket1, GEthArpHdr* infectPacket2);
+		FloodingThread(GAutoArpSpoof* parent, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2);
 		~FloodingThread() override;
 		void run() override;
 	protected:
@@ -62,6 +62,9 @@ protected:
 		GEthArpHdr infectPacket_[2];
 	};
 
+signals:
+	void floodingNeeded(QByteArray forward, QByteArray backward);
+
 public slots:
-	void myDeleteLater();
+	void floodingStart(QByteArray forward, QByteArray backward);
 };

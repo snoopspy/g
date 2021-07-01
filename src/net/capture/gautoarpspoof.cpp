@@ -4,6 +4,14 @@
 // ----------------------------------------------------------------------------
 // GAutoArpSpoof
 // ----------------------------------------------------------------------------
+GAutoArpSpoof::GAutoArpSpoof(QObject* parent) : GArpSpoof(parent) {
+	QObject::connect(this, &GAutoArpSpoof::floodingNeeded, this, &GAutoArpSpoof::floodingStart);
+}
+
+GAutoArpSpoof::~GAutoArpSpoof() {
+	close();
+}
+
 bool GAutoArpSpoof::doOpen() {
 	if (!enabled_) return true;
 
@@ -88,10 +96,9 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	}
 	sendArpInfect(&revFlow);
 	if (floodingInterval_ != 0) {
-		FloodingThread* thread = new FloodingThread(this, &flow.infectPacket_, &revFlow.infectPacket_);
-		QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-		this->moveToThread(thread);
-		thread->start();
+		QByteArray forward((const char*)&flow.infectPacket_, sizeof(GEthArpHdr));
+		QByteArray backward((const char*)&revFlow.infectPacket_, sizeof(GEthArpHdr));
+		emit floodingNeeded(forward, backward);
 	}
 }
 
@@ -151,11 +158,11 @@ bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
 	return false;
 }
 
-GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GEthArpHdr* infectPacket1, GEthArpHdr* infectPacket2) : QThread(parent) {
+GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2) : QThread(parent) {
 	GDEBUG_CTOR
 	parent_ = parent;
-	infectPacket_[0] = * infectPacket1;
-	infectPacket_[1] = * infectPacket2;
+	infectPacket_[0] = infectPacket1;
+	infectPacket_[1] = infectPacket2;
 }
 
 GAutoArpSpoof::FloodingThread::~FloodingThread() {
@@ -179,6 +186,10 @@ void GAutoArpSpoof::FloodingThread::run() {
 	qDebug() << "end";
 }
 
-void GAutoArpSpoof::myDeleteLater() {
-	qDebug() << "myDeleteLater()";
+void GAutoArpSpoof::floodingStart(QByteArray forward, QByteArray backward) {
+	GEthArpHdr* f = reinterpret_cast<GEthArpHdr*>(forward.data());
+	GEthArpHdr* b = reinterpret_cast<GEthArpHdr*>(backward.data());
+	FloodingThread* thread = new FloodingThread(this, *f, *b);
+	QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+	thread->start();
 }
