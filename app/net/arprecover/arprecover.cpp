@@ -93,7 +93,7 @@ bool ArpRecover::exec() {
 		if (it == flowMap_.end()) continue;
 
 		Flow& flow = it->second;
-		GTRACE("relay!!! sip=%s dip=%s", std::string(sip).data(), std::string(dip).data());
+		GTRACE("relay! sip=%s dip=%s", std::string(sip).data(), std::string(dip).data());
 		ethHdr->smac_ = myMac_;
 		ethHdr->dmac_ = flow.targetMac_;
 		i = pcap_sendpacket(pcap_, packet, pktHdr->caplen); // relay
