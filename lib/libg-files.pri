@@ -224,7 +224,9 @@ HEADERS += \
 	$${PWD}/../src/net/gmac.h \
 	$${PWD}/../src/net/gnet.h \
 	$${PWD}/../src/net/gnetinfo.h \
+	$${PWD}/../src/net/greadable.h \
 	$${PWD}/../src/net/grtm.h \
+	$${PWD}/../src/net/gwritable.h \
 	$${PWD}/../src/net/demon/gdemon.h \
 	$${PWD}/../src/net/demon/gdemonclient.h \
 	$${PWD}/../src/net/demon/gtrace.h \

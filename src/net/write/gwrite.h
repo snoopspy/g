@@ -11,12 +11,12 @@
 #pragma once
 
 #include "base/gstateobj.h"
-#include "net/packet/gpacket.h"
+#include "net/gwritable.h"
 
 // ----------------------------------------------------------------------------
 // GWrite
 // ----------------------------------------------------------------------------
-struct G_EXPORT GWrite : GStateObj {
+struct G_EXPORT GWrite : GStateObj, GWritable {
 	Q_OBJECT
 
 public:
@@ -29,8 +29,8 @@ protected:
 	GPacket::Dlt dlt_{GPacket::Null};
 
 public:
-	virtual GPacket::Result write(GBuf buf);
-	virtual GPacket::Result write(GPacket* packet);
+	GPacket::Result write(GBuf buf) override;
+	GPacket::Result write(GPacket* packet) override;
 
 signals:
 	void written(GPacket* packet);

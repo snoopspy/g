@@ -12,6 +12,8 @@
 
 #include "base/gstateobj.h"
 #include "base/sys/gthread.h"
+#include "net/greadable.h"
+#include "net/gwritable.h"
 #include "net/packet/gpacket.h"
 #include "net/packet/gethpacket.h"
 #include "net/packet/gippacket.h"
@@ -21,7 +23,7 @@
 // ----------------------------------------------------------------------------
 // GCapture
 // ----------------------------------------------------------------------------
-struct G_EXPORT GCapture : GStateObj {
+struct G_EXPORT GCapture : GStateObj, GReadable, GWritable {
 	Q_OBJECT
 	Q_PROPERTY(bool enabled MEMBER enabled_)
 	Q_PROPERTY(bool autoParse MEMBER autoParse_)
@@ -49,9 +51,9 @@ protected:
 	bool doClose() override;
 
 public:
-	virtual GPacket::Result read(GPacket* packet);
-	virtual GPacket::Result write(GBuf buf);
-	virtual GPacket::Result write(GPacket* packet);
+	GPacket::Result read(GPacket* packet) override;
+	GPacket::Result write(GBuf buf) override;
+	GPacket::Result write(GPacket* packet) override;
 	virtual GPacket::Result relay(GPacket* packet);
 	virtual GPacket::Result drop(GPacket* packet);
 
