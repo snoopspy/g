@@ -130,7 +130,21 @@ public slots:
 	}
 };
 
+std::string getDir(std::string argv) {
+	ssize_t i = argv.length() - 1;
+	while (i >= 0) {
+		char& ch = argv.at(i);
+		if (ch  == '/' || ch == '\\')
+			return argv.substr(0, i + 1);
+		i--;
+	}
+	return "/";
+}
+
+#include <unistd.h> // for chdir
+
 int main(int argc, char* argv[]) {
+	chdir(getDir(argv[0]).data());
 	GApp a(argc, argv);
 	GSsCon sc;
 	sc.prepareSignal();

@@ -70,10 +70,10 @@ void GApp::launchDemon() {
 #ifdef Q_OS_ANDROID
 		QString preloadStr = " ";
 		if (QFile::exists("/system/lib/libfakeioctl.so"))
-			preloadStr = " export LD_PRELOAD=libfakeioctl.so; ";
-		QString run = QString("cd %1; export LD_LIBRARY_PATH=%2;%3./%4").arg(path, path + "/../lib", preloadStr, ssdemonFile);
+			preloadStr = "export LD_PRELOAD=libfakeioctl.so;";
+		QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, ssdemonFile);
 #else // Q_OS_ANDROID
-		QString run = QString("cd %1; ./%2").arg(path, ssdemonFile);
+		QString run = QString("%1/%2").arg(path, ssdemonFile);
 #endif // Q_OS_ANDROID
 		arguments.append(run);
 		qDebug() << arguments;

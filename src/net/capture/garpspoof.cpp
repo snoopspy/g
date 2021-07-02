@@ -176,10 +176,10 @@ bool GArpSpoof::doClose() {
 		#ifdef Q_OS_ANDROID
 			QString preloadStr = " ";
 			if (QFile::exists("/system/lib/libfakeioctl.so"))
-				preloadStr = " export LD_PRELOAD=libfakeioctl.so; ";
-			QString run = QString("cd %1; export LD_LIBRARY_PATH=%2;%3./%4").arg(path, path + "/../lib", preloadStr, arprecoverFile);
+				preloadStr = "export LD_PRELOAD=libfakeioctl.so;";
+			QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, arprecoverFile);
 		#else // Q_OS_ANDROID
-			QString run = QString("cd %1; ./%2").arg(path, arprecoverFile);
+			QString run = QString("%1/%2").arg(path, arprecoverFile);
 		#endif  // Q_OS_ANDROID
 			arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").
 				arg(run).arg(60).arg(

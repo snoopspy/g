@@ -93,6 +93,17 @@ void runServer() {
 	server.wait();
 }
 
+std::string getDir(std::string argv) {
+	ssize_t i = argv.length() - 1;
+	while (i >= 0) {
+		char& ch = argv.at(i);
+		if (ch  == '/' || ch == '\\')
+			return argv.substr(0, i + 1);
+		i--;
+	}
+	return "/";
+}
+
 int main(int argc, char* argv[]) {
 	gtrace_default("127.0.0.1", 8908, false, "ssdemon.log");
 
@@ -102,6 +113,7 @@ int main(int argc, char* argv[]) {
 	char wd[BUFSIZ];
 	memset(wd, 0, BUFSIZ);
 	getcwd(wd, BUFSIZ);
+	chdir(getDir(argv[0]).data());
 	GTRACE("ssdemon %s started login=%s argv[0]=%s dir=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
 
 	prepareSignal();
