@@ -173,7 +173,7 @@ void GAutoArpSpoof::FloodingThread::run() {
 	qDebug() << "beg";
 	QElapsedTimer timer;
 	timer.start();
-	while (true) {
+	while (parent_->active()) {
 		qint64 elapsed = timer.elapsed();
 		if (elapsed > qint64(parent_->floodingInterval_)) break;
 		for (int i = 0; i < 2; i++) {
