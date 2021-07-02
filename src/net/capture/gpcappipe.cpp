@@ -49,6 +49,9 @@ bool GPcapPipe::doOpen() {
 		return false;
 	}
 
+	removeCrLastBytesBuffered_ = false;
+	removeCrLastBytes_ = 0;
+
 	pcap_hdr_t hdr;
 	qint64 recvLen = recvAll(pchar(&hdr), sizeof(hdr));
 	if (recvLen != sizeof(hdr))	return false;
@@ -61,9 +64,6 @@ bool GPcapPipe::doOpen() {
 
 	Q_ASSERT(recvBuf_ == nullptr);
 	recvBuf_ = new gbyte[bufSize_];
-
-	removeCrLastBytesBuffered_ = false;
-	removeCrLastBytes_ = 0;
 
 	return res;
 }
