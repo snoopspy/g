@@ -94,12 +94,14 @@ GPacket::Result GPcapPipe::read(GPacket* packet) {
 	if (recvLen != sizeof(pktHdr))
 		return GPacket::Fail;
 
-	if (pktHdr.incl_len != pktHdr.orig_len)
-		qWarning() << QString("incl_len(%1) and orig_len(%2) is not same").arg(QString::number(pktHdr.incl_len, 16)).arg(QString::number(pktHdr.orig_len, 16));
+	if (pktHdr.incl_len != pktHdr.orig_len) {
+		qWarning() << QString("incl_len(0x%1) and orig_len(0x%2) is not same").arg(QString::number(pktHdr.incl_len, 16), QString::number(pktHdr.orig_len, 16));
+		return GPacket::Fail;
+	}
 
 	qint64 len = pktHdr.incl_len;
 	if (int(len) > bufSize_) {
-		qWarning() << QString("len(%1) > bufSize_(%2)").arg(len).arg(bufSize_);
+		qWarning() << QString("len(0x%1) > bufSize_(0x%2)").arg(QString::number(len, 16), QString::number(bufSize_));
 		return GPacket::Fail;
 	}
 	recvLen = recvAll(pchar(recvBuf_), len);
