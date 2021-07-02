@@ -66,7 +66,7 @@ struct ArpRecover {
 	ArpRecover();
 	virtual ~ArpRecover();
 
-	int interval_{60}; // 60 seconds
+	int interval_{10}; // 10 seconds
 	Network network_;
 	Mac myMac_;
 	std::string intfName_;

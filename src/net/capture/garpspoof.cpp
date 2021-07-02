@@ -13,11 +13,23 @@ GArpSpoof::~GArpSpoof() {
 bool GArpSpoof::doOpen() {
 	if (!enabled_) return true;
 
+#ifdef Q_OS_WIN
+	// taskkill /IM arprecover.exe /F
+	QString program = "taskkill";
+	QStringList arguments;
+	arguments.append("/IM");
+	arguments.append("arprecover.exe");
+	arguments.append("/F");
+	QProcess::startDetached(program, arguments);
+#else // Q_OS_WIN
 	QString program = "su";
 	QStringList arguments;
 	arguments.append("-c");
 	arguments.append("pkill arprecover");
 	QProcess::startDetached(program, arguments);
+#endif // Q_OS_WIN
+
+
 
 	// ----- by gilgil 2021.06.18 -----
 	// intf_ is determined in GPcapDevice::doOpen or GRemovePcapDevice::doOpen.
@@ -167,7 +179,19 @@ bool GArpSpoof::doClose() {
 			for (Flow& flow: flowList_)
 				flowString += QString("%1 %2 %3 %4 ").arg(QString(flow.senderIp_), QString(flow.senderMac_), QString(flow.targetIp_), QString(flow.targetMac_));
 		}
+		flowString = flowString.left(flowString.length() - 1);
 
+#ifdef Q_OS_WIN
+		QString arprecoverFile = "arprecover.exe";
+		if (QFile::exists(arprecoverFile)) {
+			QString argument = QString("-i %1 %2 %3 %4 %5 %6 %7").
+				arg(10).arg(
+				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
+				QString(intf_->ip()), QString(intf_->mac()), flowString);
+			QStringList arguments = argument.split(' ');
+			qDebug() << arguments;
+			QProcess::startDetached(arprecoverFile, arguments);
+#else // Q_OS_WIN
 		QString arprecoverFile = "arprecover";
 		if (QFile::exists(arprecoverFile)) {
 			QStringList arguments;
@@ -182,11 +206,12 @@ bool GArpSpoof::doClose() {
 			QString run = QString("%1/%2").arg(path, arprecoverFile);
 		#endif  // Q_OS_ANDROID
 			arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").
-				arg(run).arg(60).arg(
+				arg(run).arg(10).arg(
 				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
 				QString(intf_->ip()), QString(intf_->mac()), flowString));
 			qDebug() << arguments;
 			QProcess::startDetached("su", arguments);
+#endif // Q_OS_WIN
 		}
 	}
 
