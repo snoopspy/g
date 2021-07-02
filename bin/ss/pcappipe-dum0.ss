@@ -22,8 +22,8 @@
         },
         {
             "_class": "GPcapDeviceWrite",
-            "_x": -64,
-            "_y": 10,
+            "_x": -71,
+            "_y": 13,
             "intfName": "dum0",
             "objectName": "pcapDeviceWrite1"
         }
