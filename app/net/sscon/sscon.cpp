@@ -144,7 +144,9 @@ std::string getDir(std::string argv) {
 #include <unistd.h> // for chdir
 
 int main(int argc, char* argv[]) {
+#ifndef Q_OS_WIN
 	chdir(getDir(argv[0]).data());
+#endif // Q_OS_WIN
 	GApp a(argc, argv);
 	GSsCon sc;
 	sc.prepareSignal();
