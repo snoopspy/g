@@ -106,9 +106,9 @@ std::string getDir(std::string argv) {
 #include <unistd.h> // for chdir
 
 int main(int argc, char *argv[]) {
-#ifndef Q_OS_WIN
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	chdir(getDir(argv[0]).data());
-#endif // Q_OS_WIN
+#endif
 #ifdef Q_OS_LINUX
 	prepareSignal();
 #endif // #ifdef Q_OS_LINUX
