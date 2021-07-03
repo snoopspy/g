@@ -30,7 +30,7 @@ public:
 	bool checkDhcp_{true};
 	GDuration duration_{60000}; // 1 minute
 	GDuration floodingInterval_{5000}; // 5 sec
-	GDuration floodingSendInterval_{100}; // 100 msec
+	GDuration floodingSendInterval_{10}; // 10 msec
 
 public:
 	Q_INVOKABLE GAutoArpSpoof(QObject* parent = nullptr);
