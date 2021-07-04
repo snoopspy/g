@@ -69,6 +69,7 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 		attack = true;
 	if (!attack) return;
 
+	if (ip.isNull() || mac.isNull()) return;
 	if (ip == myIp_ || ip == gwIp_) return;
 	if (mac == myMac_ || mac == gwMac_) return;
 
