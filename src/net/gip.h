@@ -35,6 +35,10 @@ struct G_EXPORT GIp final {
 		ip_ = 0;
 	}
 
+	bool isNull() const {
+		return ip_ == 0;
+	}
+
 	bool isLocalHost() const { // 127.*.*.*
 		uint8_t prefix = (ip_ & 0xFF000000) >> 24;
 		return prefix == 0x7F;
