@@ -81,7 +81,12 @@ GPacket::Result GPcapCapture::write(GBuf buf) {
 }
 
 GPacket::Result GPcapCapture::write(GPacket* packet) {
-	return write(packet->buf_);
+	GPacket::Result res;
+	if (packet->buf_.size_ > sizeof(GEthHdr) + GPacket::MtuSize && dlt_ == GPacket::Eth && packet->tcpHdr_ != nullptr)
+		res = writeMtuSplit(packet);
+	else
+		res = write(packet->buf_);
+	return res;
 }
 
 GPacket::Result GPcapCapture::relay(GPacket* packet) {

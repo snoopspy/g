@@ -63,7 +63,11 @@ GPacket::Result GPcapDeviceWrite::write(GBuf buf) {
 }
 
 GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
-	GPacket::Result res = write(packet->buf_);
+	GPacket::Result res;
+	if (packet->buf_.size_ > sizeof(GEthHdr) + GPacket::MtuSize && dlt_ == GPacket::Eth && packet->tcpHdr_ != nullptr)
+		res = writeMtuSplit(packet);
+	else
+		res = write(packet->buf_);
 	if (res == GPacket::Ok)
 		emit written(packet);
 	return res;

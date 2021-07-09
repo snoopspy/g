@@ -95,6 +95,7 @@ SOURCES += \
 	$${PWD}/../src/net/gnet.cpp \
 	$${PWD}/../src/net/gnetinfo.cpp \
 	$${PWD}/../src/net/grtm.cpp \
+	$${PWD}/../src/net/gwritable.cpp \
 	$${PWD}/../src/net/demon/gdemon.cpp \
 	$${PWD}/../src/net/demon/gdemonclient.cpp \
 	$${PWD}/../src/net/demon/gtrace.cpp \

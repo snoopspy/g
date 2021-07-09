@@ -18,4 +18,5 @@
 struct GWritable {
 	virtual GPacket::Result write(GBuf buf) = 0;
 	virtual GPacket::Result write(GPacket* packet) = 0;
+	GPacket::Result writeMtuSplit(GPacket* packet);
 };
