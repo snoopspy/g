@@ -63,8 +63,8 @@ protected:
 	};
 
 signals:
-	void floodingNeeded(QByteArray forward, QByteArray backward);
+	void _floodingNeeded(QByteArray forward, QByteArray backward);
 
 public slots:
-	void floodingStart(QByteArray forward, QByteArray backward);
+	void _floodingStart(QByteArray forward, QByteArray backward);
 };

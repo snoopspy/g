@@ -5,7 +5,7 @@
 // GAutoArpSpoof
 // ----------------------------------------------------------------------------
 GAutoArpSpoof::GAutoArpSpoof(QObject* parent) : GArpSpoof(parent) {
-	QObject::connect(this, &GAutoArpSpoof::floodingNeeded, this, &GAutoArpSpoof::floodingStart);
+	QObject::connect(this, &GAutoArpSpoof::_floodingNeeded, this, &GAutoArpSpoof::_floodingStart);
 }
 
 GAutoArpSpoof::~GAutoArpSpoof() {
@@ -100,7 +100,7 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	if (floodingInterval_ != 0) {
 		QByteArray forward((const char*)&flow.infectPacket_, sizeof(GEthArpHdr));
 		QByteArray backward((const char*)&revFlow.infectPacket_, sizeof(GEthArpHdr));
-		emit floodingNeeded(forward, backward);
+		emit _floodingNeeded(forward, backward);
 	}
 }
 
@@ -188,7 +188,7 @@ void GAutoArpSpoof::FloodingThread::run() {
 	qDebug() << "end";
 }
 
-void GAutoArpSpoof::floodingStart(QByteArray forward, QByteArray backward) {
+void GAutoArpSpoof::_floodingStart(QByteArray forward, QByteArray backward) {
 	GEthArpHdr* f = reinterpret_cast<GEthArpHdr*>(forward.data());
 	GEthArpHdr* b = reinterpret_cast<GEthArpHdr*>(backward.data());
 	FloodingThread* thread = new FloodingThread(this, *f, *b);
