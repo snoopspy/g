@@ -56,7 +56,7 @@ GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
 
 	int res = ::sendto(sd_, pchar(packet->ipHdr_), packet->ipHdr_->len(), 0, (sockaddr*)&sin, sizeof(sin));
 	if (res < 0) {
-		QString msg = QString("sendto return %1").arg(res);
+		QString msg = QString("sendto return %1(%2)").arg(res).arg(strerror(errno));
 		SET_ERR(GErr::FAIL, msg);
 		return GPacket::Fail;
 	}
