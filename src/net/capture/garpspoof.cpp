@@ -206,7 +206,7 @@ bool GArpSpoof::doClose() {
 			QString run = QString("%1/%2").arg(path, arprecoverFile);
 		#endif  // Q_OS_ANDROID
 			arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").
-				arg(run).arg(10).arg(
+				arg(run).arg(60).arg(
 				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
 				QString(intf_->ip()), QString(intf_->mac()), flowString));
 			qDebug() << arguments;
