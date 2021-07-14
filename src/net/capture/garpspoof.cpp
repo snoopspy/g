@@ -4,6 +4,7 @@
 // GArpSpoof
 // ----------------------------------------------------------------------------
 GArpSpoof::GArpSpoof(QObject* parent) : GArpSpoofBaseDevice(parent) {
+	mtu_ = GPacket::MtuSize;
 }
 
 GArpSpoof::~GArpSpoof() {
@@ -28,8 +29,6 @@ bool GArpSpoof::doOpen() {
 	arguments.append("pkill arprecover");
 	QProcess::startDetached(program, arguments);
 #endif // Q_OS_WIN
-
-
 
 	// ----- by gilgil 2021.06.18 -----
 	// intf_ is determined in GPcapDevice::doOpen or GRemovePcapDevice::doOpen.

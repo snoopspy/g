@@ -65,8 +65,8 @@ GPacket::Result GPcapDeviceWrite::write(GBuf buf) {
 GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
 	qDebug() << packet->buf_.size_; // gilgil temp 2021.07.12
 	GPacket::Result res;
-	if (packet->buf_.size_ > sizeof(GEthHdr) + GPacket::MtuSize && dlt_ == GPacket::Eth && packet->tcpHdr_ != nullptr)
-		res = writeMtuSplit(packet);
+	if (mtu_ != 0 && packet->buf_.size_ > sizeof(GEthHdr) + mtu_ && dlt_ == GPacket::Eth && packet->tcpHdr_ != nullptr)
+		res = writeMtuSplit(packet, mtu_);
 	else
 		res = write(packet->buf_);
 	if (res == GPacket::Ok)

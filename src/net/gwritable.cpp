@@ -4,8 +4,8 @@
 // ----------------------------------------------------------------------------
 // GWritable
 // ----------------------------------------------------------------------------
-GPacket::Result GWritable::writeMtuSplit(GPacket* packet) {
-	qDebug() << packet->buf_.size_; // gilgil temp 2021.07.10
+GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu) {
+	//qDebug() << packet->buf_.size_; // gilgil temp 2021.07.10
 
 	GEthHdr* ethHdr = packet->ethHdr_;
 	if (ethHdr == nullptr) {
@@ -32,34 +32,32 @@ GPacket::Result GWritable::writeMtuSplit(GPacket* packet) {
 	}
 
 	GBuf backupBuf = packet->buf_;
-	gbyte* backupData = new gbyte[packet->buf_.size_];
-	memcpy(backupData, packet->buf_.data_, packet->buf_.size_);
+	tempBuffer_.resize(packet->buf_.size_);
+	memcpy(tempBuffer_.data(), packet->buf_.data_, packet->buf_.size_);
 
-	ipHdr->len_ = ntohs(GPacket::MtuSize);
+	ipHdr->len_ = ntohs(mtu);
 	ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
 
 	gbyte* tcpDataData = tcpData.data_;
-	//gbyte* tcpDataData = pbyte(tcpHdr) + 20;
-	//tcpHdr->off_rsvd_ = 0x50; // Set tcp header size 20 bytes
 
 	size_t ipTcpHdrSize = (ipHdr->hl() + tcpHdr->off()) * 4;
 	size_t totalTcpDataSize = packet->buf_.size_ - (sizeof(GEthHdr) + ipTcpHdrSize);
 	while (true) {
-		if (ipTcpHdrSize + totalTcpDataSize <= GPacket::MtuSize) break;
+		if (ipTcpHdrSize + totalTcpDataSize <= mtu) break;
 
-		packet->buf_.size_ = sizeof(GEthHdr) + GPacket::MtuSize;
-		size_t onceTcpDataSize = GPacket::MtuSize - ipTcpHdrSize;
-		qDebug() << "onceTcpDataSize =" << onceTcpDataSize; // gilgil temp 2021.07.10
+		packet->buf_.size_ = sizeof(GEthHdr) + mtu;
+		size_t onceTcpDataSize = mtu - ipTcpHdrSize;
+		//qDebug() << "onceTcpDataSize =" << onceTcpDataSize; // gilgil temp 2021.07.10
 		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
 		write(packet->buf_);
-		//QThread::msleep(10); // gilgil temp 2021.07.10
+		QThread::usleep(1000); // gilgil temp 2021.07.10
 
 		tcpHdr->seq_ = htonl(tcpHdr->seq() + onceTcpDataSize); // next seq
 		totalTcpDataSize -= onceTcpDataSize;
 		memcpy(tcpDataData, tcpDataData + onceTcpDataSize, totalTcpDataSize); // next data
 		// QThread::msleep(1); // gilgil temp 2021.07.12
 	}
-	qDebug() << "lastTcpDataSize =" << totalTcpDataSize; // gilgil temp 2021.07.10
+	//qDebug() << "lastTcpDataSize =" << totalTcpDataSize; // gilgil temp 2021.07.10
 	ipHdr->len_ = ntohs(ipTcpHdrSize + totalTcpDataSize);
 	ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
 	tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
@@ -67,8 +65,7 @@ GPacket::Result GWritable::writeMtuSplit(GPacket* packet) {
 	GPacket::Result res = write(packet->buf_); // gilgil temp 2021.07.10
 
 	packet->buf_ = backupBuf;
-	memcpy(packet->buf_.data_, backupData, packet->buf_.size_);
-	delete[] backupData;
+	memcpy(packet->buf_.data_, tempBuffer_.data(), packet->buf_.size_);
 	return res;
 }
 

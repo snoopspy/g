@@ -17,6 +17,10 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GPcapDeviceWrite : GVirtualPcapDeviceWrite {
 	Q_OBJECT
+	Q_PROPERTY(int mtu MEMBER mtu_)
+
+public:
+	int mtu_{0};
 
 public:
 	Q_INVOKABLE GPcapDeviceWrite(QObject* parent = nullptr);

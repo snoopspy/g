@@ -19,9 +19,11 @@
 struct G_EXPORT GPcapCapture : GCapture {
 	Q_OBJECT
 	Q_PROPERTY(QString filter MEMBER filter_)
+	Q_PROPERTY(int mtu MEMBER mtu_)
 
 public:
 	QString filter_{""};
+	int mtu_{0};
 
 public:
 	GPcapCapture(QObject* parent = nullptr) : GCapture(parent) {}
