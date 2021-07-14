@@ -52,11 +52,11 @@ GPacket::Result GWritable::writeMtuSplit(GPacket* packet) {
 		qDebug() << "onceTcpDataSize =" << onceTcpDataSize; // gilgil temp 2021.07.10
 		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
 		write(packet->buf_);
-		QThread::msleep(10); // gilgil temp 2021.07.10
+		//QThread::msleep(10); // gilgil temp 2021.07.10
 
 		tcpHdr->seq_ = htonl(tcpHdr->seq() + onceTcpDataSize); // next seq
-		memcpy(tcpDataData, tcpDataData + onceTcpDataSize, sizeof(GEthHdr) + GPacket::MtuSize); // next data
 		totalTcpDataSize -= onceTcpDataSize;
+		memcpy(tcpDataData, tcpDataData + onceTcpDataSize, totalTcpDataSize); // next data
 		// QThread::msleep(1); // gilgil temp 2021.07.12
 	}
 	qDebug() << "lastTcpDataSize =" << totalTcpDataSize; // gilgil temp 2021.07.10
