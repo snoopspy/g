@@ -31,6 +31,25 @@ ArpRecover::~ArpRecover() {
 	close();
 }
 
+void ArpRecover::_sendThread(ArpRecover* arpRecover) {
+	arpRecover->sendThread();
+}
+
+void ArpRecover::sendThread() {
+	while (active_) {
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		flowMap_.lock();
+		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
+			Flow& flow = it->second;
+			flow.makePacket(&flow.recoverPacket_, myMac_);
+			int i = pcap_sendpacket(pcap_, (const u_char*)&flow.recoverPacket_, sizeof(flow.recoverPacket_)); // recover
+			if (i != 0)
+				GTRACE("pcap_sendpacket return %d", i);
+		}
+		flowMap_.unlock();
+	}
+}
+
 bool ArpRecover::open() {
 	for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
 		Flow& flow = it->second;
@@ -43,6 +62,8 @@ bool ArpRecover::open() {
 		GTRACE("ope_open_live return null - %s", errBuf);
 		return false;
 	}
+
+	sendThread_ = new std::thread(ArpRecover::_sendThread, this);
 
 	active_ = true;
 	return true;
@@ -88,9 +109,15 @@ bool ArpRecover::exec() {
 		Ip dip = ipHdr->dip();
 		Ip adjSip = network_.getAdjIp(sip);
 		Ip adjDip = network_.getAdjIp(dip);
+
 		IpFlowKey key(adjSip, adjDip);
+
+		flowMap_.lock();
 		FlowMap::iterator it = flowMap_.find(key);
-		if (it == flowMap_.end()) continue;
+		if (it == flowMap_.end()) {
+			flowMap_.unlock();
+			continue;
+		}
 
 		Flow& flow = it->second;
 		GTRACE("relay! sip=%s dip=%s", std::string(sip).data(), std::string(dip).data());
@@ -102,6 +129,7 @@ bool ArpRecover::exec() {
 		i = pcap_sendpacket(pcap_, (const u_char*)&flow.recoverPacket_, sizeof(flow.recoverPacket_)); // recover
 		if (i != 0)
 			GTRACE("pcap_sendpacket return %d", i);
+		flowMap_.unlock();
 	}
 	GTRACE("end");
 	return true;
@@ -109,6 +137,11 @@ bool ArpRecover::exec() {
 
 bool ArpRecover::close() {
 	active_ = false;
+	if (sendThread_ != nullptr) {
+		sendThread_->join();
+		delete sendThread_;
+		sendThread_ = nullptr;
+	}
 	return true;
 }
 

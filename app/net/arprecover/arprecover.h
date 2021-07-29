@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <mutex>
 #include <thread>
 #include <pcap.h>
 
@@ -60,17 +61,27 @@ struct Flow {
 	void makePacket(EthArpPacket* packet, Mac myMac);
 };
 
-typedef std::map<IpFlowKey, Flow> FlowMap;
+struct FlowMap : std::map<IpFlowKey, Flow> {
+protected:
+	std::mutex m_;
+public:
+	void lock() { m_.lock(); }
+	void unlock() { m_.unlock(); }
+};
 
 struct ArpRecover {
 	ArpRecover();
 	virtual ~ArpRecover();
 
-	int interval_{60}; // 60 seconds
+	int interval_{10}; // 10 seconds
 	Network network_;
 	Mac myMac_;
 	std::string intfName_;
 	FlowMap flowMap_;
+
+	std::thread* sendThread_{nullptr};
+	static void _sendThread(ArpRecover* arpRecover);
+	void sendThread();
 
 	bool open();
 	bool exec();
