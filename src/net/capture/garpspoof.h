@@ -99,11 +99,12 @@ protected:
 		GMac targetMac_;
 
 		GEthArpHdr infectPacket_;
-		GEthArpHdr recoverPacket_;
+		GEthArpHdr recoverRequestPacket_;
+		GEthArpHdr recoverReplyPacket_;
 
 		Flow() {}
 		Flow(GIp senderIp, GMac senderMac, GIp targetIp, GMac targetMac);
-		void makePacket(GEthArpHdr* packet, GMac myMac, bool infect);
+		void makePacket(GEthArpHdr* packet, GMac myMac, bool infect,  uint16_t operation);
 	};
 	struct FlowList : QList<Flow> { // for arp infect and recover
 		QMutex m_;

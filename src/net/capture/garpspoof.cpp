@@ -151,8 +151,9 @@ bool GArpSpoof::doOpen() {
 	}
 
 	for (Flow& flow: flowList_) {
-		flow.makePacket(&flow.infectPacket_, myMac_, true);
-		flow.makePacket(&flow.recoverPacket_, myMac_, false);
+		flow.makePacket(&flow.infectPacket_, myMac_, true, GArpHdr::Reply);
+		flow.makePacket(&flow.recoverRequestPacket_, myMac_, false, GArpHdr::Request);
+		flow.makePacket(&flow.recoverReplyPacket_, myMac_, false, GArpHdr::Reply);
 	}
 
 	sendArpInfectAll();
@@ -205,7 +206,7 @@ bool GArpSpoof::doClose() {
 			QString run = QString("%1/%2").arg(path, arprecoverFile);
 		#endif  // Q_OS_ANDROID
 			arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").
-				arg(run).arg(60).arg(
+				arg(run).arg(10).arg(
 				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
 				QString(intf_->ip()), QString(intf_->mac()), flowString));
 			qDebug() << arguments;
@@ -303,7 +304,7 @@ GArpSpoof::Flow::Flow(GIp senderIp, GMac senderMac, GIp targetIp, GMac targetMac
 	targetMac_ = targetMac;
 }
 
-void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac myMac, bool infect) {
+void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac myMac, bool infect, uint16_t operation) {
 	packet->ethHdr_.dmac_ = senderMac_;
 	packet->ethHdr_.smac_ = myMac;
 	packet->ethHdr_.type_ = htons(GEthHdr::Arp);
@@ -312,7 +313,7 @@ void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac myMac, bool infect) {
 	packet->arpHdr_.pro_ = htons(GEthHdr::Ip4);
 	packet->arpHdr_.hln_ = sizeof(GMac);
 	packet->arpHdr_.pln_ = sizeof(GIp);
-	packet->arpHdr_.op_ = htons(GArpHdr::Reply);
+	packet->arpHdr_.op_ = htons(operation);
 	packet->arpHdr_.smac_ = infect ? myMac : targetMac_; // infect(true) or recover(false)
 	packet->arpHdr_.sip_ = htonl(targetIp_);
 	packet->arpHdr_.tmac_ = senderMac_;
@@ -352,8 +353,12 @@ bool GArpSpoof::sendArpRecoverAll() {
 }
 
 bool GArpSpoof::sendArpRecover(Flow* flow) {
-	GPacket::Result res = write(GBuf(pbyte(&flow->recoverPacket_), sizeof(flow->recoverPacket_)));
-	return res == GPacket::Ok;
+	bool res = true;
+	GPacket::Result written = write(GBuf(pbyte(&flow->recoverRequestPacket_), sizeof(flow->recoverRequestPacket_)));
+	if (written != GPacket::Ok)  res = false;
+	written = write(GBuf(pbyte(&flow->recoverReplyPacket_), sizeof(flow->recoverReplyPacket_)));
+	if (written != GPacket::Ok)  res = false;
+	return res;
 }
 
 void GArpSpoof::processPacket(GPacket* packet) {
