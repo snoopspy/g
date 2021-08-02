@@ -194,7 +194,7 @@ void GGraphWidget::update() {
 	for (GGraph::Factory::Item* item: factory->items_) {
 		updateFactory(item, nullptr);
 	}
-	factoryWidget_->expandAll();
+	//factoryWidget_->expandAll();
 }
 
 void GGraphWidget::clear() {
@@ -347,6 +347,14 @@ void GGraphWidget::propLoad(QJsonObject jo) {
 	splitter["left"] >> GJson::splitterSizes(midLeftSplitter_);
 	splitter["prop"] >> GJson::headerSizes(propWidget_->treeWidget_);
 
+	QString treeExpanded = jo["treeExpanded"].toString();
+	for (int i = 0; i < factoryWidget_->topLevelItemCount(); i++) {
+		QTreeWidgetItem* twi = factoryWidget_->topLevelItem(i);
+		if (treeExpanded.length() <= i) break;
+		QChar e = treeExpanded.at(i);
+		twi->setExpanded(e == 'E');
+	}
+
 	toLowerFirstCharacter_ = jo["toLowerFirstCharacter"].toBool();
 	removePrefixNames_ = jo["removePrefixNames"].toString().split(",");
 	ignoreSignalNames_ = jo["ignoreSignalNames"].toString().split(",");
@@ -363,6 +371,13 @@ void GGraphWidget::propSave(QJsonObject& jo) {
 	splitter["left"] << GJson::splitterSizes(midLeftSplitter_);
 	splitter["prop"] << GJson::headerSizes(propWidget_->treeWidget_);
 	jo["splitter"] = splitter;
+
+	QString treeExpanded;
+	for (int i = 0; i < factoryWidget_->topLevelItemCount(); i++) {
+		QTreeWidgetItem* twi = factoryWidget_->topLevelItem(i);
+		treeExpanded += twi->isExpanded() ? 'E' : 'C';
+	}
+	jo["treeExpanded"] = treeExpanded;
 
 	jo["toLowerFirstCharacter"] = toLowerFirstCharacter_;
 	jo["removePrefixNames"] = removePrefixNames_.join(",");

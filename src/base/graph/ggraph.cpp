@@ -134,23 +134,11 @@ void GGraph::stop() {
 }
 
 void GGraph::propLoad(QJsonObject jo) {
-	// ----- gilgil temp 2020.10.26 -----
-	/*
-	jo["nodes"] >> nodes_;
-	jo["connections"] >> connections_;
-	*/
-	// ----------------------------------
 	nodes_.load(jo["nodes"].toArray());
 	connections_.load(jo["connections"].toArray());
 }
 
 void GGraph::propSave(QJsonObject& jo) {
-	// ----- gilgil temp 2020.10.26 -----
-	/*
-	jo["nodes"] << nodes_;
-	jo["connections"] << connections_;
-	*/
-	// ----------------------------------
 	QJsonArray nodesJa;
 	nodes_.save(nodesJa);
 	jo["nodes"] = nodesJa;

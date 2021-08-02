@@ -18,7 +18,6 @@ int exec(GApp* a, GGraph* graph, GPluginFactory* pluginFactory) {
 	QJsonObject jo = GJson::loadFromFile();
 	jo["graphWidget"] >> *_graphWidget;
 
-	_graphWidget->update();
 	_graphWidget->show();
 	int res = a->exec();
 
