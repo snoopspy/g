@@ -156,7 +156,7 @@ bool GArpSpoof::doOpen() {
 		flow.makePacket(&flow.recoverReplyPacket_, myMac_, false, GArpHdr::Reply);
 	}
 
-	sendArpInfectAll();
+	sendArpInfectAll(GArpHdr::Request);
 
 	if (infectInterval_ != 0)
 		infectThread_.start();
@@ -170,7 +170,7 @@ bool GArpSpoof::doClose() {
 	infectThread_.we_.wakeAll();
 	infectThread_.wait();
 
-	sendArpRecoverAll();
+	sendArpRecoverAll(GArpHdr::Request);
 
 	if (flowList_.count() > 0) {
 		QString flowString;
@@ -256,7 +256,7 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 						infect = true;
 					}
 				if (infect)
-					sendArpInfect(&flow);
+					sendArpInfect(&flow, GArpHdr::Reply);
 			}
 			continue;
 		} else if (type == GEthHdr::Ip4) {
@@ -313,7 +313,7 @@ void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac myMac, bool infect, ui
 	packet->arpHdr_.pro_ = htons(GEthHdr::Ip4);
 	packet->arpHdr_.hln_ = sizeof(GMac);
 	packet->arpHdr_.pln_ = sizeof(GIp);
-	packet->arpHdr_.op_ = htons(operation);
+	packet->arpHdr_.op_ =  htons(operation);
 	packet->arpHdr_.smac_ = infect ? myMac : targetMac_; // infect(true) or recover(false)
 	packet->arpHdr_.sip_ = htonl(targetIp_);
 	packet->arpHdr_.tmac_ = senderMac_;
@@ -323,40 +323,40 @@ void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac myMac, bool infect, ui
 void GArpSpoof::InfectThread::run() {
 	while (true) {
 		if (we_.wait(arpSpoof_->infectInterval_)) break;
-		arpSpoof_->sendArpInfectAll();
+		arpSpoof_->sendArpInfectAll(GArpHdr::Reply);
 	}
 }
 
-bool GArpSpoof::sendArpInfectAll() {
+bool GArpSpoof::sendArpInfectAll(uint16_t operation) {
 	QMutexLocker(&flowList_.m_);
 	for (Flow& flow: flowList_) {
-		if (!sendArpInfect(&flow))
+		if (!sendArpInfect(&flow, operation))
 			return false;
 		QThread::msleep(sendInterval_);
 	}
 	return true;
 }
 
-bool GArpSpoof::sendArpInfect(Flow* flow) {
+bool GArpSpoof::sendArpInfect(Flow* flow, uint16_t operation) {
+	flow->infectPacket_.arpHdr_.op_ = htons(operation);
 	GPacket::Result res = write(GBuf(pbyte(&flow->infectPacket_), sizeof(flow->infectPacket_)));
 	return res == GPacket::Ok;
 }
 
-bool GArpSpoof::sendArpRecoverAll() {
+bool GArpSpoof::sendArpRecoverAll(uint16_t operation) {
 	QMutexLocker(&flowList_.m_);
 	for (Flow& flow: flowList_) {
-		if (!sendArpRecover(&flow))
+		if (!sendArpRecover(&flow, operation))
 			return false;
 		QThread::msleep(sendInterval_);
 	}
 	return true;
 }
 
-bool GArpSpoof::sendArpRecover(Flow* flow) {
+bool GArpSpoof::sendArpRecover(Flow* flow, uint16_t operation) {
 	bool res = true;
-	GPacket::Result written = write(GBuf(pbyte(&flow->recoverRequestPacket_), sizeof(flow->recoverRequestPacket_)));
-	if (written != GPacket::Ok)  res = false;
-	written = write(GBuf(pbyte(&flow->recoverReplyPacket_), sizeof(flow->recoverReplyPacket_)));
+	flow->recoverReplyPacket_.arpHdr_.op_ = htons(operation);
+	GPacket::Result written = write(GBuf(pbyte(&flow->recoverReplyPacket_), sizeof(flow->recoverReplyPacket_)));
 	if (written != GPacket::Ok)  res = false;
 	return res;
 }

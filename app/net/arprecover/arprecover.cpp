@@ -17,7 +17,7 @@ void Flow::makePacket(EthArpPacket* packet, Mac myMac) {
 	packet->arpHdr_.pro_ = htons(EthHdr::Ip4);
 	packet->arpHdr_.hln_ = sizeof(Mac);
 	packet->arpHdr_.pln_ = sizeof(Ip);
-	packet->arpHdr_.op_ = htons(ArpHdr::Reply);
+	packet->arpHdr_.op_ = htons(ArpHdr::Request);
 	packet->arpHdr_.smac_ = targetMac_;
 	packet->arpHdr_.sip_ = htonl(targetIp_);
 	packet->arpHdr_.tmac_ = senderMac_;

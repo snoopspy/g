@@ -85,7 +85,7 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 
 	flowMap_.insert(ipFlowKey, flow);
 	flowList_.push_back(flow);
-	sendArpInfect(&flow);
+	sendArpInfect(&flow, GArpHdr::Request);
 
 	GFlow::IpFlowKey revIpFlowKey(gwIp_, ip);
 	Flow revFlow(gwIp_, gwMac_, ip, mac);
@@ -98,7 +98,7 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 		QMutexLocker(&flowList_.m_);
 		flowList_.push_back(revFlow);
 	}
-	sendArpInfect(&revFlow);
+	sendArpInfect(&revFlow, GArpHdr::Request);
 	if (floodingInterval_ != 0) {
 		QByteArray forward((const char*)&flow.infectPacket_, sizeof(GEthArpHdr));
 		QByteArray backward((const char*)&revFlow.infectPacket_, sizeof(GEthArpHdr));

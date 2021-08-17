@@ -122,10 +122,10 @@ protected:
 		GArpSpoof* arpSpoof_;
 	} infectThread_{this};
 
-	bool sendArpInfectAll();
-	bool sendArpInfect(Flow* flow);
-	bool sendArpRecoverAll();
-	bool sendArpRecover(Flow* flow);
+	bool sendArpInfectAll(uint16_t operation);
+	bool sendArpInfect(Flow* flow, uint16_t operation);
+	bool sendArpRecoverAll(uint16_t operation);
+	bool sendArpRecover(Flow* flow, uint16_t operation);
 
 protected:
 	virtual void processPacket(GPacket* packet); // for GAutoArpSpoof
