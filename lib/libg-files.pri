@@ -105,14 +105,18 @@ SOURCES += \
 	$${PWD}/../src/net/packet/gnullpacket.cpp \
 	$${PWD}/../src/net/packet/gpacket.cpp \
 	$${PWD}/../src/net/pdu/garphdr.cpp \
+	$${PWD}/../src/net/pdu/gbeaconhdr.cpp \
 	$${PWD}/../src/net/pdu/gdhcphdr.cpp \
 	$${PWD}/../src/net/pdu/gdnshdr.cpp \
 	$${PWD}/../src/net/pdu/gdnsinfo.cpp \
+	$${PWD}/../src/net/pdu/gdot11hdr.cpp \
 	$${PWD}/../src/net/pdu/gethhdr.cpp \
 	$${PWD}/../src/net/pdu/gicmphdr.cpp \
 	$${PWD}/../src/net/pdu/gip6hdr.cpp \
 	$${PWD}/../src/net/pdu/giphdr.cpp \
 	$${PWD}/../src/net/pdu/gpdu.cpp \
+	$${PWD}/../src/net/pdu/gqosnullhdr.cpp \
+	$${PWD}/../src/net/pdu/gradiotaphdr.cpp \
 	$${PWD}/../src/net/pdu/gtcphdr.cpp \
 	$${PWD}/../src/net/pdu/gudphdr.cpp \
 	$${PWD}/../src/net/process/gclienthellosplit.cpp \
@@ -237,14 +241,18 @@ HEADERS += \
 	$${PWD}/../src/net/packet/gnullpacket.h \
 	$${PWD}/../src/net/packet/gpacket.h \
 	$${PWD}/../src/net/pdu/garphdr.h \
+	$${PWD}/../src/net/pdu/gbeaconhdr.h \
 	$${PWD}/../src/net/pdu/gdhcphdr.h \
 	$${PWD}/../src/net/pdu/gdnshdr.h \
 	$${PWD}/../src/net/pdu/gdnsinfo.h \
+	$${PWD}/../src/net/pdu/gdot11hdr.h	 \
 	$${PWD}/../src/net/pdu/gethhdr.h \
 	$${PWD}/../src/net/pdu/gicmphdr.h \
 	$${PWD}/../src/net/pdu/gip6hdr.h \
 	$${PWD}/../src/net/pdu/giphdr.h \
 	$${PWD}/../src/net/pdu/gpdu.h \
+	$${PWD}/../src/net/pdu/gqosnullhdr.h \
+	$${PWD}/../src/net/pdu/gradiotaphdr.h \
 	$${PWD}/../src/net/pdu/gtcphdr.h \
 	$${PWD}/../src/net/pdu/gudphdr.h \
 	$${PWD}/../src/net/process/gclienthellosplit.h \

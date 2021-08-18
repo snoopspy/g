@@ -13,6 +13,11 @@
 #include <QtCore>
 #include "base/gbase.h"
 
+typedef uint8_t le8_t;
+typedef uint16_t le16_t;
+typedef uint32_t le32_t;
+typedef uint64_t le64_t;
+
 #ifdef Q_OS_LINUX
 	#include <arpa/inet.h>
 	#include <netdb.h>
