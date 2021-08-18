@@ -77,9 +77,8 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	if (flowMap_.find(ipFlowKey) != flowMap_.end()) return;
 
 	Flow flow(ip, mac, gwIp_, gwMac_);
-	flow.makePacket(&flow.infectPacket_, myMac_, true, GArpHdr::Reply);
-	flow.makePacket(&flow.recoverRequestPacket_, myMac_, false, GArpHdr::Request);
-	flow.makePacket(&flow.recoverReplyPacket_, myMac_, false, GArpHdr::Reply);
+	flow.makePacket(&flow.infectPacket_, myMac_, true);
+	flow.makePacket(&flow.recoverPacket_, myMac_, false);
 
 	qDebug() << QString("new host(%1 %2) detected").arg(QString(mac), QString(ip));
 
@@ -89,9 +88,8 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 
 	GFlow::IpFlowKey revIpFlowKey(gwIp_, ip);
 	Flow revFlow(gwIp_, gwMac_, ip, mac);
-	revFlow.makePacket(&revFlow.infectPacket_, myMac_, true, GArpHdr::Reply);
-	revFlow.makePacket(&revFlow.recoverRequestPacket_, myMac_, false, GArpHdr::Request);
-	revFlow.makePacket(&revFlow.recoverReplyPacket_, myMac_, false, GArpHdr::Reply);
+	revFlow.makePacket(&revFlow.infectPacket_, myMac_, true);
+	revFlow.makePacket(&revFlow.recoverPacket_, myMac_, false);
 
 	flowMap_.insert(revIpFlowKey, revFlow);
 	{
