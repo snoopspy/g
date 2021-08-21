@@ -3,7 +3,7 @@
 #include "gdot11hdr.h"
 
 #pragma pack(push, 1)
-struct BeaconHdr : Dot11Hdr {
+struct GBeaconHdr : GDot11Hdr {
 	GMac addr1_;
 	GMac addr2_;
 	GMac addr3_;
@@ -16,13 +16,11 @@ struct BeaconHdr : Dot11Hdr {
 	GMac sa() { return addr2_; }
 	GMac bssid() { return addr3_; }
 
-	//#pragma pack(push, 1)
 	struct __attribute__((packed)) Fix {
 		le64_t timestamp_; // microsecond
 		le16_t beaconInterval_; // millisecond
 		le16_t capabilities_;
 	} fix_;
-	//#pragma pack(pop)
 
 	struct Tag {
 		le8_t num_;
@@ -36,7 +34,7 @@ struct BeaconHdr : Dot11Hdr {
 	typedef Tag *PTag;
 	Tag* tag() {
 		char* p = pchar(this);
-		p += sizeof(BeaconHdr);
+		p += sizeof(GBeaconHdr);
 		return PTag(p);
 	}
 
@@ -55,8 +53,8 @@ struct BeaconHdr : Dot11Hdr {
 	};
 	typedef TrafficIndicationMap *PTrafficIndicationMap;
 
-	static BeaconHdr* check(Dot11Hdr* dot11Hdr, uint32_t size);
+	static GBeaconHdr* check(GDot11Hdr* dot11Hdr, uint32_t size);
 	TrafficIndicationMap* getTim(uint32_t size);
 };
-typedef BeaconHdr *PBeaconHdr;
+typedef GBeaconHdr *PBeaconHdr;
 #pragma pack(pop)

@@ -3,7 +3,7 @@
 #include "gradiotaphdr.h"
 
 #pragma pack(push, 1)
-struct Dot11Hdr {
+struct GDot11Hdr {
 	le8_t ver_:2;
 	le8_t type_:2;
 	le8_t subtype_:4;
@@ -26,7 +26,7 @@ struct Dot11Hdr {
 		Acknowledgement = 0x1D
 	};
 
-	static Dot11Hdr* check(RadiotapHdr* radiotapHdr, uint32_t size);
+	static GDot11Hdr* check(GRadiotapHdr* radiotapHdr, uint32_t size);
 };
-typedef Dot11Hdr *PDot11Hdr;
+typedef GDot11Hdr *PDot11Hdr;
 #pragma pack(pop)

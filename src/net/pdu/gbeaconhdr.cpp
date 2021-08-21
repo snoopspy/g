@@ -1,17 +1,17 @@
 #include "gbeaconhdr.h"
 
-BeaconHdr* BeaconHdr::check(Dot11Hdr* dot11Hdr, uint32_t size) {
-	assert(dot11Hdr->typeSubtype() == Dot11Hdr::Beacon);
-	if (size < sizeof(BeaconHdr)) {
+GBeaconHdr* GBeaconHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
+	assert(dot11Hdr->typeSubtype() == GDot11Hdr::Beacon);
+	if (size < sizeof(GBeaconHdr)) {
 		qWarning() << QString("invalid size %1").arg(size);
 		return nullptr;
 	}
 	return PBeaconHdr(dot11Hdr);
 }
 
-BeaconHdr::TrafficIndicationMap* BeaconHdr::getTim(uint32_t size) {
+GBeaconHdr::TrafficIndicationMap* GBeaconHdr::getTim(uint32_t size) {
 	char* end = pchar(this) + size;
-	BeaconHdr::Tag* t = tag();
+	GBeaconHdr::Tag* t = tag();
 	while (true) {
 		if ((void*)t >= (void*)end) {
 			//qWarning() << QString("beaconHdp=%1 tag=%2 end=%3").arg(pvoid(this)).arg(pvoid(t)).arg(pvoid(end)); // gilgil temp 2021.08.19

@@ -1,9 +1,9 @@
 #include "gdot11hdr.h"
 
-Dot11Hdr* Dot11Hdr::check(RadiotapHdr* radiotapHdr, uint32_t size) {
+GDot11Hdr* GDot11Hdr::check(GRadiotapHdr* radiotapHdr, uint32_t size) {
 	uint32_t len = radiotapHdr->len_;
-	Dot11Hdr* dot11Hdr = PDot11Hdr(pchar(radiotapHdr) + len);
-	if (size < sizeof(Dot11Hdr) + len) {
+	GDot11Hdr* dot11Hdr = PDot11Hdr(pchar(radiotapHdr) + len);
+	if (size < sizeof(GDot11Hdr) + len) {
 		//GTRACE("invalid size radiotapHdr->len=%u size=%u", len, size);
 		//dump(puchar(radiotapHdr), len /*size*/); // gilgil temp
 		return nullptr;
@@ -16,7 +16,7 @@ Dot11Hdr* Dot11Hdr::check(RadiotapHdr* radiotapHdr, uint32_t size) {
 
 TEST(Dot11Hdr, typeTest) {
 	uint8_t packet[] = { 0xd4, 0x10 }; // dot11-sample.pcap frame.number==10
-	Dot11Hdr* dot11Hdr = PDot11Hdr(packet);
+	GDot11Hdr* dot11Hdr = PDot11Hdr(packet);
 
 	le8_t ver = dot11Hdr->ver_;
 	EXPECT_EQ(ver, 0x00);

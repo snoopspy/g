@@ -21,6 +21,9 @@
 #include "net/pdu/gudphdr.h"
 #include "net/pdu/gicmphdr.h"
 
+#include "net/pdu/gradiotaphdr.h"
+#include "net/pdu/gdot11hdr.h"
+
 // ----------------------------------------------------------------------------
 // GPacket
 // ----------------------------------------------------------------------------
@@ -97,6 +100,9 @@ public:
 	GBuf tcpData_;
 	GBuf udpData_;
 
+	GRadiotapHdr* radiotapHdr_{nullptr};
+	GDot11Hdr* dot11Hdr_{nullptr};
+
 	//
 	// constant
 	//
@@ -126,6 +132,8 @@ public:
 		icmpHdr_ = nullptr;
 		tcpData_.clear();
 		udpData_.clear();
+		radiotapHdr_ = nullptr;
+		dot11Hdr_ = nullptr;
 #ifdef _DEBUG
 		parsed_ = false;
 #endif // _DEBUG

@@ -1,7 +1,7 @@
 #include "gradiotaphdr.h"
 
-RadiotapHdr* RadiotapHdr::check(char* p, uint32_t size) {
-	RadiotapHdr* radiotapHdr = PRadiotapHdr(p);
+GRadiotapHdr* GRadiotapHdr::check(gbyte* p, uint32_t size) {
+	GRadiotapHdr* radiotapHdr = PRadiotapHdr(p);
 	le16_t len = radiotapHdr->len_;
 	// ----- gilgil temp 2020.11.06 -----
 	/*
@@ -13,7 +13,7 @@ RadiotapHdr* RadiotapHdr::check(char* p, uint32_t size) {
 	}
 	*/
 	// ----------------------------------
-	if (len < sizeof(RadiotapHdr) || len > size) return nullptr;
+	if (len < sizeof(GRadiotapHdr) || len > size) return nullptr;
 	return radiotapHdr;
 }
 
