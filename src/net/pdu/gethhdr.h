@@ -16,7 +16,7 @@
 // GEthHdr
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
-struct G_EXPORT GEthHdr final { // libnet_ethernet_hdr // gilgil temp 2019.05.13
+struct G_EXPORT GEthHdr final {
 	GMac dmac_;
 	GMac smac_;
 	uint16_t type_;

@@ -16,7 +16,7 @@
 // GDnsHdr
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
-struct G_EXPORT GDnsHdr final { // libnet_dnsv4_hdr // gilgil temp 2019.05.13
+struct G_EXPORT GDnsHdr final {
 	uint16_t id_;
 	uint16_t flags_;
 	uint16_t num_q_;

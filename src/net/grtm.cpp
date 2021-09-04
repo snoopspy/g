@@ -35,7 +35,7 @@ GIp GRtm::findGateway(QString intfName, GIp ip) {
 	for (GRtmEntry& entry: *this) {
 		if (entry.intf() == nullptr) continue;
 		if (entry.intf()->name() != intfName) continue;
-		if (entry.gateway_ == 0) continue;
+		if (entry.gateway_ == GIp::isNull()) continue;
 		if (entry.gateway_ == ip) continue;
 		return entry.gateway_;
 	}

@@ -16,7 +16,7 @@
 // GUdpHdr
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
-struct G_EXPORT GUdpHdr final { // libnet_tcp_hdr // gilgil temp 2019.05.13
+struct G_EXPORT GUdpHdr final {
 	uint16_t sport_;
 	uint16_t dport_;
 	uint16_t len_;
