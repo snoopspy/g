@@ -64,11 +64,11 @@ void GPacketDebug::debug(GPacket* packet) {
 				GBuf udpData = packet->udpData_;
 				if (udpData.valid())
 					msg += " " + dump(udpData.data_, udpData.size_);
-
-				GIcmpHdr* icmpHdr = packet->icmpHdr_;
-				if (icmpHdr != nullptr)
-					msg += " icmp";
 			}
+
+			GIcmpHdr* icmpHdr = packet->icmpHdr_;
+			if (icmpHdr != nullptr)
+				msg += " icmp";
 		}
 	}
 
