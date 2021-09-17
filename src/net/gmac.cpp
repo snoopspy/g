@@ -74,7 +74,7 @@ TEST(GMac, castingTest) {
 	EXPECT_TRUE(memcmp(&mac, temp, 6) == 0);
 
 	QString s2 = QString(mac); // operator QString()
-	EXPECT_EQ(s2, "001122-334455");
+	EXPECT_EQ(s2, "00:11:22:33:44:55");
 }
 
 TEST(GMac, funcTest) {

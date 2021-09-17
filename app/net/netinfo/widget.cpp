@@ -26,11 +26,11 @@ void Widget::showIntrerfaceList() {
 	GInterfaceList& interfaceList = GRemoteNetInfo::instance("127.0.0.1", GDemon::DefaultPort).interfaceList();
 	GRtmEntry* entry = GRemoteNetInfo::instance("127.0.0.1", GDemon::DefaultPort).rtm().getBestEntry(QString("8.8.8.8"));
 #else
-	GInterfaceList& interfaceList = GNetInfo::instance().interfaceList();
+	GIntfList& intfList = GNetInfo::instance().intfList();
 	GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
 #endif // Q_OS_ANDROID
 
-	for(GInterface& intf: interfaceList) {
+	for(GIntf& intf: intfList) {
 		bool best = entry != nullptr &&
 				entry->intf() != nullptr &&
 				entry->intf()->name() == intf.name();

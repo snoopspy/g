@@ -3,15 +3,7 @@
 // ----------------------------------------------------------------------------
 // GRemotePcapDevice
 // ----------------------------------------------------------------------------
-GRemotePcapDevice::GRemotePcapDevice(QObject* parent) : GVirtualPcapDevice(parent) {
-#ifdef Q_OS_ANDROID
-	GRtmEntry* entry = GRemoteNetInfo::instance(ip_, port_).rtm().getBestEntry(QString("8.8.8.8"));
-	if (entry != nullptr) {
-		GInterface* intf = entry->intf();
-		if (intf != nullptr)
-			intfName_ = intf->name();
-	}
-#endif // Q_OS_ANDROID
+GRemotePcapDevice::GRemotePcapDevice(QObject* parent) : GPcapDevice(parent) {
 }
 
 GRemotePcapDevice::~GRemotePcapDevice() {
@@ -34,7 +26,7 @@ bool GRemotePcapDevice::doOpen() {
 		return false;
 	}
 
-	intf_ = GRemoteNetInfo::instance(ip_, port_).interfaceList().findByName(intfName_);
+	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf_ == nullptr) {
 		QString msg = QString("can not find interface for %1").arg(intfName_);
 		SET_ERR(GErr::VALUE_IS_NULL, msg);

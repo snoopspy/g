@@ -10,16 +10,20 @@
 
 #pragma once
 
-#include "gvirtualpcapdevicewrite.h"
+#include "gpcapwrite.h"
+#include "net/gnetinfo.h"
+#include "net/demon/gdemonclient.h"
 
 // ----------------------------------------------------------------------------
 // GPcapDeviceWrite
 // ----------------------------------------------------------------------------
-struct G_EXPORT GPcapDeviceWrite : GVirtualPcapDeviceWrite {
+struct G_EXPORT GPcapDeviceWrite : GPcapWrite {
 	Q_OBJECT
+	Q_PROPERTY(QString intfName MEMBER intfName_)
 	Q_PROPERTY(int mtu MEMBER mtu_)
 
 public:
+	QString intfName_{""};
 	int mtu_{0};
 
 public:
@@ -31,10 +35,21 @@ protected:
 	bool doClose() override;
 
 public:
+	GIntf* intf() { return intf_; }
+
+protected:
+	GIntf* intf_{nullptr};
+
+public:
 	GPacket::Result write(GBuf buf) override;
 
 public slots:
 	GPacket::Result write(GPacket* packet) override;
+
+#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+protected:
+	GDemonClient* demonClient_{nullptr};
+#endif
 
 #ifdef QT_GUI_LIB
 public:

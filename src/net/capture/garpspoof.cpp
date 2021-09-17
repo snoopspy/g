@@ -33,21 +33,12 @@ bool GArpSpoof::doOpen() {
 	// ----- by gilgil 2021.06.18 -----
 	// intf_ is determined in GPcapDevice::doOpen or GRemovePcapDevice::doOpen.
 	// To set filter, intf_ must be determined before open base class doOpen
-#ifdef Q_OS_ANDROID
-	intf_ = GRemoteNetInfo::instance(ip_, port_).interfaceList().findByName(intfName_);
+	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf_ == nullptr) {
 		QString msg = QString("can not find interface for %1").arg(intfName_);
 		SET_ERR(GErr::VALUE_IS_NULL, msg);
 		return false;
 	}
-#else // Q_OS_ANDROID
-	intf_ = GNetInfo::instance().interfaceList().findByName(intfName_);
-	if (intf_ == nullptr) {
-		QString msg = QString("can not find interface for %1").arg(intfName_);
-		SET_ERR(GErr::VALUE_IS_NULL, msg);
-		return false;
-	}
-#endif // Q_OS_ANDROID
 	// --------------------------------
 
 	QString internalFilter;

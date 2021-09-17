@@ -11,7 +11,7 @@
 #pragma once
 
 #include "base/gstateobj.h"
-#include "net/write/gvirtualpcapdevicewrite.h"
+#include "net/write/gpcapdevicewrite.h"
 #include "net/packet/gethpacket.h"
 #include "net/packet/gippacket.h"
 
@@ -32,10 +32,10 @@ struct G_EXPORT GTcpBlock : GStateObj {
 
 public:
 	GObjPtr getWriter() { return writer_; }
-	void setWriter(GObjPtr value) { writer_ = dynamic_cast<GVirtualPcapDeviceWrite*>(value.data()); }
+	void setWriter(GObjPtr value) { writer_ = dynamic_cast<GPcapDeviceWrite*>(value.data()); }
 
 public:
-	GVirtualPcapDeviceWrite* writer_{nullptr};
+	GPcapDeviceWrite* writer_{nullptr};
 
 public:
 	bool enabled_{true};

@@ -3,10 +3,10 @@
 // ----------------------------------------------------------------------------
 // GPcapDeviceWrite
 // ----------------------------------------------------------------------------
-GPcapDeviceWrite::GPcapDeviceWrite(QObject* parent) : GVirtualPcapDeviceWrite(parent) {
+GPcapDeviceWrite::GPcapDeviceWrite(QObject* parent) : GPcapWrite(parent) {
 	GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
 	if (entry != nullptr) {
-		GInterface* intf = entry->intf();
+		GIntf* intf = entry->intf();
 		if (intf != nullptr)
 			intfName_ = intf->name();
 	}
@@ -16,6 +16,57 @@ GPcapDeviceWrite::~GPcapDeviceWrite() {
 	close();
 }
 
+#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+bool GPcapDeviceWrite::doOpen() {
+	if (intfName_ == "") {
+		SET_ERR(GErr::INTERFACE_NAME_NOT_SPECIFIED, "intfName is not specified");
+		return false;
+	}
+
+	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
+	GDemon::PcapOpenRes res = demonClient_->pcapOpen(qPrintable(objectName()), "", std::string(qPrintable(intfName_)), 0, 0, 0, 0, false);
+	if (!res.result_) {
+		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		delete demonClient_; demonClient_ = nullptr;
+		return false;
+	}
+
+	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
+	if (intf_ == nullptr) {
+		QString msg = QString("can not find interface for %1").arg(intfName_);
+		SET_ERR(GErr::VALUE_IS_NULL, msg);
+		return false;
+	}
+
+	dlt_ = GPacket::intToDlt(res.dataLink_);
+	return true;
+}
+
+bool GPcapDeviceWrite::doClose() {
+	if (demonClient_ != nullptr) {
+		demonClient_->pcapClose();
+		delete demonClient_;
+		demonClient_ = nullptr;
+	}
+
+	return true;
+}
+
+GPacket::Result GPcapDeviceWrite::write(GBuf buf) {
+	GDemon::PcapWrite write;
+	write.size_ = buf.size_;
+	write.data_ = buf.data_;
+	bool res = demonClient_->pcapWrite(write);
+	return res ? GPacket::Ok : GPacket::Fail;
+}
+
+GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
+	GPacket::Result res = write(packet->buf_);
+	if (res == GPacket::Ok)
+		emit written(packet);
+	return res;
+}
+#else
 bool GPcapDeviceWrite::doOpen() {
 	if (intfName_ == "") {
 		SET_ERR(GErr::INTERFACE_NAME_NOT_SPECIFIED, "intfName is not specified");
@@ -29,7 +80,7 @@ bool GPcapDeviceWrite::doOpen() {
 		return false;
 	}
 
-	intf_ = GNetInfo::instance().interfaceList().findByName(intfName_);
+	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf_ == nullptr) {
 		QString msg = QString("can not find interface for %1").arg(intfName_);
 		SET_ERR(GErr::VALUE_IS_NULL, msg);
@@ -72,6 +123,7 @@ GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
 		emit written(packet);
 	return res;
 }
+#endif
 
 #ifdef QT_GUI_LIB
 
@@ -79,6 +131,7 @@ GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
 GPropItem* GPcapDeviceWrite::propCreateItem(GPropItemParam* param) {
 	if (QString(param->mpro_.name()) == "intfName") {
 		GPropItemInterface* res = new GPropItemInterface(param);
+		res->comboBox_->setEditable(true);
 		return res;
 	}
 	return GObj::propCreateItem(param);
