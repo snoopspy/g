@@ -40,7 +40,9 @@ GRtm::GRtm() {
 		push_back(rtmEntry);
 	}
 }
-#else
+#endif
+
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID_GILGIL)
 //
 // ip route show table 0 output
 //
@@ -78,8 +80,8 @@ GRtm::GRtm() {
 #endif
 
 #ifdef Q_OS_WIN
-#include "gipadapterinfo.h"
-#include "gipforwardtable.h"
+#include "_win/gipadapterinfo.h"
+#include "_win/gipforwardtable.h"
 
 GRtm::GRtm() {
 	PMIB_IPFORWARDTABLE table = GIpForwardTable::instance().ipForwardTable_;
