@@ -123,10 +123,9 @@ GObj* GObj::createInstance(QString className, QObject* parent) {
 // GObjList
 // ----------------------------------------------------------------------------
 void GObjList::clear() {
-	for (GObj* obj: *this) {
+	for (GObj* obj: *this)
 		delete obj;
-		QList::clear();
-	}
+	QList::clear();
 }
 
 void GObjList::load(QJsonArray ja) {
