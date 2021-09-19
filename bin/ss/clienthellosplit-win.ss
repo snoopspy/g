@@ -67,7 +67,6 @@
             "_x": 20,
             "_y": 6,
             "bufSize": "32768",
-            "intfName": "\\Device\\NPF_{0FB85E84-9FE4-4627-AD05-8FEF3A2ED1E5}",
             "mtu": "0",
             "objectName": "convertEthAutoMac1",
             "type": "2048"
@@ -76,7 +75,6 @@
             "_class": "GPcapDeviceWrite",
             "_x": 27,
             "_y": 50,
-            "intfName": "\\Device\\NPF_{0FB85E84-9FE4-4627-AD05-8FEF3A2ED1E5}",
             "mtu": "0",
             "objectName": "pcapDeviceWrite1"
         }
