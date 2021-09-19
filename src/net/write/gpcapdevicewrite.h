@@ -46,7 +46,7 @@ public:
 public slots:
 	GPacket::Result write(GPacket* packet) override;
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 protected:
 	GDemonClient* demonClient_{nullptr};
 #endif

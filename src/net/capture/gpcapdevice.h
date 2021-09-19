@@ -53,7 +53,7 @@ protected:
 	GIntf* intf_{nullptr};
 
 public:
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 	GPacket::Result read(GPacket* packet) override;
 	GPacket::Result write(GBuf buf) override;
 	GPacket::Result write(GPacket* packet) override;
@@ -62,7 +62,7 @@ public:
 	GPacket::Result read(GPacket* packet) override;
 #endif
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 protected:
 	GDemonClient* demonClient_{nullptr};
 #endif

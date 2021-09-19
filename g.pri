@@ -10,7 +10,7 @@ linux: QMAKE_LFLAGS *= -pthread
 CONFIG(debug, debug|release) DEFINES *= _DEBUG
 CONFIG(release, debug|release) DEFINES *= _RELEASE
 DEFINES *= QT_MESSAGELOGCONTEXT
-DEFINES *= Q_OS_ANDROID_GILGIL
+DEFINES *= Q_OS_ANDROID
 
 #------------------------------------------------------------------------------
 # G_NAME

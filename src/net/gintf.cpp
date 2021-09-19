@@ -22,7 +22,7 @@ bool GIntf::operator==(const GIntf& r) const {
 // ----------------------------------------------------------------------------
 // GIntfList
 // ----------------------------------------------------------------------------
-#if defined(Q_OS_LINUX) && (!defined(Q_OS_ANDROID) || !defined(Q_OS_ANDROID_GILGIL))
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 #include <net/if.h> // for ifreq
 #include <sys/ioctl.h> // for SIOCGIFHWADDR
 static GMac getMac(char* intfName) {
@@ -49,7 +49,7 @@ static GMac getMac(char* intfName) {
 }
 #endif
 
-#if (defined(Q_OS_LINUX) || defined(Q_OS_WIN)) && !defined(Q_OS_ANDROID_GILGIL)
+#if (defined(Q_OS_LINUX) || defined(Q_OS_WIN)) && !defined(Q_OS_ANDROID)
 GIntfList::GIntfList() {
 	//
 	// Initialize allDevs using pcap API.
@@ -112,7 +112,7 @@ GIntfList::GIntfList() {
 }
 #endif
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 #include "net/demon/gdemonclient.h"
 
 GIntfList::GIntfList() {

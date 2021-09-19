@@ -61,7 +61,7 @@ void GPluginFactory::loadBlock() {
 
 void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GArpSpoof*>();
-#if defined(Q_OS_LINUX) && (!defined(Q_OS_ANDROID) || !defined(Q_OS_ANDROID_GILGIL))
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	qRegisterMetaType<GAsyncNetFilter*>();
 #endif
 	qRegisterMetaType<GAutoArpSpoof*>();
@@ -79,7 +79,7 @@ void GPluginFactory::loadCapture() {
 
 	ItemCategory* category = new ItemCategory("capture");
 	category->items_.push_back(new ItemNode("GArpSpoof"));
-#if defined(Q_OS_LINUX) && (!defined(Q_OS_ANDROID) || !defined(Q_OS_ANDROID_GILGIL))
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	category->items_.push_back(new ItemNode("GAsyncNetFilter"));
 #endif
 	category->items_.push_back(new ItemNode("GAutoArpSpoof"));

@@ -24,7 +24,7 @@ bool GPcapDevice::doOpen() {
 		return false;
 	}
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
 	GDemon::PcapOpenRes res = demonClient_->pcapOpen(qPrintable(objectName()), std::string(qPrintable(filter_)), std::string(qPrintable(intfName_)), snapLen_, flags_, readTimeout_, waitTimeout_, true);
 	if (!res.result_) {
@@ -57,7 +57,7 @@ bool GPcapDevice::doOpen() {
 		return false;
 	}
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 	return GCapture::doOpen();
 #else
 	return GPcapCapture::doOpen();
@@ -69,7 +69,7 @@ bool GPcapDevice::doClose() {
 
 	intf_ = nullptr;
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 	if (demonClient_ != nullptr)
 		demonClient_->pcapClose();
 
@@ -86,7 +86,7 @@ bool GPcapDevice::doClose() {
 #endif
 }
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 GPacket::Result GPcapDevice::read(GPacket* packet) {
 	packet->clear();
 
@@ -136,7 +136,7 @@ GPacket::Result GPcapDevice::read(GPacket* packet) {
 GPropItem* GPcapDevice::propCreateItem(GPropItemParam* param) {
 	if (QString(param->mpro_.name()) == "intfName") {
 		GPropItemInterface* res = new GPropItemInterface(param);
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 		res->comboBox_->setEditable(true);
 #endif
 		return res;

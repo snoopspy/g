@@ -16,7 +16,7 @@ GPcapDeviceWrite::~GPcapDeviceWrite() {
 	close();
 }
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 bool GPcapDeviceWrite::doOpen() {
 	if (intfName_ == "") {
 		SET_ERR(GErr::INTERFACE_NAME_NOT_SPECIFIED, "intfName is not specified");

@@ -13,7 +13,7 @@
 #include "gcapture.h"
 #include "net/packet/gippacket.h"
 #include "base/other/gcommand.h"
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 #include "base/other/gremotecommand.h"
 #endif
 
@@ -34,7 +34,7 @@ struct G_EXPORT GNetFilter : GCapture {
 	Q_PROPERTY(quint32 mark MEMBER mark_)
 	Q_PROPERTY(int bufSize MEMBER bufSize_)
 	Q_PROPERTY(GObjRef command READ getCommand)
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 	Q_PROPERTY(QString ip MEMBER ip_)
 	Q_PROPERTY(quint16 port MEMBER port_)
 #endif
@@ -53,7 +53,7 @@ public:
 	Verdict acceptVerdict_{ACCEPT};
 	uint32_t mark_{0};
 	GObjRef getCommand() { return &command_; }
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 	QString ip_{"127.0.0.1"};
 	quint16 port_{GDemon::DefaultPort};
 #endif
@@ -91,7 +91,7 @@ private:
 	uint32_t id_;
 	GIpPacket* ipPacket_;
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 public:
 	GDemonClient* demonClient_{nullptr};
 #else

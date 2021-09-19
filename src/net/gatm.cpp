@@ -142,7 +142,7 @@ void GAtm::SendThread::run() {
 		}
 	}
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 	if (atm_ != nullptr) {
 		atm_->demonClient_->pcapClose(); // awaken read(&packet) in wait function by disconnect socket
 	}

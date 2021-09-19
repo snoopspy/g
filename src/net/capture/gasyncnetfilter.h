@@ -12,7 +12,7 @@
 
 #include "gnetfilter.h"
 
-#if defined(Q_OS_LINUX) && (!defined(Q_OS_ANDROID) || !defined(Q_OS_ANDROID_GILGIL))
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 
 // ----------------------------------------------------------------------------
 // GAsyncNetFilter

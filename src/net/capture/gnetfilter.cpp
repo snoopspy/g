@@ -27,7 +27,7 @@ GNetFilter::GNetFilter(QObject* parent) : GCapture(parent) {
 		"su -c \"iptables -D OUTPUT -j NFQUEUE\"",
 	}));
 
-#if defined(Q_OS_LINUX) && (!defined(Q_OS_ANDROID) || !defined(Q_OS_ANDROID_GILGIL))
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	cb_ = &_callback;
 #endif
 }
@@ -36,7 +36,7 @@ GNetFilter::~GNetFilter() {
 	close();
 }
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_ANDROID_GILGIL)
+#ifdef Q_OS_ANDROID
 bool GNetFilter::doOpen() {
 	if (!enabled_) return true;
 
