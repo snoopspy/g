@@ -42,7 +42,7 @@ GRtm::GRtm() {
 }
 #endif
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID_GILGIL)
+#if defined(Q_OS_LINUX) && (!defined(Q_OS_ANDROID) || !defined(Q_OS_ANDROID_GILGIL))
 //
 // ip route show table 0 output
 //
@@ -146,7 +146,7 @@ GIp GRtm::findGateway(QString intfName, GIp ip) {
 	return GIp(0);
 }
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID_GILGIL)
+#if defined(Q_OS_LINUX) && (!defined(Q_OS_ANDROID) || !defined(Q_OS_ANDROID_GILGIL))
 bool GRtm::checkA(char* buf, GRtmEntry* entry) {
 	char gateway[256];
 	char intf[256];

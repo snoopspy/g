@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 // GArpSpoof
 // ----------------------------------------------------------------------------
-GArpSpoof::GArpSpoof(QObject* parent) : GArpSpoofBaseDevice(parent) {
+GArpSpoof::GArpSpoof(QObject* parent) : GPcapDevice(parent) {
 	mtu_ = GPacket::MtuSize;
 }
 
@@ -51,7 +51,7 @@ bool GArpSpoof::doOpen() {
 	}
 	QString backupFilter = filter_;
 	filter_ = internalFilter;
-	if (!GArpSpoofBaseDevice::doOpen()) return false;
+	if (!GPcapDevice::doOpen()) return false;
 	filter_ = backupFilter;
 
 	if (filter_ != "") {
@@ -210,7 +210,7 @@ bool GArpSpoof::doClose() {
 		bpFilter_ = nullptr;
 	}
 
-	return GArpSpoofBaseDevice::doClose();
+	return GPcapDevice::doClose();
 }
 
 GPacket::Result GArpSpoof::read(GPacket* packet) {
@@ -218,7 +218,7 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 		if (state_ != Opened)
 			return GPacket::Fail;
 
-		GPacket::Result res = GArpSpoofBaseDevice::read(packet);
+		GPacket::Result res = GPcapDevice::read(packet);
 		if (res == GPacket::Eof || res == GPacket::Fail) return res;
 		if (res == GPacket::None) continue;
 
@@ -274,11 +274,11 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 }
 
 GPacket::Result GArpSpoof::write(GBuf buf) {
-	return GArpSpoofBaseDevice::write(buf);
+	return GPcapDevice::write(buf);
 }
 
 GPacket::Result GArpSpoof::write(GPacket* packet) {
-	return GArpSpoofBaseDevice::write(packet);
+	return GPcapDevice::write(packet);
 }
 
 GPacket::Result GArpSpoof::relay(GPacket* packet) {

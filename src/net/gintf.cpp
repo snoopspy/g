@@ -22,7 +22,7 @@ bool GIntf::operator==(const GIntf& r) const {
 // ----------------------------------------------------------------------------
 // GIntfList
 // ----------------------------------------------------------------------------
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID_GILGIL)
+#if defined(Q_OS_LINUX) && (!defined(Q_OS_ANDROID) || !defined(Q_OS_ANDROID_GILGIL))
 #include <net/if.h> // for ifreq
 #include <sys/ioctl.h> // for SIOCGIFHWADDR
 static GMac getMac(char* intfName) {

@@ -54,7 +54,7 @@ public:
 	GRtmEntry* getBestEntry(GIp ip);
 	GIp findGateway(QString intfName, GIp ip);
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID_GILGIL)
+#if defined(Q_OS_LINUX) && (!defined(Q_OS_ANDROID) || !defined(Q_OS_ANDROID_GILGIL))
 protected:
 	static bool checkA(char* buf, GRtmEntry* entry);
 	static bool checkB(char* buf, GRtmEntry* entry);
