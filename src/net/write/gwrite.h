@@ -31,8 +31,5 @@ protected:
 public:
 	GPacket::Result write(GBuf buf) override;
 	GPacket::Result write(GPacket* packet) override;
-
-signals:
-	void written(GPacket* packet);
 };
 
