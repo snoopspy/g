@@ -11,6 +11,12 @@
             "sender": "netFilter1",
             "signal": "captured(GPacket*)",
             "slot": "process(GPacket*)"
+        },
+        {
+            "receiver": "rawIpSocketWrite1",
+            "sender": "clientHelloSplit1",
+            "signal": "writeNeeded(GPacket*)",
+            "slot": "write(GPacket*)"
         }
     ],
     "nodes": [
@@ -28,16 +34,15 @@
         {
             "_class": "GClientHelloSplit",
             "_x": -58,
-            "_y": -99,
+            "_y": -105,
             "bufSize": "32768",
             "objectName": "clientHelloSplit1",
-            "tcpFlowMgr": "tcpFlowMgr1",
-            "write": "rawIpSocketWrite1"
+            "tcpFlowMgr": "tcpFlowMgr1"
         },
         {
             "_class": "GRawIpSocketWrite",
-            "_x": -65,
-            "_y": -47,
+            "_x": -67,
+            "_y": -53,
             "objectName": "rawIpSocketWrite1"
         },
         {
@@ -77,6 +82,7 @@
             },
             "enabled": true,
             "mark": "0",
+            "nonBlock": false,
             "objectName": "netFilter1",
             "queueNum": "0",
             "waitTimeout": "1"
