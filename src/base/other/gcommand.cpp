@@ -134,6 +134,11 @@ bool GCommand::stopCommands() {
 
 #ifdef Q_OS_ANDROID
 bool GCommand::cmdExecute(QString command) {
+	if (demonClient_ == nullptr) {
+		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		return false;
+	}
+
 	GDemon::CmdExecuteRes res = demonClient_->cmdExecute(qPrintable(command));
 	if (!res.result_) {
 		SET_ERR(GErr::FAIL, demonClient_->error_.data());
@@ -143,6 +148,11 @@ bool GCommand::cmdExecute(QString command) {
 }
 
 void* GCommand::cmdStart(QString command) {
+	if (demonClient_ == nullptr) {
+		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		return 0;
+	}
+
 	GDemon::CmdStartRes res = demonClient_->cmdStart(qPrintable(command));
 	if (res.pid_ == 0) {
 		SET_ERR(GErr::FAIL, demonClient_->error_.data());
@@ -152,6 +162,11 @@ void* GCommand::cmdStart(QString command) {
 }
 
 bool GCommand::cmdStop(void* pid) {
+	if (demonClient_ == nullptr) {
+		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		return false;
+	}
+
 	if (pid == 0) return true;
 	uint64_t _pid = (uint64_t)pid;
 	GDemon::CmdStopRes res = demonClient_->cmdStop(_pid);
@@ -163,6 +178,11 @@ bool GCommand::cmdStop(void* pid) {
 }
 
 void* GCommand::cmdStartDetached(QString command) {
+	if (demonClient_ == nullptr) {
+		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		return 0;
+	}
+
 	GDemon::CmdStartDetachedRes res = demonClient_->cmdStartDetached(qPrintable(command));
 	if (!res.result_) {
 		SET_ERR(GErr::FAIL, demonClient_->error_.data());
