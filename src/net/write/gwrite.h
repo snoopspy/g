@@ -35,4 +35,3 @@ public:
 signals:
 	void written(GPacket* packet);
 };
-

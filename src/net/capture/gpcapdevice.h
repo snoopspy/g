@@ -10,13 +10,33 @@
 
 #pragma once
 
-#include "gvirtualpcapdevice.h"
+#include "gpcapcapture.h"
+#include "net/gnetinfo.h"
+#include "net/demon/gdemonclient.h"
 
 // ----------------------------------------------------------------------------
 // GPcapDevice
 // ----------------------------------------------------------------------------
-struct G_EXPORT GPcapDevice : GVirtualPcapDevice {
+struct G_EXPORT GPcapDevice : GPcapCapture {
 	Q_OBJECT
+	Q_PROPERTY(QString intfName MEMBER intfName_)
+	Q_PROPERTY(int snapLen MEMBER snapLen_)
+	Q_PROPERTY(int flags MEMBER flags_)
+	Q_PROPERTY(int readTimeout MEMBER readTimeout_)
+	Q_PROPERTY(int waitTimeout MEMBER waitTimeout_)
+
+public:
+	QString intfName_{""};
+	int snapLen_{GPacket::MaxBufSize};
+	int flags_{1}; // PCAP_OPENFLAG_PROMISCUOUS
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+	int readTimeout_{-1}; // -1 msec
+	int waitTimeout_{1}; // 1 msec
+#endif // Q_OS_LINUX
+#if defined(Q_OS_WIN) || defined(Q_OS_ANDROID)
+	int readTimeout_{1}; // 1 msec
+	int waitTimeout_{0}; // 0 msec
+#endif
 
 public:
 	Q_INVOKABLE GPcapDevice(QObject* parent = nullptr);
@@ -27,7 +47,25 @@ protected:
 	bool doClose() override;
 
 public:
+	GIntf* intf() { return intf_; }
+
+protected:
+	GIntf* intf_{nullptr};
+
+public:
+#ifdef Q_OS_ANDROID
 	GPacket::Result read(GPacket* packet) override;
+	GPacket::Result write(GBuf buf) override;
+	GPacket::Result write(GPacket* packet) override;
+	GPacket::Result relay(GPacket* packet) override;
+#else
+	GPacket::Result read(GPacket* packet) override;
+#endif
+
+#ifdef Q_OS_ANDROID
+protected:
+	GDemonClient* demonClient_{nullptr};
+#endif
 
 #ifdef QT_GUI_LIB
 public:

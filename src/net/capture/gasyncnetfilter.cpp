@@ -1,6 +1,6 @@
 #include "gasyncnetfilter.h"
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 
 // ----------------------------------------------------------------------------
 // GAsyncNetFilter
@@ -101,4 +101,4 @@ int GAsyncNetFilter::_asyncCallback(struct nfq_q_handle* qh, struct nfgenmsg* nf
 	return res;
 }
 
-#endif // Q_OS_LINUX
+#endif

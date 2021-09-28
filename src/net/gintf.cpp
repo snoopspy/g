@@ -1,14 +1,14 @@
 #include <QDebug>
-#include "ginterface.h"
+#include "gintf.h"
 #include "grtm.h"
 #ifdef Q_OS_WIN
 #include "net/_win/gipadapterinfo.h"
 #endif
 
 // ----------------------------------------------------------------------------
-// GInterface
+// GIntf
 // ----------------------------------------------------------------------------
-bool GInterface::operator==(const GInterface& r) const {
+bool GIntf::operator==(const GIntf& r) const {
 	if (index_ != r.index_) return false;
 	if (name_ != r.name_) return false;
 	if (desc_ != r.desc_) return false;
@@ -19,48 +19,10 @@ bool GInterface::operator==(const GInterface& r) const {
 	return true;
 }
 
-// ----- gilgil temp 2021.03.19 -----
-/*
-uint qHash(GInterface q) {
-	return uint(uint32_t(q.index()) + q.ip() + q.mask() + q.gateway());
-}
-*/
-// ----------------------------------
-
 // ----------------------------------------------------------------------------
-// GInterfaceList
+// GIntfList
 // ----------------------------------------------------------------------------
-#ifdef Q_OS_LINUX
-GInterface* GInterfaceList::findByName(QString name) {
-	for (GInterface& intf: *this) {
-		if (intf.name() == name)
-			return &intf;
-	}
-	return nullptr;
-}
-#endif
-#ifdef Q_OS_WIN
-GInterface* GInterfaceList::findByName(QString name) {
-	for (GInterface& intf: *this) {
-		if (intf.name().indexOf(name) != -1)
-			return &intf;
-	}
-	return nullptr;
-}
-#endif
-
-GInterface* GInterfaceList::findByIp(GIp ip) {
-	for (GInterface& intf: *this) {
-		if (intf.ip() == ip)
-			return &intf;
-	}
-	return nullptr;
-}
-
-// ----------------------------------------------------------------------------
-// GLocalInterfaceList
-// ----------------------------------------------------------------------------
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 #include <net/if.h> // for ifreq
 #include <sys/ioctl.h> // for SIOCGIFHWADDR
 static GMac getMac(char* intfName) {
@@ -85,9 +47,10 @@ static GMac getMac(char* intfName) {
 	GMac res(p);
 	return res;
 }
-#endif // Q_OS_LINUX
+#endif
 
-GLocalInterfaceList::GLocalInterfaceList() {
+#if (defined(Q_OS_LINUX) || defined(Q_OS_WIN)) && !defined(Q_OS_ANDROID)
+GIntfList::GIntfList() {
 	//
 	// Initialize allDevs using pcap API.
 	//
@@ -105,7 +68,7 @@ GLocalInterfaceList::GLocalInterfaceList() {
 	pcap_if_t* dev = allDevs;
 	i = 1;
 	while (dev != nullptr) {
-		GInterface intf;
+		GIntf intf;
 
 		intf.index_ = i;
 		intf.name_ = dev->name;
@@ -147,17 +110,16 @@ GLocalInterfaceList::GLocalInterfaceList() {
 
 	pcap_freealldevs(allDevs);
 }
+#endif
 
-// ----------------------------------------------------------------------------
-// GRemoteInterfaceList
-// ----------------------------------------------------------------------------
+#ifdef Q_OS_ANDROID
 #include "net/demon/gdemonclient.h"
 
-GRemoteInterfaceList::GRemoteInterfaceList(QString ip, quint16 port) {
-	GDemonClient& client = GDemonClient::instance(ip.toStdString(), port);
+GIntfList::GIntfList() {
+	GDemonClient& client = GDemonClient::instance("127.0.0.1", GDemonClient::DefaultPort);
 	GDemon::GetInterfaceListRes res = client.getInterfaceList();
 	for (GDemon::Interface& dIntf: res.interfaceList_) {
-		GInterface intf;
+		GIntf intf;
 		intf.index_ = dIntf.index_;
 		intf.name_ = dIntf.name_.data();
 		intf.desc_ = dIntf.desc_.data();
@@ -168,4 +130,32 @@ GRemoteInterfaceList::GRemoteInterfaceList(QString ip, quint16 port) {
 		// gateway_ is initialized in GNetInfo
 		push_back(intf);
 	}
+}
+#endif
+
+#ifdef Q_OS_LINUX
+GIntf* GIntfList::findByName(QString name) {
+	for (GIntf& intf: *this) {
+		if (intf.name() == name)
+			return &intf;
+	}
+	return nullptr;
+}
+#endif
+#ifdef Q_OS_WIN
+GIntf* GIntfList::findByName(QString name) {
+	for (GIntf& intf: *this) {
+		if (intf.name().indexOf(name) != -1)
+			return &intf;
+	}
+	return nullptr;
+}
+#endif
+
+GIntf* GIntfList::findByIp(GIp ip) {
+	for (GIntf& intf: *this) {
+		if (intf.ip() == ip)
+			return &intf;
+	}
+	return nullptr;
 }

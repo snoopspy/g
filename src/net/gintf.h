@@ -17,13 +17,11 @@
 #include "gmac.h"
 
 // ----------------------------------------------------------------------------
-// GInterface
+// GIntf
 // ----------------------------------------------------------------------------
-struct G_EXPORT GInterface {
+struct G_EXPORT GIntf {
 	friend struct GNetInfo;
-	friend struct GRemoteNetInfo;
-	friend struct GLocalInterfaceList;
-	friend struct GRemoteInterfaceList;
+	friend struct GIntfList;
 
 public:
 	int index() const { return index_; }
@@ -47,7 +45,7 @@ protected:
 	GIp ip_and_mask_{0}; // used for isSameLanIP
 
 public:
-	GInterface() {}
+	GIntf() {}
 
 public:
 	bool isSameLanIp(GIp ip) { return (ip_and_mask_) == (ip & mask_); }
@@ -56,42 +54,20 @@ public:
 	GIp getEndIp() { return (ip_ | ~mask_);}
 
 public:
-	bool operator==(const GInterface& r) const;
+	bool operator==(const GIntf& r) const;
 };
-// uint qHash(GInterface q); // gilgil temp 2021.03.19
 
 // ----------------------------------------------------------------------------
-// GInterfaceList
+// GIntfList
 // ----------------------------------------------------------------------------
-struct G_EXPORT GInterfaceList : QList<GInterface> {
+struct G_EXPORT GIntfList : QList<GIntf> {
+	friend struct GNetInfo;
+
 protected: // singleton
-	GInterfaceList() {}
-	virtual ~GInterfaceList() {}
+	GIntfList();
+	virtual ~GIntfList() {}
 
 public:
-	GInterface* findByName(QString name);
-	GInterface* findByIp(GIp ip);
-};
-
-// ----------------------------------------------------------------------------
-// GLocalInterfaceList
-// ----------------------------------------------------------------------------
-struct G_EXPORT GLocalInterfaceList : GInterfaceList {
-	friend struct GNetInfo;
-
-protected: // singleton
-	GLocalInterfaceList();
-	~GLocalInterfaceList() override {}
-};
-
-// ----------------------------------------------------------------------------
-// GRemoteInterfaceList
-// ----------------------------------------------------------------------------
-struct G_EXPORT GRemoteInterfaceList : GInterfaceList {
-	friend struct GNetInfo;
-	friend struct GRemoteNetInfo;
-
-protected: // singleton
-	GRemoteInterfaceList(QString ip, quint16 port);
-	~GRemoteInterfaceList() override {}
+	GIntf* findByName(QString name);
+	GIntf* findByIp(GIp ip);
 };

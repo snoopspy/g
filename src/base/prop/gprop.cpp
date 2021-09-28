@@ -41,6 +41,9 @@ bool GProp::propLoad(QJsonObject jo, QMetaProperty mpro) {
 	}
 	const char* propName = mpro.name();
 	int userType = mpro.userType();
+	QJsonObject::iterator it = jo.find(propName);
+	if (it == jo.end()) return false;
+
 	QVariant variant = (static_cast<const QJsonObject>(jo))[propName];
 	bool res = false;
 

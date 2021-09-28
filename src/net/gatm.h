@@ -11,7 +11,6 @@
 #pragma once
 
 #include "net/capture/gsyncpcapdevice.h"
-#include "net/capture/gsyncremotepcapdevice.h"
 #include "base/sys/gwaitevent.h"
 
 // ----------------------------------------------------------------------------
@@ -29,10 +28,9 @@ struct GEthArpHdr final {
 // ----------------------------------------------------------------------------
 typedef QMap<GIp, GMac> GAtmMap;
 
-template <typename Base>
-struct G_EXPORT GAtm_ : public Base, GAtmMap {
-	Q_INVOKABLE GAtm_(QObject* parent = nullptr) : Base(parent) {}
-	~GAtm_() override {}
+struct G_EXPORT GAtm : public GSyncPcapDevice, GAtmMap {
+	Q_INVOKABLE GAtm(QObject* parent = nullptr) : GSyncPcapDevice(parent) {}
+	~GAtm() override { GSyncPcapDevice::close(); }
 
 	bool allResolved();
 	void deleteUnresolved();
@@ -46,14 +44,11 @@ protected:
 	// SendThread
 	// --------------------------------------------------------------------------
 	struct SendThread : QThread {
-		SendThread(GAtm_* atm, GDuration timeout) : atm_(atm), timeout_(timeout) {}
-		GAtm_* atm_;
+		SendThread(GAtm* atm, GDuration timeout) : atm_(atm), timeout_(timeout) {}
+		GAtm* atm_;
 		GDuration timeout_;
 		GWaitEvent we_;
 	protected:
 		void run() override;
 	};
 };
-
-typedef GAtm_<GSyncPcapDevice> GAtm;
-typedef GAtm_<GSyncRemotePcapDevice> GRemoteAtm;

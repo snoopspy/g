@@ -34,7 +34,4 @@ public:
 
 public slots:
 	GPacket::Result write(GPacket* packet) override;
-
-signals:
-	void written(GPacket* packet);
 };

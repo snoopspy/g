@@ -56,13 +56,11 @@ void GPluginFactory::loadBlock() {
 #include <GPcapPipe>
 #include <GPcapPipeNexmon>
 #include <GNetFilter>
-#include <GRemoteNetFilter>
-#include <GRemotePcapDevice>
 #include <GWinDivert>
 
 void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GArpSpoof*>();
-#ifndef Q_OS_WIN
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	qRegisterMetaType<GAsyncNetFilter*>();
 #endif
 	qRegisterMetaType<GAutoArpSpoof*>();
@@ -73,8 +71,6 @@ void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GPcapFile*>();
 	qRegisterMetaType<GPcapPipe*>();
 	qRegisterMetaType<GPcapPipeNexmon*>();
-	qRegisterMetaType<GRemoteNetFilter*>();
-	qRegisterMetaType<GRemotePcapDevice*>();
 #ifdef Q_OS_WIN
 	qRegisterMetaType<GWinDivert*>();
 #endif
@@ -85,17 +81,13 @@ void GPluginFactory::loadCapture() {
 	category->items_.push_back(new ItemNode("GAsyncNetFilter"));
 #endif
 	category->items_.push_back(new ItemNode("GAutoArpSpoof"));
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+#if defined(Q_OS_LINUX)
 	category->items_.push_back(new ItemNode("GNetFilter"));
 #endif
-#ifndef Q_OS_ANDROID
 	category->items_.push_back(new ItemNode("GPcapDevice"));
-#endif
 	category->items_.push_back(new ItemNode("GPcapFile"));
 	category->items_.push_back(new ItemNode("GPcapPipe"));
 	category->items_.push_back(new ItemNode("GPcapPipeNexmon"));
-	category->items_.push_back(new ItemNode("GRemoteNetFilter"));
-	category->items_.push_back(new ItemNode("GRemotePcapDevice"));
 #ifdef Q_OS_WIN
 	category->items_.push_back(new ItemNode("GWinDivert"));
 #endif
@@ -117,9 +109,7 @@ void GPluginFactory::loadConvert() {
 
 	ItemCategory* category = new ItemCategory("convert");
 	category->items_.push_back(new ItemNode("GConvertEth"));
-#ifndef Q_OS_ANDROID
 	category->items_.push_back(new ItemNode("GConvertEthAutoMac"));
-#endif
 	category->items_.push_back(new ItemNode("GConvertIp"));
 
 	items_.push_back(category);
@@ -183,17 +173,12 @@ void GPluginFactory::loadFlow() {
 // Other
 // ----------------------------------------------------------------------------
 #include <GCommand>
-#include <GRemoteCommand>
 
 void GPluginFactory::loadOther() {
 	qRegisterMetaType<GCommand*>();
-	qRegisterMetaType<GRemoteCommand*>();
 
 	ItemCategory* category = new ItemCategory("other");
-#ifndef Q_OS_ANDROID
 	category->items_.push_back(new ItemNode("GCommand"));
-#endif
-	category->items_.push_back(new ItemNode("GRemoteCommand"));
 
 	items_.push_back(category);
 }
@@ -230,23 +215,16 @@ void GPluginFactory::loadProcess() {
 #include <GPcapDeviceWrite>
 #include <GPcapFileWrite>
 #include <GRawIpSocketWrite>
-#include <GRemotePcapDeviceWrite>
 
 void GPluginFactory::loadWrite() {
 	qRegisterMetaType<GPcapDeviceWrite*>();
 	qRegisterMetaType<GPcapFileWrite*>();
 	qRegisterMetaType<GRawIpSocketWrite*>();
-	qRegisterMetaType<GRemotePcapDeviceWrite*>();
 
 	ItemCategory* category = new ItemCategory("write");
-#ifndef Q_OS_ANDROID
 	category->items_.push_back(new ItemNode("GPcapDeviceWrite"));
-#endif
 	category->items_.push_back(new ItemNode("GPcapFileWrite"));
-#ifndef Q_OS_ANDROID
 	category->items_.push_back(new ItemNode("GRawIpSocketWrite"));
-#endif
-	category->items_.push_back(new ItemNode("GRemotePcapDeviceWrite"));
 
 	items_.push_back(category);
 }

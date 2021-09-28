@@ -21,6 +21,10 @@ GCommandItem::~GCommandItem() {
 // GCommand
 // ----------------------------------------------------------------------------
 bool GCommand::doOpen() {
+#ifdef Q_OS_ANDROID
+	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
+#endif
+
 	bool res = true;
 
 	for (GObj* obj: openCommands_) {
@@ -52,7 +56,14 @@ bool GCommand::doOpen() {
 		}
 	}
 
-	if (!res) stopCommands();
+	if (!res) {
+		stopCommands();
+		if (demonClient_ != nullptr) {
+			delete demonClient_;
+			demonClient_ = nullptr;
+		}
+	}
+
 	return res;
 }
 
@@ -89,6 +100,10 @@ bool GCommand::doClose() {
 		}
 	}
 
+	if (demonClient_ != nullptr) {
+		delete demonClient_;
+		demonClient_ = nullptr;
+	}
 	return res;
 }
 
@@ -117,6 +132,65 @@ bool GCommand::stopCommands() {
 	return res;
 }
 
+#ifdef Q_OS_ANDROID
+bool GCommand::cmdExecute(QString command) {
+	if (demonClient_ == nullptr) {
+		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		return false;
+	}
+
+	GDemon::CmdExecuteRes res = demonClient_->cmdExecute(qPrintable(command));
+	if (!res.result_) {
+		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		return false;
+	}
+	return true;
+}
+
+void* GCommand::cmdStart(QString command) {
+	if (demonClient_ == nullptr) {
+		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		return 0;
+	}
+
+	GDemon::CmdStartRes res = demonClient_->cmdStart(qPrintable(command));
+	if (res.pid_ == 0) {
+		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		return 0;
+	}
+	return (void*)res.pid_;
+}
+
+bool GCommand::cmdStop(void* pid) {
+	if (demonClient_ == nullptr) {
+		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		return false;
+	}
+
+	if (pid == 0) return true;
+	uint64_t _pid = (uint64_t)pid;
+	GDemon::CmdStopRes res = demonClient_->cmdStop(_pid);
+	if (!res.result_) {
+		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		return false;
+	}
+	return true;
+}
+
+void* GCommand::cmdStartDetached(QString command) {
+	if (demonClient_ == nullptr) {
+		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		return 0;
+	}
+
+	GDemon::CmdStartDetachedRes res = demonClient_->cmdStartDetached(qPrintable(command));
+	if (!res.result_) {
+		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		return (void*)-1;
+	}
+	return 0;
+}
+#else
 bool GCommand::cmdExecute(QString command) {
 	QString program;
 	QStringList arguments;
@@ -162,3 +236,5 @@ void* GCommand::cmdStartDetached(QString command) {
 	}
 	return process;
 }
+#endif
+

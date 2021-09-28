@@ -20,12 +20,13 @@
 // GIpForwardTable
 // ----------------------------------------------------------------------------
 struct G_EXPORT GIpForwardTable {
+	friend struct GRtm;
+
 private: // singleton
 	GIpForwardTable();
 	virtual ~GIpForwardTable();
 
 protected:
-	friend struct GRtmWin32;
 	PMIB_IPFORWARDTABLE ipForwardTable_{nullptr};
 
 public:

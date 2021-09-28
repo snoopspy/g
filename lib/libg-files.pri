@@ -23,7 +23,6 @@ SOURCES += \
 	$${PWD}/../src/base/log/glogstdout.cpp \
 	$${PWD}/../src/base/log/glogudp.cpp \
 	$${PWD}/../src/base/other/gcommand.cpp \
-	$${PWD}/../src/base/other/gremotecommand.cpp \
 	$${PWD}/../src/base/prop/gprop.cpp \
 	$${PWD}/../src/base/prop/gpropitem-bool.cpp \
 	$${PWD}/../src/base/prop/gpropitem-char.cpp \
@@ -61,18 +60,11 @@ SOURCES += \
 	$${PWD}/../src/net/capture/gpcapfile.cpp \
 	$${PWD}/../src/net/capture/gpcappipe.cpp \
 	$${PWD}/../src/net/capture/gpcappipenexmon.cpp \
-	$${PWD}/../src/net/capture/gremotenetfilter.cpp \
-	$${PWD}/../src/net/capture/gremotepcapdevice.cpp \
-	$${PWD}/../src/net/capture/gsyncnetfilter.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapfile.cpp \
 	$${PWD}/../src/net/capture/gsyncpcappipe.cpp \
 	$${PWD}/../src/net/capture/gsyncpcappipenexmon.cpp \
-	$${PWD}/../src/net/capture/gsyncremotenetfilter.cpp \
-	$${PWD}/../src/net/capture/gsyncremotepcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncwindivert.cpp \
-	$${PWD}/../src/net/capture/gvirtualnetfilter.cpp \
-	$${PWD}/../src/net/capture/gvirtualpcapdevice.cpp \
 	$${PWD}/../src/net/capture/gwindivert.cpp \
 	$${PWD}/../src/net/convert/gconverteth.cpp \
 	$${PWD}/../src/net/convert/gconvertethautomac.cpp \
@@ -88,7 +80,7 @@ SOURCES += \
 	$${PWD}/../src/net/flow/gtcpflowmgr.cpp \
 	$${PWD}/../src/net/flow/gudpflowmgr.cpp \
 	$${PWD}/../src/net/gatm.cpp \
-	$${PWD}/../src/net/ginterface.cpp \
+	$${PWD}/../src/net/gintf.cpp \
 	$${PWD}/../src/net/gip.cpp \
 	$${PWD}/../src/net/gip6.cpp \
 	$${PWD}/../src/net/gmac.cpp \
@@ -128,8 +120,6 @@ SOURCES += \
 	$${PWD}/../src/net/write/gpcapfilewrite.cpp \
 	$${PWD}/../src/net/write/gpcapwrite.cpp \
 	$${PWD}/../src/net/write/grawipsocketwrite.cpp \
-	$${PWD}/../src/net/write/gremotepcapdevicewrite.cpp \
-	$${PWD}/../src/net/write/gvirtualpcapdevicewrite.cpp \
 	$${PWD}/../src/net/write/gwrite.cpp
 
 HEADERS += \
@@ -158,7 +148,6 @@ HEADERS += \
 	$${PWD}/../src/base/log/glogstdout.h \
 	$${PWD}/../src/base/log/glogudp.h \
 	$${PWD}/../src/base/other/gcommand.h \
-	$${PWD}/../src/base/other/gremotecommand.h \
 	$${PWD}/../src/base/prop/gprop.h \
 	$${PWD}/../src/base/prop/gpropitem-bool.h \
 	$${PWD}/../src/base/prop/gpropitem-char.h \
@@ -196,18 +185,11 @@ HEADERS += \
 	$${PWD}/../src/net/capture/gpcapfile.h \
 	$${PWD}/../src/net/capture/gpcappipe.h \
 	$${PWD}/../src/net/capture/gpcappipenexmon.h \
-	$${PWD}/../src/net/capture/gremotenetfilter.h \
-	$${PWD}/../src/net/capture/gremotepcapdevice.h \
-	$${PWD}/../src/net/capture/gsyncnetfilter.h \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncpcapfile.h \
 	$${PWD}/../src/net/capture/gsyncpcappipe.h \
 	$${PWD}/../src/net/capture/gsyncpcappipenexmon.h \
-	$${PWD}/../src/net/capture/gsyncremotenetfilter.h \
-	$${PWD}/../src/net/capture/gsyncremotepcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncwindivert.h \
-	$${PWD}/../src/net/capture/gvirtualnetfilter.h \
-	$${PWD}/../src/net/capture/gvirtualpcapdevice.h \
 	$${PWD}/../src/net/capture/gwindivert.h \
 	$${PWD}/../src/net/convert/gconverteth.h \
 	$${PWD}/../src/net/convert/gconvertethautomac.h \
@@ -223,7 +205,7 @@ HEADERS += \
 	$${PWD}/../src/net/flow/gtcpflowmgr.h \
 	$${PWD}/../src/net/flow/gudpflowmgr.h \
 	$${PWD}/../src/net/gatm.h \
-	$${PWD}/../src/net/ginterface.h \
+	$${PWD}/../src/net/gintf.h \
 	$${PWD}/../src/net/gip.h \
 	$${PWD}/../src/net/gip6.h \
 	$${PWD}/../src/net/gmac.h \
@@ -264,16 +246,9 @@ HEADERS += \
 	$${PWD}/../src/net/write/gpcapfilewrite.h \
 	$${PWD}/../src/net/write/gpcapwrite.h \
 	$${PWD}/../src/net/write/grawipsocketwrite.h \
-	$${PWD}/../src/net/write/gremotepcapdevicewrite.h \
-	$${PWD}/../src/net/write/gvirtualpcapdevicewrite.h \
 	$${PWD}/../src/net/write/gwrite.h
 
 linux {
-	SOURCES += \
-		$${PWD}/../src/net/_linux/grtmlinux.cpp
-
-	HEADERS += \
-		$${PWD}/../src/net/_linux/grtmlinux.h
 }
 win32 {
 	SOURCES += $${PWD}/../src/net/_win/gipadapterinfo.cpp

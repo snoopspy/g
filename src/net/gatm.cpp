@@ -4,15 +4,13 @@
 // ----------------------------------------------------------------------------
 // GAtm
 // ----------------------------------------------------------------------------
-template <typename Base>
-bool GAtm_<Base>::allResolved() {
+bool GAtm::allResolved() {
 	for (GMac& mac: *this)
 		if (mac.isNull()) return false;
 	return true;
 }
 
-template <typename Base>
-void GAtm_<Base>::deleteUnresolved() {
+void GAtm::deleteUnresolved() {
 	for (GAtmMap::iterator it = begin(); it != end();) {
 		GMac mac = it.value();
 		if (mac.isNull()) {
@@ -23,16 +21,15 @@ void GAtm_<Base>::deleteUnresolved() {
 	}
 }
 
-template <typename Base>
-bool GAtm_<Base>::wait(GDuration timeout) {
+bool GAtm::wait(GDuration timeout) {
 	if (allResolved()) return true;
 
-	if (!this->active()) {
-		qWarning() << QString("not opened state %1").arg(this->metaObject()->className());
+	if (!active()) {
+		qWarning() << QString("not opened state %1").arg(metaObject()->className());
 		return false;
 	}
 
-	GPacket::Dlt _dlt = this->dlt();
+	GPacket::Dlt _dlt = dlt();
 	if (_dlt != GPacket::Eth) {
 		qWarning() << QString("invalid dlt %1").arg(GPacket::dltToString(_dlt));
 		return false;
@@ -63,7 +60,7 @@ bool GAtm_<Base>::wait(GDuration timeout) {
 		}
 
 		GEthPacket packet;
-		GPacket::Result res = this->read(&packet);
+		GPacket::Result res = read(&packet);
 		if (res == GPacket::Eof) {
 			qWarning() << "pcapDevice->read return GPacket::Eof";
 			break;
@@ -97,11 +94,10 @@ bool GAtm_<Base>::wait(GDuration timeout) {
 	return succeed;
 }
 
-template <typename Base>
-bool GAtm_<Base>::sendQueries() {
+bool GAtm::sendQueries() {
 	GEthArpHdr query;
 	query.ethHdr_.dmac_ = GMac::broadcastMac();
-	query.ethHdr_.smac_ = this->intf_->mac();
+	query.ethHdr_.smac_ = intf_->mac();
 	query.ethHdr_.type_ = htons(GEthHdr::Arp);
 
 	query.arpHdr_.hrd_ = htons(GArpHdr::ETHER);
@@ -109,8 +105,8 @@ bool GAtm_<Base>::sendQueries() {
 	query.arpHdr_.hln_ = sizeof(GMac);
 	query.arpHdr_.pln_ = sizeof(GIp);
 	query.arpHdr_.op_ = htons(GArpHdr::Request);
-	query.arpHdr_.smac_ = this->intf_->mac();
-	query.arpHdr_.sip_ = htonl(this->intf_->ip());
+	query.arpHdr_.smac_ = intf_->mac();
+	query.arpHdr_.sip_ = htonl(intf_->ip());
 	query.arpHdr_.tmac_ = GMac::nullMac();
 	GBuf queryBuf(pbyte(&query), sizeof(query));
 
@@ -119,7 +115,7 @@ bool GAtm_<Base>::sendQueries() {
 		GMac mac = it.value();
 		if (mac.isNull()) {
 			query.arpHdr_.tip_ = htonl(ip);
-			GPacket::Result res = this->write(queryBuf);
+			GPacket::Result res = write(queryBuf);
 			if (res != GPacket::Ok) {
 				return false;
 			}
@@ -131,8 +127,7 @@ bool GAtm_<Base>::sendQueries() {
 // --------------------------------------------------------------------------
 // GAtm::SendThread
 // --------------------------------------------------------------------------
-template <typename Base>
-void GAtm_<Base>::SendThread::run() {
+void GAtm::SendThread::run() {
 	QElapsedTimer timer; timer.start();
 	qint64 first = timer.elapsed();
 	while (true) {
@@ -147,14 +142,12 @@ void GAtm_<Base>::SendThread::run() {
 		}
 	}
 
-	GRemoteAtm* atm = dynamic_cast<GRemoteAtm*>(atm_);
-	if (atm != nullptr) {
-		atm->demonClient_->pcapClose(); // awaken read(&packet) in wait function by disconnect socket
+#ifdef Q_OS_ANDROID
+	if (atm_ != nullptr) {
+		atm_->demonClient_->pcapClose(); // awaken read(&packet) in wait function by disconnect socket
 	}
+#endif
 }
-
-template struct GAtm_<GSyncPcapDevice>;
-template struct GAtm_<GSyncRemotePcapDevice>;
 
 // ----------------------------------------------------------------------------
 // GTEST
@@ -172,7 +165,7 @@ TEST(GAtm, resolveTest) {
 	ASSERT_NE(intfName, "");
 	device.close();
 
-	GInterface* intf = GNetInfo::instance().interfaceList().findByName(intfName);
+	GIntf* intf = GNetInfo::instance().intfList().findByName(intfName);
 	ASSERT_TRUE(intf != nullptr);
 
 	GIp ip = intf->gateway();

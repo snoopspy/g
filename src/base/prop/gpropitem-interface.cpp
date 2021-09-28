@@ -7,13 +7,9 @@
 // GPropItemInterface
 // ----------------------------------------------------------------------------
 GPropItemInterface::GPropItemInterface(GPropItemParam* param) : GPropItemComboBox(param) {
-#ifdef Q_OS_ANDROID
-	GInterfaceList& interfaceList = GRemoteNetInfo::instance("127.0.0.1", GDemon::DefaultPort).interfaceList();
-#else // Q_OS_ANDROID
-	GInterfaceList& interfaceList = GNetInfo::instance().interfaceList();
-#endif // Q_OS_ANDROID
-	for (int i = 0; i < interfaceList.count(); i++) {
-		const GInterface& intf = interfaceList.at(i);
+	GIntfList& intfList = GNetInfo::instance().intfList();
+	for (int i = 0; i < intfList.count(); i++) {
+		const GIntf& intf = intfList.at(i);
 #ifdef Q_OS_LINUX
 		QString s = intf.name();
 #endif
@@ -28,13 +24,9 @@ GPropItemInterface::GPropItemInterface(GPropItemParam* param) : GPropItemComboBo
 
 void GPropItemInterface::update() {
 	QString intfName = object_->property(mpro_.name()).toString();
-#ifdef Q_OS_ANDROID
-	GInterfaceList& interfaceList = GRemoteNetInfo::instance("127.0.0.1", GDemon::DefaultPort).interfaceList();
-#else // Q_OS_ANDROID
-	GInterfaceList& interfaceList = GNetInfo::instance().interfaceList();
-#endif // Q_OS_ANDROID
-	for (int i = 0; i < interfaceList.count(); i++) {
-		const GInterface& intf = interfaceList.at(i);
+	GIntfList& intfList = GNetInfo::instance().intfList();
+	for (int i = 0; i < intfList.count(); i++) {
+		const GIntf& intf = intfList.at(i);
 		if (intf.name() == intfName) {
 			comboBox_->setCurrentIndex(i);
 			return;

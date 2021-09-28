@@ -47,11 +47,11 @@ TEST(BeaconHdr, typeTest) {
 		 0x00, 0x42, 0x43, 0x5e, 0x00, 0x62, 0x32, 0x2f, 0x00, 0x0b, 0x05, 0x00, 0x00, 0x2c, 0x12, 0x7a,
 		 0xdd, 0x07, 0x00, 0x0c, 0x43, 0x04, 0x00, 0x00, 00
 	};
-	RadiotapHdr* radiotapHdr = PRadiotapHdr(packet);
-	BeaconHdr* beaconHdr = PBeaconHdr(packet + radiotapHdr->len_);
+	GRadiotapHdr* radiotapHdr = PRadiotapHdr(packet);
+	GBeaconHdr* beaconHdr = PBeaconHdr(packet + radiotapHdr->len_);
 
 	le8_t typeSubtype = beaconHdr->typeSubtype();
-	EXPECT_EQ(typeSubtype, Dot11Hdr::Beacon);
+	EXPECT_EQ(typeSubtype, GDot11Hdr::Beacon);
 
 	le16_t duration = beaconHdr->duration_;
 	EXPECT_EQ(duration, 0);
@@ -62,7 +62,7 @@ TEST(BeaconHdr, typeTest) {
 	le16_t seq = beaconHdr->seq_;
 	EXPECT_EQ(seq, 3413);
 
-	BeaconHdr::Fix* fix = &beaconHdr->fix_;
+	GBeaconHdr::Fix* fix = &beaconHdr->fix_;
 
 	le64_t timestamp = fix->timestamp_;
 	EXPECT_EQ(timestamp, 3705037138);
@@ -73,13 +73,13 @@ TEST(BeaconHdr, typeTest) {
 	le16_t capabilities = fix->capabilities_;
 	EXPECT_EQ(capabilities, 0x0C11);
 
-	BeaconHdr::Tag* tag = beaconHdr->tag();
+	GBeaconHdr::Tag* tag = beaconHdr->tag();
 	le8_t num = tag->num_;
-	EXPECT_EQ(num, BeaconHdr::tagSsidParameterSet);
+	EXPECT_EQ(num, GBeaconHdr::tagSsidParameterSet);
 	tag = tag->next();
 
 	num = tag->num_;
-	EXPECT_EQ(num, BeaconHdr::tagSupportedRated);
+	EXPECT_EQ(num, GBeaconHdr::tagSupportedRated);
 }
 
 #endif // GTEST

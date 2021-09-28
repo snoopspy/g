@@ -11,18 +11,9 @@
 #pragma once
 
 #include "gsyncpcapdevice.h"
-#include "gsyncremotepcapdevice.h"
 #include "net/gatm.h"
 #include "net/flow/gflowkey.h"
 #include "net/filter/gbpfilter.h"
-
-#ifdef Q_OS_ANDROID
-	typedef GRemotePcapDevice GArpSpoofBaseDevice;
-	typedef GRemoteAtm GArpSpoofAtm;
-#else // Q_OS_ANDROID
-	typedef GPcapDevice GArpSpoofBaseDevice;
-	typedef GAtm GArpSpoofAtm;
-#endif // Q_OS_ANDROID
 
 // ----------------------------------------------------------------------------
 // GArpSpoofFlow
@@ -56,7 +47,7 @@ typedef GArpSpoofFlow *PArpSpoofFlow;
 // ----------------------------------------------------------------------------
 // GArpSpoof
 // ----------------------------------------------------------------------------
-struct G_EXPORT GArpSpoof : GArpSpoofBaseDevice {
+struct G_EXPORT GArpSpoof : GPcapDevice {
 	Q_OBJECT
 	Q_PROPERTY(QString virtualMac READ getVirtualMac WRITE setVirtualMac)
 	Q_PROPERTY(ulong infectInterval MEMBER infectInterval_)
@@ -89,7 +80,7 @@ public:
 	GDuration infectInterval_{1000};
 	GDuration sendInterval_{1};
 	GObjRefArray<GArpSpoofFlow> flows_; // for property
-	GArpSpoofAtm atm_;
+	GAtm atm_;
 
 protected:
 	struct Flow {
