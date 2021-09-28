@@ -13,9 +13,6 @@
 #include "gcapture.h"
 #include "net/packet/gippacket.h"
 #include "base/other/gcommand.h"
-#ifdef Q_OS_ANDROID
-#include "base/other/gremotecommand.h"
-#endif
 
 #ifdef Q_OS_LINUX
 
@@ -95,10 +92,11 @@ private:
 public:
 	GDemonClient* demonClient_{nullptr};
 #else
-private:
+protected:
 	nfq_callback* cb_;
+
+private:
 	static int _callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struct nfq_data* nfad, void* data);
-}
 #endif
 };
 

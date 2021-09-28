@@ -11,6 +11,7 @@
 #pragma once
 
 #include "base/gstateobj.h"
+#include "net/demon/gdemonclient.h"
 #include <QProcess>
 
 // ----------------------------------------------------------------------------
@@ -73,4 +74,9 @@ protected:
 public:
 	GObjRefArray<GCommandItem> openCommands_;
 	GObjRefArray<GCommandItem> closeCommands_;
+
+#ifdef Q_OS_ANDROID
+protected:
+	GDemonClient* demonClient_{nullptr};
+#endif
 };

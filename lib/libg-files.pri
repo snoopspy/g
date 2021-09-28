@@ -23,7 +23,6 @@ SOURCES += \
 	$${PWD}/../src/base/log/glogstdout.cpp \
 	$${PWD}/../src/base/log/glogudp.cpp \
 	$${PWD}/../src/base/other/gcommand.cpp \
-	$${PWD}/../src/base/other/gremotecommand.cpp \
 	$${PWD}/../src/base/prop/gprop.cpp \
 	$${PWD}/../src/base/prop/gpropitem-bool.cpp \
 	$${PWD}/../src/base/prop/gpropitem-char.cpp \
@@ -61,12 +60,10 @@ SOURCES += \
 	$${PWD}/../src/net/capture/gpcapfile.cpp \
 	$${PWD}/../src/net/capture/gpcappipe.cpp \
 	$${PWD}/../src/net/capture/gpcappipenexmon.cpp \
-	$${PWD}/../src/net/capture/gremotepcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapfile.cpp \
 	$${PWD}/../src/net/capture/gsyncpcappipe.cpp \
 	$${PWD}/../src/net/capture/gsyncpcappipenexmon.cpp \
-	$${PWD}/../src/net/capture/gsyncremotepcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncwindivert.cpp \
 	$${PWD}/../src/net/capture/gwindivert.cpp \
 	$${PWD}/../src/net/convert/gconverteth.cpp \
@@ -123,7 +120,6 @@ SOURCES += \
 	$${PWD}/../src/net/write/gpcapfilewrite.cpp \
 	$${PWD}/../src/net/write/gpcapwrite.cpp \
 	$${PWD}/../src/net/write/grawipsocketwrite.cpp \
-	$${PWD}/../src/net/write/gremotepcapdevicewrite.cpp \
 	$${PWD}/../src/net/write/gwrite.cpp
 
 HEADERS += \
@@ -152,7 +148,6 @@ HEADERS += \
 	$${PWD}/../src/base/log/glogstdout.h \
 	$${PWD}/../src/base/log/glogudp.h \
 	$${PWD}/../src/base/other/gcommand.h \
-	$${PWD}/../src/base/other/gremotecommand.h \
 	$${PWD}/../src/base/prop/gprop.h \
 	$${PWD}/../src/base/prop/gpropitem-bool.h \
 	$${PWD}/../src/base/prop/gpropitem-char.h \
@@ -190,7 +185,6 @@ HEADERS += \
 	$${PWD}/../src/net/capture/gpcapfile.h \
 	$${PWD}/../src/net/capture/gpcappipe.h \
 	$${PWD}/../src/net/capture/gpcappipenexmon.h \
-	$${PWD}/../src/net/capture/gremotepcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncpcapfile.h \
 	$${PWD}/../src/net/capture/gsyncpcappipe.h \
@@ -252,7 +246,6 @@ HEADERS += \
 	$${PWD}/../src/net/write/gpcapfilewrite.h \
 	$${PWD}/../src/net/write/gpcapwrite.h \
 	$${PWD}/../src/net/write/grawipsocketwrite.h \
-	$${PWD}/../src/net/write/gremotepcapdevicewrite.h \
 	$${PWD}/../src/net/write/gwrite.h
 
 linux {

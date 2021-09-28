@@ -355,5 +355,4 @@ int GNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struc
 }
 #endif
 
-
 #endif
