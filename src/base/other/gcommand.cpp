@@ -58,10 +58,12 @@ bool GCommand::doOpen() {
 
 	if (!res) {
 		stopCommands();
+#ifdef Q_OS_ANDROID
 		if (demonClient_ != nullptr) {
 			delete demonClient_;
 			demonClient_ = nullptr;
 		}
+#endif
 	}
 
 	return res;
@@ -100,10 +102,13 @@ bool GCommand::doClose() {
 		}
 	}
 
+#ifdef Q_OS_ANDROID
 	if (demonClient_ != nullptr) {
 		delete demonClient_;
 		demonClient_ = nullptr;
 	}
+#endif
+
 	return res;
 }
 
