@@ -22,13 +22,8 @@ Widget::~Widget()
 }
 
 void Widget::showIntrerfaceList() {
-#ifdef Q_OS_ANDROID
-	GInterfaceList& interfaceList = GRemoteNetInfo::instance("127.0.0.1", GDemon::DefaultPort).interfaceList();
-	GRtmEntry* entry = GRemoteNetInfo::instance("127.0.0.1", GDemon::DefaultPort).rtm().getBestEntry(QString("8.8.8.8"));
-#else
 	GIntfList& intfList = GNetInfo::instance().intfList();
 	GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
-#endif // Q_OS_ANDROID
 
 	for(GIntf& intf: intfList) {
 		bool best = entry != nullptr &&
@@ -56,11 +51,7 @@ void Widget::showIntrerfaceList() {
 }
 
 void Widget::showRtm() {
-#ifdef Q_OS_ANDROID
-	GRtm& rtm = GRemoteNetInfo::instance("127.0.0.1", GDemon::DefaultPort).rtm();
-#else // Q_OS_ANDROID
 	GRtm& rtm = GNetInfo::instance().rtm();
-#endif // Q_OS_ANDROID
 
 	ui->plainTextEdit->insertPlainText("dst             mask            gateway         metric intf\n");
 	for (GRtmEntry& entry: rtm) {
