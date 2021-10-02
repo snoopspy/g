@@ -354,6 +354,7 @@ void GGraphWidget::propLoad(QJsonObject jo) {
 		QChar e = treeExpanded.at(i);
 		twi->setExpanded(e == 'E');
 	}
+	tabWidget_->setCurrentIndex(jo["tabIndex"].toInt());
 
 	toLowerFirstCharacter_ = jo["toLowerFirstCharacter"].toBool();
 	removePrefixNames_ = jo["removePrefixNames"].toString().split(",");
@@ -378,6 +379,7 @@ void GGraphWidget::propSave(QJsonObject& jo) {
 		treeExpanded += twi->isExpanded() ? 'E' : 'C';
 	}
 	jo["treeExpanded"] = treeExpanded;
+	jo["tabIndex"] = tabWidget_->currentIndex();
 
 	jo["toLowerFirstCharacter"] = toLowerFirstCharacter_;
 	jo["removePrefixNames"] = removePrefixNames_.join(",");
