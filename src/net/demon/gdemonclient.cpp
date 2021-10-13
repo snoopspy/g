@@ -101,6 +101,7 @@ bool GDemonClient::connect() {
 	}
 
 	if (!connected) {
+		::shutdown(sd_, SHUT_RDWR);
 		::close(sd_);
 		sd_ = 0;
 		error_ = qPrintable(QString("can not connect to ssdemon %1 %2").arg(ip_.data()).arg(port_));
@@ -112,6 +113,7 @@ bool GDemonClient::connect() {
 
 bool GDemonClient::disconnect() {
 	if (sd_ != 0) {
+		::shutdown(sd_, SHUT_RDWR);
 		::close(sd_);
 		sd_ = 0;
 	}
