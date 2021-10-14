@@ -56,22 +56,18 @@ struct G_EXPORT GDhcpHdr final {
 		uint8_t len_;
 
 		Option* next() {
-			Option* res = POption((char*)this + len_ + 2);
+			Option* res = POption((char*)this + sizeof(type_) + sizeof(len_) + len_);
 			if (res->type_ == End) return nullptr;
 			return res;
 		}
 
+		void* value() { return (char*)this + sizeof(type_) + sizeof(len_); }
 	};
 	typedef Option *POption;
 
 	Option* first() {
 		return POption((char*)this + sizeof(GDhcpHdr));
 	}
-
-	struct OptionRequestIpAddress : Option {
-		GIp ip_;
-	};
-	typedef OptionRequestIpAddress *POptionRequestIpAddress;
 
 	// OptionType(Option::type_)
 	enum: uint8_t {
