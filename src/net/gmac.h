@@ -66,6 +66,7 @@ public:
 protected:
 	gbyte mac_[SIZE];
 };
+typedef GMac *PMac;
 
 namespace std {
 	template<>

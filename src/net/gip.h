@@ -56,3 +56,4 @@ struct G_EXPORT GIp final {
 protected:
 	uint32_t ip_;
 };
+typedef GIp *PIp;

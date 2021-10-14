@@ -75,3 +75,4 @@ namespace std {
 		}
 	};
 }
+typedef GIp6 *PIp6;
