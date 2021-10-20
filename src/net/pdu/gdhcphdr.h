@@ -71,6 +71,7 @@ struct G_EXPORT GDhcpHdr final {
 
 	// OptionType(Option::type_)
 	enum: uint8_t {
+		HostName = 12,
 		RequestedIpAddress = 50,
 		End = 255
 	};
