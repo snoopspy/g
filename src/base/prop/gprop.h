@@ -39,5 +39,4 @@ struct G_EXPORT GProp {
 #ifdef QT_GUI_LIB
 	static void showDialog(QObject* object);
 #endif // QT_GUI_LIB
-
 };
