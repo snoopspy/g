@@ -148,9 +148,8 @@ bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
 	GDhcpHdr::Option* option = dhcpHdr->first();
 	while (true) {
 		if (option->type_ == GDhcpHdr::RequestedIpAddress) {
-			GDhcpHdr::POptionRequestIpAddress ipAddress = GDhcpHdr::POptionRequestIpAddress(option);
+			*ip = ntohl(*PIp(option->value()));
 			*mac = ethHdr->smac();
-			*ip = ntohl(ipAddress->ip_);
 			return true;
 		}
 		option = option->next();

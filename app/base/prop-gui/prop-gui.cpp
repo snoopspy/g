@@ -16,8 +16,8 @@ int exec(GApp* a, GObj* obj) {
 
 	jo["object"] << *obj;
 	jo["propWidget"] << propWidget;
-
 	GJson::saveToFile(jo);
+
 	return res;
 }
 
