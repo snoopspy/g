@@ -5,7 +5,6 @@
 // GAutoArpSpoof
 // ----------------------------------------------------------------------------
 GAutoArpSpoof::GAutoArpSpoof(QObject* parent) : GArpSpoof(parent) {
-	QObject::connect(this, &GAutoArpSpoof::_floodingNeeded, this, &GAutoArpSpoof::_floodingStart);
 }
 
 GAutoArpSpoof::~GAutoArpSpoof() {
@@ -53,6 +52,56 @@ bool GAutoArpSpoof::doOpen() {
 bool GAutoArpSpoof::doClose() {
 	if (!enabled_) return true;
 
+	{
+		QMutexLocker ml(&floodingThreadSet_.m_);
+		for (FloodingThread* thread: floodingThreadSet_) {
+			thread->we_.wakeAll();
+		}
+	}
+
+	{
+		QMutexLocker ml(&recoverThreadSet_.m_);
+		for (RecoverThread* thread: recoverThreadSet_) {
+			thread->we_.wakeAll();
+		}
+	}
+
+
+	QElapsedTimer timer;
+	quint64 start = timer.elapsed();
+	while (true) {
+		{
+			QMutexLocker ml(&floodingThreadSet_.m_);
+			qDebug() << floodingThreadSet_.count();  // gilgil temp 2021.11.05
+			if (floodingThreadSet_.count() == 0) break;
+		}
+		QCoreApplication::processEvents();
+		QThread::msleep(10);
+		quint64 now = timer.elapsed();
+		if (now - start > G::Timeout) {
+			int count = floodingThreadSet_.count();
+			qCritical() << QString("floodingThreadSet_.count() is %1").arg(count);
+			break;
+		}
+	}
+
+	start = timer.elapsed();
+	while (true) {
+		{
+			QMutexLocker ml(&recoverThreadSet_.m_);
+			qDebug() << recoverThreadSet_.count(); // gilgil temp 2021.11.05
+			if (recoverThreadSet_.count() == 0) break;
+		}
+		QCoreApplication::processEvents();
+		QThread::msleep(10);
+		quint64 now = timer.elapsed();
+		if (now - start > G::Timeout) {
+			int count = recoverThreadSet_.count();
+			qCritical() << QString("recoverThreadSet_.count() is %1").arg(count);
+			break;
+		}
+	}
+
 	return GArpSpoof::doClose();
 }
 
@@ -74,33 +123,50 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	if (mac == myMac_ || mac == gwMac_) return;
 
 	GFlow::IpFlowKey ipFlowKey(ip, gwIp_);
-	if (flowMap_.find(ipFlowKey) != flowMap_.end()) return;
+	{
+		QMutexLocker ml(&flowMap_.m_);
+		if (flowMap_.find(ipFlowKey) != flowMap_.end()) return;
+	}
+	qDebug() << QString("new host(%1 %2) detected").arg(QString(mac), QString(ip));
 
 	Flow flow(ip, mac, gwIp_, gwMac_);
 	flow.makePacket(&flow.infectPacket_, myMac_, true);
 	flow.makePacket(&flow.recoverPacket_, myMac_, false);
-
-	qDebug() << QString("new host(%1 %2) detected").arg(QString(mac), QString(ip));
-
-	flowMap_.insert(ipFlowKey, flow);
-	flowList_.push_back(flow);
-	sendArpInfect(&flow, GArpHdr::Request);
 
 	GFlow::IpFlowKey revIpFlowKey(gwIp_, ip);
 	Flow revFlow(gwIp_, gwMac_, ip, mac);
 	revFlow.makePacket(&revFlow.infectPacket_, myMac_, true);
 	revFlow.makePacket(&revFlow.recoverPacket_, myMac_, false);
 
-	flowMap_.insert(revIpFlowKey, revFlow);
 	{
-		QMutexLocker(&flowList_.m_);
+		QMutexLocker ml(&flowList_.m_);
+		flowList_.push_back(flow);
 		flowList_.push_back(revFlow);
 	}
+	{
+		QMutexLocker mlForMap(&flowMap_.m_);
+		flowMap_.insert(ipFlowKey, flow);
+		flowMap_.insert(revIpFlowKey, revFlow);
+	}
+
+	sendArpInfect(&flow, GArpHdr::Request);
+	QThread::msleep(sendInterval_);
 	sendArpInfect(&revFlow, GArpHdr::Request);
-	if (floodingInterval_ != 0) {
-		QByteArray forward((const char*)&flow.infectPacket_, sizeof(GEthArpHdr));
-		QByteArray backward((const char*)&revFlow.infectPacket_, sizeof(GEthArpHdr));
-		emit _floodingNeeded(forward, backward);
+
+	if (floodingTimeout_ != 0) {
+		QMetaObject::invokeMethod(this, [this, flow, revFlow]() {
+			FloodingThread* thread = new FloodingThread(this, flow.infectPacket_, revFlow.infectPacket_);
+			QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+			thread->start();
+		});
+	}
+
+	if (recoverTimeout_ != 0) {
+		QMetaObject::invokeMethod(this, [this, flow, revFlow]() {
+			RecoverThread* thread = new RecoverThread(this, flow, revFlow);
+			QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+			thread->start();
+		});
 	}
 }
 
@@ -164,10 +230,18 @@ GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GEthArpHdr 
 	parent_ = parent;
 	infectPacket_[0] = infectPacket1;
 	infectPacket_[1] = infectPacket2;
+	{
+		QMutexLocker ml(&parent_->floodingThreadSet_.m_);
+		parent_->floodingThreadSet_.insert(this);
+	}
 }
 
 GAutoArpSpoof::FloodingThread::~FloodingThread() {
 	GDEBUG_DTOR
+	{
+		QMutexLocker ml(&parent_->floodingThreadSet_.m_);
+		parent_->floodingThreadSet_.remove(this);
+	}
 }
 
 void GAutoArpSpoof::FloodingThread::run() {
@@ -176,21 +250,67 @@ void GAutoArpSpoof::FloodingThread::run() {
 	timer.start();
 	while (parent_->active()) {
 		qint64 elapsed = timer.elapsed();
-		if (elapsed > qint64(parent_->floodingInterval_)) break;
+		if (elapsed > qint64(parent_->floodingTimeout_)) break;
 		for (int i = 0; i < 2; i++) {
 			GBuf buf(pbyte(&infectPacket_[i]), sizeof(GEthArpHdr));
 			parent_->write(buf);
-			QThread::msleep(parent_->sendInterval_);
+			if (we_.wait(parent_->sendInterval_)) break;
 		}
-		QThread::msleep(parent_->floodingSendInterval_);
+		if (we_.wait(parent_->floodingSendInterval_)) break;
 	}
 	qDebug() << "end";
 }
 
-void GAutoArpSpoof::_floodingStart(QByteArray forward, QByteArray backward) {
-	GEthArpHdr* f = reinterpret_cast<GEthArpHdr*>(forward.data());
-	GEthArpHdr* b = reinterpret_cast<GEthArpHdr*>(backward.data());
-	FloodingThread* thread = new FloodingThread(this, *f, *b);
-	QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-	thread->start();
+GAutoArpSpoof::RecoverThread::RecoverThread(GAutoArpSpoof* parent, Flow flow1, Flow flow2) : QThread(parent) {
+	GDEBUG_CTOR
+	parent_ = parent;
+	flow1_ = flow1;
+	flow2_ = flow2;
+	{
+		QMutexLocker ml(&parent_->recoverThreadSet_.m_);
+		parent_->recoverThreadSet_.insert(this);
+	}
+}
+
+GAutoArpSpoof::RecoverThread::~RecoverThread() {
+	GDEBUG_DTOR
+	{
+		QMutexLocker ml(&parent_->recoverThreadSet_.m_);
+		parent_->recoverThreadSet_.remove(this);
+
+		if (parent_->active()) {
+			parent_->sendArpRecover(&flow1_, GArpHdr::Request);
+			QThread::msleep(parent_->sendInterval_);
+			parent_->sendArpInfect(&flow2_, GArpHdr::Request);
+
+			FlowList flowList;
+			flowList.push_back(flow1_);
+			flowList.push_back(flow2_);
+			parent_->runArpRecover(&flowList);
+
+			GFlow::IpFlowKey flow1Key(flow1_.senderIp_, flow1_.targetIp_);
+			GFlow::IpFlowKey flow2Key(flow2_.senderIp_, flow2_.targetIp_);
+			{
+				QMutexLocker ml(&parent_->flowList_.m_);
+				int index = parent_->flowList_.findIndex(flow1Key);
+				if (index != -1)
+					parent_->flowList_.removeAt(index);
+
+				index = parent_->flowList_.findIndex(flow2Key);
+				if (index != -1)
+					parent_->flowList_.removeAt(index);
+			}
+			{
+				QMutexLocker mlForMap(&parent_->flowMap_.m_);
+				parent_->flowMap_.remove(flow1Key);
+				parent_->flowMap_.remove(flow2Key);
+			}
+		}
+	}
+}
+
+void GAutoArpSpoof::RecoverThread::run() {
+	qDebug() << "beg";
+	if (we_.wait(parent_->recoverTimeout_)) return;
+	qDebug() << "end";
 }

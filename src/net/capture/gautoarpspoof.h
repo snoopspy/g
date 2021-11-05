@@ -20,17 +20,17 @@ struct GAutoArpSpoof : GArpSpoof {
 	Q_PROPERTY(bool checkIp MEMBER checkIp_)
 	Q_PROPERTY(bool checkArp MEMBER checkArp_)
 	Q_PROPERTY(bool checkDhcp MEMBER checkDhcp_)
-	Q_PROPERTY(ulong duration MEMBER duration_)
-	Q_PROPERTY(ulong floodingInterval MEMBER floodingInterval_)
+	Q_PROPERTY(ulong floodingTimeout MEMBER floodingTimeout_)
 	Q_PROPERTY(ulong floodingSendInterval MEMBER floodingSendInterval_)
+	Q_PROPERTY(ulong recoverTimeout MEMBER recoverTimeout_)
 
 public:
 	bool checkIp_{false};
 	bool checkArp_{false};
 	bool checkDhcp_{true};
-	GDuration duration_{60000}; // 1 minute
-	GDuration floodingInterval_{5000}; // 5 sec
-	GDuration floodingSendInterval_{10}; // 10 msec
+	GDuration floodingTimeout_{5000}; // 5 sec
+	GDuration floodingSendInterval_{100}; // 100 msec
+	GDuration recoverTimeout_{10000}; // 10 sec
 
 public:
 	Q_INVOKABLE GAutoArpSpoof(QObject* parent = nullptr);
@@ -57,14 +57,25 @@ protected:
 		FloodingThread(GAutoArpSpoof* parent, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2);
 		~FloodingThread() override;
 		void run() override;
-	protected:
+
 		GAutoArpSpoof* parent_;
+		GWaitEvent we_;
 		GEthArpHdr infectPacket_[2];
 	};
+	struct FloodingThreadSet : QSet<FloodingThread*> {
+		QMutex m_;
+	} floodingThreadSet_;
 
-signals:
-	void _floodingNeeded(QByteArray forward, QByteArray backward);
+	struct RecoverThread : QThread {
+		RecoverThread(GAutoArpSpoof* parent, Flow flow1, Flow flow2);
+		~RecoverThread() override;
+		void run() override;
 
-public slots:
-	void _floodingStart(QByteArray forward, QByteArray backward);
+		GAutoArpSpoof* parent_;
+		GWaitEvent we_;
+		Flow flow1_, flow2_;
+	};
+	struct RecoverThreadSet : QSet<RecoverThread*> {
+		QMutex m_;
+	} recoverThreadSet_;
 };

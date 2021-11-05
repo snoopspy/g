@@ -162,48 +162,7 @@ bool GArpSpoof::doClose() {
 
 	sendArpRecoverAll(GArpHdr::Request);
 
-	if (flowList_.count() > 0) {
-		QString flowString;
-		{
-			QMutexLocker(&flowList_.m_);
-			for (Flow& flow: flowList_)
-				flowString += QString("%1 %2 %3 %4 ").arg(QString(flow.senderIp_), QString(flow.senderMac_), QString(flow.targetIp_), QString(flow.targetMac_));
-		}
-		flowString = flowString.left(flowString.length() - 1);
-
-#ifdef Q_OS_WIN
-		QString arprecoverFile = "arprecover.exe";
-		if (QFile::exists(arprecoverFile)) {
-			QString argument = QString("-i %1 %2 %3 %4 %5 %6 %7").
-				arg(10).arg(
-				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
-				QString(intf_->ip()), QString(intf_->mac()), flowString);
-			QStringList arguments = argument.split(' ');
-			qDebug() << arguments;
-			QProcess::startDetached(arprecoverFile, arguments);
-#else // Q_OS_WIN
-		QString arprecoverFile = "arprecover";
-		if (QFile::exists(arprecoverFile)) {
-			QStringList arguments;
-			arguments.append("-c");
-			QString path = QDir::currentPath();
-		#ifdef Q_OS_ANDROID
-			QString preloadStr = " ";
-			if (QFile::exists("/system/lib/libfakeioctl.so"))
-				preloadStr = "export LD_PRELOAD=libfakeioctl.so;";
-			QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, arprecoverFile);
-		#else // Q_OS_ANDROID
-			QString run = QString("%1/%2").arg(path, arprecoverFile);
-		#endif  // Q_OS_ANDROID
-			arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").
-				arg(run).arg(10).arg(
-				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
-				QString(intf_->ip()), QString(intf_->mac()), flowString));
-			qDebug() << arguments;
-			QProcess::startDetached("su", arguments);
-#endif // Q_OS_WIN
-		}
-	}
+	runArpRecover(&flowList_);
 
 	if (bpFilter_ != nullptr) {
 		delete bpFilter_;
@@ -235,18 +194,21 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 		if (type == GEthHdr::Arp) {
 			GArpHdr* arpHdr = packet->arpHdr_;
 			Q_ASSERT(arpHdr != nullptr);
-			for (Flow& flow: flowList_) {
-				bool infect = false;
-				if (arpHdr->sip() == flow.senderIp_ && arpHdr->smac() != flow.senderMac_ && arpHdr->tip() == flow.targetIp_) { // sender > target ARP packet
-					qDebug() << QString("sender(%1) to target(%2) ARP packet").arg(QString(flow.senderIp_), QString(flow.targetIp_));
-					infect = true;
-				} else
-					if (arpHdr->sip() == flow.targetIp_ && arpHdr->smac() != flow.senderMac_ && ethHdr->dmac() == GMac::broadcastMac()) { // target to any ARP packet
-						qDebug() << QString("target(%1) to any(%2) ARP packet").arg(QString(flow.targetIp_), QString(flow.senderIp_));
+			{
+				QMutexLocker ml(&flowList_.m_);
+				for (Flow& flow: flowList_) {
+					bool infect = false;
+					if (arpHdr->sip() == flow.senderIp_ && arpHdr->smac() != flow.senderMac_ && arpHdr->tip() == flow.targetIp_) { // sender > target ARP packet
+						qDebug() << QString("sender(%1) to target(%2) ARP packet").arg(QString(flow.senderIp_), QString(flow.targetIp_));
 						infect = true;
-					}
-				if (infect)
-					sendArpInfect(&flow, GArpHdr::Reply);
+					} else
+						if (arpHdr->sip() == flow.targetIp_ && arpHdr->smac() != flow.senderMac_ && ethHdr->dmac() == GMac::broadcastMac()) { // target to any ARP packet
+							qDebug() << QString("target(%1) to any(%2) ARP packet").arg(QString(flow.targetIp_), QString(flow.senderIp_));
+							infect = true;
+						}
+					if (infect)
+						sendArpInfect(&flow, GArpHdr::Reply);
+				}
 			}
 			continue;
 		} else if (type == GEthHdr::Ip4) {
@@ -255,15 +217,19 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 			GIp adjSrcIp = intf_->getAdjIp(ipHdr->sip());
 			GIp adjDstIp = intf_->getAdjIp(ipHdr->dip());
 			GFlow::IpFlowKey key(adjSrcIp, adjDstIp);
-			FlowMap::iterator it = flowMap_.find(key);
-			if (it == flowMap_.end()) continue;
-			Flow& flow = it.value();
-			ethHdr->dmac_ = flow.targetMac_;
-			if (bpFilter_ != nullptr) {
-				if (!bpFilter_->check(&packet->buf_)) {
-					relay(packet);
-					continue;
+			{
+				QMutexLocker ml(&flowMap_.m_);
+				FlowMap::iterator it = flowMap_.find(key);
+				if (it == flowMap_.end()) continue;
+				Flow& flow = it.value();
+				ethHdr->dmac_ = flow.targetMac_;
+				if (bpFilter_ != nullptr) {
+					if (!bpFilter_->check(&packet->buf_)) {
+						relay(packet);
+						continue;
+					}
 				}
+
 			}
 			return GPacket::Ok;
 		}
@@ -287,6 +253,48 @@ GPacket::Result GArpSpoof::relay(GPacket* packet) {
 	return write(packet);
 }
 
+void GArpSpoof::runArpRecover(FlowList* flowList) {
+	QMutexLocker(&flowList_.m_);
+	if (flowList->count() > 0) {
+		QString flowString;
+		for (Flow& flow: *flowList)
+			flowString += QString("%1 %2 %3 %4 ").arg(QString(flow.senderIp_), QString(flow.senderMac_), QString(flow.targetIp_), QString(flow.targetMac_));
+		flowString = flowString.left(flowString.length() - 1);
+
+#ifdef Q_OS_WIN
+		QString arprecoverFile = "arprecover.exe";
+		if (QFile::exists(arprecoverFile)) {
+			QString argument = QString("-i %1 %2 %3 %4 %5 %6 %7").
+					arg(10).arg(
+						intfName_, QString(intf_->gateway()), QString(intf_->mask()),
+						QString(intf_->ip()), QString(intf_->mac()), flowString);
+			QStringList arguments = argument.split(' ');
+			qDebug() << arguments;
+			QProcess::startDetached(arprecoverFile, arguments);
+#else // Q_OS_WIN
+		QString arprecoverFile = "arprecover";
+		if (QFile::exists(arprecoverFile)) {
+			QStringList arguments;
+			arguments.append("-c");
+			QString path = QDir::currentPath();
+#ifdef Q_OS_ANDROID
+			QString preloadStr = " ";
+			if (QFile::exists("/system/lib/libfakeioctl.so"))
+				preloadStr = "export LD_PRELOAD=libfakeioctl.so;";
+			QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, arprecoverFile);
+#else // Q_OS_ANDROID
+			QString run = QString("%1/%2").arg(path, arprecoverFile);
+#endif  // Q_OS_ANDROID
+			arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").arg(run).arg(10).arg(
+				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
+				QString(intf_->ip()), QString(intf_->mac()), flowString));
+			qDebug() << arguments;
+			QProcess::startDetached("su", arguments);
+#endif // Q_OS_WIN
+		}
+	}
+}
+
 GArpSpoof::Flow::Flow(GIp senderIp, GMac senderMac, GIp targetIp, GMac targetMac) {
 	senderIp_ = senderIp;
 	senderMac_ = senderMac;
@@ -303,11 +311,21 @@ void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac myMac, bool infect) {
 	packet->arpHdr_.pro_ = htons(GEthHdr::Ip4);
 	packet->arpHdr_.hln_ = sizeof(GMac);
 	packet->arpHdr_.pln_ = sizeof(GIp);
-	// packet->arpHdr_.op_ = htons(operation); // do not set
+	// packet->arpHdr_.op_ = htons(operation); // do not set here
 	packet->arpHdr_.smac_ = infect ? myMac : targetMac_; // infect(true) or recover(false)
 	packet->arpHdr_.sip_ = htonl(targetIp_);
 	packet->arpHdr_.tmac_ = senderMac_;
 	packet->arpHdr_.tip_ = htonl(senderIp_);
+}
+
+int GArpSpoof::FlowList::findIndex(GFlow::IpFlowKey ipFlowKey) {
+	int i = 0;
+	for (Flow& flow: *this) {
+		if (flow.senderIp_ == ipFlowKey.sip_ && flow.targetIp_ == ipFlowKey.dip_)
+			return i;
+		i++;
+	}
+	return -1;
 }
 
 void GArpSpoof::InfectThread::run() {

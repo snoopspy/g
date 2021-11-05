@@ -74,6 +74,10 @@ public:
 
 	PathType pathType() override { return InPath; }
 
+protected:
+	struct FlowList;
+	void runArpRecover(FlowList* flowList);
+
 public:
 	GMac virtualMac_{GMac::nullMac()};
 	GBpFilter* bpFilter_{nullptr};
@@ -98,18 +102,20 @@ protected:
 	};
 	struct FlowList : QList<Flow> { // for arp infect and recover
 		QMutex m_;
-	};
-	FlowList flowList_;
-	typedef QMap<GFlow::IpFlowKey, Flow> FlowMap;
-	FlowMap flowMap_; // for relay
+		int findIndex(GFlow::IpFlowKey);
+	} flowList_;
+
+	struct FlowMap : QMap<GFlow::IpFlowKey, Flow> { // for relay
+		QMutex m_;
+	} flowMap_;
 
 	GMac myMac_{GMac::nullMac()};
 
 	struct InfectThread : GThread {
 		InfectThread(GArpSpoof* arpSpoof) : GThread(arpSpoof), arpSpoof_(arpSpoof) {}
 		void run() override;
-		GWaitEvent we_;
 		GArpSpoof* arpSpoof_;
+		GWaitEvent we_;
 	} infectThread_{this};
 
 	bool sendArpInfectAll(uint16_t operation);
