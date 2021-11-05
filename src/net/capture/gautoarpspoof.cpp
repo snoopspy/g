@@ -279,32 +279,7 @@ GAutoArpSpoof::RecoverThread::~RecoverThread() {
 		parent_->recoverThreadSet_.remove(this);
 
 		if (parent_->active()) {
-			parent_->sendArpRecover(&flow1_, GArpHdr::Request);
-			QThread::msleep(parent_->sendInterval_);
-			parent_->sendArpInfect(&flow2_, GArpHdr::Request);
-
-			FlowList flowList;
-			flowList.push_back(flow1_);
-			flowList.push_back(flow2_);
-			parent_->runArpRecover(&flowList);
-
-			GFlow::IpFlowKey flow1Key(flow1_.senderIp_, flow1_.targetIp_);
-			GFlow::IpFlowKey flow2Key(flow2_.senderIp_, flow2_.targetIp_);
-			{
-				QMutexLocker ml(&parent_->flowList_.m_);
-				int index = parent_->flowList_.findIndex(flow1Key);
-				if (index != -1)
-					parent_->flowList_.removeAt(index);
-
-				index = parent_->flowList_.findIndex(flow2Key);
-				if (index != -1)
-					parent_->flowList_.removeAt(index);
-			}
-			{
-				QMutexLocker mlForMap(&parent_->flowMap_.m_);
-				parent_->flowMap_.remove(flow1Key);
-				parent_->flowMap_.remove(flow2Key);
-			}
+			parent_->removeFlows(&flow1_, &flow2_);
 		}
 	}
 }
@@ -313,4 +288,33 @@ void GAutoArpSpoof::RecoverThread::run() {
 	qDebug() << "beg";
 	if (we_.wait(parent_->recoverTimeout_)) return;
 	qDebug() << "end";
+}
+
+void GAutoArpSpoof::removeFlows(Flow* flow1, Flow* flow2) {
+	sendArpRecover(flow1, GArpHdr::Request);
+	QThread::msleep(sendInterval_);
+	sendArpInfect(flow2, GArpHdr::Request);
+
+	FlowList flowList;
+	flowList.push_back(*flow1);
+	flowList.push_back(*flow2);
+	runArpRecover(&flowList);
+
+	GFlow::IpFlowKey flow1Key(flow1->senderIp_, flow1->targetIp_);
+	GFlow::IpFlowKey flow2Key(flow2->senderIp_, flow2->targetIp_);
+	{
+		QMutexLocker ml(&flowList_.m_);
+		int index = flowList_.findIndex(flow1Key);
+		if (index != -1)
+			flowList_.removeAt(index);
+
+		index = flowList_.findIndex(flow2Key);
+		if (index != -1)
+			flowList_.removeAt(index);
+	}
+	{
+		QMutexLocker mlForMap(&flowMap_.m_);
+		flowMap_.remove(flow1Key);
+		flowMap_.remove(flow2Key);
+	}
 }

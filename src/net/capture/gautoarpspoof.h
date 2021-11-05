@@ -28,7 +28,7 @@ public:
 	bool checkIp_{false};
 	bool checkArp_{false};
 	bool checkDhcp_{true};
-	GDuration floodingTimeout_{5000}; // 5 sec
+	GDuration floodingTimeout_{1000}; // 1 sec
 	GDuration floodingSendInterval_{100}; // 100 msec
 	GDuration recoverTimeout_{10000}; // 10 sec
 
@@ -78,4 +78,6 @@ protected:
 	struct RecoverThreadSet : QSet<RecoverThread*> {
 		QMutex m_;
 	} recoverThreadSet_;
+
+	void removeFlows(Flow* flow1, Flow* flow2);
 };
