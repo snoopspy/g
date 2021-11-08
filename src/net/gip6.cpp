@@ -47,7 +47,7 @@ uint qHash(const GIp6& ip6) {
 #ifdef Q_OS_ANDROID
    gbyte* p = pbyte(&ip6);
    size_t res = 0;
-   for(size_t i = 0; i < GMac::SIZE; ++i) res = res * 31 + size_t(*p++);
+   for(size_t i = 0; i < GIp6::SIZE; ++i) res = res * 31 + size_t(*p++);
    return res;
 #else // Q_OS_ANDROID
    return std::_Hash_impl::hash(&ip6, GIp6::SIZE);
