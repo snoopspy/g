@@ -193,7 +193,7 @@ bool GNetFilter::doClose() {
 
 	if (fd_ != 0) {
 		qDebug() << "bef call ::shutdown"; // gilgil temp 2016.09.25
-		::shutdown(fd_, SHUT_RDWR);
+		::shutdown(fd_, 2/* SHUT_RDWR SD_BOTH*/);
 		qDebug() << "aft call ::shutdown"; // gilgil temp 2016.09.25
 
 		qDebug() << "bef call ::close"; // gilgil temp 2016.09.25
