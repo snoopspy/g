@@ -46,7 +46,6 @@ public:
 	QTreeWidget* treeWidget_;
 
 protected:
-	bool isFirstSetObject_{true};
 	QObject* object_{nullptr};
 
 public:

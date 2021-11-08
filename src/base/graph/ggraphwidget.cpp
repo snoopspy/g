@@ -345,7 +345,7 @@ void GGraphWidget::propLoad(QJsonObject jo) {
 	QJsonObject splitter = jo["splitter"].toObject();
 	splitter["mid"] >> GJson::splitterSizes(midSplitter_);
 	splitter["left"] >> GJson::splitterSizes(midLeftSplitter_);
-	splitter["prop"] >> GJson::headerSizes(propWidget_->treeWidget_);
+	splitter["prop"] >> *propWidget_;
 
 	QString treeExpanded = jo["treeExpanded"].toString();
 	for (int i = 0; i < factoryWidget_->topLevelItemCount(); i++) {
@@ -370,7 +370,7 @@ void GGraphWidget::propSave(QJsonObject& jo) {
 	QJsonObject splitter;
 	splitter["mid"] << GJson::splitterSizes(midSplitter_);
 	splitter["left"] << GJson::splitterSizes(midLeftSplitter_);
-	splitter["prop"] << GJson::headerSizes(propWidget_->treeWidget_);
+	splitter["prop"] << *propWidget_;
 	jo["splitter"] = splitter;
 
 	QString treeExpanded;

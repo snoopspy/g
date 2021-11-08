@@ -67,11 +67,6 @@ void GPropWidget::setObject(QObject* object) {
 	prop->propCreateItems(treeWidget_, nullptr, object_);
 
 	update();
-
-	if (isFirstSetObject_) {
-		isFirstSetObject_ = false;
-		treeWidget_->resizeColumnToContents(0);
-	}
 }
 
 void GPropWidget::update() {
