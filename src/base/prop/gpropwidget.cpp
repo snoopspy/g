@@ -93,12 +93,12 @@ void GPropWidget::clear() {
 
 void GPropWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
-	jo["sizes"] >> GJson::headerSizes(treeWidget_);
+	jo["sizes"] >> GJson::columnSizes(treeWidget_);
 }
 
 void GPropWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
-	jo["sizes"] << GJson::headerSizes(treeWidget_);
+	jo["sizes"] << GJson::columnSizes(treeWidget_);
 }
 
 void GPropWidget::setControl() {
