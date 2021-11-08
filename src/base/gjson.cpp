@@ -149,28 +149,54 @@ void operator >> (const QJsonValue val, GJson::GSplitterSizes&& sizes) {
 }
 
 // ----------------------------------------------------------------------------
-// GTreeViewHeaderSizes
+// GTableWidgetColumnSizes
 // ----------------------------------------------------------------------------
-GJson::GTreeViewHeaderSizes GJson::headerSizes(QTreeView* treeView) {
-	return GJson::GTreeViewHeaderSizes(treeView);
+GJson::GTableWidgetColumnSizes GJson::columnSizes(QTableWidget* tableWidget) {
+	return GJson::GTableWidgetColumnSizes(tableWidget);
 }
 
-void operator << (QJsonValueRef ref, const GJson::GTreeViewHeaderSizes&& headerSizes) {
-	int count = headerSizes.treeView_->header()->count();
+void operator << (QJsonValueRef ref, const GJson::GTableWidgetColumnSizes&& columnSizes) {
+	int count = columnSizes.tableWidget_->columnCount();
 	QList<int> intSizes;
 	for (int i = 0; i < count - 1; i++) {
-		intSizes << headerSizes.treeView_->columnWidth(i);
+		intSizes << columnSizes.tableWidget_->columnWidth(i);
 	}
 	ref << intSizes;
 }
 
-void operator >> (const QJsonValue val, GJson::GTreeViewHeaderSizes&& headerSizes) {
+void operator >> (const QJsonValue val, GJson::GTableWidgetColumnSizes&& columnSizes) {
 	if (val.isNull()) return;
 	QList<int> intSizes;
 	val >> intSizes;
-	int count = headerSizes.treeView_->header()->count();
+	int count = columnSizes.tableWidget_->columnCount();
 	for (int i = 0; i < count - 1; i++) {
-		headerSizes.treeView_->setColumnWidth(i, intSizes.at(i));
+		columnSizes.tableWidget_->setColumnWidth(i, intSizes.at(i));
+	}
+}
+
+// ----------------------------------------------------------------------------
+// GTreeViewColumnSizes
+// ----------------------------------------------------------------------------
+GJson::GTreeViewColumnSizes GJson::columnSizes(QTreeView* treeView) {
+	return GJson::GTreeViewColumnSizes(treeView);
+}
+
+void operator << (QJsonValueRef ref, const GJson::GTreeViewColumnSizes&& columnSizes) {
+	int count = columnSizes.treeView_->header()->count();
+	QList<int> intSizes;
+	for (int i = 0; i < count - 1; i++) {
+		intSizes << columnSizes.treeView_->columnWidth(i);
+	}
+	ref << intSizes;
+}
+
+void operator >> (const QJsonValue val, GJson::GTreeViewColumnSizes&& columnSizes) {
+	if (val.isNull()) return;
+	QList<int> intSizes;
+	val >> intSizes;
+	int count = columnSizes.treeView_->header()->count();
+	for (int i = 0; i < count - 1; i++) {
+		columnSizes.treeView_->setColumnWidth(i, intSizes.at(i));
 	}
 }
 
