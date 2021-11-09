@@ -181,29 +181,6 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	}
 }
 
-bool GAutoArpSpoof::processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip) {
-	GIp sip = ipHdr->sip();
-	if (!intf()->isSameLanIp(sip)) return false;
-
-	*mac = ethHdr->smac();
-	*ip = sip;
-	return true;
-}
-
-bool GAutoArpSpoof::processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip) {
-	if (ethHdr->smac() != arpHdr->smac()) {
-		qDebug() << QString("ARP spoofing detected %1 %2 %3").arg(
-			QString(ethHdr->smac()),
-			QString(arpHdr->smac()),
-			QString(arpHdr->sip()));
-		return false;
-	}
-
-	*mac = arpHdr->smac();
-	*ip = arpHdr->sip();
-	return true;
-}
-
 bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
 	GUdpHdr* udpHdr = packet->udpHdr_;
 	if (udpHdr == nullptr) return false;
@@ -236,6 +213,29 @@ bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
 		if (pbyte(option) >= end) break;
 	}
 	return false;
+}
+
+bool GAutoArpSpoof::processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip) {
+	if (ethHdr->smac() != arpHdr->smac()) {
+		qDebug() << QString("ARP spoofing detected %1 %2 %3").arg(
+			QString(ethHdr->smac()),
+			QString(arpHdr->smac()),
+			QString(arpHdr->sip()));
+		return false;
+	}
+
+	*mac = arpHdr->smac();
+	*ip = arpHdr->sip();
+	return true;
+}
+
+bool GAutoArpSpoof::processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip) {
+	GIp sip = ipHdr->sip();
+	if (!intf()->isSameLanIp(sip)) return false;
+
+	*mac = ethHdr->smac();
+	*ip = sip;
+	return true;
 }
 
 GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2) : QThread(parent) {
