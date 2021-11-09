@@ -17,17 +17,17 @@
 // ----------------------------------------------------------------------------
 struct GAutoArpSpoof : GArpSpoof {
 	Q_OBJECT
-	Q_PROPERTY(bool checkIp MEMBER checkIp_)
-	Q_PROPERTY(bool checkArp MEMBER checkArp_)
 	Q_PROPERTY(bool checkDhcp MEMBER checkDhcp_)
+	Q_PROPERTY(bool checkArp MEMBER checkArp_)
+	Q_PROPERTY(bool checkIp MEMBER checkIp_)
 	Q_PROPERTY(ulong floodingTimeout MEMBER floodingTimeout_)
 	Q_PROPERTY(ulong floodingSendInterval MEMBER floodingSendInterval_)
 	Q_PROPERTY(ulong recoverTimeout MEMBER recoverTimeout_)
 
 public:
-	bool checkIp_{false};
-	bool checkArp_{false};
 	bool checkDhcp_{true};
+	bool checkArp_{false};
+	bool checkIp_{false};
 	GDuration floodingTimeout_{1000}; // 1 sec
 	GDuration floodingSendInterval_{100}; // 100 msec
 	GDuration recoverTimeout_{10000}; // 10 sec
@@ -49,8 +49,8 @@ protected:
 	GMac gwMac_;
 	GIp gwIp_;
 
-	bool processIp(GPacket* packet, GMac* mac, GIp* ip);
-	bool processArp(GPacket* packet, GMac* mac, GIp* ip);
+	bool processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip);
+	bool processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip);
 	bool processDhcp(GPacket* packet, GMac* mac, GIp* ip);
 
 	struct FloodingThread : QThread {

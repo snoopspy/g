@@ -110,12 +110,23 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	GIp ip;
 
 	bool attack = false;
-	if (checkIp_ && processIp(packet, &mac, &ip))
-		attack = true;
-	if (checkArp_ && processArp(packet, &mac, &ip))
-		attack = true;
-	if (checkDhcp_ && processDhcp(packet, &mac, &ip))
-		attack = true;
+	GEthHdr* ethHdr = packet->ethHdr_;
+	if (ethHdr == nullptr) return;
+
+	GIpHdr* ipHdr = packet->ipHdr_;
+	if (ipHdr != nullptr) {
+		if (checkDhcp_ && processDhcp(packet, &mac, &ip))
+			attack = true;
+		else if (checkIp_ && processIp(ethHdr, ipHdr, &mac, &ip))
+			attack = true;
+	}
+
+	GArpHdr* arpHdr = packet->arpHdr_;
+	if (arpHdr == nullptr) {
+		if (checkArp_ && processArp(ethHdr, arpHdr, &mac, &ip))
+			attack = true;
+	}
+
 	if (!attack) return;
 
 	if (ip.isNull() || mac.isNull()) return;
@@ -170,13 +181,7 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	}
 }
 
-bool GAutoArpSpoof::processIp(GPacket* packet, GMac* mac, GIp* ip) {
-	GEthHdr* ethHdr = packet->ethHdr_;
-	if (ethHdr == nullptr) return false;
-
-	GIpHdr* ipHdr = packet->ipHdr_;
-	if (ipHdr == nullptr) return false;
-
+bool GAutoArpSpoof::processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip) {
 	GIp sip = ipHdr->sip();
 	if (!intf()->isSameLanIp(sip)) return false;
 
@@ -185,9 +190,14 @@ bool GAutoArpSpoof::processIp(GPacket* packet, GMac* mac, GIp* ip) {
 	return true;
 }
 
-bool GAutoArpSpoof::processArp(GPacket* packet, GMac* mac, GIp* ip) {
-	GArpHdr* arpHdr = packet->arpHdr_;
-	if (arpHdr == nullptr) return false;
+bool GAutoArpSpoof::processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip) {
+	if (ethHdr->smac() != arpHdr->smac()) {
+		qDebug() << QString("ARP spoofing detected %1 %2 %3").arg(
+			QString(ethHdr->smac()),
+			QString(arpHdr->smac()),
+			QString(arpHdr->sip()));
+		return false;
+	}
 
 	*mac = arpHdr->smac();
 	*ip = arpHdr->sip();
@@ -288,9 +298,9 @@ GAutoArpSpoof::RecoverThread::~RecoverThread() {
 }
 
 void GAutoArpSpoof::RecoverThread::run() {
-	qDebug() << QString("beg %1").arg(QString(flow1_.targetIp_));
+	qDebug() << QString("beg %1").arg(QString(flow1_.senderIp_));
 	if (we_.wait(parent_->recoverTimeout_)) return;
-	qDebug() << QString("end %1").arg(QString(flow1_.targetIp_));
+	qDebug() << QString("end %1").arg(QString(flow1_.senderIp_));
 }
 
 void GAutoArpSpoof::removeFlows(Flow* flow1, Flow* flow2) {
