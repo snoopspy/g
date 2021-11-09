@@ -109,29 +109,32 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	GMac mac;
 	GIp ip;
 
-	bool attack = false;
 	GEthHdr* ethHdr = packet->ethHdr_;
 	if (ethHdr == nullptr) return;
 
+	mac = ethHdr->smac();
+	if (mac == myMac_) return;
+
+	bool detected = false;
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr != nullptr) {
 		if (checkDhcp_ && processDhcp(packet, &mac, &ip))
-			attack = true;
+			detected = true;
 		else if (checkIp_ && processIp(ethHdr, ipHdr, &mac, &ip))
-			attack = true;
+			detected = true;
 	}
 
 	GArpHdr* arpHdr = packet->arpHdr_;
-	if (arpHdr == nullptr) {
+	if (arpHdr != nullptr) {
 		if (checkArp_ && processArp(ethHdr, arpHdr, &mac, &ip))
-			attack = true;
+			detected = true;
 	}
 
-	if (!attack) return;
+	if (!detected) return;
 
 	if (ip.isNull() || mac.isNull()) return;
 	if (ip == myIp_ || ip == gwIp_) return;
-	if (mac == myMac_ || mac == gwMac_) return;
+	if (mac == gwMac_) return;
 
 	GFlow::IpFlowKey ipFlowKey(ip, gwIp_);
 	{
@@ -192,10 +195,11 @@ bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
 	if (dhcp.size_ < sizeof(GDhcpHdr)) return false;
 	GDhcpHdr* dhcpHdr = PDhcpHdr(dhcp.data_);
 
+	bool ok = false;
 	if (dhcpHdr->yourIp() != 0) { // DHCP Offer of DHCP ACK sent from server
 		*mac = dhcpHdr->clientMac();
 		*ip = dhcpHdr->yourIp();
-		return true;
+		ok = true;
 	}
 
 	GEthHdr* ethHdr = packet->ethHdr_;
@@ -206,13 +210,13 @@ bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
 		if (option->type_ == GDhcpHdr::RequestedIpAddress) {
 			*ip = ntohl(*PIp(option->value()));
 			*mac = ethHdr->smac();
-			return true;
+			ok = true;
 		}
 		option = option->next();
 		if (option == nullptr) break;
 		if (pbyte(option) >= end) break;
 	}
-	return false;
+	return ok;
 }
 
 bool GAutoArpSpoof::processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip) {
