@@ -177,8 +177,11 @@ bool GAutoArpSpoof::processIp(GPacket* packet, GMac* mac, GIp* ip) {
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr == nullptr) return false;
 
+	GIp sip = ipHdr->sip();
+	if (!intf()->isSameLanIp(sip)) return false;
+
 	*mac = ethHdr->smac();
-	*ip = ipHdr->sip();
+	*ip = sip;
 	return true;
 }
 
@@ -226,7 +229,7 @@ bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
 }
 
 GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2) : QThread(parent) {
-	GDEBUG_CTOR
+	// GDEBUG_CTOR
 	parent_ = parent;
 	infectPacket_[0] = infectPacket1;
 	infectPacket_[1] = infectPacket2;
@@ -237,7 +240,7 @@ GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GEthArpHdr 
 }
 
 GAutoArpSpoof::FloodingThread::~FloodingThread() {
-	GDEBUG_DTOR
+	// GDEBUG_DTOR
 	{
 		QMutexLocker ml(&parent_->floodingThreadSet_.m_);
 		parent_->floodingThreadSet_.remove(this);
@@ -245,7 +248,7 @@ GAutoArpSpoof::FloodingThread::~FloodingThread() {
 }
 
 void GAutoArpSpoof::FloodingThread::run() {
-	qDebug() << "beg";
+	qDebug() << QString("beg %1").arg(QString(infectPacket_->arpHdr_.tip()));
 	QElapsedTimer timer;
 	timer.start();
 	while (parent_->active()) {
@@ -258,11 +261,11 @@ void GAutoArpSpoof::FloodingThread::run() {
 		}
 		if (we_.wait(parent_->floodingSendInterval_)) break;
 	}
-	qDebug() << "end";
+	qDebug() << QString("end %1").arg(QString(infectPacket_->arpHdr_.tip()));
 }
 
 GAutoArpSpoof::RecoverThread::RecoverThread(GAutoArpSpoof* parent, Flow flow1, Flow flow2) : QThread(parent) {
-	GDEBUG_CTOR
+	// GDEBUG_CTOR
 	parent_ = parent;
 	flow1_ = flow1;
 	flow2_ = flow2;
@@ -273,7 +276,7 @@ GAutoArpSpoof::RecoverThread::RecoverThread(GAutoArpSpoof* parent, Flow flow1, F
 }
 
 GAutoArpSpoof::RecoverThread::~RecoverThread() {
-	GDEBUG_DTOR
+	// GDEBUG_DTOR
 	{
 		QMutexLocker ml(&parent_->recoverThreadSet_.m_);
 		parent_->recoverThreadSet_.remove(this);
@@ -285,9 +288,9 @@ GAutoArpSpoof::RecoverThread::~RecoverThread() {
 }
 
 void GAutoArpSpoof::RecoverThread::run() {
-	qDebug() << "beg";
+	qDebug() << QString("beg %1").arg(QString(flow1_.targetIp_));
 	if (we_.wait(parent_->recoverTimeout_)) return;
-	qDebug() << "end";
+	qDebug() << QString("end %1").arg(QString(flow1_.targetIp_));
 }
 
 void GAutoArpSpoof::removeFlows(Flow* flow1, Flow* flow2) {
