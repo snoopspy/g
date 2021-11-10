@@ -310,7 +310,7 @@ void GAutoArpSpoof::RecoverThread::run() {
 void GAutoArpSpoof::removeFlows(Flow* flow1, Flow* flow2) {
 	sendArpRecover(flow1, GArpHdr::Request);
 	QThread::msleep(sendInterval_);
-	sendArpInfect(flow2, GArpHdr::Request);
+	sendArpRecover(flow2, GArpHdr::Request);
 
 	FlowList flowList;
 	flowList.push_back(*flow1);
@@ -334,4 +334,30 @@ void GAutoArpSpoof::removeFlows(Flow* flow1, Flow* flow2) {
 		flowMap_.remove(flow1Key);
 		flowMap_.remove(flow2Key);
 	}
+}
+
+void GAutoArpSpoof::removeFlows(GIp senderIp1, GIp targetIp1, GIp senderIp2, GIp targetIp2) {
+	Flow* flow1 = nullptr;
+	Flow* flow2 = nullptr;
+	{
+		QMutexLocker ml(&flowMap_.m_);
+		GFlow::IpFlowKey key1(senderIp1, targetIp1);
+		FlowMap::iterator it = flowMap_.find(key1);
+		if (it == flowMap_.end()) {
+			qCritical() << QString("can not find flow1 for %1 %2").arg(QString(senderIp1), QString(targetIp1));
+			return;
+		}
+		flow1 = &it.value();
+
+		GFlow::IpFlowKey key2(senderIp2, targetIp2);
+		it = flowMap_.find(key1);
+		if (it == flowMap_.end()) {
+			qCritical() << QString("can not find flow2 for %1 %2").arg(QString(senderIp1), QString(targetIp1));
+			return;
+		}
+		flow2 = &it.value();
+	}
+	Q_ASSERT(flow1 != nullptr);
+	Q_ASSERT(flow2 != nullptr);
+	removeFlows(flow1, flow2);
 }

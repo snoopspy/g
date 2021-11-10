@@ -80,4 +80,6 @@ protected:
 	} recoverThreadSet_;
 
 	void removeFlows(Flow* flow1, Flow* flow2);
+public:
+	void removeFlows(GIp senderIp1, GIp targetIp1, GIp senderIp2, GIp targetIp2);
 };
