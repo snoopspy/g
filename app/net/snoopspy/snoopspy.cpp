@@ -22,10 +22,11 @@ int exec(GApp* a, GGraph* graph, GPluginFactory* pluginFactory) {
 	int res = a->exec();
 
 	jo["graphWidget"] << *_graphWidget;
+	GJson::saveToFile(jo);
+
 	delete _graphWidget;
 	_graphWidget = nullptr;
 
-	GJson::saveToFile(jo);
 	return res;
 }
 
