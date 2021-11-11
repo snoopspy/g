@@ -24,7 +24,7 @@ struct G_EXPORT GPcapDeviceWrite : GPcapWrite {
 
 public:
 	QString intfName_{""};
-	int mtu_{0};
+	int mtu_{GPacket::MtuSize};
 
 public:
 	Q_INVOKABLE GPcapDeviceWrite(QObject* parent = nullptr);
