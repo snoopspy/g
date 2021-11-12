@@ -11,26 +11,33 @@
 #pragma once
 
 #include "garpspoof.h"
+#include "net/manage/ghostdetect.h"
+#include "net/manage/ghostdelete.h"
+#include "net/manage/ghostscan.h"
 
 // ----------------------------------------------------------------------------
 // GAutoArpSpoof
 // ----------------------------------------------------------------------------
 struct GAutoArpSpoof : GArpSpoof {
 	Q_OBJECT
-	Q_PROPERTY(bool checkDhcp MEMBER checkDhcp_)
-	Q_PROPERTY(bool checkArp MEMBER checkArp_)
-	Q_PROPERTY(bool checkIp MEMBER checkIp_)
 	Q_PROPERTY(ulong floodingTimeout MEMBER floodingTimeout_)
 	Q_PROPERTY(ulong floodingSendInterval MEMBER floodingSendInterval_)
 	Q_PROPERTY(ulong recoverTimeout MEMBER recoverTimeout_)
+	Q_PROPERTY(GObjRef hostDetect READ getHostDetect)
+	Q_PROPERTY(GObjRef hostDelete READ getHostDelete)
+	Q_PROPERTY(GObjRef hostScan READ getHostScan)
+
+	GObjRef getHostDetect() { return hostDetect_; }
+	GObjRef getHostDelete() { return hostDelete_; }
+	GObjRef getHostScan() { return hostScan_; }
 
 public:
-	bool checkDhcp_{true};
-	bool checkArp_{false};
-	bool checkIp_{false};
 	GDuration floodingTimeout_{1000}; // 1 sec
 	GDuration floodingSendInterval_{100}; // 100 msec
-	GDuration recoverTimeout_{10000}; // 10 sec
+	GDuration recoverTimeout_{60000}; // 60 sec
+	GHostDetect hostDetect_{this};
+	GHostDelete hostDelete_{this};
+	GHostScan hostScan_{this};
 
 public:
 	Q_INVOKABLE GAutoArpSpoof(QObject* parent = nullptr);
@@ -40,18 +47,12 @@ protected:
 	bool doOpen() override;
 	bool doClose() override;
 
-protected:
-	void processPacket(GPacket* packet) override;
+public slots:
+	void processHostDetected(GHostDetect::Host* host);
 
 protected:
-	GMac myMac_;
-	GIp myIp_;
-	GMac gwMac_;
 	GIp gwIp_;
-
-	bool processDhcp(GPacket* packet, GMac* mac, GIp* ip);
-	bool processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip);
-	bool processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip);
+	GMac gwMac_;
 
 	struct FloodingThread : QThread {
 		FloodingThread(GAutoArpSpoof* parent, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2);
@@ -80,6 +81,7 @@ protected:
 	} recoverThreadSet_;
 
 	void removeFlows(Flow* flow1, Flow* flow2);
+
 public:
 	void removeFlows(GIp senderIp1, GIp targetIp1, GIp senderIp2, GIp targetIp2);
 };

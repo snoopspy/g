@@ -79,6 +79,9 @@ SOURCES += \
 	$${PWD}/../src/net/flow/gipflowmgr.cpp \
 	$${PWD}/../src/net/flow/gtcpflowmgr.cpp \
 	$${PWD}/../src/net/flow/gudpflowmgr.cpp \
+	$${PWD}/../src/net/manage/ghostdelete.cpp \
+	$${PWD}/../src/net/manage/ghostdetect.cpp \
+	$${PWD}/../src/net/manage/ghostscan.cpp \
 	$${PWD}/../src/net/gatm.cpp \
 	$${PWD}/../src/net/gintf.cpp \
 	$${PWD}/../src/net/gip.cpp \
@@ -204,6 +207,9 @@ HEADERS += \
 	$${PWD}/../src/net/flow/gipflowmgr.h \
 	$${PWD}/../src/net/flow/gtcpflowmgr.h \
 	$${PWD}/../src/net/flow/gudpflowmgr.h \
+	$${PWD}/../src/net/manage/ghostdelete.h \
+	$${PWD}/../src/net/manage/ghostdetect.h \
+	$${PWD}/../src/net/manage/ghostscan.h \
 	$${PWD}/../src/net/gatm.h \
 	$${PWD}/../src/net/gintf.h \
 	$${PWD}/../src/net/gip.h \

@@ -98,7 +98,7 @@ protected:
 
 		Flow() {}
 		Flow(GIp senderIp, GMac senderMac, GIp targetIp, GMac targetMac);
-		void makePacket(GEthArpHdr* packet, GMac myMac, bool infect);
+		void makePacket(GEthArpHdr* packet, GMac attackMac, bool infect);
 	};
 	struct FlowList : QList<Flow> { // for arp infect and recover
 		QMutex m_;
@@ -110,6 +110,7 @@ protected:
 	} flowMap_;
 
 	GMac myMac_{GMac::nullMac()};
+	GMac attackMac_{GMac::nullMac()};
 
 	struct InfectThread : GThread {
 		InfectThread(GArpSpoof* arpSpoof) : GThread(arpSpoof), arpSpoof_(arpSpoof) {}
@@ -123,6 +124,6 @@ protected:
 	bool sendArpRecoverAll(uint16_t operation);
 	bool sendArpRecover(Flow* flow, uint16_t operation);
 
-protected:
-	virtual void processPacket(GPacket* packet); // for GAutoArpSpoof
+signals:
+	void _preCaptured(GPacket* packet);
 };

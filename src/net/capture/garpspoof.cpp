@@ -42,11 +42,12 @@ bool GArpSpoof::doOpen() {
 	// --------------------------------
 
 	QString internalFilter;
+	myMac_ = intf()->mac();
 	if (virtualMac_.isNull()) {
-		myMac_ = intf()->mac();
+		attackMac_ = myMac_;
 		internalFilter = QString("!(ether src %1)").arg(QString(intf()->mac()));
 	} else {
-		myMac_ = virtualMac_;
+		attackMac_ = virtualMac_;
 		internalFilter = QString("!(ether src %1) && !(ether src %2)").arg(QString(intf()->mac()), QString(virtualMac_));
 	}
 	QString backupFilter = filter_;
@@ -142,8 +143,8 @@ bool GArpSpoof::doOpen() {
 	}
 
 	for (Flow& flow: flowList_) {
-		flow.makePacket(&flow.infectPacket_, myMac_, true);
-		flow.makePacket(&flow.recoverPacket_, myMac_, false);
+		flow.makePacket(&flow.infectPacket_, attackMac_, true);
+		flow.makePacket(&flow.recoverPacket_, attackMac_, false);
 	}
 
 	sendArpInfectAll(GArpHdr::Request);
@@ -181,13 +182,14 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 		if (res == GPacket::Eof || res == GPacket::Fail) return res;
 		if (res == GPacket::None) continue;
 
+		emit _preCaptured(packet);
+
 		GEthHdr* ethHdr = packet->ethHdr_;
 		Q_ASSERT(ethHdr != nullptr);
 
 		// attacker sending packet?
 		GMac smac = ethHdr->smac();
-		if (smac == myMac_) continue;
-		processPacket(packet);
+		if (smac == myMac_ || smac == virtualMac_) continue;
 		if (smac.isBroadcast() || smac.isMulticast()) continue;
 
 		uint16_t type = ethHdr->type();
@@ -249,7 +251,7 @@ GPacket::Result GArpSpoof::write(GPacket* packet) {
 
 GPacket::Result GArpSpoof::relay(GPacket* packet) {
 	Q_ASSERT(packet->ethHdr_ != nullptr);
-	packet->ethHdr_->smac_ = myMac_;
+	packet->ethHdr_->smac_ = attackMac_;
 	return write(packet);
 }
 
@@ -302,9 +304,9 @@ GArpSpoof::Flow::Flow(GIp senderIp, GMac senderMac, GIp targetIp, GMac targetMac
 	targetMac_ = targetMac;
 }
 
-void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac myMac, bool infect) {
+void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac attackMac, bool infect) {
 	packet->ethHdr_.dmac_ = senderMac_;
-	packet->ethHdr_.smac_ = myMac;
+	packet->ethHdr_.smac_ = attackMac;
 	packet->ethHdr_.type_ = htons(GEthHdr::Arp);
 
 	packet->arpHdr_.hrd_ = htons(GArpHdr::ETHER);
@@ -312,7 +314,7 @@ void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac myMac, bool infect) {
 	packet->arpHdr_.hln_ = sizeof(GMac);
 	packet->arpHdr_.pln_ = sizeof(GIp);
 	// packet->arpHdr_.op_ = htons(operation); // do not set here
-	packet->arpHdr_.smac_ = infect ? myMac : targetMac_; // infect(true) or recover(false)
+	packet->arpHdr_.smac_ = infect ? attackMac : targetMac_; // infect(true) or recover(false)
 	packet->arpHdr_.sip_ = htonl(targetIp_);
 	packet->arpHdr_.tmac_ = senderMac_;
 	packet->arpHdr_.tip_ = htonl(senderIp_);
@@ -367,8 +369,4 @@ bool GArpSpoof::sendArpRecover(Flow* flow, uint16_t operation) {
 	GPacket::Result written = write(GBuf(pbyte(&flow->recoverPacket_), sizeof(flow->recoverPacket_)));
 	if (written != GPacket::Ok)  res = false;
 	return res;
-}
-
-void GArpSpoof::processPacket(GPacket* packet) {
-	(void)packet;
 }

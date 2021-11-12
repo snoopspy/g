@@ -19,7 +19,7 @@ GApp::GApp(int &argc, char** argv) : QCoreApplication(argc, argv) {
 
 	QString appName = QCoreApplication::applicationName();
 	qInfo() << "====================================================================";
-	qInfo() << qPrintable(appName) << "G Libary" << G::version();
+	qInfo() << appName << "G Libary" << G::version();
 	qInfo() << "Copyright (c) Gilbert Lee All rights reserved";
 	qInfo() << G::pcap_lib_version();
 

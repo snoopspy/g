@@ -1,10 +1,18 @@
 #include "gautoarpspoof.h"
-#include "net/pdu/gdhcphdr.h"
 
 // ----------------------------------------------------------------------------
 // GAutoArpSpoof
 // ----------------------------------------------------------------------------
 GAutoArpSpoof::GAutoArpSpoof(QObject* parent) : GArpSpoof(parent) {
+	QObject::connect(this, &GArpSpoof::_preCaptured, &hostDetect_, &GHostDetect::check, Qt::DirectConnection);
+	QObject::connect(&hostDetect_, &GHostDetect::hostDetected, this, &GAutoArpSpoof::processHostDetected, Qt::DirectConnection);
+
+	hostDelete_.enabled_ = false;
+	hostDelete_.pcapDevice_ = this;
+	hostDelete_.hostDetect_ = &hostDetect_;
+
+	hostScan_.enabled_ = false;
+	hostScan_.pcapDevice_ = this;
 }
 
 GAutoArpSpoof::~GAutoArpSpoof() {
@@ -14,22 +22,14 @@ GAutoArpSpoof::~GAutoArpSpoof() {
 bool GAutoArpSpoof::doOpen() {
 	if (!enabled_) return true;
 
-	if (checkIp_ == false && checkArp_ == false && checkDhcp_ == false) {
-		SET_ERR(GErr::FAIL, "all checking ip, arp, dhcp are false");
-		return false;
-	}
-
 	if (!GArpSpoof::doOpen()) return false;
 
-	Q_ASSERT(intf_ != nullptr);
-	myMac_ = intf_->mac();
-	myIp_ = intf_->ip();
-	gwIp_ = intf_->gateway();
-
+	Q_ASSERT(intf() != nullptr);
+	gwIp_ = intf()->gateway();
 	GAtm::iterator it = atm_.find(gwIp_);
 	if (it == atm_.end()) {
 		atm_.insert(gwIp_, GMac::nullMac());
-		atm_.intfName_ = intfName_;
+		atm_.intfName_ = intf_->name();
 		if (!atm_.open()) {
 			err = atm_.err;
 			atm_.close();
@@ -45,6 +45,12 @@ bool GAutoArpSpoof::doOpen() {
 		Q_ASSERT(it != atm_.end());
 	}
 	gwMac_ = it.value();
+
+	hostDetect_.intfName_ = intfName_;
+	if (!hostDetect_.open()) {
+		err = hostDetect_.err;
+		return false;
+	}
 
 	return true;
 }
@@ -66,13 +72,12 @@ bool GAutoArpSpoof::doClose() {
 		}
 	}
 
-
 	QElapsedTimer timer;
 	quint64 start = timer.elapsed();
 	while (true) {
 		{
 			QMutexLocker ml(&floodingThreadSet_.m_);
-			qDebug() << floodingThreadSet_.count();  // gilgil temp 2021.11.05
+			qDebug() << QString("floodingThreadSet_.count()=%1").arg(floodingThreadSet_.count());  // gilgil temp 2021.11.05
 			if (floodingThreadSet_.count() == 0) break;
 		}
 		QCoreApplication::processEvents();
@@ -89,7 +94,7 @@ bool GAutoArpSpoof::doClose() {
 	while (true) {
 		{
 			QMutexLocker ml(&recoverThreadSet_.m_);
-			qDebug() << recoverThreadSet_.count(); // gilgil temp 2021.11.05
+			qDebug() << QString("recoverThreadSet_.count=%1").arg(recoverThreadSet_.count()); // gilgil temp 2021.11.05
 			if (recoverThreadSet_.count() == 0) break;
 		}
 		QCoreApplication::processEvents();
@@ -102,39 +107,15 @@ bool GAutoArpSpoof::doClose() {
 		}
 	}
 
-	return GArpSpoof::doClose();
+	bool res = GArpSpoof::doClose();
+	hostDetect_.close();
+	return res;
 }
 
-void GAutoArpSpoof::processPacket(GPacket* packet) {
-	GMac mac;
-	GIp ip;
-
-	GEthHdr* ethHdr = packet->ethHdr_;
-	if (ethHdr == nullptr) return;
-
-	mac = ethHdr->smac();
-	if (mac == myMac_) return;
-
-	bool detected = false;
-	GIpHdr* ipHdr = packet->ipHdr_;
-	if (ipHdr != nullptr) {
-		if (checkDhcp_ && processDhcp(packet, &mac, &ip))
-			detected = true;
-		else if (checkIp_ && processIp(ethHdr, ipHdr, &mac, &ip))
-			detected = true;
-	}
-
-	GArpHdr* arpHdr = packet->arpHdr_;
-	if (arpHdr != nullptr) {
-		if (checkArp_ && processArp(ethHdr, arpHdr, &mac, &ip))
-			detected = true;
-	}
-
-	if (!detected) return;
-
-	if (ip.isNull() || mac.isNull()) return;
-	if (ip == myIp_ || ip == gwIp_) return;
-	if (mac == gwMac_) return;
+void GAutoArpSpoof::processHostDetected(GHostDetect::Host* host) {
+	GIp ip = host->ip_;
+	GMac mac = host->mac_;
+	if (ip == gwIp_) return;
 
 	GFlow::IpFlowKey ipFlowKey(ip, gwIp_);
 	{
@@ -144,13 +125,13 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 	qDebug() << QString("new host(%1 %2) detected").arg(QString(mac), QString(ip));
 
 	Flow flow(ip, mac, gwIp_, gwMac_);
-	flow.makePacket(&flow.infectPacket_, myMac_, true);
-	flow.makePacket(&flow.recoverPacket_, myMac_, false);
+	flow.makePacket(&flow.infectPacket_, attackMac_, true);
+	flow.makePacket(&flow.recoverPacket_, attackMac_, false);
 
 	GFlow::IpFlowKey revIpFlowKey(gwIp_, ip);
 	Flow revFlow(gwIp_, gwMac_, ip, mac);
-	revFlow.makePacket(&revFlow.infectPacket_, myMac_, true);
-	revFlow.makePacket(&revFlow.recoverPacket_, myMac_, false);
+	revFlow.makePacket(&revFlow.infectPacket_, attackMac_, true);
+	revFlow.makePacket(&revFlow.recoverPacket_, attackMac_, false);
 
 	{
 		QMutexLocker ml(&flowList_.m_);
@@ -182,64 +163,6 @@ void GAutoArpSpoof::processPacket(GPacket* packet) {
 			thread->start();
 		});
 	}
-}
-
-bool GAutoArpSpoof::processDhcp(GPacket* packet, GMac* mac, GIp* ip) {
-	GUdpHdr* udpHdr = packet->udpHdr_;
-	if (udpHdr == nullptr) return false;
-
-	if (!(udpHdr->sport() == 67 || udpHdr->dport() == 67)) return false;
-
-	GBuf dhcp = packet->udpData_;
-	if (dhcp.data_ == nullptr) return false;
-	if (dhcp.size_ < sizeof(GDhcpHdr)) return false;
-	GDhcpHdr* dhcpHdr = PDhcpHdr(dhcp.data_);
-
-	bool ok = false;
-	if (dhcpHdr->yourIp() != 0) { // DHCP Offer of DHCP ACK sent from server
-		*mac = dhcpHdr->clientMac();
-		*ip = dhcpHdr->yourIp();
-		ok = true;
-	}
-
-	GEthHdr* ethHdr = packet->ethHdr_;
-	if (ethHdr == nullptr) return false;
-	gbyte* end = packet->buf_.data_ + packet->buf_.size_;
-	GDhcpHdr::Option* option = dhcpHdr->first();
-	while (true) {
-		if (option->type_ == GDhcpHdr::RequestedIpAddress) {
-			*ip = ntohl(*PIp(option->value()));
-			*mac = ethHdr->smac();
-			ok = true;
-		}
-		option = option->next();
-		if (option == nullptr) break;
-		if (pbyte(option) >= end) break;
-	}
-	return ok;
-}
-
-bool GAutoArpSpoof::processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip) {
-	if (ethHdr->smac() != arpHdr->smac()) {
-		qDebug() << QString("ARP spoofing detected %1 %2 %3").arg(
-			QString(ethHdr->smac()),
-			QString(arpHdr->smac()),
-			QString(arpHdr->sip()));
-		return false;
-	}
-
-	*mac = arpHdr->smac();
-	*ip = arpHdr->sip();
-	return true;
-}
-
-bool GAutoArpSpoof::processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip) {
-	GIp sip = ipHdr->sip();
-	if (!intf()->isSameLanIp(sip)) return false;
-
-	*mac = ethHdr->smac();
-	*ip = sip;
-	return true;
 }
 
 GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2) : QThread(parent) {
@@ -361,3 +284,4 @@ void GAutoArpSpoof::removeFlows(GIp senderIp1, GIp targetIp1, GIp senderIp2, GIp
 	Q_ASSERT(flow2 != nullptr);
 	removeFlows(flow1, flow2);
 }
+
