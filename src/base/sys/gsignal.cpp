@@ -54,6 +54,7 @@ void GSignal::setupAll(Handler handler) {
 	setup(SIGABRT, handler);
 	setup(SIGFPE, handler);
 	// setup(SIGSEGV, handler); // do not touch SIGSEGV
+#ifndef Q_OS_WIN
 	setup(SIGTERM, handler);
 	setup(SIGHUP, handler);
 	setup(SIGQUIT, handler);
@@ -63,6 +64,7 @@ void GSignal::setupAll(Handler handler) {
 	setup(SIGSYS, handler);
 	ignore(SIGPIPE); // ignore SIGPIPE which can be signaled when TCP socket operation on linux
 	setup(SIGALRM, handler);
+#endif
 }
 
 void GSignal::ignore(int signo) {
@@ -78,6 +80,7 @@ QString GSignal::getString(int signo) {
 		case SIGFPE: s = "SIGFPE"; break;
 		case SIGSEGV: s = "SIGSEGV"; break;
 		case SIGTERM: s = "SIGTERM"; break;
+#ifndef Q_OS_WIN
 		case SIGHUP: s = "SIGHUP"; break;
 		case SIGQUIT: s = "SIGQUIT"; break;
 		case SIGTRAP: s = "SIGTRAP"; break;
@@ -100,6 +103,7 @@ QString GSignal::getString(int signo) {
 		case SIGPROF: s = "SIGPROF"; break;
 		case SIGUSR1: s = "SIGUSR1"; break;
 		case SIGUSR2: s = "SIGUSR2"; break;
+#endif
 	}
 	return s;
 }
