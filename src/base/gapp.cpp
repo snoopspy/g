@@ -7,6 +7,21 @@
 #include "base/log/glogstderr.h"
 #include "base/log/glogudp.h"
 
+std::string getDir(std::string argv) {
+	ssize_t i = argv.length() - 1;
+	while (i >= 0) {
+		char& ch = argv.at(i);
+		if (ch  == '/' || ch == '\\') {
+			std::string res = argv.substr(0, i + 1);
+			return res;
+		}
+		i--;
+	}
+	return "/";
+}
+
+#include <unistd.h> // for chdir
+
 // ----------------------------------------------------------------------------
 // GApp
 // ----------------------------------------------------------------------------
@@ -15,6 +30,11 @@ GApp::GApp(int &argc, char** argv) : QApplication(argc, argv) {
 #else
 GApp::GApp(int &argc, char** argv) : QCoreApplication(argc, argv) {
 #endif // QT_GUI_LIB
+
+#ifndef Q_OS_ANDROID
+	chdir(getDir(argv[0]).data());
+#endif
+
 	initLogger();
 
 	QString appName = QCoreApplication::applicationName();

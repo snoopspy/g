@@ -28,45 +28,32 @@ struct GSsConParam {
 };
 
 // ----------------------------------------------------------------------------
-// GSsCon
+// SsCon
 // ----------------------------------------------------------------------------
-struct G_EXPORT GSsCon : QObject {
+struct G_EXPORT SsCon : GStateObj {
 	Q_OBJECT
 
 public:
-	GSsCon(QObject* parent = nullptr) : QObject(parent) {}
-	~GSsCon() override {
+	SsCon(QObject* parent = nullptr) : GStateObj(parent) {}
+
+	~SsCon() override {
 		graph_.close();
 	}
 
-	void prepareSignal() {
-#ifdef Q_OS_WIN
-#else // Q_OS_WIN
+protected:
+	GGraph graph_;
+	GPluginFactory pluginFactory_;
+
+	bool doOpen() override {
+#ifndef Q_OS_WIN
 		GSignal& signal = GSignal::instance();
-
-		signal.setup(SIGINT);
-		signal.setup(SIGILL);
-		signal.setup(SIGABRT);
-		signal.setup(SIGFPE);
-		signal.setup(SIGSEGV);
-		signal.setup(SIGTERM);
-		signal.setup(SIGHUP);
-		signal.setup(SIGQUIT);
-		signal.setup(SIGTRAP);
-		signal.setup(SIGKILL);
-		signal.setup(SIGBUS);
-		signal.setup(SIGSYS);
-		signal.ignore(SIGPIPE); // Ignore SIGPIPE which can be signaled when TCP socket operation on linux
-		signal.setup(SIGALRM);
-
-		QObject::connect(&signal, &GSignal::signaled, this, &GSsCon::processSignal);
-		QObject::connect(&graph_, &GStateObj::closed, this, &GSsCon::processClose);
+		QObject::connect(&signal, &GSignal::signaled, this, &SsCon::processSignal);
+		QObject::connect(&graph_, &GStateObj::closed, this, &SsCon::processClose);
+		signal.setupAll();
 #endif // Q_OS_WIN
-	}
 
-	int exec(GApp* a) {
 		GSsConParam param;
-		if (!param.parse(a->arguments())) {
+		if (!param.parse(QCoreApplication::arguments())) {
 			GSsConParam::usage();
 			return false;
 		}
@@ -76,8 +63,7 @@ public:
 			return false;
 		}
 
-		GPluginFactory& pluginFactory = GPluginFactory::instance();
-		graph_.setFactory(&pluginFactory);
+		graph_.setFactory(&pluginFactory_);
 
 		QJsonObject jo = GJson::loadFromFile(param.fileName_);
 		graph_.propLoad(jo);
@@ -87,70 +73,41 @@ public:
 			return false;
 		}
 
-		bool res = QCoreApplication::exec();
-		graph_.close();
-		return res;
+		return true;
 	}
 
-protected:
-	GGraph graph_;
+	bool doClose() override {
+		return graph_.close();
+	}
 
 public slots:
-	void processClose() {
-		QCoreApplication::quit();
-	}
-
 	void processSignal(int signo) {
 #ifdef Q_OS_WIN
 		(void)signo;
 #else // Q_OS_WIN
-		QString signal = "unknown";
-		switch (signo) {
-			case SIGINT: signal = "SIGINT"; break;
-			case SIGILL: signal = "SIGILL"; break;
-			case SIGABRT: signal = "SIGABRT"; break;
-			case SIGFPE: signal = "SIGFPE"; break;
-			case SIGSEGV: signal = "SIGSEGV"; break;
-			case SIGTERM: signal = "SIGTERM"; break;
-			case SIGHUP: signal = "SIGHUP"; break;
-			case SIGQUIT: signal = "SIGQUIT"; break;
-			case SIGTRAP: signal = "SIGTRAP"; break;
-			case SIGKILL: signal = "SIGKILL"; break;
-			case SIGBUS: signal = "SIGBUS"; break;
-			case SIGSYS: signal = "SIGSYS"; break;
-			case SIGPIPE: signal = "SIGPIPE"; break;
-			case SIGALRM: signal = "SIGALRM"; break;
-		}
-		QString msg = strsignal(signo);
-		qWarning() << QString("signo=%1 signal=%2 msg=%3").arg(signo).arg(signal, msg);
-		if (signo == SIGSEGV)
-			exit(-1);
+		QString str1 = GSignal::getString(signo);
+		QString str2 = strsignal(signo);
+		qWarning() << QString("signo=%1 signal=%2 msg=%3").arg(signo).arg(str1, str2);
 		graph_.close();
-#endif // Q_OS_WIN
+#endif
+	}
+
+	void processClose() {
+		QCoreApplication::quit();
 	}
 };
-
-std::string getDir(std::string argv) {
-	ssize_t i = argv.length() - 1;
-	while (i >= 0) {
-		char& ch = argv.at(i);
-		if (ch  == '/' || ch == '\\') {
-			std::string res = argv.substr(0, i + 1);
-			return res;
-		}
-		i--;
-	}
-	return "/";
-}
 
 #include <unistd.h> // for chdir
 
 int main(int argc, char* argv[]) {
-	chdir(getDir(argv[0]).data());
 	GApp a(argc, argv);
-	GSsCon sc;
-	sc.prepareSignal();
-	return sc.exec(&a);
+	SsCon* sc = new SsCon;;
+	if (!sc->open())
+		return -1;
+	int res = a.exec();
+	sc->close();
+	delete sc;
+	return res;
 }
 
 #include "sscon.moc"

@@ -32,21 +32,25 @@ public:
 	bool signalOnce_{true};
 	bool callOriginFunc_{false};
 
-protected:
+public:
 #ifdef Q_OS_LINUX
 	typedef __sighandler_t Handler;
 #endif
 #ifdef Q_OS_WIN
 	typedef __p_sig_fn_t Handler;
 #endif
+protected:
 	typedef QHash<int, Handler> Handlers;
 	Handlers handlers_;
 	void signalHandler(int signo);
 	static void _signalHandler(int signo);
 
 public:
-	void setup(int signo);
+	void setup(int signo, Handler handler = nullptr);
+	void setupAll(Handler handler = nullptr);
 	void ignore(int signo);
+	static QString getString(int signo);
+
 	static GSignal& instance() {
 		static GSignal signal;
 		return signal;

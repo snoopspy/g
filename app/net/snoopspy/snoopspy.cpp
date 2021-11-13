@@ -1,119 +1,73 @@
-#include <csignal>
 #include <GApp>
 #include <GGraphWidget>
-#include "myfactory.h"
+#include <GSignal>
+#include <GPluginFactory>
 
-GGraphWidget* _graphWidget{nullptr};
-int exec(GApp* a, GGraph* graph, GPluginFactory* pluginFactory) {
-	Q_ASSERT(graph != nullptr);
+struct G_EXPORT SnoopSpy : GStateObj {
+	Q_OBJECT
 
-	if (pluginFactory == nullptr) {
-		pluginFactory = &GPluginFactory::instance();
+public:
+	SnoopSpy(QObject* parent = nullptr) : GStateObj(parent) {}
+
+	~SnoopSpy() override {
+		graph_.close();
 	}
-	graph->setFactory(pluginFactory);
 
-	_graphWidget = new GGraphWidget;
-	_graphWidget->setGraph(graph);
+protected:
+	GGraph graph_;
+	GPluginFactory pluginFactory_;
+	GGraphWidget graphWidget_;
 
-	QJsonObject jo = GJson::loadFromFile();
-	jo["graphWidget"] >> *_graphWidget;
+	bool doOpen() override {
+#ifndef Q_OS_WIN
+		GSignal& signal = GSignal::instance();
+		QObject::connect(&signal, &GSignal::signaled, this, &SnoopSpy::processSignal);
+		signal.setupAll();
+#endif // Q_OS_WIN
 
-	_graphWidget->show();
-	int res = a->exec();
+		graph_.setFactory(&pluginFactory_);
+		graphWidget_.setGraph(&graph_);
 
-	jo["graphWidget"] << *_graphWidget;
-	GJson::saveToFile(jo);
+		QJsonObject jo = GJson::loadFromFile();
+		jo["graphWidget"] >> graphWidget_;
 
-	delete _graphWidget;
-	_graphWidget = nullptr;
+		graphWidget_.show();
 
+		return true;
+	}
+
+	bool doClose() override {
+		graphWidget_.close();
+
+		QJsonObject jo;
+		jo["graphWidget"] << graphWidget_;
+		GJson::saveToFile(jo);
+
+		return true;
+	}
+
+public slots:
+	void processSignal(int signo) {
+#ifdef Q_OS_WIN
+		(void)signo;
+#else // Q_OS_WIN
+		QString str1 = GSignal::getString(signo);
+		QString str2 = strsignal(signo);
+		qWarning() << QString("signo=%1 signal=%2 msg=%3").arg(signo).arg(str1, str2);
+		graphWidget_.close();
+#endif
+	}
+};
+
+int main(int argc, char *argv[]) {
+	GApp a(argc, argv);
+	SnoopSpy* ss = new SnoopSpy;
+	if (!ss->open())
+		return -1;
+	int res = a.exec();
+	ss->close();
+	delete ss;
 	return res;
 }
 
-#ifdef Q_OS_LINUX
-void signalHandler(int signo) {
-	const char* signal = "unknown";
-	switch (signo) {
-		case SIGINT: signal = "SIGINT"; break;
-		case SIGILL: signal = "SIGILL"; break;
-		case SIGABRT: signal = "SIGABRT"; break;
-		case SIGFPE: signal = "SIGFPE"; break;
-		case SIGSEGV: signal = "SIGSEGV"; break;
-		case SIGTERM: signal = "SIGTERM"; break;
-		case SIGHUP: signal = "SIGHUP"; break;
-		case SIGQUIT: signal = "SIGQUIT"; break;
-		case SIGTRAP: signal = "SIGTRAP"; break;
-		case SIGKILL: signal = "SIGKILL"; break;
-		case SIGBUS: signal = "SIGBUS"; break;
-		case SIGSYS: signal = "SIGSYS"; break;
-		case SIGPIPE: signal = "SIGPIPE"; break;
-		case SIGALRM: signal = "SIGALRM"; break;
-		case SIGURG: signal = "SIGURG"; break;
-		case SIGSTOP: signal = "SIGSTOP"; break;
-		case SIGTSTP: signal = "SIGTSTP"; break;
-		case SIGCONT: signal = "SIGCONT"; break;
-		case SIGCHLD: signal = "SIGCHLD"; break;
-		case SIGTTIN: signal = "SIGTTIN"; break;
-		case SIGTTOU: signal = "SIGTTOU"; break;
-		case SIGPOLL: signal = "SIGPOLL"; break;
-		case SIGXCPU: signal = "SIGXCPU"; break;
-		case SIGXFSZ: signal = "SIGXFSZ"; break;
-		case SIGVTALRM: signal = "SIGVTALRM"; break;
-		case SIGPROF: signal = "SIGPROF"; break;
-		case SIGUSR1: signal = "SIGUSR1"; break;
-		case SIGUSR2: signal = "SIGUSR2"; break;
-	}
-	char* msg = strsignal(signo);
-	qCritical() << QString("signo=%1(%2) %3").arg(signal).arg(signo).arg(msg);
-	if (signo == SIGSEGV)
-		exit(-1);
-	qDebug() << "bef _graphWidget->close()";
-	if (_graphWidget != nullptr)
-		_graphWidget->close();
-	qDebug() << "aft _graphWidget->close()";
-}
-
-void prepareSignal() {
-	std::signal(SIGINT, signalHandler);
-	std::signal(SIGILL, signalHandler);
-	std::signal(SIGABRT, signalHandler);
-	std::signal(SIGFPE, signalHandler);
-	std::signal(SIGSEGV, signalHandler);
-	std::signal(SIGTERM, signalHandler);
-	std::signal(SIGHUP, signalHandler);
-	std::signal(SIGQUIT, signalHandler);
-	std::signal(SIGTRAP, signalHandler);
-	std::signal(SIGKILL, signalHandler);
-	std::signal(SIGBUS, signalHandler);
-	std::signal(SIGSYS, signalHandler);
-	std::signal(SIGPIPE, SIG_IGN); // Ignore SIGPIPE which can be signaled when TCP socket operation on linux
-	std::signal(SIGALRM, signalHandler);
-}
-#endif // Q_OS_LINUX
-
-std::string getDir(std::string argv) {
-	ssize_t i = argv.length() - 1;
-	while (i >= 0) {
-		char& ch = argv.at(i);
-		if (ch  == '/' || ch == '\\') {
-			std::string res = argv.substr(0, i + 1);
-			return res;
-		}
-		i--;
-	}
-	return "/";
-}
-#include <unistd.h> // for chdir
-
-int main(int argc, char *argv[]) {
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-	chdir(getDir(argv[0]).data());
-#endif
-#ifdef Q_OS_LINUX
-	prepareSignal();
-#endif // #ifdef Q_OS_LINUX
-	GApp a(argc, argv);
-	GGraph graph;
-	MyFactory factory;
-	return exec(&a, &graph, &factory);
-}
+#include "snoopspy.moc"
