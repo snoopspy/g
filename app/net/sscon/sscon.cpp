@@ -97,8 +97,6 @@ public slots:
 	}
 };
 
-#include <unistd.h> // for chdir
-
 int main(int argc, char* argv[]) {
 	GApp a(argc, argv);
 	SsCon* sc = new SsCon;;
