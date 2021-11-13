@@ -4,7 +4,7 @@
 // GAutoArpSpoof
 // ----------------------------------------------------------------------------
 GAutoArpSpoof::GAutoArpSpoof(QObject* parent) : GArpSpoof(parent) {
-	QObject::connect(this, &GArpSpoof::_preCaptured, &hostDetect_, &GHostDetect::check, Qt::DirectConnection);
+	QObject::connect(this, &GArpSpoof::_preCaptured, &hostDetect_, &GHostDetect::detect, Qt::DirectConnection);
 	QObject::connect(&hostDetect_, &GHostDetect::hostDetected, this, &GAutoArpSpoof::processHostDetected, Qt::DirectConnection);
 
 	hostDelete_.enabled_ = false;
@@ -26,6 +26,11 @@ bool GAutoArpSpoof::doOpen() {
 
 	Q_ASSERT(intf() != nullptr);
 	gwIp_ = intf()->gateway();
+	if (gwIp_ == 0) {
+		SET_ERR(GErr::VALUE_IS_NOT_ZERO, "gateway is zero");
+		return false;
+	}
+
 	GAtm::iterator it = atm_.find(gwIp_);
 	if (it == atm_.end()) {
 		atm_.insert(gwIp_, GMac::nullMac());
@@ -49,6 +54,16 @@ bool GAutoArpSpoof::doOpen() {
 	hostDetect_.intfName_ = intfName_;
 	if (!hostDetect_.open()) {
 		err = hostDetect_.err;
+		return false;
+	}
+
+	if (!hostDelete_.open()) {
+		err = hostDetect_.err;
+		return false;
+	}
+
+	if (!hostScan_.open()) {
+		err = hostScan_.err;
 		return false;
 	}
 
@@ -77,8 +92,9 @@ bool GAutoArpSpoof::doClose() {
 	while (true) {
 		{
 			QMutexLocker ml(&floodingThreadSet_.m_);
-			qDebug() << QString("floodingThreadSet_.count()=%1").arg(floodingThreadSet_.count());  // gilgil temp 2021.11.05
-			if (floodingThreadSet_.count() == 0) break;
+			int count = floodingThreadSet_.count();
+			qDebug() << QString("floodingThreadSet count=%1").arg(count);  // gilgil temp 2021.11.05
+			if (count == 0) break;
 		}
 		QCoreApplication::processEvents();
 		QThread::msleep(10);
@@ -94,8 +110,9 @@ bool GAutoArpSpoof::doClose() {
 	while (true) {
 		{
 			QMutexLocker ml(&recoverThreadSet_.m_);
-			qDebug() << QString("recoverThreadSet_.count=%1").arg(recoverThreadSet_.count()); // gilgil temp 2021.11.05
-			if (recoverThreadSet_.count() == 0) break;
+			int count = recoverThreadSet_.count();
+			qDebug() << QString("recoverThreadSet count=%1").arg(count); // gilgil temp 2021.11.05
+			if (count == 0) break;
 		}
 		QCoreApplication::processEvents();
 		QThread::msleep(10);
@@ -107,8 +124,16 @@ bool GAutoArpSpoof::doClose() {
 		}
 	}
 
+	qDebug() << "bef GArpSpoof::doClose()"; // gilgil temp 2021.11.13
 	bool res = GArpSpoof::doClose();
+
+	qDebug() << "bef hostScan_.close()"; // gilgil temp 2021.11.13
+	hostScan_.close();
+	qDebug() << "bef hostDetect_.close()"; // gilgil temp 2021.11.13
+	hostDelete_.close();
+	qDebug() << "bef hostDetect_.close()"; // gilgil temp 2021.11.13
 	hostDetect_.close();
+	qDebug() << "completed"; // gilgil temp 2021.11.13
 	return res;
 }
 
