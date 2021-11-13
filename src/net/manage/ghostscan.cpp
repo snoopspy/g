@@ -93,22 +93,3 @@ bool GHostScan::propLoad(QJsonObject jo, QMetaProperty mpro) {
 	}
 	return GStateObj::propLoad(jo, mpro);
 }
-
-#ifdef QT_GUI_LIB
-
-#include "base/prop/gpropitem-interface.h"
-GPropItem* GHostScan::propCreateItem(GPropItemParam* param) {
-	if (QString(param->mpro_.name()) == "pcapDevice") {
-		QObject* p = parent();
-		if (p != nullptr && QString(p->metaObject()->className()) == "GAutoArpSpoof")
-			return nullptr;
-		GPropItemInterface* res = new GPropItemInterface(param);
-#ifdef Q_OS_ANDROID
-		res->comboBox_->setEditable(true);
-#endif
-		return res;
-	}
-	return GObj::propCreateItem(param);
-}
-
-#endif // QT_GUI_LIB

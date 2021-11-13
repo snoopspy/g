@@ -64,9 +64,9 @@ protected:
 		} checkThread_{this};
 
 protected:
-	struct ActiveScanThread : GThread {
-		ActiveScanThread(GHostDelete* hostDelete, GHostDetect::Host* host);
-		~ActiveScanThread() override;
+	struct ScanThread : GThread {
+		ScanThread(GHostDelete* hostDelete, GHostDetect::Host* host);
+		~ScanThread() override;
 		void run() override;
 
 		GHostDelete* hostDelete_{nullptr};
@@ -74,18 +74,10 @@ protected:
 		GWaitEvent we_;
 	};
 
-	struct ActiveScanThreadMap: QMap<GMac, ActiveScanThread*> {
+	struct ScanThreadMap: QMap<GMac, ScanThread*> {
 		QMutex m_;
-	} astm_;
-
-signals:
-	void hostDeleted(GHostDetect::Host* host);
+	} stm_;
 
 public:
 	bool propLoad(QJsonObject jo, QMetaProperty mpro) override;
-
-#ifdef QT_GUI_LIB
-public:
-	GPropItem* propCreateItem(GPropItemParam* param) override;
-#endif // QT_GUI_LIB
 };

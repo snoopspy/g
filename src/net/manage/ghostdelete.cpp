@@ -31,8 +31,17 @@ bool GHostDelete::doOpen() {
 bool GHostDelete::doClose() {
 	if (!enabled_) return true;
 
+	{
+		QMutexLocker ml(&stm_.m_);
+		for (ScanThreadMap::iterator it = stm_.begin(); it != stm_.end(); it++) {
+			ScanThread* scanThread = it.value();
+			scanThread->we_.wakeAll();
+		}
+	}
 	checkThread_.we_.wakeAll();
+	qDebug() << "";
 	bool res = checkThread_.wait();
+	qDebug() << "";
 	return res;
 }
 
@@ -47,13 +56,13 @@ void GHostDelete::checkRun() {
 			for (GHostDetect::Host& host : hostDetect_->hosts_) {
 				// qDebug() << QString("lastAccess=%1 now=%2 diff=%3").arg(host.lastAccess_).arg(now).arg(now-host.lastAccess_); // gilgil temp 2021.10.24
 				if (host.lastAccess_ + scanStartTimeout_ < now) {
-					QMutexLocker ml(&astm_.m_);
-					ActiveScanThreadMap::iterator it = astm_.find(host.mac_);
-					if (it == astm_.end()) {
+					QMutexLocker ml(&stm_.m_);
+					ScanThreadMap::iterator it = stm_.find(host.mac_);
+					if (it == stm_.end()) {
 						QMetaObject::invokeMethod(this, [this, &host]() {
-							ActiveScanThread* ast = new ActiveScanThread(this, &host);
+							ScanThread* ast = new ScanThread(this, &host);
 							QObject::connect(ast, &QThread::finished, ast, &QObject::deleteLater);
-							astm_.insert(host.mac_, ast);
+							stm_.insert(host.mac_, ast);
 							ast->start();
 						});
 					}
@@ -67,24 +76,27 @@ void GHostDelete::checkRun() {
 }
 
 // ----------------------------------------------------------------------------
-// GHostDelete::ActiveScanThread
+// GHostDelete::ScanThread
 // ----------------------------------------------------------------------------
-GHostDelete::ActiveScanThread::ActiveScanThread(GHostDelete* hostDelete, GHostDetect::Host* host) : GThread(hostDelete) {
-	qDebug() << "beg" << QString(host->mac_); // gilgil temp 2021.11.11
+GHostDelete::ScanThread::ScanThread(GHostDelete* hostDelete, GHostDetect::Host* host) : GThread(hostDelete) {
 	hostDelete_ = hostDelete;
 	host_ = host;
 }
 
-GHostDelete::ActiveScanThread::~ActiveScanThread() {
-	qDebug() << "end"; // gilgil temp 2021.11.11
+GHostDelete::ScanThread::~ScanThread() {
 }
 
-void GHostDelete::ActiveScanThread::run() {
-	qDebug() << "beg";
+void GHostDelete::ScanThread::run() {
+	qDebug() << "beg " + QString(host_->mac_);  // by gilgil 2021.11.13
 
 	if (we_.wait(hostDelete_->randomSleepTime_)) return;
+	qDebug() << "aft we_.wait(hostDelete_->randomSleepTime_)";
 
 	GPcapDevice* device = hostDelete_->pcapDevice_;
+	if (!device->active()) {
+		qDebug() << "device->active() is false";
+		return;
+	}
 	GIntf* intf = device->intf();
 	Q_ASSERT(intf != nullptr);
 
@@ -111,42 +123,46 @@ void GHostDelete::ActiveScanThread::run() {
 
 	QElapsedTimer et;
 	qint64 start = et.elapsed();
+
+	bool shouldBeDeleted = true;
 	while (true) {
 		GPacket::Result res = device->write(GBuf(pbyte(&packet), sizeof(packet)));
 		if (res != GPacket::Ok) {
-			qWarning() << QString("device_->write return %1 %2").arg(int(res)).arg(device->err->msg());
+			qWarning() << QString("device_->write return %1").arg(int(res));
 		}
 		if (we_.wait(hostDelete_->sendSleepTime_)) break;
+		if (!device->active() || !hostDelete_->active()) break;
 
 		qint64 now = et.elapsed();
 		if (host_->lastAccess_ + hostDelete_->scanStartTimeout_ > now) { // accessed
-			qDebug() << QString("access detected %1 %2").arg(QString(host_->mac_), QString(host_->ip_));
+			qDebug() << QString("detect %1 %2").arg(QString(host_->mac_), QString(host_->ip_));
+			shouldBeDeleted = false;
 			break;
 		}
 
 		if (start + hostDelete_->deleteTimeout_ < now) {
-			qDebug() << QString("%1 %2 timeout diff=%3").arg(QString(host_->mac_), QString(host_->ip_)).arg(now - start);
-			emit hostDelete_->hostDeleted(host_);
-
-			ActiveScanThreadMap* astm = &hostDelete_->astm_;
-			{
-				QMutexLocker ml(&hostDelete_->astm_.m_);
-				qDebug() << "mac_= " << QString(host_->mac_);  // gilgil temp 2021.11.11
-				int res = astm->remove(host_->mac_);
-				if (res != 1) {
-					qCritical() << QString("astm->remove return %1").arg(res);
-				}
-			}
-
-			{
-				QMutexLocker ml(&hostDelete_->hostDetect_->hosts_.m_);
-				hostDelete_->hostDetect_->hosts_.remove(host_->mac_);
-			}
+			qDebug() << QString("timeout %1 %2 diff=%3").arg(QString(host_->mac_), QString(host_->ip_)).arg(now - start);
+			emit hostDelete_->hostDetect_->hostDeleted(host_);
 			break;
 		}
 	}
 
-	qDebug() << "end";
+
+	ScanThreadMap* astm = &hostDelete_->stm_;
+	{
+		QMutexLocker ml(&astm->m_);
+		int res = astm->remove(host_->mac_);
+		if (res != 1) {
+			qCritical() << QString("astm->remove return %1").arg(res);
+		}
+	}
+
+	if (shouldBeDeleted) {
+		QMutexLocker ml(&hostDelete_->hostDetect_->hosts_.m_);
+		hostDelete_->hostDetect_->hosts_.remove(host_->mac_);
+	}
+
+	qDebug() << "end " + QString(host_->mac_);  // by gilgil 2021.11.13
 }
 
 bool GHostDelete::propLoad(QJsonObject jo, QMetaProperty mpro) {
@@ -158,22 +174,3 @@ bool GHostDelete::propLoad(QJsonObject jo, QMetaProperty mpro) {
 	}
 	return GStateObj::propLoad(jo, mpro);
 }
-
-#ifdef QT_GUI_LIB
-
-#include "base/prop/gpropitem-interface.h"
-GPropItem* GHostDelete::propCreateItem(GPropItemParam* param) {
-	if (QString(param->mpro_.name()) == "pcapDevice" || QString(param->mpro_.name()) == "hostDetect") {
-		QObject* p = parent();
-		if (p != nullptr && QString(p->metaObject()->className()) == "GAutoArpSpoof")
-			return nullptr;
-		GPropItemInterface* res = new GPropItemInterface(param);
-#ifdef Q_OS_ANDROID
-		res->comboBox_->setEditable(true);
-#endif
-		return res;
-	}
-	return GObj::propCreateItem(param);
-}
-
-#endif // QT_GUI_LIB

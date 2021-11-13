@@ -106,7 +106,7 @@ bool GHostDetect::processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip) 
 	return true;
 }
 
-void GHostDetect::check(GPacket* packet) {
+void GHostDetect::detect(GPacket* packet) {
 	GMac mac;
 	GIp ip;
 	QString hostName;
@@ -136,7 +136,7 @@ void GHostDetect::check(GPacket* packet) {
 
 	if (hostName != "") {
 		Host host(mac, ip, hostName);
-		qDebug() << QString("host detected %1 %2 %3").arg(QString(mac), QString(ip), hostName);
+		qDebug() << QString("%1 %2 %3").arg(QString(mac), QString(ip), hostName);
 		emit hostDetected(&host);
 	}
 
@@ -153,26 +153,7 @@ void GHostDetect::check(GPacket* packet) {
 		}
 	}
 	if (newHost != hosts_.end()) {
-		qDebug() << QString("host detected %1 %2").arg(QString(mac), QString(ip));
+		qDebug() << QString("%1 %2").arg(QString(mac), QString(ip));
 		emit hostDetected(&newHost.value());
 	}
 }
-
-#ifdef QT_GUI_LIB
-
-#include "base/prop/gpropitem-interface.h"
-GPropItem* GHostDetect::propCreateItem(GPropItemParam* param) {
-	if (QString(param->mpro_.name()) == "intfName") {
-		QObject* p = parent();
-		if (p != nullptr && QString(p->metaObject()->className()) == "GAutoArpSpoof")
-			return nullptr;
-		GPropItemInterface* res = new GPropItemInterface(param);
-#ifdef Q_OS_ANDROID
-		res->comboBox_->setEditable(true);
-#endif
-		return res;
-	}
-	return GObj::propCreateItem(param);
-}
-
-#endif // QT_GUI_LIB

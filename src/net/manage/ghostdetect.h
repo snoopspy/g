@@ -51,7 +51,7 @@ protected:
 	bool processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip);
 
 public slots:
-	void check(GPacket* packet);
+	void detect(GPacket* packet);
 
 public:
 	struct Host {
@@ -80,9 +80,5 @@ public:
 
 signals:
 	void hostDetected(GHostDetect::Host* host);
-
-#ifdef QT_GUI_LIB
-public:
-	GPropItem* propCreateItem(GPropItemParam* param) override;
-#endif // QT_GUI_LIB
+	void hostDeleted(GHostDetect::Host* host);
 };
