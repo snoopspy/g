@@ -124,16 +124,16 @@ bool GAutoArpSpoof::doClose() {
 		}
 	}
 
-	qDebug() << "bef GArpSpoof::doClose()"; // gilgil temp 2021.11.13
+	// qDebug() << "bef GArpSpoof::doClose()"; // gilgil temp 2021.11.13
 	bool res = GArpSpoof::doClose();
 
-	qDebug() << "bef hostScan_.close()"; // gilgil temp 2021.11.13
+	// qDebug() << "bef hostScan_.close()"; // gilgil temp 2021.11.13
 	hostScan_.close();
-	qDebug() << "bef hostDetect_.close()"; // gilgil temp 2021.11.13
+	// qDebug() << "bef hostDetect_.close()"; // gilgil temp 2021.11.13
 	hostDelete_.close();
-	qDebug() << "bef hostDetect_.close()"; // gilgil temp 2021.11.13
+	// qDebug() << "bef hostDetect_.close()"; // gilgil temp 2021.11.13
 	hostDetect_.close();
-	qDebug() << "completed"; // gilgil temp 2021.11.13
+	// qDebug() << "completed"; // gilgil temp 2021.11.13
 	return res;
 }
 
@@ -147,7 +147,7 @@ void GAutoArpSpoof::processHostDetected(GHostDetect::Host* host) {
 		QMutexLocker ml(&flowMap_.m_);
 		if (flowMap_.find(ipFlowKey) != flowMap_.end()) return;
 	}
-	qDebug() << QString("new host(%1 %2) detected").arg(QString(mac), QString(ip));
+	// qDebug() << QString("new host(%1 %2) detected").arg(QString(mac), QString(ip));
 
 	Flow flow(ip, mac, gwIp_, gwMac_);
 	flow.makePacket(&flow.infectPacket_, attackMac_, true);
@@ -210,7 +210,7 @@ GAutoArpSpoof::FloodingThread::~FloodingThread() {
 }
 
 void GAutoArpSpoof::FloodingThread::run() {
-	qDebug() << QString("beg %1").arg(QString(infectPacket_->arpHdr_.tip()));
+	// qDebug() << QString("beg %1").arg(QString(infectPacket_->arpHdr_.tip())); // gilgil temp 2021.11.15
 	QElapsedTimer timer;
 	timer.start();
 	while (parent_->active()) {
@@ -223,7 +223,7 @@ void GAutoArpSpoof::FloodingThread::run() {
 		}
 		if (we_.wait(parent_->floodingSendInterval_)) break;
 	}
-	qDebug() << QString("end %1").arg(QString(infectPacket_->arpHdr_.tip()));
+	// qDebug() << QString("end %1").arg(QString(infectPacket_->arpHdr_.tip())); // gilgil temp 2021.11.15
 }
 
 GAutoArpSpoof::RecoverThread::RecoverThread(GAutoArpSpoof* parent, Flow flow1, Flow flow2) : QThread(parent) {
@@ -250,9 +250,9 @@ GAutoArpSpoof::RecoverThread::~RecoverThread() {
 }
 
 void GAutoArpSpoof::RecoverThread::run() {
-	qDebug() << QString("beg %1").arg(QString(flow1_.senderIp_));
+	// qDebug() << QString("beg %1").arg(QString(flow1_.senderIp_)); // gilgil temp 2021.11.15
 	if (we_.wait(parent_->recoverTimeout_)) return;
-	qDebug() << QString("end %1").arg(QString(flow1_.senderIp_));
+	// qDebug() << QString("end %1").arg(QString(flow1_.senderIp_)); // gilgil temp 2021.11.15
 }
 
 void GAutoArpSpoof::removeFlows(Flow* flow1, Flow* flow2) {
