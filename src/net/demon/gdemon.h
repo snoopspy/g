@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
