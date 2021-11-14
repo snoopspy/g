@@ -81,4 +81,9 @@ public:
 signals:
 	void hostDetected(GHostDetect::Host* host);
 	void hostDeleted(GHostDetect::Host* host);
+
+#ifdef QT_GUI_LIB
+public:
+	GPropItem* propCreateItem(GPropItemParam* param) override;
+#endif // QT_GUI_LIB
 };

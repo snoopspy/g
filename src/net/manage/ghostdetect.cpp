@@ -72,8 +72,8 @@ bool GHostDetect::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host
 			*mac = ethHdr->smac();
 			ok = true;
 		} else if (option->type_ == GDhcpHdr::HostName) {
-			for (int i = 0; i < option->len_; i++)
-				*hostName += *(pchar(option->value()) + i);
+			QByteArray tmp(pchar(option->value()), option->len_);
+			*hostName = QString(tmp);
 		}
 		option = option->next();
 		if (option == nullptr) break;
@@ -157,3 +157,15 @@ void GHostDetect::detect(GPacket* packet) {
 		emit hostDetected(&newHost.value());
 	}
 }
+
+#ifdef QT_GUI_LIB
+
+#include "base/prop/gpropitem-interface.h"
+GPropItem* GHostDetect::propCreateItem(GPropItemParam* param) {
+	if (QString(param->mpro_.name()) == "intfName") {
+		return new GPropItemInterface(param);
+	}
+	return GObj::propCreateItem(param);
+}
+
+#endif // QT_GUI_LIB

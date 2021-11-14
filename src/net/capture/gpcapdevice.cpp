@@ -135,11 +135,7 @@ GPacket::Result GPcapDevice::read(GPacket* packet) {
 #include "base/prop/gpropitem-interface.h"
 GPropItem* GPcapDevice::propCreateItem(GPropItemParam* param) {
 	if (QString(param->mpro_.name()) == "intfName") {
-		GPropItemInterface* res = new GPropItemInterface(param);
-#ifdef Q_OS_ANDROID
-		res->comboBox_->setEditable(true);
-#endif
-		return res;
+		return new GPropItemInterface(param);
 	}
 	return GObj::propCreateItem(param);
 }

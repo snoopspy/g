@@ -130,9 +130,7 @@ GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
 #include "base/prop/gpropitem-interface.h"
 GPropItem* GPcapDeviceWrite::propCreateItem(GPropItemParam* param) {
 	if (QString(param->mpro_.name()) == "intfName") {
-		GPropItemInterface* res = new GPropItemInterface(param);
-		res->comboBox_->setEditable(true);
-		return res;
+		return new GPropItemInterface(param);
 	}
 	return GObj::propCreateItem(param);
 }
