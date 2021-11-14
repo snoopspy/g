@@ -50,7 +50,7 @@ public:
 public:
 	bool isSameLanIp(GIp ip) { return (ip_and_mask_) == (ip & mask_); }
 	GIp getAdjIp(GIp ip) { return isSameLanIp(ip) ? ip : gateway_; }
-	GIp getStartIp() { return (ip_ & mask_) + 1; }
+	GIp getBeginIp() { return (ip_ & mask_) + 1; }
 	GIp getEndIp() { return (ip_ | ~mask_);}
 
 public:
