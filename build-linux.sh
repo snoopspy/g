@@ -17,7 +17,7 @@ cp ../../bin/netclient .; strip netclient
 cp ../../bin/netserver .; strip netserver
 cp ../../bin/snoopspy .; strip snoopspy
 cp ../../bin/sscon .; strip sscon
-cp ../../bin/ssdemon .; strip ssdemon
+#cp ../../bin/ssdemon .; strip ssdemon
 cp ../../bin/sslog .; strip sslog
 cp ../../setup/setup-linux.sh .
 mkdir ss
