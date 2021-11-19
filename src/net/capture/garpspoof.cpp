@@ -200,11 +200,11 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 				QMutexLocker ml(&flowList_.m_);
 				for (Flow& flow: flowList_) {
 					bool infect = false;
-					if (arpHdr->sip() == flow.senderIp_ && arpHdr->smac() != flow.senderMac_ && arpHdr->tip() == flow.targetIp_) { // sender > target ARP packet
+					if (arpHdr->op() == GArpHdr::Request && arpHdr->sip() == flow.senderIp_ && /*arpHdr->smac() == flow.senderMac_ &&*/ arpHdr->tip() == flow.targetIp_) { // sender > target ARP packet
 						qDebug() << QString("sender(%1) to target(%2) ARP packet").arg(QString(flow.senderIp_), QString(flow.targetIp_));
 						infect = true;
 					} else
-						if (arpHdr->sip() == flow.targetIp_ && arpHdr->smac() != flow.senderMac_ && ethHdr->dmac() == GMac::broadcastMac()) { // target to any ARP packet
+						if (arpHdr->sip() == flow.targetIp_ && /*arpHdr->smac() == flow.targetMac_ &&*/ ethHdr->dmac() == GMac::broadcastMac()) { // target to any ARP packet
 							qDebug() << QString("target(%1) to any(%2) ARP packet").arg(QString(flow.targetIp_), QString(flow.senderIp_));
 							infect = true;
 						}

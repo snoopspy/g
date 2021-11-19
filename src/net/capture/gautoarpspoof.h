@@ -54,31 +54,35 @@ protected:
 	GIp gwIp_;
 	GMac gwMac_;
 
+
+	typedef QPair<GFlow::IpFlowKey, GFlow::IpFlowKey> TwoFlowKey;
 	struct FloodingThread : QThread {
-		FloodingThread(GAutoArpSpoof* parent, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2);
+		FloodingThread(GAutoArpSpoof* parent, TwoFlowKey twoFlowKey, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2);
 		~FloodingThread() override;
 		void run() override;
 
 		GAutoArpSpoof* parent_;
 		GWaitEvent we_;
+		TwoFlowKey twoFlowKey_;
 		GEthArpHdr infectPacket_[2];
 	};
-	struct FloodingThreadSet : QSet<FloodingThread*> {
-		QMutex m_;
-	} floodingThreadSet_;
+	struct FloodingThreadMap : QMap<TwoFlowKey, FloodingThread*> {
+		QRecursiveMutex m_;
+	} floodingThreadMap_;
 
 	struct RecoverThread : QThread {
-		RecoverThread(GAutoArpSpoof* parent, Flow flow1, Flow flow2);
+		RecoverThread(GAutoArpSpoof* parent, TwoFlowKey twoFlowKey, Flow flow1, Flow flow2);
 		~RecoverThread() override;
 		void run() override;
 
 		GAutoArpSpoof* parent_;
 		GWaitEvent we_;
+		TwoFlowKey twoFlowKey_;
 		Flow flow1_, flow2_;
 	};
-	struct RecoverThreadSet : QSet<RecoverThread*> {
-		QMutex m_;
-	} recoverThreadSet_;
+	struct RecoverThreadMap : QMap<TwoFlowKey, RecoverThread*> {
+		QRecursiveMutex m_;
+	} recoverThreadMap_;
 
 	void removeFlows(Flow* flow1, Flow* flow2);
 
