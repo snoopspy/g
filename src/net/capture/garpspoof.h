@@ -49,6 +49,7 @@ typedef GArpSpoofFlow *PArpSpoofFlow;
 // ----------------------------------------------------------------------------
 struct G_EXPORT GArpSpoof : GPcapDevice {
 	Q_OBJECT
+	Q_PROPERTY(QString internalFilter MEMBER internalFilter_)
 	Q_PROPERTY(QString virtualMac READ getVirtualMac WRITE setVirtualMac)
 	Q_PROPERTY(ulong infectInterval MEMBER infectInterval_)
 	Q_PROPERTY(ulong sendInterval MEMBER sendInterval_)
@@ -57,6 +58,13 @@ struct G_EXPORT GArpSpoof : GPcapDevice {
 	GObjRefArrayPtr getFlows() { return &flows_; }
 	QString getVirtualMac() { return QString(virtualMac_); }
 	void setVirtualMac(QString value) { virtualMac_ = value; }
+
+public:
+	QString internalFilter_;
+	GMac virtualMac_{GMac::nullMac()};
+	GDuration infectInterval_{1000};
+	GDuration sendInterval_{1};
+	GObjRefArray<GArpSpoofFlow> flows_; // for property
 
 public:
 	Q_INVOKABLE GArpSpoof(QObject* parent = nullptr);
@@ -79,11 +87,7 @@ protected:
 	void runArpRecover(FlowList* flowList);
 
 public:
-	GMac virtualMac_{GMac::nullMac()};
 	GBpFilter* bpFilter_{nullptr};
-	GDuration infectInterval_{1000};
-	GDuration sendInterval_{1};
-	GObjRefArray<GArpSpoofFlow> flows_; // for property
 	GAtm atm_;
 
 protected:

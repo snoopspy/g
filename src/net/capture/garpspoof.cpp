@@ -41,17 +41,14 @@ bool GArpSpoof::doOpen() {
 	}
 	// --------------------------------
 
-	QString internalFilter;
 	myMac_ = intf()->mac();
 	if (virtualMac_.isNull()) {
 		attackMac_ = myMac_;
-		internalFilter = QString("!(ether src %1)").arg(QString(intf()->mac()));
 	} else {
 		attackMac_ = virtualMac_;
-		internalFilter = QString("!(ether src %1) && !(ether src %2)").arg(QString(intf()->mac()), QString(virtualMac_));
 	}
 	QString backupFilter = filter_;
-	filter_ = internalFilter;
+	filter_ = internalFilter_;
 	if (!GPcapDevice::doOpen()) return false;
 	filter_ = backupFilter;
 
