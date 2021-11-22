@@ -105,7 +105,7 @@ bool GPcapCapture::pcapProcessFilter(pcap_if_t* dev) {
 	else
 		uNetMask = 0xFFFFFFFF;
 	if (pcap_compile(pcap_, &code, qPrintable(filter_), 1, uNetMask) < 0) {
-		SET_ERR(GErr::UNKNOWN, QString("error in pcap_compile(%1)").arg(pcap_geterr(pcap_)));
+		SET_ERR(GErr::UNKNOWN, QString("error in pcap_compile %1 - %2").arg(pcap_geterr(pcap_)).arg(filter_));
 		return false;
 	}
 	if (pcap_setfilter(pcap_, &code) < 0) {

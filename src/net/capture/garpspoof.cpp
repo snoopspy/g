@@ -49,8 +49,9 @@ bool GArpSpoof::doOpen() {
 	}
 	QString backupFilter = filter_;
 	filter_ = internalFilter_;
-	if (!GPcapDevice::doOpen()) return false;
+	bool res = GPcapDevice::doOpen();
 	filter_ = backupFilter;
+	if (!res) return false;
 
 	if (filter_ != "") {
 		bpFilter_ = new GBpFilter(this);
