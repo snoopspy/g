@@ -43,22 +43,10 @@ GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
 		return GPacket::Fail;
 	}
 
-	struct sockaddr_in sin;
-	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = packet->ipHdr_->dip_; // network byte order
+	sockaddr sa;
+	sa.sa_family = AF_INET;
 
-	// ----- gilgil temp 2021.11.24 -----
-	/* Doest not set TCP or UDP information
-	if (packet->tcpHdr_ != nullptr)
-		sin.sin_port = packet->tcpHdr_->dport_; // network byte order
-	else if (packet->udpHdr_ != nullptr)
-		sin.sin_port = packet->udpHdr_->dport_; // network byte order
-	else
-		sin.sin_port = 0; // network byte order
-	*/
-	// ----------------------------------
-
-	int res = ::sendto(sd_, pchar(packet->ipHdr_), packet->ipHdr_->len(), 0, (sockaddr*)&sin, sizeof(sin));
+	int res = ::sendto(sd_, pchar(packet->ipHdr_), packet->ipHdr_->len(), 0, &sa, sizeof(sa));
 	if (res < 0) {
 		QString msg = QString("sendto return %1(%2)").arg(res).arg(strerror(errno));
 		SET_ERR(GErr::FAIL, msg);
