@@ -113,18 +113,21 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	// Ethernet
 	//
 	GMac backupsMac, backupdMac;
-	if (packet->ethHdr_ != nullptr) {
-		GEthHdr* ethHdr = packet->ethHdr_;
-		Q_ASSERT(writer_->intf() != nullptr);
-		backupsMac = ethHdr->smac();
-		backupdMac = ethHdr->dmac();
-		GMac myMac = writer_->intf()->mac();
-		if (direction == Backward) {
-			ethHdr->dmac_ = ethHdr->smac();
-			ethHdr->smac_ = myMac;
-		} else {
-			//ethHdr->dmac_ = ethHdr->dmac();
-			ethHdr->smac_ = myMac;
+	GPcapDeviceWrite* pcapDeviceWrite = dynamic_cast<GPcapDeviceWrite*>(writer_);
+	if (pcapDeviceWrite != nullptr) {
+		if (packet->ethHdr_ != nullptr) {
+			GEthHdr* ethHdr = packet->ethHdr_;
+			Q_ASSERT(pcapDeviceWrite->intf() != nullptr);
+			backupsMac = ethHdr->smac();
+			backupdMac = ethHdr->dmac();
+			GMac myMac = pcapDeviceWrite->intf()->mac();
+			if (direction == Backward) {
+				ethHdr->dmac_ = ethHdr->smac();
+				ethHdr->smac_ = myMac;
+			} else {
+				//ethHdr->dmac_ = ethHdr->dmac();
+				ethHdr->smac_ = myMac;
+			}
 		}
 	}
 
@@ -137,12 +140,13 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 
 	// write
 	writer_->write(packet);
-	qDebug() << "block packet sent";
 
-	if (packet->ethHdr_ != nullptr) {
-		GEthHdr* ethHdr = packet->ethHdr_;
-		ethHdr->smac_ = backupsMac;
-		ethHdr->dmac_ = backupdMac;
+	if (pcapDeviceWrite != nullptr) {
+		if (packet->ethHdr_ != nullptr) {
+			GEthHdr* ethHdr = packet->ethHdr_;
+			ethHdr->smac_ = backupsMac;
+			ethHdr->dmac_ = backupdMac;
+		}
 	}
 }
 
