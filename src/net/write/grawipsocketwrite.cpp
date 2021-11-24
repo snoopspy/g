@@ -32,11 +32,16 @@ bool GRawIpSocketWrite::doClose() {
 }
 
 GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
-	sockaddr sa;
-	sa.sa_family = AF_INET;
-	int res = ::sendto(sd_, buf.data_, buf.size_, 0, &sa, sizeof(sa));
+	GIpHdr* ipHdr = PIpHdr(buf.data_);
+
+	struct sockaddr_in sin;
+	sin.sin_family = AF_INET;
+	sin.sin_addr.s_addr = ipHdr->dip_; // network byte order
+
+	errno = 0; // gilgil temp 2021.11.24
+	int res = ::sendto(sd_, pbyte(ipHdr), ipHdr->len(), 0, (sockaddr*)&sin, sizeof(sin));
 	if (res < 0) {
-		QString msg = QString("sendto return %1(%2)").arg(res).arg(strerror(errno));
+		QString msg = QString("sendto return %1(%2) buf len=%3").arg(res).arg(strerror(errno)).arg(ipHdr->len());
 		SET_ERR(GErr::FAIL, msg);
 		return GPacket::Fail;
 	}
@@ -44,9 +49,17 @@ GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 }
 
 GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
-	Q_ASSERT(packet->ipHdr_ != nullptr);
+	GPacket::Result res;
+	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->len() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr) {
+		GBuf backupBuf = packet->buf_;
+		GIpHdr* ipHdr = packet->ipHdr_ ;
+		packet->buf_.data_ = pbyte(ipHdr);
+		packet->buf_.size_ = ipHdr->len();
+		res = writeMtuSplit(packet, mtu_, GPacket::Ip);
+		packet->buf_ = backupBuf;
+	} else
+		res = write(GBuf(pbyte(packet->ipHdr_), packet->ipHdr_->len()));
 
-	GPacket::Result res = write(GBuf(pbyte(packet->ipHdr_), packet->ipHdr_->len()));
 	if (res == GPacket::Ok)
 		emit written(packet);
 	return res;

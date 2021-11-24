@@ -125,7 +125,8 @@ GPacket::Result GPcapDevice::relay(GPacket* packet) {
 #else
 GPacket::Result GPcapDevice::read(GPacket* packet) {
 	GPacket::Result res = GPcapCapture::read(packet);
-	if (res == GPacket::None && waitTimeout_ != 0) QThread::msleep(waitTimeout_);
+	if (res == GPacket::None && waitTimeout_ != 0)
+		QThread::msleep(waitTimeout_);
 	return res;
 }
 #endif

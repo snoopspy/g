@@ -115,8 +115,8 @@ GPacket::Result GPcapDeviceWrite::write(GBuf buf) {
 
 GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
 	GPacket::Result res;
-	if (mtu_ != 0 && packet->buf_.size_ > sizeof(GEthHdr) + mtu_ && dlt_ == GPacket::Eth && packet->tcpHdr_ != nullptr)
-		res = writeMtuSplit(packet, mtu_);
+	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->len() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr)
+		res = writeMtuSplit(packet, mtu_, GPacket::Eth);
 	else
 		res = write(packet->buf_);
 	if (res == GPacket::Ok)

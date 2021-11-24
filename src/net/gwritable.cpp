@@ -4,13 +4,19 @@
 // ----------------------------------------------------------------------------
 // GWritable
 // ----------------------------------------------------------------------------
-GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu) {
-	//qDebug() << packet->buf_.size_; // gilgil temp 2021.07.10
-
-	GEthHdr* ethHdr = packet->ethHdr_;
-	if (ethHdr == nullptr) {
-		qWarning() << "ethHdr is null";
-		return GPacket::Fail;
+GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu, GPacket::Dlt dlt, GDuration msleepTime) {
+	size_t ethernetSize;
+	switch (dlt) {
+		case GPacket::Eth:
+			ethernetSize = sizeof(GEthHdr);
+			break;
+		case GPacket::Ip:
+			ethernetSize = 0;
+			break;
+		case GPacket::Dot11:
+		case GPacket::Null:
+			qCritical() << QString("invalid datalinktype %1").arg(int(dlt));
+			return GPacket::Fail;
 	}
 
 	GIpHdr* ipHdr = packet->ipHdr_;
@@ -32,58 +38,38 @@ GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu) {
 	}
 
 	GBuf backupBuf = packet->buf_;
-	tempBuffer_.resize(packet->buf_.size_);
-	memcpy(tempBuffer_.data(), packet->buf_.data_, packet->buf_.size_);
-
-	ipHdr->len_ = ntohs(mtu);
-	ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
-
-	gbyte* tcpDataData = tcpData.data_;
+	backupBuffer_.resize(packet->buf_.size_);
+	memcpy(backupBuffer_.data(), packet->buf_.data_, packet->buf_.size_);
 
 	size_t ipTcpHdrSize = (ipHdr->hl() + tcpHdr->off()) * 4;
-	size_t totalTcpDataSize = packet->buf_.size_ - (sizeof(GEthHdr) + ipTcpHdrSize);
-	while (true) {
-		if (ipTcpHdrSize + totalTcpDataSize <= mtu) break;
+	size_t tcpDataSize = ipHdr->len() - ipTcpHdrSize;
 
-		packet->buf_.size_ = sizeof(GEthHdr) + mtu;
-		size_t onceTcpDataSize = mtu - ipTcpHdrSize;
-		//qDebug() << "onceTcpDataSize =" << onceTcpDataSize; // gilgil temp 2021.07.10
+	gbyte* tcpDataData = tcpData.data_;
+	GPacket::Result result = GPacket::Ok;
+
+	while (tcpDataSize > 0) {
+		size_t onceTcpDataSize = tcpDataSize;
+		if (onceTcpDataSize > mtu - ipTcpHdrSize)
+			onceTcpDataSize = mtu - ipTcpHdrSize;
+
+		packet->buf_.size_ = ethernetSize + ipTcpHdrSize + onceTcpDataSize;
+		ipHdr->len_ = htons(ipTcpHdrSize + onceTcpDataSize);
 		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
-		write(packet->buf_);
-		QThread::usleep(1000); // gilgil temp 2021.07.10
+		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
 
+		GPacket::Result res = write(packet->buf_);
+		if (res != GPacket::Ok) {
+			qWarning() << QString("write(packet->buf_) return %1 len=%2").arg(int(res)).arg(packet->buf_.size_);
+			result = res;
+		}
 		tcpHdr->seq_ = htonl(tcpHdr->seq() + onceTcpDataSize); // next seq
-		totalTcpDataSize -= onceTcpDataSize;
-		memcpy(tcpDataData, tcpDataData + onceTcpDataSize, totalTcpDataSize); // next data
-		// QThread::msleep(1); // gilgil temp 2021.07.12
+		tcpDataSize -= onceTcpDataSize;
+		memcpy(tcpDataData, tcpDataData + onceTcpDataSize, tcpDataSize); // next data
+		if (tcpDataSize > 0)
+			QThread::msleep(msleepTime);
 	}
-	//qDebug() << "lastTcpDataSize =" << totalTcpDataSize; // gilgil temp 2021.07.10
-	ipHdr->len_ = ntohs(ipTcpHdrSize + totalTcpDataSize);
-	ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
-	tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
-	packet->buf_.size_ = sizeof(GEthHdr) + ipTcpHdrSize + totalTcpDataSize;
-	GPacket::Result res = write(packet->buf_); // gilgil temp 2021.07.10
 
 	packet->buf_ = backupBuf;
-	memcpy(packet->buf_.data_, tempBuffer_.data(), packet->buf_.size_);
-	return res;
+	memcpy(packet->buf_.data_, backupBuffer_.data(), packet->buf_.size_);
+	return result;
 }
-
-// ----- gilgi temp 2021.07.12 -----
-/*
-#include "net/write/grawipsocketwrite.h"
-GPacket::Result GWritable::writeMtuSplit(GPacket* packet) {
-	GRawIpSocketWrite write;
-	Q_ASSERT(write.open());
-	GBuf backupBuf = packet->buf_;
-	packet->buf_.data_ += sizeof(GEthHdr);
-	packet->buf_.size_ -= sizeof(GEthHdr);
-	GPacket::Result res = write.write(packet);
-	packet->buf_ = backupBuf;
-
-	write.close();
-	return res;
-}
-*/
-// ---------------------------------
-
