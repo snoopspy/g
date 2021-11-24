@@ -32,26 +32,22 @@ bool GRawIpSocketWrite::doClose() {
 }
 
 GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
-	(void)buf;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
-	return GPacket::Fail;
-}
-
-GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
-	if (packet->ipHdr_ == nullptr) {
-		qWarning() << "packet->ipHdr_ is nullptr";
-		return GPacket::Fail;
-	}
-
 	sockaddr sa;
 	sa.sa_family = AF_INET;
-
-	int res = ::sendto(sd_, pchar(packet->ipHdr_), packet->ipHdr_->len(), 0, &sa, sizeof(sa));
+	int res = ::sendto(sd_, buf.data_, buf.size_, 0, &sa, sizeof(sa));
 	if (res < 0) {
 		QString msg = QString("sendto return %1(%2)").arg(res).arg(strerror(errno));
 		SET_ERR(GErr::FAIL, msg);
 		return GPacket::Fail;
 	}
-	emit written(packet);
 	return GPacket::Ok;
+}
+
+GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
+	Q_ASSERT(packet->ipHdr_ != nullptr);
+
+	GPacket::Result res = write(GBuf(pbyte(packet->ipHdr_), packet->ipHdr_->len()));
+	if (res == GPacket::Ok)
+		emit written(packet);
+	return res;
 }
