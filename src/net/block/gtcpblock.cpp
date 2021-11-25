@@ -1,4 +1,5 @@
 #include "gtcpblock.h"
+#include "net/write/gpcapdevicewrite.h"
 #include <cstring> // for memcpy
 
 // ----------------------------------------------------------------------------
