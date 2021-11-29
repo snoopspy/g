@@ -6,22 +6,13 @@
 // GTcpBlock
 // ----------------------------------------------------------------------------
 bool GTcpBlock::doOpen() {
-	if (forwardRst_ && forwardFin_) {
-		SET_ERR(GErr::NOT_SUPPORTED, "Both forwardRst and forwardFin can not be true");
-		return false;
-	}
-	if (backwardRst_ && backwardFin_) {
-		SET_ERR(GErr::NOT_SUPPORTED, "Both backwardRst and backwardFin can not be true");
-		return false;
-	}
-
-	forwardFinMsgStr_ = forwardFinMsg_.join("\r\n");
-	backwardFinMsgStr_ = backwardFinMsg_.join("\r\n");
-
 	if (writer_ == nullptr) {
 		SET_ERR(GErr::OBJECT_IS_NULL, "writer must be specified");
 		return false;
 	}
+
+	forwardFinMsgStr_= forwardFinMsg_.join("\r\n");
+	backwardFinMsgStr_ = backwardFinMsg_.join("\r\n");
 
 	Q_ASSERT(blockBuf_ == nullptr);
 	blockBuf_ = new gbyte[bufSize_];
@@ -61,16 +52,16 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	memcpy(blockBuf_, packet->buf_.data_, copyLen);
 	blockPacket->copyFrom(packet, GBuf(blockBuf_, copyLen));
 
-	GTcpHdr* tcpHdr = packet->tcpHdr_;
+	GTcpHdr* tcpHdr = blockPacket->tcpHdr_;
 	Q_ASSERT(tcpHdr != nullptr);
 
 	//
 	// Data
 	//
 	if (blockType == Fin) {
-		packet->tcpData_.data_ = pbyte(tcpHdr) + sizeof(GTcpHdr);
-		memcpy(packet->tcpData_.data_, qPrintable(msg), msg.size());
-		packet->tcpData_.size_ = forwardFinMsgStr_.size();
+		blockPacket->tcpData_.data_ = pbyte(tcpHdr) + sizeof(GTcpHdr);
+		memcpy(blockPacket->tcpData_.data_, qPrintable(msg), msg.size());
+		blockPacket->tcpData_.size_ = msg.size();
 	}
 
 	//
@@ -92,7 +83,7 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	//
 	// IP
 	//
-	GIpHdr* ipHdr = packet->ipHdr_;
+	GIpHdr* ipHdr = blockPacket->ipHdr_;
 	Q_ASSERT(ipHdr != nullptr);
 	if (blockType == Rst)
 		ipHdr->len_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr));
@@ -113,22 +104,17 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	//
 	// Ethernet
 	//
-	GMac backupsMac, backupdMac;
 	GPcapDeviceWrite* pcapDeviceWrite = dynamic_cast<GPcapDeviceWrite*>(writer_);
-	if (pcapDeviceWrite != nullptr) {
-		if (packet->ethHdr_ != nullptr) {
-			GEthHdr* ethHdr = packet->ethHdr_;
-			Q_ASSERT(pcapDeviceWrite->intf() != nullptr);
-			backupsMac = ethHdr->smac();
-			backupdMac = ethHdr->dmac();
-			GMac myMac = pcapDeviceWrite->intf()->mac();
-			if (direction == Backward) {
-				ethHdr->dmac_ = ethHdr->smac();
-				ethHdr->smac_ = myMac;
-			} else {
-				//ethHdr->dmac_ = ethHdr->dmac();
-				ethHdr->smac_ = myMac;
-			}
+	if (pcapDeviceWrite != nullptr && packet->ethHdr_ != nullptr) {
+		GEthHdr* ethHdr = blockPacket->ethHdr_;
+		Q_ASSERT(pcapDeviceWrite->intf() != nullptr);
+		GMac myMac = pcapDeviceWrite->intf()->mac();
+		if (direction == Backward) {
+			ethHdr->dmac_ = ethHdr->smac();
+			ethHdr->smac_ = myMac;
+		} else {
+			//ethHdr->dmac_ = ethHdr->dmac();
+			ethHdr->smac_ = myMac;
 		}
 	}
 
@@ -137,18 +123,10 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	if (dlt == GPacket::Eth) bufSize += sizeof(GEthHdr);
 	bufSize += sizeof(GIpHdr) + sizeof(GTcpHdr);
 	if (blockType == Fin) bufSize += msg.size();
-	packet->buf_.size_ = bufSize;
+	blockPacket->buf_.size_ = bufSize;
 
 	// write
-	writer_->write(packet);
-
-	if (pcapDeviceWrite != nullptr) {
-		if (packet->ethHdr_ != nullptr) {
-			GEthHdr* ethHdr = packet->ethHdr_;
-			ethHdr->smac_ = backupsMac;
-			ethHdr->dmac_ = backupdMac;
-		}
-	}
+	writer_->write(blockPacket);
 }
 
 void GTcpBlock::block(GPacket* packet) {
@@ -176,27 +154,27 @@ void GTcpBlock::block(GPacket* packet) {
 	uint32_t ack = tcpHdr->ack();
 
 	bool _blocked = false;
-	if (forwardRst_) {
+	if (forwardBlockType_ == Rst) {
 		if (synExist && !ackExist)
 			sendBlockPacket(packet, Forward, Rst, seq, 0); // useless
 		else
 			sendBlockPacket(packet, Forward, Rst, nextSeq, ack);
 		_blocked = true;
 	}
-	if (forwardFin_) {
+	if (forwardBlockType_ == Fin) {
 		if (!synExist) {
 			sendBlockPacket(packet, Forward, Fin, nextSeq, ack, forwardFinMsgStr_);
 			_blocked = true;
 		}
 	}
-	if (backwardRst_) {
+	if (backwardBlockType_ == Rst) {
 		if (synExist && !ackExist)
 			sendBlockPacket(packet, Backward, Rst, 0, nextSeq);
 		else
 			sendBlockPacket(packet, Backward, Rst, ack, nextSeq);
 		_blocked = true;
 	}
-	if (backwardFin_) {
+	if (backwardBlockType_ == Fin) {
 		if (!synExist) {
 			sendBlockPacket(packet, Backward, Fin, ack, nextSeq, backwardFinMsgStr_);
 			_blocked = true;
@@ -206,6 +184,6 @@ void GTcpBlock::block(GPacket* packet) {
 	if (_blocked)
 		emit blocked(packet);
 
-	if (forwardRst_ || forwardFin_)
+	if (forwardBlockType_ != None)
 		packet->ctrl.block_ = true;
 }
