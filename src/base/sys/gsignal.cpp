@@ -53,7 +53,7 @@ void GSignal::setupAll(Handler handler) {
 	setup(SIGILL, handler);
 	setup(SIGABRT, handler);
 	setup(SIGFPE, handler);
-	// setup(SIGSEGV, handler); // do not touch SIGSEGV
+	setup(SIGSEGV, handler);
 #ifndef Q_OS_WIN
 	setup(SIGTERM, handler);
 	setup(SIGHUP, handler);
