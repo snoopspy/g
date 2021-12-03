@@ -72,6 +72,9 @@ void GLogManager::myMessageOutput(QtMsgType type, const QMessageLogContext &cont
 	if (i != -1) fileStr = fileStr.mid(i + 1);
 	QString lineStr = QString::number(context.line);
 	QString funcStr = context.function;
+	int parenthesis = funcStr.indexOf('(');
+	if (parenthesis != -1)
+		funcStr = funcStr.mid(0, parenthesis);
 	QString finalMsg = QString("%1 %2 %3 [%4:%5] %6 %7\n").arg(nowStr, typeStr, threadStr, fileStr, lineStr, funcStr, msg);
 
 	for (GObj* obj: logManager) {
