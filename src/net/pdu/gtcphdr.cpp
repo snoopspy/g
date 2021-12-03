@@ -10,7 +10,7 @@
 //
 uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
 	uint32_t res = 0;
-	int tcpHdrDataLen = ipHdr->len() - sizeof(GIpHdr);
+	int tcpHdrDataLen = ipHdr->len() - ipHdr->hl() * 4;
 
 	// Add tcpHdr & data buffer as array of uint16_t
 	uint16_t* p = reinterpret_cast<uint16_t*>(tcpHdr);
@@ -20,8 +20,9 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
 	}
 
 	// If length is odd, add last data(padding)
-	if ((tcpHdrDataLen / 2) * 2 != tcpHdrDataLen)
+	if (tcpHdrDataLen % 2 != 0) {
 		res += uint32_t(*(reinterpret_cast<uint8_t*>(p)) << 8);
+	}
 
 	// Decrease checksum from sum
 	res -= tcpHdr->sum();
@@ -38,7 +39,7 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
 	res += uint32_t(tcpHdrDataLen) + IPPROTO_TCP;
 
 	// Recalculate sum
-	while (res >> 16) {
+	if (res >> 16) {
 		res = (res & 0xFFFF) + (res >> 16);
 	}
 	res = ~res;
