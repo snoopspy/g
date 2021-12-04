@@ -1,8 +1,7 @@
 QT += widgets
 include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
-SOURCES += *.cpp
-HEADERS += *.h
+SOURCES += snoopspy.cpp
 
 DISTFILES += \
 	android/AndroidManifest.xml \
