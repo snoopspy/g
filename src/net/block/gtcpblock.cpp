@@ -83,7 +83,11 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	//
 	// IP
 	//
+#ifndef Q_OS_ANDROID
 	GIpHdr* ipHdr = blockPacket->ipHdr_;
+#else
+	GVolatileIpHdr* ipHdr = PVolatileIpHdr(blockPacket->ipHdr_);
+#endif
 	Q_ASSERT(ipHdr != nullptr);
 	if (blockType == Rst)
 		ipHdr->len_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr));
@@ -98,8 +102,8 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	//
 	// checksum
 	//
-	tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
-	ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
+	tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(PIpHdr(ipHdr), tcpHdr));
+	ipHdr->sum_ = htons(GIpHdr::calcChecksum(PIpHdr(ipHdr)));
 
 	//
 	// Ethernet

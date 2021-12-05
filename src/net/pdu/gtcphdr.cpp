@@ -8,7 +8,12 @@
 // All data buffer(padding)
 // ipHdr.ip_src, ipHdr.ip_dst, tcpHdrDataLen and IPPROTO_TCP
 //
+#ifndef Q_OS_ANDROID
 uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
+#else
+uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdrTemp, GTcpHdr* tcpHdr) {
+	GVolatileIpHdr* ipHdr = PVolatileIpHdr(ipHdrTemp);
+#endif
 	uint32_t res = 0;
 	int tcpHdrDataLen = ipHdr->len() - ipHdr->hl() * 4;
 
@@ -28,11 +33,19 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
 	res -= tcpHdr->sum();
 
 	// Add src address
+#ifndef Q_OS_ANDROID
 	uint32_t src = ipHdr->sip();
+#else
+	volatile uint32_t src = ipHdr->sip();
+#endif
 	res += ((src & 0xFFFF0000) >> 16) + (src & 0x0000FFFF);
 
 	// Add dst address
+#ifndef Q_OS_ANDROID
 	uint32_t dst = ipHdr->dip();
+#else
+	volatile uint32_t dst = ipHdr->dip();
+#endif
 	res += ((dst & 0xFFFF0000) >> 16) + (dst & 0x0000FFFF);
 
 	// Add extra information
