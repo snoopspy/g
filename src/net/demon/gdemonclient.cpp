@@ -274,9 +274,7 @@ GDemon::CmdStartDetachedRes GDemonClient::cmdStartDetached(std::string command) 
 	}
 
 	CmdStartDetachedReq req;
-
 	req.command_ = command;
-
 	{
 		GSpinLockGuard guard(sendBufLock_);
 		int32_t encLen = req.encode(sendBuf_, MaxBufSize);
@@ -327,7 +325,6 @@ GDemon::GetInterfaceListRes GDemonClient::getInterfaceList() {
 	}
 
 	GetInterfaceListReq req;
-
 	{
 		GSpinLockGuard guard(sendBufLock_);
 		int32_t encLen = req.encode(sendBuf_, MaxBufSize);
@@ -376,7 +373,6 @@ GDemon::GetRtmRes GDemonClient::getRtm() {
 	}
 
 	GetRtmReq req;
-
 	{
 		GSpinLockGuard guard(sendBufLock_);
 		int32_t encLen = req.encode(sendBuf_, MaxBufSize);
@@ -425,7 +421,6 @@ GDemon::PcapOpenRes GDemonClient::pcapOpen(std::string client, std::string filte
 	}
 
 	PcapOpenReq req;
-
 	req.client_ = client;
 	req.filter_ = filter;
 	req.intfName_ = intfName;
@@ -434,7 +429,6 @@ GDemon::PcapOpenRes GDemonClient::pcapOpen(std::string client, std::string filte
 	req.readTimeout_ = readTimeout;
 	req.waitTimeout_ = waitTimeout;
 	req.captureThread_ = captureThread;
-
 	{
 		GSpinLockGuard guard(sendBufLock_);
 		int32_t encLen = req.encode(sendBuf_, MaxBufSize);
@@ -476,22 +470,22 @@ GDemon::PcapOpenRes GDemonClient::pcapOpen(std::string client, std::string filte
 
 void GDemonClient::pcapClose() {
 	PcapCloseReq req;
+	{
+		GSpinLockGuard guard(sendBufLock_);
+		int32_t encLen = req.encode(sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			error_ = "req.encode return -1";
+			qWarning() << error_.data();
+			return;
+		}
 
-	GSpinLockGuard guard(sendBufLock_);
-	int32_t encLen = req.encode(sendBuf_, MaxBufSize);
-	if (encLen == -1) {
-		error_ = "req.encode return -1";
-		qWarning() << error_.data();
-		return;
+		int sendLen = ::send(sd_, sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			error_ = qPrintable(QString("send return %1").arg(sendLen));
+			// qWarning() << error_.data(); // do not log for disconnected state
+			return;
+		}
 	}
-
-	int sendLen = ::send(sd_, sendBuf_, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		error_ = qPrintable(QString("send return %1").arg(sendLen));
-		// qWarning() << error_.data(); // do not log for disconnected state
-		return;
-	}
-
 	disconnect();
 }
 
@@ -521,21 +515,22 @@ GDemon::PcapRead GDemonClient::pcapRead() {
 }
 
 bool GDemonClient::pcapWrite(PcapWrite write) {
-	GSpinLockGuard guard(sendBufLock_);
-	int32_t encLen = write.encode(sendBuf_, MaxBufSize);
-	if (encLen == -1) {
-		error_ = "req.encode return -1";
-		qWarning() << error_.data();
-		return false;
-	}
+	{
+		GSpinLockGuard guard(sendBufLock_);
+		int32_t encLen = write.encode(sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			error_ = "req.encode return -1";
+			qWarning() << error_.data();
+			return false;
+		}
 
-	int sendLen = ::send(sd_, sendBuf_, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		error_ = qPrintable(QString("send return %1").arg(sendLen));
-		qWarning() << error_.data();
-		return false;
+		int sendLen = ::send(sd_, sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			error_ = qPrintable(QString("send return %1").arg(sendLen));
+			qWarning() << error_.data();
+			return false;
+		}
 	}
-
 	return true;
 }
 
@@ -549,7 +544,6 @@ GDemon::NfOpenRes GDemonClient::nfOpen(std::string client, uint16_t queueNum, bo
 	}
 
 	NfOpenReq req;
-
 	req.client_ = client;
 	req.queueNum_ = queueNum;
 	req.nonBlock_ = nonBlock;
@@ -595,22 +589,22 @@ GDemon::NfOpenRes GDemonClient::nfOpen(std::string client, uint16_t queueNum, bo
 
 void GDemonClient::nfClose() {
 	NfCloseReq req;
+	{
+		GSpinLockGuard guard(sendBufLock_);
+		int32_t encLen = req.encode(sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			error_ = "req.encode return -1";
+			qWarning() << error_.data();
+			return;
+		}
 
-	GSpinLockGuard guard(sendBufLock_);
-	int32_t encLen = req.encode(sendBuf_, MaxBufSize);
-	if (encLen == -1) {
-		error_ = "req.encode return -1";
-		qWarning() << error_.data();
-		return;
+		int sendLen = ::send(sd_, sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			error_ = qPrintable(QString("send return %1").arg(sendLen));
+			// qWarning() << error_.data(); // do not log for disconnected state
+			return;
+		}
 	}
-
-	int sendLen = ::send(sd_, sendBuf_, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		error_ = qPrintable(QString("send return %1").arg(sendLen));
-		// qWarning() << error_.data(); // do not log for disconnected state
-		return;
-	}
-
 	disconnect();
 }
 
@@ -640,21 +634,112 @@ GDemon::NfRead GDemonClient::nfRead() {
 }
 
 bool GDemonClient::nfVerdict(GDemon::NfVerdict verdict) {
-	GSpinLockGuard guard(sendBufLock_);
-	int32_t encLen = verdict.encode(sendBuf_, MaxBufSize);
-	if (encLen == -1) {
-		error_ = "req.encode return -1";
+	{
+		GSpinLockGuard guard(sendBufLock_);
+		int32_t encLen = verdict.encode(sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			error_ = "req.encode return -1";
+			qWarning() << error_.data();
+			return false;
+		}
+
+		int sendLen = ::send(sd_, sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			error_ = qPrintable(QString("send return %1").arg(sendLen));
+			qWarning() << error_.data();
+			return false;
+		}
+	}
+	return true;
+}
+
+GDemon::RiOpenRes GDemonClient::riOpen() {
+	GDemon::RiOpenRes res;
+
+	if (sd_ == 0) {
+		error_ = "not connected state";
 		qWarning() << error_.data();
-		return false;
+		return res;
 	}
 
-	int sendLen = ::send(sd_, sendBuf_, encLen, 0);
-	if (sendLen == 0 || sendLen == -1) {
-		error_ = qPrintable(QString("send return %1").arg(sendLen));
-		qWarning() << error_.data();
-		return false;
+	RiOpenReq req;
+	{
+		GSpinLockGuard guard(sendBufLock_);
+		int32_t encLen = req.encode(sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			error_ = "req.encode return -1";
+			return res;
+		}
+
+		int sendLen = ::send(sd_, sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			error_ = qPrintable(QString("send return %1").arg(sendLen));
+			qWarning() << error_.data();
+			return res;
+		}
 	}
 
+	Header* header = GDemon::PHeader(recvBuf_);
+	if (!header->recv(sd_)) {
+		error_ = "recvAll(header) return false";
+		return res;
+	}
+
+	if (!recvAll(sd_, recvBuf_ + sizeof(Header), header->len_)) {
+		error_ = "recvAll(body) return false";
+		qWarning() << error_.data();
+		return res;
+	}
+
+	int32_t decLen = res.decode(recvBuf_, sizeof(Header) + header->len_);
+	if (decLen == -1) {
+		qWarning() << "res.decode return -1";
+	}
+
+	if (!res.result_)
+		error_ = res.errBuf_;
+
+	return res;
+}
+
+void GDemonClient::riClose() {
+	RiCloseReq req;
+	{
+		GSpinLockGuard guard(sendBufLock_);
+		int32_t encLen = req.encode(sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			error_ = "req.encode return -1";
+			qWarning() << error_.data();
+			return;
+		}
+
+		int sendLen = ::send(sd_, sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			error_ = qPrintable(QString("send return %1").arg(sendLen));
+			// qWarning() << error_.data(); // do not log for disconnected state
+			return;
+		}
+	}
+	disconnect();
+}
+
+bool GDemonClient::riWrite(RiWrite write) {
+	{
+		GSpinLockGuard guard(sendBufLock_);
+		int32_t encLen = write.encode(sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			error_ = "req.encode return -1";
+			qWarning() << error_.data();
+			return false;
+		}
+
+		int sendLen = ::send(sd_, sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			error_ = qPrintable(QString("send return %1").arg(sendLen));
+			qWarning() << error_.data();
+			return false;
+		}
+	}
 	return true;
 }
 

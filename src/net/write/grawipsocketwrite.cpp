@@ -3,10 +3,28 @@
 // ----------------------------------------------------------------------------
 // GRawIpSocketWrite
 // ----------------------------------------------------------------------------
+GRawIpSocketWrite::GRawIpSocketWrite(QObject* parent) : GWrite(parent) {
+	dlt_ = GPacket::Ip;
+}
+
+GRawIpSocketWrite::~GRawIpSocketWrite() {
+	close();
+}
+
 bool GRawIpSocketWrite::doOpen() {
-	sd_ = ::socket (PF_INET, SOCK_RAW, IPPROTO_RAW);
+#ifdef Q_OS_ANDROID
+	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
+	GDemon::RiOpenRes res = demonClient_->riOpen();
+	if (!res.result_) {
+		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		delete demonClient_; demonClient_ = nullptr;
+		return false;
+	}
+#else
+	sd_ = ::socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (sd_ == -1) {
-		SET_ERR(GErr::FAIL, "socket return -1");
+		QString msg = QString("socket return -1 %1").arg(strerror(errno));
+		SET_ERR(GErr::FAIL, msg);
 		sd_ = 0;
 		return false;
 	}
@@ -14,12 +32,12 @@ bool GRawIpSocketWrite::doOpen() {
 	int one = 1;
 	int res = ::setsockopt(sd_, IPPROTO_IP, IP_HDRINCL, pchar(&one), sizeof(one));
 	if (res < 0) {
-		QString msg = QString("setsockopt return %1").arg(res);
+		QString msg = QString("setsockopt return %1 %2").arg(res).arg(strerror(errno));
 		SET_ERR(GErr::FAIL, msg);
 		sd_ = 0;
 		return false;
 	}
-
+#endif
 	return true;
 }
 

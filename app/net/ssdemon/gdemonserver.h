@@ -53,6 +53,7 @@ struct GDemonCommand;
 struct GDemonNetwork;
 struct GDemonPcap;
 struct GDemonNetFilter;
+struct GDemonRawIp;
 struct GDemonSession : GDemon {
 	GDemonSession(GDemonServer* server);
 	~GDemonSession() override;
@@ -70,6 +71,7 @@ struct GDemonSession : GDemon {
 	GDemonNetwork* network_{nullptr};
 	GDemonPcap* pcap_{nullptr};
 	GDemonNetFilter* nf_{nullptr};
+	GDemonRawIp* ri_{nullptr};
 };
 
 // ----------------------------------------------------------------------------
@@ -163,4 +165,25 @@ protected:
 	uint32_t id_{0};
 	char* packet_{nullptr};
 	static int _callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struct nfq_data* nfad, void* data);
+};
+
+// ----------------------------------------------------------------------------
+// GDemonRawIp
+// ----------------------------------------------------------------------------
+struct GDemonRawIp : GDemon {
+	GDemonRawIp(GDemonSession* session);
+	~GDemonRawIp() override;
+
+	GDemonSession* session_;
+	bool active_{false};
+
+	RiOpenRes open(RiOpenReq req);
+	void close();
+
+	bool processRiOpen(pchar buf, int32_t size);
+	bool processRiClose(pchar buf, int32_t size);
+	bool processRiWrite(pchar buf, int32_t size);
+
+protected:
+	int sd_{0};
 };

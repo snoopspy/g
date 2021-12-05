@@ -56,5 +56,10 @@ struct GDemonClient : GDemon {
 	NfRead nfRead();
 	bool nfVerdict(NfVerdict verdict);
 
+	// rawip
+	RiOpenRes riOpen();
+	void riClose();
+	bool riWrite(RiWrite write);
+
 	static GDemonClient& instance(std::string ip, uint16_t port);
 };

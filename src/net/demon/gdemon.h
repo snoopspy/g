@@ -88,7 +88,11 @@ struct GDemon {
 		CmdNfOpen = 10,
 		CmdNfClose = 11,
 		CmdNfRead = 12,
-		CmdNfVerdict = 13
+		CmdNfVerdict = 13,
+
+		CmdRiOpen = 14,
+		CmdRiClose = 15,
+		CmdRiWrite = 16
 	};
 	typedef Cmd *PCmd;
 
@@ -305,6 +309,33 @@ struct GDemon {
 		uint32_t acceptVerdict_;
 		uint32_t mark_;
 		uint32_t size_;
+		unsigned char* data_{nullptr};
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	//
+	// rawip
+	//
+	struct RiOpenReq : Header {
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	struct RiOpenRes : Header {
+		bool result_{false};
+		std::string errBuf_{"no error"};
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	struct RiCloseReq : Header {
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	struct RiWrite : Header {
+		int32_t size_;
 		unsigned char* data_{nullptr};
 		int32_t encode(pchar buffer, int32_t size);
 		int32_t decode(pchar buffer, int32_t size);

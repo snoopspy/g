@@ -214,6 +214,12 @@ void GDemonSession::run() {
 				if (nf_ == nullptr) nf_ = new GDemonNetFilter(this);
 				active = nf_->processNfVerdict(buf, size);
 				break;
+			case CmdRiOpen:
+				if (ri_ == nullptr) ri_ = new GDemonRawIp(this);
+				active = ri_->processRiOpen(buf, size);
+				break;
+			case CmdRiClose:
+			case CmdRiWrite:
 			default:
 				GTRACE("invalid cmd %d", header->cmd_);
 				active = false;
@@ -751,7 +757,6 @@ bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
 	GTRACE("%s", client_.data());
 
 	PcapOpenRes res = open(req);
-
 	{
 		GSpinLockGuard guard(session_->sendBufLock_);
 		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
@@ -789,8 +794,6 @@ bool GDemonPcap::processPcapClose(pchar buf, int32_t size) {
 }
 
 bool GDemonPcap::processPcapWrite(pchar buf, int32_t size) {
-	// GTRACE("");
-
 	PcapWrite write;
 	int32_t decLen = write.decode(buf, size);
 	if (decLen == -1) {
@@ -975,7 +978,6 @@ bool GDemonNetFilter::processNfOpen(pchar buf, int32_t size) {
 	GTRACE("%s", client_.data());
 
 	NfOpenRes res = open(req);
-
 	{
 		GSpinLockGuard guard(session_->sendBufLock_);
 		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
@@ -1011,8 +1013,6 @@ bool GDemonNetFilter::processNfClose(pchar buf, int32_t size) {
 }
 
 bool GDemonNetFilter::processNfVerdict(pchar buf, int32_t size) {
-	// GTRACE("");
-
 	NfVerdict verdict;
 	int32_t decLen = verdict.decode(buf, size);
 	if (decLen == -1) {
@@ -1067,4 +1067,116 @@ int GDemonNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, 
 	}
 
 	return 0; // gilgil temp 2021.06.27
+}
+
+// ----------------------------------------------------------------------------
+// GDemonRawIp
+// ----------------------------------------------------------------------------
+GDemonRawIp::GDemonRawIp(GDemonSession* session) : session_(session) {
+}
+
+GDemonRawIp::~GDemonRawIp() {
+	close();
+}
+
+GDemon::RiOpenRes GDemonRawIp::open(RiOpenReq req) {
+	(void)req;
+
+	RiOpenRes res;
+	res.result_ = false;
+
+	if (sd_ != 0) {
+		res.errBuf_ = "sd_ is already opened";
+		return res;
+	}
+
+	sd_ = ::socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
+	if (sd_ == -1) {
+		res.errBuf_ = std::string("socket return -1 ") + strerror(errno);
+		GTRACE("%s", res.errBuf_.data());
+		return res;
+	}
+
+	int one = 1;
+	int r = ::setsockopt(sd_, IPPROTO_IP, IP_HDRINCL, pchar(&one), sizeof(one));
+	if (r < 0) {
+		res.errBuf_ = std::string("setsockopt return ") + std::to_string(r) + " " + strerror(errno);
+		GTRACE("%s", res.errBuf_.data());
+		return res;
+	}
+
+	res.result_ = true;
+
+	return res;
+}
+
+void GDemonRawIp::close() {
+	if (sd_ != 0) {
+		::close(sd_);
+		sd_ = 0;
+	}
+}
+
+bool GDemonRawIp::processRiOpen(pchar buf, int32_t size) {
+	RiOpenReq req;
+
+	int32_t decLen = req.decode(buf, size);
+	if (decLen == -1) {
+		GTRACE("req.decode return =1");
+		return false;
+	}
+
+	RiOpenRes res = open(req);
+	{
+		GSpinLockGuard guard(session_->sendBufLock_);
+		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return false;
+		}
+
+		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+		}
+	}
+
+	active_ = true;
+
+	return true;
+}
+
+bool GDemonRawIp::processRiClose(pchar buf, int32_t size) {
+	RiCloseReq req;
+	int32_t decLen = req.decode(buf, size);
+	if (decLen == -1) {
+		GTRACE("req.decode return =1");
+		return false;
+	}
+
+	close();
+	return false;
+}
+
+bool GDemonRawIp::processRiWrite(pchar buf, int32_t size) {
+	RiWrite write;
+	int32_t decLen = write.decode(buf, size);
+	if (decLen == -1) {
+		GTRACE("req.decode return -1");
+		return false;
+	}
+
+	struct sockaddr_in sin;
+	sin.sin_family = AF_INET;
+	uint32_t dip = *reinterpret_cast<uint32_t*>(write.data_ + 12); // dip index
+	sin.sin_addr.s_addr = dip; // network byte order
+
+	errno = 0; // gilgil temp 2021.11.24
+	int res = ::sendto(sd_, write.data_, write.len_, 0, (sockaddr*)&sin, sizeof(sin));
+	if (res < 0) {
+		GTRACE("sendto return %d(%s) buf len=%d", res, strerror(errno), write.len_);
+		return false;
+	}
+
+	return true;
 }

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "net/write/gwrite.h"
+#include "net/demon/gdemonclient.h"
 
 // ----------------------------------------------------------------------------
 // GRawIpSocketWrite
@@ -23,8 +24,8 @@ public:
 	int mtu_{GPacket::MtuSize};
 
 public:
-	Q_INVOKABLE GRawIpSocketWrite(QObject* parent = nullptr) : GWrite(parent) {}
-	~GRawIpSocketWrite() override { close(); }
+	Q_INVOKABLE GRawIpSocketWrite(QObject* parent = nullptr);
+	~GRawIpSocketWrite();
 
 protected:
 	bool doOpen() override;
@@ -38,4 +39,9 @@ public:
 
 public slots:
 	GPacket::Result write(GPacket* packet) override;
+
+#ifdef Q_OS_ANDROID
+protected:
+	GDemonClient* demonClient_{nullptr};
+#endif
 };
