@@ -48,7 +48,6 @@ bool GPcapDeviceWrite::doClose() {
 		delete demonClient_;
 		demonClient_ = nullptr;
 	}
-
 	return true;
 }
 

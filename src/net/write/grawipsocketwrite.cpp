@@ -11,8 +11,8 @@ GRawIpSocketWrite::~GRawIpSocketWrite() {
 	close();
 }
 
-bool GRawIpSocketWrite::doOpen() {
 #ifdef Q_OS_ANDROID
+bool GRawIpSocketWrite::doOpen() {
 	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
 	GDemon::RiOpenRes res = demonClient_->riOpen();
 	if (!res.result_) {
@@ -20,7 +20,28 @@ bool GRawIpSocketWrite::doOpen() {
 		delete demonClient_; demonClient_ = nullptr;
 		return false;
 	}
+	return true;
+}
+
+bool GRawIpSocketWrite::doClose() {
+	if (demonClient_ != nullptr) {
+		demonClient_->riClose();
+		delete demonClient_;
+		demonClient_ = nullptr;
+	}
+	return true;
+}
+
+GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
+	GDemon::RiWrite write;
+	write.size_ = buf.size_;
+	write.data_ = buf.data_;
+	bool res = demonClient_->riWrite(write);
+	return res ? GPacket::Ok : GPacket::Fail;
+}
+
 #else
+bool GRawIpSocketWrite::doOpen() {
 	sd_ = ::socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (sd_ == -1) {
 		QString msg = QString("socket return -1 %1").arg(strerror(errno));
@@ -37,7 +58,6 @@ bool GRawIpSocketWrite::doOpen() {
 		sd_ = 0;
 		return false;
 	}
-#endif
 	return true;
 }
 
@@ -56,7 +76,6 @@ GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = ipHdr->dip_; // network byte order
 
-	errno = 0; // gilgil temp 2021.11.24
 	int res = ::sendto(sd_, pbyte(ipHdr), ipHdr->len(), 0, (sockaddr*)&sin, sizeof(sin));
 	if (res < 0) {
 		QString msg = QString("sendto return %1(%2) buf len=%3").arg(res).arg(strerror(errno)).arg(ipHdr->len());
@@ -65,6 +84,7 @@ GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 	}
 	return GPacket::Ok;
 }
+#endif
 
 GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
 	GPacket::Result res;

@@ -81,7 +81,7 @@ void GDemonServer::wait() {
 		bool exit = sessions_.size() == 0;
 		sessions_.unlock();
 		if (exit) break;
-		sleep(1);
+		usleep(1000);
 	}
 }
 
@@ -219,7 +219,13 @@ void GDemonSession::run() {
 				active = ri_->processRiOpen(buf, size);
 				break;
 			case CmdRiClose:
+				if (ri_ == nullptr) ri_ = new GDemonRawIp(this);
+				active = ri_->processRiClose(buf, size);
+				break;
 			case CmdRiWrite:
+				if (ri_ == nullptr) ri_ = new GDemonRawIp(this);
+				active = ri_->processRiWrite(buf, size);
+				break;
 			default:
 				GTRACE("invalid cmd %d", header->cmd_);
 				active = false;
@@ -270,6 +276,7 @@ bool GDemonCommand::processCmdExecute(pchar buf, int32_t size) {
 		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
 		if (sendLen == 0 || sendLen == -1) {
 			GTRACE("send return %d", sendLen);
+			return false;
 		}
 	}
 	return true;
@@ -306,6 +313,7 @@ bool GDemonCommand::processCmdStart(pchar buf, int32_t size) {
 		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
 		if (sendLen == 0 || sendLen == -1) {
 			GTRACE("send return %d", sendLen);
+			return false;
 		}
 	}
 	return true;
@@ -342,6 +350,7 @@ bool GDemonCommand::processCmdStop(pchar buf, int32_t size) {
 		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
 		if (sendLen == 0 || sendLen == -1) {
 			GTRACE("send return %d", sendLen);
+			return false;
 		}
 	}
 	return true;
@@ -377,6 +386,7 @@ bool GDemonCommand::processCmdStartDetached(pchar buf, int32_t size) {
 		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
 		if (sendLen == 0 || sendLen == -1) {
 			GTRACE("send return %d", sendLen);
+			return false;
 		}
 	}
 	return true;
@@ -768,6 +778,7 @@ bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
 		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
 		if (sendLen == 0 || sendLen == -1) {
 			GTRACE("send return %d", sendLen);
+			return false;
 		}
 	}
 
@@ -989,6 +1000,7 @@ bool GDemonNetFilter::processNfOpen(pchar buf, int32_t size) {
 		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
 		if (sendLen == 0 || sendLen == -1) {
 			GTRACE("send return %d", sendLen);
+			return false;
 		}
 	}
 
@@ -1138,6 +1150,7 @@ bool GDemonRawIp::processRiOpen(pchar buf, int32_t size) {
 		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
 		if (sendLen == 0 || sendLen == -1) {
 			GTRACE("send return %d", sendLen);
+			return false;
 		}
 	}
 
@@ -1168,10 +1181,9 @@ bool GDemonRawIp::processRiWrite(pchar buf, int32_t size) {
 
 	struct sockaddr_in sin;
 	sin.sin_family = AF_INET;
-	uint32_t dip = *reinterpret_cast<uint32_t*>(write.data_ + 12); // dip index
+	uint32_t dip = *reinterpret_cast<uint32_t*>(write.data_ + 16); // dip index
 	sin.sin_addr.s_addr = dip; // network byte order
 
-	errno = 0; // gilgil temp 2021.11.24
 	int res = ::sendto(sd_, write.data_, write.len_, 0, (sockaddr*)&sin, sizeof(sin));
 	if (res < 0) {
 		GTRACE("sendto return %d(%s) buf len=%d", res, strerror(errno), write.len_);
