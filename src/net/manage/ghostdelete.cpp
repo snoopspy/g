@@ -1,4 +1,5 @@
 #include "ghostdelete.h"
+#include <QRandomGenerator>
 
 // ----------------------------------------------------------------------------
 // GHostDelete
@@ -51,10 +52,16 @@ void GHostDelete::checkRun() {
 	QElapsedTimer et;
 	while (active()) {
 		{
-			QMutexLocker ml(&hostDetect_->hosts_.m_);
+			GHostDetect::HostMap* hosts = &hostDetect_->hosts_;
+			QMutexLocker ml(&hosts->m_);
 			qint64 now = et.elapsed();
-			for (GHostDetect::Host& host : hostDetect_->hosts_) {
+			for (GHostDetect::HostMap::iterator it = hosts->begin(); it != hosts->end();) {
+				GHostDetect::Host& host = it.value();
 				// qDebug() << QString("lastAccess=%1 now=%2 diff=%3").arg(host.lastAccess_).arg(now).arg(now-host.lastAccess_); // gilgil temp 2021.10.24
+				if (host.deleted_ && host.lastAccess_ + hostDetect_->redetectInterval_ < now) {
+					it = hosts->erase(it);
+					continue;
+				}
 				if (host.lastAccess_ + scanStartTimeout_ < now) {
 					QMutexLocker ml(&stm_.m_);
 					ScanThreadMap::iterator it = stm_.find(host.mac_);
@@ -67,7 +74,9 @@ void GHostDelete::checkRun() {
 						});
 					}
 				}
+				it++;
 			}
+			qDebug() << hosts->count(); // gilgil temp 2021.12.09
 		}
 		if (checkThread_.we_.wait(checkSleepTime_)) break;
 	}
@@ -88,9 +97,9 @@ GHostDelete::ScanThread::~ScanThread() {
 
 void GHostDelete::ScanThread::run() {
 	// qDebug() << "beg " + QString(host_->mac_);  // by gilgil 2021.11.13
-
-	if (we_.wait(hostDelete_->randomSleepTime_)) return;
-	qDebug() << "aft we_.wait(hostDelete_->randomSleepTime_)";
+	GDuration random = QRandomGenerator::global()->generate() % hostDelete_->randomSleepTime_;
+	if (we_.wait(random)) return;
+	qDebug() << QString("aft we_.wait(%1)").arg(random);
 
 	GPcapDevice* device = hostDelete_->pcapDevice_;
 	if (!device->active()) {
@@ -147,7 +156,6 @@ void GHostDelete::ScanThread::run() {
 		}
 	}
 
-
 	ScanThreadMap* astm = &hostDelete_->stm_;
 	{
 		QMutexLocker ml(&astm->m_);
@@ -157,11 +165,8 @@ void GHostDelete::ScanThread::run() {
 		}
 	}
 
-	if (shouldBeDeleted) {
-		QMutexLocker ml(&hostDelete_->hostDetect_->hosts_.m_);
-		hostDelete_->hostDetect_->hosts_.remove(host_->mac_);
-	}
-
+	if (shouldBeDeleted)
+		host_->deleted_ = true;
 	// qDebug() << "end " + QString(host_->mac_);  // by gilgil 2021.11.13
 }
 

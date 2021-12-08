@@ -91,6 +91,7 @@ bool GHostDetect::processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* i
 		return false;
 	}
 
+
 	*mac = arpHdr->smac();
 	*ip = arpHdr->sip();
 	return true;
@@ -98,7 +99,6 @@ bool GHostDetect::processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* i
 
 bool GHostDetect::processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip) {
 	GIp sip = ipHdr->sip();
-	if (sip == gwIp_) return false;
 	if (!intf_->isSameLanIp(sip)) return false;
 
 	*mac = ethHdr->smac();
@@ -133,6 +133,7 @@ void GHostDetect::detect(GPacket* packet) {
 	}
 
 	if (!detected) return;
+	if (ip == myIp_ || ip == gwIp_) return;
 
 	if (hostName != "") {
 		Host host(mac, ip, hostName);

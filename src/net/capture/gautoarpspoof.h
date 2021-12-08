@@ -54,7 +54,6 @@ protected:
 	GIp gwIp_;
 	GMac gwMac_;
 
-
 	typedef QPair<GFlow::IpFlowKey, GFlow::IpFlowKey> TwoFlowKey;
 	struct FloodingThread : QThread {
 		FloodingThread(GAutoArpSpoof* parent, TwoFlowKey twoFlowKey, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2);

@@ -7,7 +7,7 @@ GAutoArpSpoof::GAutoArpSpoof(QObject* parent) : GArpSpoof(parent) {
 	QObject::connect(this, &GArpSpoof::_preCaptured, &hostDetect_, &GHostDetect::detect, Qt::DirectConnection);
 	QObject::connect(&hostDetect_, &GHostDetect::hostDetected, this, &GAutoArpSpoof::processHostDetected, Qt::DirectConnection);
 
-	hostDelete_.enabled_ = false;
+	hostDelete_.enabled_ = true;
 	hostDelete_.pcapDevice_ = this;
 	hostDelete_.hostDetect_ = &hostDetect_;
 
