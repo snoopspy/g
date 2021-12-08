@@ -129,7 +129,7 @@ bool GAutoArpSpoof::doClose() {
 
 	qDebug() << "bef hostScan_.close()"; // gilgil temp 2021.11.13
 	hostScan_.close();
-	qDebug() << "bef hostDetect_.close()"; // gilgil temp 2021.11.13
+	qDebug() << "bef hostDelete_.close()"; // gilgil temp 2021.11.13
 	hostDelete_.close();
 	qDebug() << "bef hostDetect_.close()"; // gilgil temp 2021.11.13
 	hostDetect_.close();
