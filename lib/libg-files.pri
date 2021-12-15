@@ -48,6 +48,9 @@ SOURCES += \
 	$${PWD}/../src/base/sys/gsignal.cpp \
 	$${PWD}/../src/base/sys/gthread.cpp \
 	$${PWD}/../src/base/sys/gwaitevent.cpp \
+	$${PWD}/../src/base/widget/gplaintextedit.cpp \
+	$${PWD}/../src/base/widget/gsplitter.cpp \
+	$${PWD}/../src/base/widget/gtreewidget.cpp \
 	$${PWD}/../src/net/block/gblock.cpp \
 	$${PWD}/../src/net/block/gtcpblock.cpp \
 	$${PWD}/../src/net/capture/garpspoof.cpp \
@@ -176,6 +179,9 @@ HEADERS += \
 	$${PWD}/../src/base/sys/gsignal.h \
 	$${PWD}/../src/base/sys/gthread.h \
 	$${PWD}/../src/base/sys/gwaitevent.h \
+	$${PWD}/../src/base/widget/gplaintextedit.h \
+	$${PWD}/../src/base/widget/gsplitter.h \
+	$${PWD}/../src/base/widget/gtreewidget.h \
 	$${PWD}/../src/net/block/gblock.h \
 	$${PWD}/../src/net/block/gtcpblock.h \
 	$${PWD}/../src/net/capture/garpspoof.h \

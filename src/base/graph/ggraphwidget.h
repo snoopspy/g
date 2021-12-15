@@ -16,13 +16,13 @@
 #include <QFileDialog>
 #include <QGraphicsView>
 #include <QHBoxLayout>
-#include <QPlainTextEdit>
-#include <QSplitter>
 #include <QTabWidget>
-#include <QTreeWidget>
-#include <QTreeView>
 #include <QToolBar>
 #include <QVBoxLayout>
+
+#include <GSplitter>
+#include <GTreeWidget>
+#include <GPlainTextEdit>
 
 #include "base/prop/gpropwidget.h"
 #include "gg-scene.h"
@@ -91,13 +91,13 @@ protected:
 	QVBoxLayout*  mainLayout_;
 	QToolBar*     toolBar_;
 	QTabWidget*   tabWidget_;
-	QSplitter*      midSplitter_;
-	QSplitter*        midLeftSplitter_;
-	QTreeWidget*        factoryWidget_;
+	GSplitter*      midSplitter_;
+	GSplitter*        midLeftSplitter_;
+	GTreeWidget*        factoryWidget_;
 	GPropWidget*        propWidget_;
 	GGScene*            scene_;
 	QGraphicsView*    graphView_;
-	QPlainTextEdit* plainTextEdit_;
+	GPlainTextEdit* plainTextEdit_;
 
 public slots:
 	void setControl();

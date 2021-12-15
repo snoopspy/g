@@ -2,31 +2,9 @@
 
 #include "ggraphwidget.h"
 
-#include <QStyledItemDelegate>
-#include <QScrollBar>
-#include <QScroller>
 #include "base/gjson.h"
 #include "base/log/glogmanager.h"
 #include "base/log/glogqobject.h"
-
-struct MyHeightItemDelegate : QStyledItemDelegate
-{
-	MyHeightItemDelegate(QObject *poParent = nullptr) : QStyledItemDelegate(poParent) {}
-
-	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override	{
-		QSize res = QStyledItemDelegate::sizeHint(option, index);
-		res.setHeight(res.height() * 3 / 2);
-		return res;
-	}
-};
-
-struct MyScrollBar : public QScrollBar {
-	MyScrollBar(QWidget * parent): QScrollBar(parent) {}
-
-protected:
-	QSize sizeHint() const override { return QSize(64, 64); }
-	QSize minimumSizeHint() const override { return QSize(64, 64); }
-};
 
 // ----------------------------------------------------------------------------
 // GGraphWidget
@@ -89,9 +67,9 @@ void GGraphWidget::init() {
 	tabWidget_ = new QTabWidget(this);
 	tabWidget_->setTabPosition(QTabWidget::South);
 
-	midSplitter_ = new QSplitter(Qt::Horizontal, this);
-	midLeftSplitter_ = new QSplitter(Qt::Vertical, this);
-	factoryWidget_ = new QTreeWidget(this);
+	midSplitter_ = new GSplitter(Qt::Horizontal, this);
+	midLeftSplitter_ = new GSplitter(Qt::Vertical, this);
+	factoryWidget_ = new GTreeWidget(this);
 	factoryWidget_->setHeaderLabel("node");
 	factoryWidget_->setIndentation(12);
 	propWidget_ = new GPropWidget(this);
@@ -101,7 +79,7 @@ void GGraphWidget::init() {
 	graphView_->setAcceptDrops(true);
 	graphView_->setScene(scene_);
 
-	plainTextEdit_ = new QPlainTextEdit(this);
+	plainTextEdit_ = new GPlainTextEdit(this);
 	plainTextEdit_->setReadOnly(true);
 	plainTextEdit_->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
@@ -157,24 +135,9 @@ void GGraphWidget::init() {
 
 #ifdef Q_OS_ANDROID
 	toolBar_->setIconSize(QSize(96, 96));
-
-	midSplitter_->setHandleWidth(midSplitter_->handleWidth() * 5);
-	midLeftSplitter_->setHandleWidth(midLeftSplitter_->handleWidth() * 5);
 	QRect rect = getScreenRect();
 	midSplitter_->setSizes(QList<int>{ rect.width() / 2, rect.width() / 2});
 	midLeftSplitter_->setSizes(QList<int>{ rect.height() / 2, rect.height() / 2});
-
-	plainTextEdit_->setVerticalScrollBar(new MyScrollBar(plainTextEdit_->verticalScrollBar()));
-
-	factoryWidget_->setItemDelegate(new MyHeightItemDelegate(this));
-	factoryWidget_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-	factoryWidget_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	QScroller::scroller(factoryWidget_)->grabGesture(factoryWidget_, QScroller::LeftMouseButtonGesture);
-
-	propWidget_->treeWidget_->setItemDelegate(new MyHeightItemDelegate(this));
-	propWidget_->treeWidget_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-	propWidget_->treeWidget_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	QScroller::scroller(propWidget_->treeWidget_)->grabGesture(propWidget_->treeWidget_, QScroller::LeftMouseButtonGesture);
 #endif // Q_OS_ANDROID
 }
 
@@ -437,6 +400,7 @@ void GGraphWidget::stop() {
 	setControl();
 }
 
+#include <QScrollBar>
 void GGraphWidget::writeLog(QString msg) {
 	msg = msg.mid(7); // Omit year and date
 	plainTextEdit_->insertPlainText(msg);
