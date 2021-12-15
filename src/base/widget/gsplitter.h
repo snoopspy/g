@@ -8,6 +8,8 @@
 //
 // ----------------------------------------------------------------------------
 
+#ifdef QT_GUI_LIB
+
 #include <QSplitter>
 
 #ifdef Q_OS_ANDROID
@@ -18,3 +20,5 @@ struct GSplitter : QSplitter {
 #else
 typedef QSplitter GSplitter;
 #endif
+
+#endif // QT_GUI_LIB

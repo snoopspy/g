@@ -1,6 +1,6 @@
 #include "gtreewidget.h"
 
-#ifdef Q_OS_ANDROID
+#if defined(QT_GUI_LIB) && defined(Q_OS_ANDROID)
 
 #include <QScroller>
 #include <QStyledItemDelegate>

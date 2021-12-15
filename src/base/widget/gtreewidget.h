@@ -8,6 +8,8 @@
 //
 // ----------------------------------------------------------------------------
 
+#ifdef QT_GUI_LIB
+
 #include <QTreeWidget>
 
 #ifdef Q_OS_ANDROID
@@ -17,3 +19,5 @@ struct GTreeWidget : QTreeWidget {
 #else
 typedef QTreeWidget GTreeWidget;
 #endif
+
+#endif // QT_GUI_LIB

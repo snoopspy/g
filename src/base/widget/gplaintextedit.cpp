@@ -1,6 +1,6 @@
 #include "gplaintextedit.h"
 
-#ifdef Q_OS_ANDROID
+#if defined(QT_GUI_LIB) && defined(Q_OS_ANDROID)
 
 #include <QScrollBar>
 
@@ -19,4 +19,6 @@ GPlainTextEdit::GPlainTextEdit(QWidget *parent) : QPlainTextEdit(parent) {
 GPlainTextEdit::GPlainTextEdit(const QString &text, QWidget *parent) : QPlainTextEdit(text, parent) {
 	setVerticalScrollBar(new MyScrollBar(this->verticalScrollBar()));
 }
+
 #endif
+

@@ -8,6 +8,8 @@
 //
 // ----------------------------------------------------------------------------
 
+#ifdef QT_GUI_LIB
+
 #include <QPlainTextEdit>
 
 #ifdef Q_OS_ANDROID
@@ -18,3 +20,5 @@ struct GPlainTextEdit : QPlainTextEdit {
 #else
 typedef QPlainTextEdit GPlainTextEdit;
 #endif
+
+#endif // QT_GUI_LIB
