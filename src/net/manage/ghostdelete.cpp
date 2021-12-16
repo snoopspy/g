@@ -76,7 +76,6 @@ void GHostDelete::checkRun() {
 				}
 				it++;
 			}
-			qDebug() << hosts->count(); // gilgil temp 2021.12.09
 		}
 		if (checkThread_.we_.wait(checkSleepTime_)) break;
 	}
