@@ -70,7 +70,7 @@ void LCorePcap::usage() {
 	cerr << "  corepcap dev eth0 file -" << endl;
 	cerr << "  corepcap dev wlan0 -f 'tcp' file - file tcp.pcap"<< endl;
 	cerr << "  corepcap dev mon0 -f 'wlan[0] != 0x80' file -"<< endl;
-	cerr << "  corepcap dev mon0 -f 'radio[2:2]==0x2800' file -"<< endl;
+	cerr << "  corepcap dev mon0 -f 'radio[2:2] == 0x2800' file -"<< endl;
 	cerr << "  corepcap file - dev dum0"<< endl;
 }
 
@@ -108,9 +108,9 @@ bool LCorePcap::parse(int argc, char* argv[]) {
 			else if (option == "-rt")
 				device->readTimeout_ = stoi(argv[i++]);
 			else if (option == "-wt")
-				device->waitTimeout_  = stoi(argv[i++]);
+				device->waitTimeout_ = stoi(argv[i++]);
 			else if (option == "-afs")
-				device->adjustFrameSize_  = stoi(argv[i++]);
+				device->adjustFrameSize_ = stoi(argv[i++]);
 			else { error_ = "[input] invalid option " + option; return false; }
 		}
 		input_ = device;

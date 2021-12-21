@@ -284,7 +284,7 @@ void GArpSpoof::runArpRecover(FlowList* flowList) {
 			QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, arprecoverFile);
 #else // Q_OS_ANDROID
 			QString run = QString("%1/%2").arg(path, arprecoverFile);
-#endif  // Q_OS_ANDROID
+#endif // Q_OS_ANDROID
 			arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").arg(run).arg(10).arg(
 				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
 				QString(intf_->ip()), QString(intf_->mac()), flowString));
@@ -365,6 +365,6 @@ bool GArpSpoof::sendArpRecover(Flow* flow, uint16_t operation) {
 	bool res = true;
 	flow->recoverPacket_.arpHdr_.op_ = htons(operation);
 	GPacket::Result written = write(GBuf(pbyte(&flow->recoverPacket_), sizeof(flow->recoverPacket_)));
-	if (written != GPacket::Ok)  res = false;
+	if (written != GPacket::Ok) res = false;
 	return res;
 }

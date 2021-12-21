@@ -93,7 +93,7 @@ bool GAutoArpSpoof::doClose() {
 		{
 			QMutexLocker ml(&floodingThreadMap_.m_);
 			int count = floodingThreadMap_.count();
-			qDebug() << QString("floodingThreadSet count=%1").arg(count);  // gilgil temp 2021.11.05
+			qDebug() << QString("floodingThreadSet count=%1").arg(count); // gilgil temp 2021.11.05
 			if (count == 0) break;
 		}
 		QCoreApplication::processEvents();

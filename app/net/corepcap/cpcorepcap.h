@@ -9,7 +9,7 @@ struct LCorePcap : LObj {
 	std::string error_;
 
 	LCorePcap() {}
-	~LCorePcap()  override;
+	~LCorePcap() override;
 
 protected:
 	bool doOpen() override;

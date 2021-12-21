@@ -95,7 +95,7 @@ GHostDelete::ScanThread::~ScanThread() {
 }
 
 void GHostDelete::ScanThread::run() {
-	// qDebug() << "beg " + QString(host_->mac_);  // by gilgil 2021.11.13
+	// qDebug() << "beg " + QString(host_->mac_); // by gilgil 2021.11.13
 	GDuration random = QRandomGenerator::global()->generate() % hostDelete_->randomSleepTime_;
 	if (we_.wait(random)) return;
 	qDebug() << QString("aft we_.wait(%1)").arg(random);
@@ -166,7 +166,7 @@ void GHostDelete::ScanThread::run() {
 
 	if (shouldBeDeleted)
 		host_->deleted_ = true;
-	// qDebug() << "end " + QString(host_->mac_);  // by gilgil 2021.11.13
+	// qDebug() << "end " + QString(host_->mac_); // by gilgil 2021.11.13
 }
 
 bool GHostDelete::propLoad(QJsonObject jo, QMetaProperty mpro) {
