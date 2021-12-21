@@ -5,7 +5,7 @@
 
 struct LCorePcap : LObj {
 	LPcap* input_{nullptr};
-	std::list<LObj*>outputs_;
+	std::list<LObj*> outputs_;
 	std::string error_;
 
 	LCorePcap() {}
