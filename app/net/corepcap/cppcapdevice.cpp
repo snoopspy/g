@@ -11,6 +11,8 @@ bool LPcapDevice::doClose() {
 
 LPacket::Result LPcapDevice::read(LPacket* packet) {
 	LPacket::Result	res = LPcap::read(packet);
+	if (res == LPacket::Ok)
+		packet->len_ += adjustFrameSize_;
 	if (res == LPacket::Timeout)
 		std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeout_));
 	return res;

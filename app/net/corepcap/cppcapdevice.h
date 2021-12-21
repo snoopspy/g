@@ -8,6 +8,7 @@ struct LPcapDevice : LPcap {
 	int promisc_{1}; // PCAP_OPENFLAG_PROMISCUOUS
 	int readTimeout_{-1}; // -1 msec
 	int waitTimeout_{1}; // 1 msec
+	int adjustFrameSize_{0};
 	std::string filter_{""};
 
 public:

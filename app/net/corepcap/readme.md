@@ -22,22 +22,24 @@ schema ::= dev|file
 ```
 name ::= e.g., eth0, wlan0, test.pcap, -, etc
 ```
-  * "-" is stdin(input) or stdout(output).
+  * '-'' is stdin(input) or stdout(output).
 
 ```
-input-options ::=  | -f <filter> | -l <snap len> | -p <promisc> | -rt <read timeout> | -wt <wait timeout> [input-options]
+input-options ::=  | -f <filter> | -l <snap len> | -p <promisc> | -rt <read timeout> | -wt <wait timeout> | -afs <adjust frame size> [input-options]
 ```
     * filter : default("")
     * snap len : default(32768 bytes)
     * promisc : default(1 PCAP_OPENFLAG_PROMISCUOUS)
     * read timeout : default(-1 msec)
     * wait timeout : default(1 msec)
+    * adjust frame size : default(0)    
 
 ## example
 ```
-corepcap dev wlan0 file -
-corepcap dev wlan0 -filter "tcp" file - file tcp.pcap
-corepcap dev mon0 -filter "wlan[0] != 0x80" file -
+corepcap dev eth0 file -
+corepcap dev wlan0 -f 'tcp' file - file tcp.pcap
+corepcap dev mon0 -f 'wlan[0] != 0x80' file -
+corepcap dev mon0 -f 'radio[2:2]==0x2800' file -
 corepcap file - dev dum0
 ```
 

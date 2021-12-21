@@ -56,19 +56,21 @@ void LCorePcap::usage() {
 	cerr << "  schema ::= dev | file" << endl;
 	cerr << "  " << endl;
 	cerr << "  name ::= e.g., eth0, wlan0, test.pcap, -, etc" << endl;
-	cerr << "    * \"-\" is stdin(input) or stdout(output)." << endl;
+	cerr << "    * '-' is stdin(input) or stdout(output)." << endl;
 	cerr << "  " << endl;
-	cerr << "  input-options ::= "" | -f <filter> | -l <snap len> | -p <promisc> | -rt <read timeout> | -wt <wait timeout> [input-options]" << endl;
+	cerr << "  input-options ::= "" | -f <filter> | -l <snap len> | -p <promisc> | -rt <read timeout> | -wt <wait timeout> -afs <adjust frame size> [input-options]" << endl;
 	cerr << "    * filter : default(\"\")" << endl;
 	cerr << "    * snap len : default(32768 bytes)" << endl;
 	cerr << "    * promisc : default(1 PCAP_OPENFLAG_PROMISCUOUS)" << endl;
 	cerr << "    * read timeout : default(-1 msec)" << endl;
 	cerr << "    * wait timeout : default(1 msec)" << endl;
+	cerr << "    * adjust frame size : default(0)" << endl;
 	cerr << "" << endl;
 	cerr << "example" << endl;
 	cerr << "  corepcap dev eth0 file -" << endl;
-	cerr << "  corepcap dev wlan0 -f \"tcp\" file - file tcp.pcap"<< endl;
-	cerr << "  corepcap dev mon0 -f \"wlan[0] != 0x80\" file -"<< endl;
+	cerr << "  corepcap dev wlan0 -f 'tcp' file - file tcp.pcap"<< endl;
+	cerr << "  corepcap dev mon0 -f 'wlan[0] != 0x80' file -"<< endl;
+	cerr << "  corepcap dev mon0 -f 'radio[2:2]==0x2800' file -"<< endl;
 	cerr << "  corepcap file - dev dum0"<< endl;
 }
 
@@ -107,6 +109,8 @@ bool LCorePcap::parse(int argc, char* argv[]) {
 				device->readTimeout_ = stoi(argv[i++]);
 			else if (option == "-wt")
 				device->waitTimeout_  = stoi(argv[i++]);
+			else if (option == "-afs")
+				device->adjustFrameSize_  = stoi(argv[i++]);
 			else { error_ = "[input] invalid option " + option; return false; }
 		}
 		input_ = device;
