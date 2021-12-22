@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cpcap.h"
+#include "cppcap.h"
 
 struct CPcapDevice : CPcap {
 	std::string devName_{""};

@@ -1,4 +1,4 @@
-#include "cobj.h"
+#include "cpobj.h"
 
 CObj::~CObj() {
 	if (state_ != Closed) {

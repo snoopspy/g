@@ -2,7 +2,7 @@
 
 #include <string>
 #include "gtrace.h"
-#include "cpacket.h"
+#include "cppacket.h"
 
 struct CObj {
 public:

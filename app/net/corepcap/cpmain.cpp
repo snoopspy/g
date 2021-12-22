@@ -1,6 +1,6 @@
 #include <csignal>
 #include <unistd.h>
-#include "ccorepcap.h"
+#include "cpcorepcap.h"
 
 CCorePcap cp;
 
@@ -86,12 +86,17 @@ int main(int argc, char* argv[]) {
 	memset(wd, 0, BUFSIZ);
 	getcwd(wd, BUFSIZ);
 	chdir(getDir(argv[0]).data());
-	GTRACE("corepcap %s started login=%s argv[0]=%s dir=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
+	GTRACE("corepcap %s started login=%s dir=%s %s %s", version, getlogin(), wd, __DATE__, __TIME__);
+
+	std::string arguments;
+	for (int i = 0; i < argc; i++)
+		arguments += argv[i] + std::string(" ");
+	GTRACE("argv=%s", arguments.data());
 
 	prepareSignal();
 
 	if (!cp.parse(argc, argv)) {
-		fprintf(stderr, "%s\n", cp.error_.c_str());
+		GTRACE("parse fail(%s)", cp.error_.c_str());
 		return -1;
 	}
 

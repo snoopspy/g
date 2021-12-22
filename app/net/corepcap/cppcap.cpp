@@ -1,4 +1,4 @@
-#include "cpcap.h"
+#include "cppcap.h"
 
 bool CPcap::doOpen() {
 	GTRACE("virtual function call");

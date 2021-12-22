@@ -1,7 +1,7 @@
 #pragma once
 
 #include <list>
-#include "cpcap.h"
+#include "cppcap.h"
 
 struct CCorePcap : CObj {
 	CPcap* input_{nullptr};

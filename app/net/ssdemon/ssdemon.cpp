@@ -116,7 +116,12 @@ int main(int argc, char* argv[]) {
 	memset(wd, 0, BUFSIZ);
 	getcwd(wd, BUFSIZ);
 	chdir(getDir(argv[0]).data());
-	GTRACE("ssdemon %s started login=%s argv[0]=%s dir=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
+	GTRACE("ssdemon %s started login=%s dir=%s %s %s", version, getlogin(), wd, __DATE__, __TIME__);
+
+	std::string arguments;
+	for (int i = 0; i < argc; i++)
+		arguments += argv[i] + std::string(" ");
+	GTRACE("argv=%s", arguments.data());
 
 	prepareSignal();
 

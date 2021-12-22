@@ -143,12 +143,17 @@ int main(int argc, char* argv[]) {
 #ifdef __linux__
 	getcwd(wd, BUFSIZ);
 	chdir(getDir(argv[0]).data());
-	GTRACE("arprecover %s started login=%s argv[0]=%s dir=%s %s %s", version, getlogin(), argv[0], wd, __DATE__, __TIME__);
+	GTRACE("arprecover %s started login=%s dir=%s %s %s", version, getlogin(), wd, __DATE__, __TIME__);
 #endif // __linux__
 #ifdef WIN32
 	GetCurrentDirectoryA(BUFSIZ, wd);
-	GTRACE("arprecover %s started argv[0]=%s dir=%s %s %s", version, argv[0], wd, __DATE__, __TIME__);
+	GTRACE("arprecover %s started dir=%s %s %s", version, wd, __DATE__, __TIME__);
 #endif // WIN32
+
+	std::string arguments;
+	for (int i = 0; i < argc; i++)
+		arguments += argv[i] + std::string(" ");
+	GTRACE("argv=%s", arguments.data());
 
 #ifdef __linux__
 	prepareSignal();

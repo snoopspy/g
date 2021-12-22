@@ -288,7 +288,6 @@ void GArpSpoof::runArpRecover(FlowList* flowList) {
 			arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").arg(run).arg(10).arg(
 				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
 				QString(intf_->ip()), QString(intf_->mac()), flowString));
-			qDebug() << arguments;
 			QProcess::startDetached("su", arguments);
 #endif // Q_OS_WIN
 		}

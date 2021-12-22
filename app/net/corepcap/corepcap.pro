@@ -6,24 +6,24 @@ DESTDIR = $${PWD}/../../../bin
 LIBS += -lpcap
 
 HEADERS += \
-	ccorepcap.h \
-	cobj.h \
-	cpacket.h \
-	cpcap.h \
-	cpcapdevice.h \
-	cpcapdevicewrite.h \
-	cpcapfile.h \
-	cpcapfilewrite.h \
+	cpcorepcap.h \
+	cpobj.h \
+	cppacket.h \
+	cppcap.h \
+	cppcapdevice.h \
+	cppcapdevicewrite.h \
+	cppcapfile.h \
+	cppcapfilewrite.h \
 	gtrace.h
 
 SOURCES += \
-	ccorepcap.cpp \
-	cmain.cpp \
-	cobj.cpp \
-	cpacket.cpp \
-	cpcap.cpp \
-	cpcapdevice.cpp \
-	cpcapdevicewrite.cpp \
-	cpcapfile.cpp \
-	cpcapfilewrite.cpp \
+	cpcorepcap.cpp \
+	cpmain.cpp \
+	cpobj.cpp \
+	cppacket.cpp \
+	cppcap.cpp \
+	cppcapdevice.cpp \
+	cppcapdevicewrite.cpp \
+	cppcapfile.cpp \
+	cppcapfilewrite.cpp \
 	gtrace.cpp

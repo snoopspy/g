@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cpcap.h"
+#include "cppcap.h"
 
 struct CPcapFileWrite : CPcap {
 	std::string fileName_{""};

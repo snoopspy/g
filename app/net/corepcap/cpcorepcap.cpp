@@ -1,8 +1,8 @@
-#include "ccorepcap.h"
-#include "cpcapdevice.h"
-#include "cpcapdevicewrite.h"
-#include "cpcapfile.h"
-#include "cpcapfilewrite.h"
+#include "cpcorepcap.h"
+#include "cppcapdevice.h"
+#include "cppcapdevicewrite.h"
+#include "cppcapfile.h"
+#include "cppcapfilewrite.h"
 
 #include <iostream>
 
@@ -56,7 +56,7 @@ void CCorePcap::usage() {
 	cerr << "  schema ::= dev | file" << endl;
 	cerr << "  " << endl;
 	cerr << "  name ::= e.g., eth0, wlan0, test.pcap, -, etc" << endl;
-	cerr << "    * '-' is stdin(input) or stdout(output)." << endl;
+	cerr << "    * \"-\" is stdin(input) or stdout(output)." << endl;
 	cerr << "  " << endl;
 	cerr << "  input-options ::= "" | -f <filter> | -l <snap len> | -p <promisc> | -rt <read timeout> | -wt <wait timeout> | -afs <adjust frame size> [input-options]" << endl;
 	cerr << "    * filter : default(\"\")" << endl;
@@ -68,9 +68,9 @@ void CCorePcap::usage() {
 	cerr << "" << endl;
 	cerr << "example" << endl;
 	cerr << "  corepcap dev eth0 file -" << endl;
-	cerr << "  corepcap dev wlan0 -f 'tcp' file - file tcp.pcap"<< endl;
-	cerr << "  corepcap dev mon0 -f 'wlan[0] != 0x80' file -"<< endl;
-	cerr << "  corepcap dev mon0 -f 'radio[2:2] == 0x2800' file -"<< endl;
+	cerr << "  corepcap dev wlan0 -f tcp file - file tcp.pcap"<< endl;
+	cerr << "  corepcap dev mon0 -f \"wlan[0] != 0x80\" file -"<< endl;
+	cerr << "  corepcap dev mon0 -f \"radio[2:2] == 0x2800\" file -"<< endl;
 	cerr << "  corepcap file - dev dum0"<< endl;
 }
 

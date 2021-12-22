@@ -1,4 +1,4 @@
-#include "cpcapdevicewrite.h"
+#include "cppcapdevicewrite.h"
 
 bool CPcapDeviceWrite::doOpen() {
 	return CPcap::openDeviceForWrite(devName_);

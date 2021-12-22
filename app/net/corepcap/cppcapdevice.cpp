@@ -1,4 +1,4 @@
-#include "cpcapdevice.h"
+#include "cppcapdevice.h"
 #include <thread>
 
 bool CPcapDevice::doOpen() {

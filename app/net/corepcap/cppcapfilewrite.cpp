@@ -1,4 +1,4 @@
-#include "cpcapfilewrite.h"
+#include "cppcapfilewrite.h"
 
 bool CPcapFileWrite::doOpen() {
 	if (fileName_ == "") {

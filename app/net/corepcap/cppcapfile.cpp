@@ -1,4 +1,4 @@
-#include "cpcapfile.h"
+#include "cppcapfile.h"
 
 bool CPcapFile::doOpen() {
 	return CPcap::openFile(fileName_, filter_);

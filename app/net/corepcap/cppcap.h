@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cobj.h"
+#include "cpobj.h"
 #include <pcap.h>
 
 struct CPcap : CObj {
