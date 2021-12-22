@@ -58,7 +58,7 @@ void CCorePcap::usage() {
 	cerr << "  name ::= e.g., eth0, wlan0, test.pcap, -, etc" << endl;
 	cerr << "    * '-' is stdin(input) or stdout(output)." << endl;
 	cerr << "  " << endl;
-	cerr << "  input-options ::= "" | -f <filter> | -l <snap len> | -p <promisc> | -rt <read timeout> | -wt <wait timeout> -afs <adjust frame size> [input-options]" << endl;
+	cerr << "  input-options ::= "" | -f <filter> | -l <snap len> | -p <promisc> | -rt <read timeout> | -wt <wait timeout> | -afs <adjust frame size> [input-options]" << endl;
 	cerr << "    * filter : default(\"\")" << endl;
 	cerr << "    * snap len : default(32768 bytes)" << endl;
 	cerr << "    * promisc : default(1 PCAP_OPENFLAG_PROMISCUOUS)" << endl;
