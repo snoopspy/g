@@ -1,18 +1,18 @@
-#include "cppcapfile.h"
+#include "cpcapfile.h"
 
-bool LPcapFile::doOpen() {
-	return LPcap::openFile(fileName_, filter_);
+bool CPcapFile::doOpen() {
+	return CPcap::openFile(fileName_, filter_);
 }
 
-bool LPcapFile::doClose() {
-	return LPcap::doClose();
+bool CPcapFile::doClose() {
+	return CPcap::doClose();
 }
 
 #ifdef GTEST
 #include <gtest/gtest.h>
 
 TEST(PcapFile, openCloseTest) {
-	LPcapFile file;
+	CPcapFile file;
 	EXPECT_FALSE(file.open());
 	file.close();
 

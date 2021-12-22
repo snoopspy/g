@@ -1,12 +1,12 @@
-#include "cpobj.h"
+#include "cobj.h"
 
-LObj::~LObj() {
+CObj::~CObj() {
 	if (state_ != Closed) {
-		GTRACE("State is %d. close must be called in descendant of LObj", state_);
+		GTRACE("State is %d. close must be called in descendant of CObj", state_);
 	}
 }
 
-bool LObj::open() {
+bool CObj::open() {
 	if (state_ != Closed) {
 		GTRACE("State is %d", state_);
 		return false;
@@ -25,7 +25,7 @@ bool LObj::open() {
 	return true;
 }
 
-bool LObj::close() {
+bool CObj::close() {
 	if (state_ == Closed)
 		return true;
 
@@ -40,37 +40,37 @@ bool LObj::close() {
 	return true;
 }
 
-bool LObj::doOpen() {
+bool CObj::doOpen() {
 	GTRACE("virtual function call");
 	return false;
 }
 
-bool LObj::doClose() {
+bool CObj::doClose() {
 	GTRACE("virtual function call");
 	return false;
 }
 
-LPacket::Result LObj::read(LPacket* packet) {
+CPacket::Result CObj::read(CPacket* packet) {
 	(void)packet;
 	GTRACE("virtual function call");
-	return LPacket::Fail;
+	return CPacket::Fail;
 }
 
-LPacket::Result LObj::write(LPacket* packet) {
+CPacket::Result CObj::write(CPacket* packet) {
 	(void)packet;
 	GTRACE("virtual function call");
-	return LPacket::Fail;
+	return CPacket::Fail;
 }
 
 #ifdef GTEST
 #include <gtest/gtest.h>
 
 TEST(Obj, openCloseTest) {
-	LObj obj;
+	CObj obj;
 	EXPECT_FALSE(obj.open());
 	EXPECT_TRUE(obj.close());
-	EXPECT_EQ(obj.read(nullptr), LPacket::Fail);
-	EXPECT_EQ(obj.write(nullptr), LPacket::Fail);
+	EXPECT_EQ(obj.read(nullptr), CPacket::Fail);
+	EXPECT_EQ(obj.write(nullptr), CPacket::Fail);
 }
 
 #endif // GTEST

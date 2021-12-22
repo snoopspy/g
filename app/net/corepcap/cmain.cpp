@@ -1,8 +1,8 @@
 #include <csignal>
 #include <unistd.h>
-#include "cpcorepcap.h"
+#include "ccorepcap.h"
 
-LCorePcap cp;
+CCorePcap cp;
 
 void signalHandler(int signo) {
 	const char* signal = "unknown";

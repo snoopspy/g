@@ -1,11 +1,11 @@
-#include "cppcap.h"
+#include "cpcap.h"
 
-bool LPcap::doOpen() {
+bool CPcap::doOpen() {
 	GTRACE("virtual function call");
 	return false;
 }
 
-bool LPcap::doClose() {
+bool CPcap::doClose() {
 	if (pcap_ != nullptr) {
 		pcap_close(pcap_);
 		pcap_ = nullptr;
@@ -13,13 +13,13 @@ bool LPcap::doClose() {
 	return true;
 }
 
-LPacket::Result LPcap::read(LPacket* packet) {
+CPacket::Result CPcap::read(CPacket* packet) {
 	packet->clear();
 	pcap_pkthdr* pkthdr;
 
 	int i = pcap_next_ex(pcap_, &pkthdr, const_cast<const u_char**>(&(packet->buf_)));
-	if (state_ != Opened) return LPacket::Fail; // may be pcap_close called
-	LPacket::Result res;
+	if (state_ != Opened) return CPacket::Fail; // may be pcap_close called
+	CPacket::Result res;
 	switch (i) {
 		case PCAP_ERROR_BREAK: // if EOF was reached reading from an offline capture
 		case PCAP_ERROR: { // if an error occurred
@@ -27,31 +27,31 @@ LPacket::Result LPcap::read(LPacket* packet) {
 			if (e == nullptr || strlen(e) == 0)
 				e = const_cast<char*>("unknown");
 			GTRACE("pcap_next_ex return %d error=%s", i, e);
-			res = LPacket::Eof;
+			res = CPacket::Eof;
 			break;
 		}
 		case 0 : // if a timeout occured
-			res = LPacket::Timeout;
+			res = CPacket::Timeout;
 			break;
 		default: // packet captured
 			packet->ts_ = pkthdr->ts;
 			packet->len_ = size_t(pkthdr->caplen);
-			res = LPacket::Ok;
+			res = CPacket::Ok;
 			break;
 	}
 	return res;
 }
 
-LPacket::Result LPcap::write(LPacket* packet) {
+CPacket::Result CPcap::write(CPacket* packet) {
 	int i = pcap_sendpacket(pcap_, packet->buf_, int(packet->len_));
-	if (i == 0) return LPacket::Ok;
+	if (i == 0) return CPacket::Ok;
 	char* e = pcap_geterr(pcap_);
 	if (e == nullptr) e = const_cast<char*>("unknown");
 	GTRACE("pcap_sendpacket return %d(%s) length=%zu", i, e, packet->len_);
-	return LPacket::Fail;
+	return CPacket::Fail;
 }
 
-bool LPcap::openDevice(std::string devName, int snapLen, int promisc, int readTimeout, std::string filter) {
+bool CPcap::openDevice(std::string devName, int snapLen, int promisc, int readTimeout, std::string filter) {
 	if (devName == "") {
 		GTRACE("device is not specified");
 		return false;
@@ -69,7 +69,7 @@ bool LPcap::openDevice(std::string devName, int snapLen, int promisc, int readTi
 	return true;
 }
 
-bool LPcap::openFile(std::string fileName, std::string filter){
+bool CPcap::openFile(std::string fileName, std::string filter){
 	if (fileName == "") {
 		GTRACE("file name is not specified");
 		return false;
@@ -90,7 +90,7 @@ bool LPcap::openFile(std::string fileName, std::string filter){
 	return true;
 }
 
-bool LPcap::openDeviceForWrite(std::string devName){
+bool CPcap::openDeviceForWrite(std::string devName){
 	if (devName == "") {
 		GTRACE("device is not specified");
 		return false;
@@ -106,7 +106,7 @@ bool LPcap::openDeviceForWrite(std::string devName){
 	return true;
 }
 
-bool LPcap::processFilter(std::string filter, pcap_if_t* dev) {
+bool CPcap::processFilter(std::string filter, pcap_if_t* dev) {
 	u_int uNetMask;
 	bpf_program code;
 
@@ -125,7 +125,7 @@ bool LPcap::processFilter(std::string filter, pcap_if_t* dev) {
 	return true;
 }
 
-int LPcap::datalink() {
+int CPcap::datalink() {
 	if (pcap_ == nullptr) return DLT_NULL;
 	return pcap_datalink(pcap_);
 }

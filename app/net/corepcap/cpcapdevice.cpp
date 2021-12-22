@@ -1,19 +1,19 @@
-#include "cppcapdevice.h"
+#include "cpcapdevice.h"
 #include <thread>
 
-bool LPcapDevice::doOpen() {
-	return LPcap::openDevice(devName_, snapLen_, promisc_, -1, filter_);
+bool CPcapDevice::doOpen() {
+	return CPcap::openDevice(devName_, snapLen_, promisc_, -1, filter_);
 }
 
-bool LPcapDevice::doClose() {
-	return LPcap::doClose();
+bool CPcapDevice::doClose() {
+	return CPcap::doClose();
 }
 
-LPacket::Result LPcapDevice::read(LPacket* packet) {
-	LPacket::Result	res = LPcap::read(packet);
-	if (res == LPacket::Ok)
+CPacket::Result CPcapDevice::read(CPacket* packet) {
+	CPacket::Result	res = CPcap::read(packet);
+	if (res == CPacket::Ok)
 		packet->len_ += adjustFrameSize_;
-	if (res == LPacket::Timeout)
+	if (res == CPacket::Timeout)
 		std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeout_));
 	return res;
 }
@@ -22,7 +22,7 @@ LPacket::Result LPcapDevice::read(LPacket* packet) {
 #include <gtest/gtest.h>
 
 TEST(PcapDevice, openCloseTest) {
-	LPcapDevice device;
+	CPcapDevice device;
 	EXPECT_FALSE(device.open());
 	device.close();
 

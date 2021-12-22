@@ -1,31 +1,31 @@
-#include "cpcorepcap.h"
-#include "cppcapdevice.h"
-#include "cppcapdevicewrite.h"
-#include "cppcapfile.h"
-#include "cppcapfilewrite.h"
+#include "ccorepcap.h"
+#include "cpcapdevice.h"
+#include "cpcapdevicewrite.h"
+#include "cpcapfile.h"
+#include "cpcapfilewrite.h"
 
 #include <iostream>
 
 using namespace std;
 
-LCorePcap::~LCorePcap() {
+CCorePcap::~CCorePcap() {
 	if (input_ != nullptr)
 		input_->close();
-	for (LObj* output: outputs_)
+	for (CObj* output: outputs_)
 		output->close();
 	if (input_ != nullptr) {
 		delete input_;
 		input_ = nullptr;
 	}
-	for (LObj* obj: outputs_)
+	for (CObj* obj: outputs_)
 		delete obj;
 }
 
-bool LCorePcap::doOpen() {
+bool CCorePcap::doOpen() {
 	if (!input_->open()) return false;
 	GTRACE("input datalink is %d", input_->datalink());
-	for (LObj* output: outputs_) {
-		LPcapFileWrite* fileWrite = dynamic_cast<LPcapFileWrite*>(output);
+	for (CObj* output: outputs_) {
+		CPcapFileWrite* fileWrite = dynamic_cast<CPcapFileWrite*>(output);
 		if (fileWrite != nullptr)
 			fileWrite->dataLink_ = input_->datalink();
 		if (!output->open()) return false;
@@ -33,14 +33,14 @@ bool LCorePcap::doOpen() {
 	return true;
 }
 
-bool LCorePcap::doClose() {
+bool CCorePcap::doClose() {
 	input_->close();
-	for (LObj* output: outputs_)
+	for (CObj* output: outputs_)
 		output->close();
 	return true;
 }
 
-void LCorePcap::usage() {
+void CCorePcap::usage() {
 	cerr << "corepcap version "
 #include "../../../version.txt"
 	<< endl;
@@ -74,7 +74,7 @@ void LCorePcap::usage() {
 	cerr << "  corepcap file - dev dum0"<< endl;
 }
 
-bool LCorePcap::parse(int argc, char* argv[]) {
+bool CCorePcap::parse(int argc, char* argv[]) {
 	if (argc == 1) {
 		usage();
 		return false;
@@ -91,7 +91,7 @@ bool LCorePcap::parse(int argc, char* argv[]) {
 	string name = argv[i++];
 
 	if (schema == "dev") {
-		LPcapDevice* device = new LPcapDevice;
+		CPcapDevice* device = new CPcapDevice;
 		device->devName_ = name;
 		while (true) {
 			if (i == argc) break;
@@ -115,7 +115,7 @@ bool LCorePcap::parse(int argc, char* argv[]) {
 		}
 		input_ = device;
 	} else if (schema == "file") {
-		LPcapFile* file = new LPcapFile;
+		CPcapFile* file = new CPcapFile;
 		file->fileName_ = name;
 		while (true) {
 			if (i == argc) break;
@@ -136,11 +136,11 @@ bool LCorePcap::parse(int argc, char* argv[]) {
 		if (i == argc) { error_ = "[output] name not specified for schema " + schema; return false; }
 		string name = argv[i++];
 		if (schema == "dev") {
-			LPcapDeviceWrite* deviceWrite = new LPcapDeviceWrite;
+			CPcapDeviceWrite* deviceWrite = new CPcapDeviceWrite;
 			deviceWrite->devName_ = name;
 			outputs_.push_back(deviceWrite);
 		} else if (schema == "file") {
-			LPcapFileWrite* fileWrite = new LPcapFileWrite;
+			CPcapFileWrite* fileWrite = new CPcapFileWrite;
 			fileWrite->fileName_ = name;
 			outputs_.push_back(fileWrite);
 		} else { error_ = "[output] invalid schema " + schema; return false; }
@@ -151,16 +151,16 @@ bool LCorePcap::parse(int argc, char* argv[]) {
 	return true;
 }
 
-void LCorePcap::run() {
+void CCorePcap::run() {
 	GTRACE("beg");
 	while (input_->active()) {
-		LPacket packet;
-		LPacket::Result res = input_->read(&packet);
-		if (res == LPacket::Timeout) continue;
-		if (res != LPacket::Ok) break;
-		for (LObj* output: outputs_) {
+		CPacket packet;
+		CPacket::Result res = input_->read(&packet);
+		if (res == CPacket::Timeout) continue;
+		if (res != CPacket::Ok) break;
+		for (CObj* output: outputs_) {
 			res = output->write(&packet);
-			if (res != LPacket::Ok) break;
+			if (res != CPacket::Ok) break;
 		}
 	}
 	GTRACE("end");

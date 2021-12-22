@@ -1,6 +1,6 @@
-#include "cppcapfilewrite.h"
+#include "cpcapfilewrite.h"
 
-bool LPcapFileWrite::doOpen() {
+bool CPcapFileWrite::doOpen() {
 	if (fileName_ == "") {
 		GTRACE("file name is not specified");
 		return false;
@@ -25,25 +25,25 @@ bool LPcapFileWrite::doOpen() {
 	return true;
 }
 
-bool LPcapFileWrite::doClose() {
+bool CPcapFileWrite::doClose() {
 	if (pcap_dumper_ != nullptr) {
 		pcap_dump_close(pcap_dumper_);
 		pcap_dumper_ = nullptr;
 	}
-	return LPcap::doClose();
+	return CPcap::doClose();
 }
 
-LPacket::Result LPcapFileWrite::read(LPacket* packet) {
+CPacket::Result CPcapFileWrite::read(CPacket* packet) {
 	(void)packet;
 	GTRACE("not supported");
-	return LPacket::Fail;
+	return CPacket::Fail;
 }
 
-LPacket::Result LPcapFileWrite::write(LPacket* packet) {
+CPacket::Result CPcapFileWrite::write(CPacket* packet) {
 	pcap_pkthdr pkthdr;
 	pkthdr.ts = packet->ts_;
 	pkthdr.caplen = pkthdr.len = bpf_u_int32(packet->len_);
 	pcap_dump(reinterpret_cast<u_char*>(pcap_dumper_), &pkthdr, packet->buf_);
 	pcap_dump_flush(pcap_dumper_);
-	return LPacket::Ok;
+	return CPacket::Ok;
 }

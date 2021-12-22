@@ -2,9 +2,9 @@
 
 #include <string>
 #include "gtrace.h"
-#include "cppacket.h"
+#include "cpacket.h"
 
-struct LObj {
+struct CObj {
 public:
 	typedef enum {
 		Closed,
@@ -19,14 +19,14 @@ protected:
 	State state_{Closed};
 
 public:
-	LObj() {}
-	virtual ~LObj();
+	CObj() {}
+	virtual ~CObj();
 
 public:
 	virtual bool open();
 	virtual bool close();
-	virtual LPacket::Result read(LPacket* packet);
-	virtual LPacket::Result write(LPacket* packet);
+	virtual CPacket::Result read(CPacket* packet);
+	virtual CPacket::Result write(CPacket* packet);
 
 protected:
 	virtual bool doOpen();

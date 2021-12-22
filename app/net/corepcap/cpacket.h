@@ -5,7 +5,7 @@
 #include <cstring>
 #include <ctime>
 
-struct LPacket {
+struct CPacket {
 	typedef enum : int {
 		Eof = -2, // read
 		Fail = -1, // read write

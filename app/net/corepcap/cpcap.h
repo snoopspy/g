@@ -1,20 +1,20 @@
 #pragma once
 
-#include "cpobj.h"
+#include "cobj.h"
 #include <pcap.h>
 
-struct LPcap : LObj {
+struct CPcap : CObj {
 public:
-	LPcap() {}
-	~LPcap() override { close(); }
+	CPcap() {}
+	~CPcap() override { close(); }
 
 protected:
 	bool doOpen() override;
 	bool doClose() override;
 
 public:
-	LPacket::Result read(LPacket* packet) override;
-	LPacket::Result write(LPacket* packet) override;
+	CPacket::Result read(CPacket* packet) override;
+	CPacket::Result write(CPacket* packet) override;
 
 protected:
 	pcap_t* pcap_{nullptr};

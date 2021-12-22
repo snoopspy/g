@@ -1,14 +1,14 @@
 #pragma once
 
-#include "cppcap.h"
+#include "cpcap.h"
 
-struct LPcapFile : LPcap {
+struct CPcapFile : CPcap {
 	std::string fileName_{""};
 	std::string filter_{""};
 
 public:
-	LPcapFile() {}
-	~LPcapFile() override { close(); }
+	CPcapFile() {}
+	~CPcapFile() override { close(); }
 
 protected:
 	bool doOpen() override;

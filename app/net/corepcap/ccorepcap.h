@@ -1,15 +1,15 @@
 #pragma once
 
 #include <list>
-#include "cppcap.h"
+#include "cpcap.h"
 
-struct LCorePcap : LObj {
-	LPcap* input_{nullptr};
-	std::list<LObj*> outputs_;
+struct CCorePcap : CObj {
+	CPcap* input_{nullptr};
+	std::list<CObj*> outputs_;
 	std::string error_;
 
-	LCorePcap() {}
-	~LCorePcap() override;
+	CCorePcap() {}
+	~CCorePcap() override;
 
 protected:
 	bool doOpen() override;
