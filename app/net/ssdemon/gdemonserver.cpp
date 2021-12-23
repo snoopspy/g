@@ -1184,7 +1184,7 @@ bool GDemonRawIp::processRiWrite(pchar buf, int32_t size) {
 	uint32_t dip = *reinterpret_cast<uint32_t*>(write.data_ + 16); // dip index
 	sin.sin_addr.s_addr = dip; // network byte order
 
-	int res = ::sendto(sd_, write.data_, write.len_, 0, (sockaddr*)&sin, sizeof(sin));
+	int res = ::sendto(sd_, write.data_, write.size_, 0, (sockaddr*)&sin, sizeof(sin));
 	if (res < 0) {
 		GTRACE("sendto return %d(%s) buf len=%d", res, strerror(errno), write.len_);
 		return false;
