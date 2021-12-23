@@ -76,7 +76,7 @@ GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = ipHdr->dip_; // network byte order
 
-	int res = ::sendto(sd_, pbyte(ipHdr), ipHdr->len(), 0, (sockaddr*)&sin, sizeof(sin));
+	int res = ::sendto(sd_, pchar(ipHdr), ipHdr->len(), 0, (sockaddr*)&sin, sizeof(sin));
 	if (res < 0) {
 		QString msg = QString("sendto return %1(%2) buf len=%3").arg(res).arg(strerror(errno)).arg(ipHdr->len());
 		SET_ERR(GErr::Fail, msg);
