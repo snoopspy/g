@@ -82,7 +82,7 @@ bool GPcapDeviceWrite::doOpen() {
 	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf_ == nullptr) {
 		QString msg = QString("can not find interface for %1").arg(intfName_);
-		SET_ERR(GErr::VALUE_IS_NULL, msg);
+		SET_ERR(GErr::ValueIsNull, msg);
 		return false;
 	}
 
