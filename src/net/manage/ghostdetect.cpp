@@ -21,13 +21,13 @@ bool GHostDetect::doOpen() {
 	if (!enabled_) return true;
 
 	if (checkIp_ == false && checkArp_ == false && checkDhcp_ == false) {
-		SET_ERR(GErr::FAIL, "all checking ip, arp, dhcp are false");
+		SET_ERR(GErr::Fail, "all checking ip, arp, dhcp are false");
 		return false;
 	}
 
 	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf_ == nullptr) {
-		SET_ERR(GErr::OBJECT_IS_NULL, "intf is null");
+		SET_ERR(GErr::ObjectIsNull, "intf is null");
 		return false;
 	}
 

@@ -43,7 +43,7 @@ void GConvertEth::convert(GPacket* packet) {
 		case GPacket::Dot11:
 		case GPacket::Null: {
 			QString msg = QString("not supported data link type(%1)").arg(GPacket::dltToString(dlt));
-			SET_ERR(GErr::NOT_SUPPORTED, msg);
+			SET_ERR(GErr::NotSupported, msg);
 			return;
 		}
 	}

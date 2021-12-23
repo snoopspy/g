@@ -12,11 +12,11 @@
 
 struct GErrCategory {
 	enum {
-		BASE = 10000,
-		NET = 20000,
-		PCAP = 2100,
-		HTTP = 2200,
+		Base = 10000,
+		Net = 20000,
+		Pcap = 2100,
+		Http = 2200,
 
-		END = 99999
+		End = 99999
 	};
 };

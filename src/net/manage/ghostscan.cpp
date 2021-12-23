@@ -14,7 +14,7 @@ bool GHostScan::doOpen() {
 	if (!enabled_) return true;
 
 	if (pcapDevice_ == nullptr) {
-		SET_ERR(GErr::OBJECT_IS_NULL, "pcapDevice is null");
+		SET_ERR(GErr::ObjectIsNull, "pcapDevice is null");
 		return false;
 	}
 

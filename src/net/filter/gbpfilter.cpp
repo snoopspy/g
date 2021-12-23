@@ -9,14 +9,14 @@ bool GBpFilter::doOpen() {
 	int dataLink = GPacket::dltToInt(dlt_);
 	pcap_ = pcap_open_dead(dataLink, 1);
 	if (pcap_ == nullptr) {
-		SET_ERR(GErr::FAIL, "error in pcap_open_dead return null");
+		SET_ERR(GErr::Fail, "error in pcap_open_dead return null");
 		return false;
 	}
 
 	code_ = static_cast<bpf_program*>(malloc(sizeof(bpf_program)));
 	res = pcap_compile(pcap_, code_, qPrintable(filter_), 1, 0xFFFFFFFF);
 	if (res < 0) {
-		SET_ERR(GErr::FAIL, QString("error in pcap_compile %1 - %2").arg(pcap_geterr(pcap_)).arg(filter_));
+		SET_ERR(GErr::Fail, QString("error in pcap_compile %1 - %2").arg(pcap_geterr(pcap_)).arg(filter_));
 		return false;
 	}
 

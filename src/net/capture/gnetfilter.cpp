@@ -48,7 +48,7 @@ bool GNetFilter::doOpen() {
 	demonClient_ = new GDemonClient(std::string(qPrintable(ip_)), port_);
 	GDemon::NfOpenRes res = demonClient_->nfOpen(qPrintable(objectName()), queueNum_, nonBlock_, waitTimeout_);
 	if (!res.result_) {
-		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		SET_ERR(GErr::Fail, demonClient_->error_.data());
 		delete demonClient_; demonClient_ = nullptr;
 		return false;
 	}
@@ -79,7 +79,7 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 
 	GDemon::NfRead read = demonClient_->nfRead();
 	if (read.data_ == nullptr) {
-		SET_ERR(GErr::READ_FAILED, "read fail");
+		SET_ERR(GErr::ReadFailed, "read fail");
 		return GPacket::Fail;
 	}
 
@@ -95,13 +95,13 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 
 GPacket::Result GNetFilter::write(GBuf buf) {
 	(void)buf;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 
 GPacket::Result GNetFilter::write(GPacket* packet) {
 	(void)packet;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 
@@ -144,32 +144,32 @@ bool GNetFilter::doOpen() {
 	// opening library handle
 	h_ = nfq_open();
 	if (!h_) {
-		SET_ERR(GErr::RETURN_NULL, "nfq_open return null");
+		SET_ERR(GErr::ReturnNull, "nfq_open return null");
 		return false;
 	}
 
 	// unbinding existing nf_queue handler for AF_INET (if any)
 	if (nfq_unbind_pf(h_, AF_INET) < 0) {
-		SET_ERR(GErr::FAIL, "error during nfq_unbind_pf()");
+		SET_ERR(GErr::Fail, "error during nfq_unbind_pf()");
 		return false;
 	}
 
 	// binding nfnetlink_queue as nf_queue handler for AF_INET
 	if (nfq_bind_pf(h_, AF_INET) < 0) {
-		SET_ERR(GErr::FAIL, "error during nfq_bind_pf()");
+		SET_ERR(GErr::Fail, "error during nfq_bind_pf()");
 		return false;
 	}
 
 	// binding this socket to queue
 	qh_ = nfq_create_queue(h_, queueNum_, cb_, this);
 	if (!qh_) {
-		SET_ERR(GErr::FAIL, "error during nfq_create_queue()");
+		SET_ERR(GErr::Fail, "error during nfq_create_queue()");
 		return false;
 	}
 
 	// setting copy_packet mode
 	if (nfq_set_mode(qh_, NFQNL_COPY_PACKET, 0xffff) < 0) {
-		SET_ERR(GErr::FAIL, "can't set packet_copy mode");
+		SET_ERR(GErr::Fail, "can't set packet_copy mode");
 		return false;
 	}
 
@@ -279,13 +279,13 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 
 GPacket::Result GNetFilter::write(GBuf buf) {
 	(void)buf;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 
 GPacket::Result GNetFilter::write(GPacket* packet) {
 	(void)packet;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 

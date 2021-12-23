@@ -20,7 +20,7 @@ bool GPcapDevice::doOpen() {
 	if (!enabled_) return true;
 
 	if (intfName_ == "") {
-		SET_ERR(GErr::INTERFACE_NAME_NOT_SPECIFIED, "intfName is not specified");
+		SET_ERR(GErr::InterfaceNameNotSpecified, "intfName is not specified");
 		return false;
 	}
 
@@ -28,7 +28,7 @@ bool GPcapDevice::doOpen() {
 	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
 	GDemon::PcapOpenRes res = demonClient_->pcapOpen(qPrintable(objectName()), std::string(qPrintable(filter_)), std::string(qPrintable(intfName_)), snapLen_, flags_, readTimeout_, waitTimeout_, true);
 	if (!res.result_) {
-		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		SET_ERR(GErr::Fail, demonClient_->error_.data());
 		delete demonClient_; demonClient_ = nullptr;
 		return false;
 	}
@@ -36,7 +36,7 @@ bool GPcapDevice::doOpen() {
 	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf_ == nullptr) {
 		QString msg = QString("can not find interface for %1").arg(intfName_);
-		SET_ERR(GErr::VALUE_IS_NULL, msg);
+		SET_ERR(GErr::ValueIsNull, msg);
 		return false;
 	}
 
@@ -45,7 +45,7 @@ bool GPcapDevice::doOpen() {
 	char errBuf[PCAP_ERRBUF_SIZE];
 	pcap_ = pcap_open_live(qPrintable(intfName_), snapLen_, flags_, readTimeout_, errBuf);
 	if (pcap_ == nullptr) {
-		SET_ERR(GErr::RETURN_NULL, errBuf);
+		SET_ERR(GErr::ReturnNull, errBuf);
 		return false;
 	}
 #endif
@@ -53,7 +53,7 @@ bool GPcapDevice::doOpen() {
 	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf_ == nullptr) {
 		QString msg = QString("can not find interface for %1").arg(intfName_);
-		SET_ERR(GErr::VALUE_IS_NULL, msg);
+		SET_ERR(GErr::ValueIsNull, msg);
 		return false;
 	}
 
@@ -92,7 +92,7 @@ GPacket::Result GPcapDevice::read(GPacket* packet) {
 
 	GDemon::PcapRead read = demonClient_->pcapRead();
 	if (read.data_ == nullptr) {
-		SET_ERR(GErr::READ_FAILED, "read fail");
+		SET_ERR(GErr::ReadFailed, "read fail");
 		return GPacket::Fail;
 	}
 
@@ -119,7 +119,7 @@ GPacket::Result GPcapDevice::write(GPacket* packet) {
 
 GPacket::Result GPcapDevice::relay(GPacket* packet) {
 	(void)packet;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 #else

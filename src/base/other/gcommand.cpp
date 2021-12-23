@@ -87,13 +87,13 @@ bool GCommand::doClose() {
 				}
 				case GCommandItem::StartStop: {
 					QString msg = QString("Invalid commandType %1 for '%2'").arg(item->commandType_).arg(command);
-					SET_ERR(GErr::FAIL, msg);
+					SET_ERR(GErr::Fail, msg);
 					res = false;
 					break;
 				}
 				case GCommandItem::StartDetach:{
 					QString msg = QString("Invalid commandType %1 for '%2'").arg(item->commandType_).arg(command);
-					SET_ERR(GErr::FAIL, msg);
+					SET_ERR(GErr::Fail, msg);
 					res = false;
 					break;
 				}
@@ -115,7 +115,7 @@ bool GCommand::doClose() {
 bool GCommand::split(QString command, QString& program, QStringList &arguments) {
 	arguments = QProcess::splitCommand(command);
 	if (arguments.count() == 0) {
-		SET_ERR(GErr::FAIL, "count is zero");
+		SET_ERR(GErr::Fail, "count is zero");
 		return false;
 	}
 	program = arguments.at(0);
@@ -140,13 +140,13 @@ bool GCommand::stopCommands() {
 #ifdef Q_OS_ANDROID
 bool GCommand::cmdExecute(QString command) {
 	if (demonClient_ == nullptr) {
-		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		SET_ERR(GErr::ObjectIsNull, "demonClinet is null");
 		return false;
 	}
 
 	GDemon::CmdExecuteRes res = demonClient_->cmdExecute(qPrintable(command));
 	if (!res.result_) {
-		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		SET_ERR(GErr::Fail, demonClient_->error_.data());
 		return false;
 	}
 	return true;
@@ -154,13 +154,13 @@ bool GCommand::cmdExecute(QString command) {
 
 void* GCommand::cmdStart(QString command) {
 	if (demonClient_ == nullptr) {
-		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		SET_ERR(GErr::ObjectIsNull, "demonClinet is null");
 		return 0;
 	}
 
 	GDemon::CmdStartRes res = demonClient_->cmdStart(qPrintable(command));
 	if (res.pid_ == 0) {
-		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		SET_ERR(GErr::Fail, demonClient_->error_.data());
 		return 0;
 	}
 	return (void*)res.pid_;
@@ -168,7 +168,7 @@ void* GCommand::cmdStart(QString command) {
 
 bool GCommand::cmdStop(void* pid) {
 	if (demonClient_ == nullptr) {
-		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		SET_ERR(GErr::ObjectIsNull, "demonClinet is null");
 		return false;
 	}
 
@@ -176,7 +176,7 @@ bool GCommand::cmdStop(void* pid) {
 	uint64_t _pid = (uint64_t)pid;
 	GDemon::CmdStopRes res = demonClient_->cmdStop(_pid);
 	if (!res.result_) {
-		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		SET_ERR(GErr::Fail, demonClient_->error_.data());
 		return false;
 	}
 	return true;
@@ -184,13 +184,13 @@ bool GCommand::cmdStop(void* pid) {
 
 void* GCommand::cmdStartDetached(QString command) {
 	if (demonClient_ == nullptr) {
-		SET_ERR(GErr::OBJECT_IS_NULL, "demonClinet is null");
+		SET_ERR(GErr::ObjectIsNull, "demonClinet is null");
 		return 0;
 	}
 
 	GDemon::CmdStartDetachedRes res = demonClient_->cmdStartDetached(qPrintable(command));
 	if (!res.result_) {
-		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		SET_ERR(GErr::Fail, demonClient_->error_.data());
 		return (void*)-1;
 	}
 	return 0;
@@ -202,7 +202,7 @@ bool GCommand::cmdExecute(QString command) {
 	if (!split(command, program, arguments)) return false;
 	int res = QProcess::execute(program, arguments);
 	if (res != 0) {
-		SET_ERR(GErr::FAIL, QString("QProcess::execute(%1, %2) return %3").arg(program, arguments.join(' ')).arg(res));
+		SET_ERR(GErr::Fail, QString("QProcess::execute(%1, %2) return %3").arg(program, arguments.join(' ')).arg(res));
 		return false;
 	}
 	return true;
@@ -221,7 +221,7 @@ bool GCommand::cmdStop(void* pid) {
 	if (pid == nullptr) return true;
 	QProcess* process = reinterpret_cast<QProcess*>(pid);
 	if (dynamic_cast<QProcess*>(process) == nullptr) {
-		SET_ERR(GErr::FAIL, QString("invalid process pointer(0x%1)").arg(QString::number(uintptr_t(pid), 16)));
+		SET_ERR(GErr::Fail, QString("invalid process pointer(0x%1)").arg(QString::number(uintptr_t(pid), 16)));
 		return false;
 	}
 	delete process;
@@ -235,7 +235,7 @@ void* GCommand::cmdStartDetached(QString command) {
 	QProcess* process = new QProcess;
 	bool res = process->startDetached(program, arguments);
 	if (!res) {
-		SET_ERR(GErr::FAIL, process->errorString());
+		SET_ERR(GErr::Fail, process->errorString());
 		delete process;
 		return (void*)-1;
 	}

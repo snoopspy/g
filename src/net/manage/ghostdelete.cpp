@@ -15,12 +15,12 @@ bool GHostDelete::doOpen() {
 	if (!enabled_) return true;
 
 	if (pcapDevice_ == nullptr) {
-		SET_ERR(GErr::OBJECT_IS_NULL, "pcapDevice is null");
+		SET_ERR(GErr::ObjectIsNull, "pcapDevice is null");
 		return false;
 	}
 
 	if (hostDetect_ == nullptr) {
-		SET_ERR(GErr::OBJECT_IS_NULL, "hostDetect is null");
+		SET_ERR(GErr::ObjectIsNull, "hostDetect is null");
 		return false;
 	}
 

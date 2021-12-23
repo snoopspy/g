@@ -7,7 +7,7 @@
 // ----------------------------------------------------------------------------
 bool GTcpBlock::doOpen() {
 	if (writer_ == nullptr) {
-		SET_ERR(GErr::OBJECT_IS_NULL, "writer must be specified");
+		SET_ERR(GErr::ObjectIsNull, "writer must be specified");
 		return false;
 	}
 
@@ -41,7 +41,7 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 		case GPacket::Null: blockPacket = nullptr; break;
 	}
 	if (blockPacket == nullptr) {
-		SET_ERR(GErr::NOT_SUPPORTED, QString("Not supported dlt(%d)").arg(GPacket::dltToInt(dlt)));
+		SET_ERR(GErr::NotSupported, QString("Not supported dlt(%d)").arg(GPacket::dltToInt(dlt)));
 		return;
 	}
 

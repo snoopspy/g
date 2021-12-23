@@ -23,25 +23,25 @@ bool GAsyncNetFilter::doClose() {
 
 GPacket::Result GAsyncNetFilter::read(GPacket* packet) {
 	(void)packet;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 
 GPacket::Result GAsyncNetFilter::write(GBuf buf) {
 	(void)buf;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 
 GPacket::Result GAsyncNetFilter::write(GPacket* packet) {
 	(void)packet;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 
 GPacket::Result GAsyncNetFilter::relay(GPacket* packet) {
 	(void)packet;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 

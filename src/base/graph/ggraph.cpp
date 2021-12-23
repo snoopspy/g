@@ -94,7 +94,7 @@ bool GGraph::doOpen() {
 				QString msg;
 				if (stateObj->err == nullptr) {
 					msg = QString("unknown error(%1)").arg(stateObj->objectName());
-					SET_ERR(GErr::UNKNOWN, msg);
+					SET_ERR(GErr::Unknown, msg);
 				} else {
 					msg = QString("%1 (%2)").arg(stateObj->err->msg(), stateObj->metaObject()->className());
 					SET_ERR(stateObj->err->code(), msg);

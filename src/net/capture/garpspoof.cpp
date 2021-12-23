@@ -36,7 +36,7 @@ bool GArpSpoof::doOpen() {
 	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf_ == nullptr) {
 		QString msg = QString("can not find interface for %1").arg(intfName_);
-		SET_ERR(GErr::VALUE_IS_NULL, msg);
+		SET_ERR(GErr::ValueIsNull, msg);
 		return false;
 	}
 	// --------------------------------
@@ -79,19 +79,19 @@ bool GArpSpoof::doOpen() {
 		Q_ASSERT(intf_ != nullptr);
 		if (senderIp == intf_->ip()) {
 			QString msg = QString("sender(%1) can not be my ip").arg(QString(senderIp));
-			SET_ERR(GErr::FAIL, msg);
+			SET_ERR(GErr::Fail, msg);
 			return false;
 		}
 
 		if (targetIp == intf_->ip()) {
 			QString msg = QString("target(%1) can not be my ip").arg(QString(targetIp));
-			SET_ERR(GErr::FAIL, msg);
+			SET_ERR(GErr::Fail, msg);
 			return false;
 		}
 
 		if (senderIp == targetIp) {
 			QString msg = QString("sender(%1) and target(%2) can not be same").arg(QString(senderIp), QString(targetIp));
-			SET_ERR(GErr::FAIL, msg);
+			SET_ERR(GErr::Fail, msg);
 			return false;
 		}
 
@@ -121,7 +121,7 @@ bool GArpSpoof::doOpen() {
 					msg += QString(ip) += " ";
 				}
 			}
-			SET_ERR(GErr::FAIL, msg);
+			SET_ERR(GErr::Fail, msg);
 			return false;
 		}
 	}

@@ -43,7 +43,7 @@ GPacket::Result GPcapCapture::read(GPacket* packet) {
 			char* e = pcap_geterr(pcap_);
 			if (e != nullptr && strlen(e) > 0) {
 				QString msg = QString("pcap_next_ex return -1 error=%1").arg(e);
-				SET_ERR(GErr::READ_FAILED, msg);
+				SET_ERR(GErr::ReadFailed, msg);
 			}
 			res = GPacket::Eof;
 			break;
@@ -52,7 +52,7 @@ GPacket::Result GPcapCapture::read(GPacket* packet) {
 			char* e = pcap_geterr(pcap_);
 			if (e != nullptr && strlen(e) > 0) {
 				QString msg = QString("pcap_next_ex return -2 error=%1").arg(e);
-				SET_ERR(GErr::READ_FAILED, msg);
+				SET_ERR(GErr::ReadFailed, msg);
 			}
 			res = GPacket::Eof;
 			break;
@@ -92,7 +92,7 @@ GPacket::Result GPcapCapture::write(GPacket* packet) {
 
 GPacket::Result GPcapCapture::relay(GPacket* packet) {
 	(void)packet;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 
@@ -105,11 +105,11 @@ bool GPcapCapture::pcapProcessFilter(pcap_if_t* dev) {
 	else
 		uNetMask = 0xFFFFFFFF;
 	if (pcap_compile(pcap_, &code, qPrintable(filter_), 1, uNetMask) < 0) {
-		SET_ERR(GErr::UNKNOWN, QString("error in pcap_compile %1 - %2").arg(pcap_geterr(pcap_)).arg(filter_));
+		SET_ERR(GErr::Unknown, QString("error in pcap_compile %1 - %2").arg(pcap_geterr(pcap_)).arg(filter_));
 		return false;
 	}
 	if (pcap_setfilter(pcap_, &code) < 0) {
-		SET_ERR(GErr::UNKNOWN, QString("error in pcap_setfilter(%1)").arg(pcap_geterr(pcap_)));
+		SET_ERR(GErr::Unknown, QString("error in pcap_setfilter(%1)").arg(pcap_geterr(pcap_)));
 		return false;
 	}
 	return true;

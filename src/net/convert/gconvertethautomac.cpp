@@ -10,7 +10,7 @@ bool GConvertEthAutoMac::doOpen() {
 
 	if (dlt_ != GPacket::Eth) {
 		QString msg = QString("data link layer(%1) must be GPacket::Eth").arg(GPacket::dltToString(dlt_));
-		SET_ERR(GErr::FAIL, msg);
+		SET_ERR(GErr::Fail, msg);
 		return false;
 	}
 
@@ -19,7 +19,7 @@ bool GConvertEthAutoMac::doOpen() {
 	myIp_ = intf_->ip();
 	if (myMac_.isNull()) {
 		QString msg = QString("not specified mac");
-		SET_ERR(GErr::VALUE_IS_NOT_ZERO, msg);
+		SET_ERR(GErr::ValueIsNotZero, msg);
 		return false;
 	}
 
@@ -51,7 +51,7 @@ bool GConvertEthAutoMac::doClose() {
 GMac GConvertEthAutoMac::resolveMacByDip(GPacket* packet) {
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr == nullptr) {
-		SET_ERR(GErr::VALUE_IS_NULL, "ip header is null");
+		SET_ERR(GErr::ValueIsNull, "ip header is null");
 		return GMac::nullMac();
 	}
 	GIp dip = ipHdr->dip();
@@ -67,7 +67,7 @@ GMac GConvertEthAutoMac::resolveMacByDip(GPacket* packet) {
 		}
 		if (!active()) {
 			QString msg = QString("not opened state %1").arg(int(state_));
-			SET_ERR(GErr::NOT_OPENED_STATE, msg); // gilgil temp 2019.06.02
+			SET_ERR(GErr::NotOpenedState, msg); // gilgil temp 2019.06.02
 			return GMac::nullMac();
 		}
 	}
@@ -100,7 +100,7 @@ void GConvertEthAutoMac::convert(GPacket* packet) {
 		case GPacket::Dot11:
 		case GPacket::Null: {
 			QString msg = QString("not supported data link type(%1)").arg(GPacket::dltToString(dlt));
-			SET_ERR(GErr::NOT_SUPPORTED, msg);
+			SET_ERR(GErr::NotSupported, msg);
 			return;
 		}
 	}

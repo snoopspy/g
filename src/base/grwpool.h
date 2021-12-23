@@ -77,7 +77,7 @@ struct G_EXPORT GRwPool : GStateObj {
 protected:
 	bool doOpen() override {
 		if (size_ == 0) {
-			SET_ERR(GErr::VALUE_IS_ZERO, "count_ is zero");
+			SET_ERR(GErr::ValueIsZero, "count_ is zero");
 			return false;
 		}
 		if (items_ != nullptr)

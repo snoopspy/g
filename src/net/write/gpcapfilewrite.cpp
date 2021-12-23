@@ -8,14 +8,14 @@
 // ----------------------------------------------------------------------------
 bool GPcapFileWrite::doOpen() {
 	if (fileName_ == "") {
-		SET_ERR(GErr::FILE_NAME_NOT_SPECIFIED, "file name is not specified");
+		SET_ERR(GErr::FileNameNotSpecified, "file name is not specified");
 		return false;
 	}
 
 	int dataLink = GPacket::dltToInt(dlt_);
 	pcap_ = pcap_open_dead(dataLink, snapLen_);
 	if (pcap_ == nullptr) {
-		SET_ERR(GErr::RETURN_NULL, QString("pcap_open_dead(%1, %2)) return null").arg(dataLink, snapLen_));
+		SET_ERR(GErr::ReturnNull, QString("pcap_open_dead(%1, %2)) return null").arg(dataLink, snapLen_));
 		return false;
 	}
 
@@ -36,7 +36,7 @@ bool GPcapFileWrite::doOpen() {
 
 	pcap_dumper_ = pcap_dump_open(pcap_, qPrintable(realFileName));
 	if (pcap_dumper_ == nullptr) {
-		SET_ERR(GErr::RETURN_NULL, QString("pcap_dump_open(%1)) return null").arg(realFileName));
+		SET_ERR(GErr::ReturnNull, QString("pcap_dump_open(%1)) return null").arg(realFileName));
 		return false;
 	}
 	return true;
@@ -57,7 +57,7 @@ bool GPcapFileWrite::doClose() {
 
 GPacket::Result GPcapFileWrite::write(GBuf buf) {
 	(void)buf;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 

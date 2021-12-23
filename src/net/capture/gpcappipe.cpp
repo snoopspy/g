@@ -36,7 +36,7 @@ bool GPcapPipe::doOpen() {
 
 	QStringList arguments = QProcess::splitCommand(command_);
 	if (arguments.count() == 0) {
-		SET_ERR(GErr::FAIL, "argument size is zero");
+		SET_ERR(GErr::Fail, "argument size is zero");
 		return false;
 	}
 	QString program = arguments.at(0);
@@ -45,7 +45,7 @@ bool GPcapPipe::doOpen() {
 	process_= new QProcess;
 	process_->start(program, arguments, QProcess::ReadOnly);
 	if (!process_->waitForStarted()) {
-		SET_ERR(GErr::FAIL, "waitForStarted return false");
+		SET_ERR(GErr::Fail, "waitForStarted return false");
 		return false;
 	}
 
@@ -119,13 +119,13 @@ GPacket::Result GPcapPipe::read(GPacket* packet) {
 
 GPacket::Result GPcapPipe::write(GBuf buf) {
 	(void)buf;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 
 GPacket::Result GPcapPipe::write(GPacket* packet) {
 	(void)packet;
-	SET_ERR(GErr::NOT_SUPPORTED, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 
@@ -167,7 +167,7 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 				continue;
 			}
 			if (recvLen == -1) {
-				SET_ERR(GErr::FAIL, QString("process_->read return %1").arg(recvLen));
+				SET_ERR(GErr::Fail, QString("process_->read return %1").arg(recvLen));
 				return -1;
 			}
 		}

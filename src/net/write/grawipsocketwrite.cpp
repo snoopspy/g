@@ -16,7 +16,7 @@ bool GRawIpSocketWrite::doOpen() {
 	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
 	GDemon::RiOpenRes res = demonClient_->riOpen();
 	if (!res.result_) {
-		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		SET_ERR(GErr::Fail, demonClient_->error_.data());
 		delete demonClient_; demonClient_ = nullptr;
 		return false;
 	}
@@ -45,7 +45,7 @@ bool GRawIpSocketWrite::doOpen() {
 	sd_ = ::socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (sd_ == -1) {
 		QString msg = QString("socket return -1 %1").arg(strerror(errno));
-		SET_ERR(GErr::FAIL, msg);
+		SET_ERR(GErr::Fail, msg);
 		sd_ = 0;
 		return false;
 	}
@@ -54,7 +54,7 @@ bool GRawIpSocketWrite::doOpen() {
 	int res = ::setsockopt(sd_, IPPROTO_IP, IP_HDRINCL, pchar(&one), sizeof(one));
 	if (res < 0) {
 		QString msg = QString("setsockopt return %1 %2").arg(res).arg(strerror(errno));
-		SET_ERR(GErr::FAIL, msg);
+		SET_ERR(GErr::Fail, msg);
 		sd_ = 0;
 		return false;
 	}
@@ -79,7 +79,7 @@ GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 	int res = ::sendto(sd_, pbyte(ipHdr), ipHdr->len(), 0, (sockaddr*)&sin, sizeof(sin));
 	if (res < 0) {
 		QString msg = QString("sendto return %1(%2) buf len=%3").arg(res).arg(strerror(errno)).arg(ipHdr->len());
-		SET_ERR(GErr::FAIL, msg);
+		SET_ERR(GErr::Fail, msg);
 		return GPacket::Fail;
 	}
 	return GPacket::Ok;

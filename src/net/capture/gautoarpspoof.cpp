@@ -27,7 +27,7 @@ bool GAutoArpSpoof::doOpen() {
 	Q_ASSERT(intf() != nullptr);
 	gwIp_ = intf()->gateway();
 	if (gwIp_ == 0) {
-		SET_ERR(GErr::VALUE_IS_NOT_ZERO, "gateway is zero");
+		SET_ERR(GErr::ValueIsNotZero, "gateway is zero");
 		return false;
 	}
 
@@ -43,7 +43,7 @@ bool GAutoArpSpoof::doOpen() {
 		bool res = atm_.wait();
 		atm_.close();
 		if (!res) {
-			SET_ERR(GErr::FAIL, QString("can not find mac for %1").arg(QString(gwIp_)));
+			SET_ERR(GErr::Fail, QString("can not find mac for %1").arg(QString(gwIp_)));
 			return false;
 		}
 		it = atm_.find(gwIp_);

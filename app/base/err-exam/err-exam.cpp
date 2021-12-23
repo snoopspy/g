@@ -8,7 +8,7 @@ struct Obj {
 		return err_;
 	}
 private:
-	GErr err_ { GErr::FAIL, "NOT_SUPPORTED in Obj class" };
+	GErr err_ { GErr::Fail, "NOT_SUPPORTED in Obj class" };
 };
 
 int main() {
@@ -18,12 +18,12 @@ int main() {
 	}
 
 	{
-		GErr err{ GErr::NOT_SUPPORTED };
+		GErr err{ GErr::NotSupported };
 		qDebug() << err << Qt::endl;
 	}
 
 	{
-		GErr err { GErr::NOT_SUPPORTED, "NOT_SUPPORTED" };
+		GErr err { GErr::NotSupported, "NOT_SUPPORTED" };
 		qDebug() << err << Qt::endl;
 	}
 

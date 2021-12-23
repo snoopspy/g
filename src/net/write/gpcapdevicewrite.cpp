@@ -19,14 +19,14 @@ GPcapDeviceWrite::~GPcapDeviceWrite() {
 #ifdef Q_OS_ANDROID
 bool GPcapDeviceWrite::doOpen() {
 	if (intfName_ == "") {
-		SET_ERR(GErr::INTERFACE_NAME_NOT_SPECIFIED, "intfName is not specified");
+		SET_ERR(GErr::InterfaceNameNotSpecified, "intfName is not specified");
 		return false;
 	}
 
 	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
 	GDemon::PcapOpenRes res = demonClient_->pcapOpen(qPrintable(objectName()), "", std::string(qPrintable(intfName_)), 0, 0, 0, 0, false);
 	if (!res.result_) {
-		SET_ERR(GErr::FAIL, demonClient_->error_.data());
+		SET_ERR(GErr::Fail, demonClient_->error_.data());
 		delete demonClient_; demonClient_ = nullptr;
 		return false;
 	}
@@ -34,7 +34,7 @@ bool GPcapDeviceWrite::doOpen() {
 	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf_ == nullptr) {
 		QString msg = QString("can not find interface for %1").arg(intfName_);
-		SET_ERR(GErr::VALUE_IS_NULL, msg);
+		SET_ERR(GErr::ValueIsNull, msg);
 		return false;
 	}
 
@@ -68,14 +68,14 @@ GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
 #else
 bool GPcapDeviceWrite::doOpen() {
 	if (intfName_ == "") {
-		SET_ERR(GErr::INTERFACE_NAME_NOT_SPECIFIED, "intfName is not specified");
+		SET_ERR(GErr::InterfaceNameNotSpecified, "intfName is not specified");
 		return false;
 	}
 
 	char errBuf[PCAP_ERRBUF_SIZE];
 	pcap_ = pcap_open_live(qPrintable(intfName_), 0, 0, 0, errBuf);
 	if (pcap_ == nullptr) {
-		SET_ERR(GErr::RETURN_NULL, errBuf);
+		SET_ERR(GErr::ReturnNull, errBuf);
 		return false;
 	}
 
@@ -106,7 +106,7 @@ bool GPcapDeviceWrite::doClose() {
 GPacket::Result GPcapDeviceWrite::write(GBuf buf) {
 	int i = pcap_sendpacket(pcap_, buf.data_, int(buf.size_));
 	if (i != 0) {
-		SET_ERR(GErr::FAIL, QString("pcap_sendpacket return %1 %2 size=%3").arg(i).arg(pcap_geterr(pcap_)).arg(buf.size_));
+		SET_ERR(GErr::Fail, QString("pcap_sendpacket return %1 %2 size=%3").arg(i).arg(pcap_geterr(pcap_)).arg(buf.size_));
 		return GPacket::Fail;
 	}
 	return GPacket::Ok;

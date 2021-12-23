@@ -8,14 +8,14 @@ bool GPcapFile::doOpen() {
 	if (!enabled_) return true;
 
 	if (fileName_ == "") {
-		SET_ERR(GErr::FILE_NAME_NOT_SPECIFIED, "file name is not specified");
+		SET_ERR(GErr::FileNameNotSpecified, "file name is not specified");
 		return false;
 	}
 
 	char errBuf[PCAP_ERRBUF_SIZE];
 	pcap_ = pcap_open_offline(qPrintable(fileName_), errBuf);
 	if (pcap_ == nullptr) {
-		SET_ERR(GErr::RETURN_NULL, errBuf);
+		SET_ERR(GErr::ReturnNull, errBuf);
 		return false;
 	}
 

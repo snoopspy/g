@@ -5,9 +5,9 @@
 // ----------------------------------------------------------------------------
 QDebug operator << (QDebug os, GErr& err) {
 	os
-			<< err.name() << ":"
-			<< (err.msg().isEmpty() ? "no msg" : err.msg())
-			<< " code =" << err.code();
+		<< err.name() << ":"
+		<< (err.msg().isEmpty() ? "no msg" : err.msg())
+		<< " code =" << err.code();
 	return os;
 }
 
@@ -49,7 +49,7 @@ TEST(GErr, lastErrTest) {
 }
 
 TEST(GErr, errTest) {
-	GErr err(GErr::NOT_SUPPORTED, "not supported");
+	GErr err(GErr::NotSupported, "not supported");
 	qDebug() << err;
 }
 
