@@ -96,7 +96,7 @@ bool GWinDivert::doOpen() {
 
 	GWinDivertLib& lib = GWinDivertLib::instance();
 	if (!lib.ok) {
-		SET_ERR(GErr::FAIL, lib.lib_->errorString())
+		SET_ERR(GErr::Fail, lib.lib_->errorString())
 		return false;
 	}
 
@@ -111,21 +111,21 @@ bool GWinDivert::doOpen() {
 			case ERROR_ACCESS_DENIED: msg = "ERROR_ACCESS_DENIED"; break;
 			default: msg = QString("unknown error %1").arg(lastError); break;
 		}
-		SET_ERR(GErr::FAIL, QString("error in WinDivertOpen %1").arg(msg));
+		SET_ERR(GErr::Fail, QString("error in WinDivertOpen %1").arg(msg));
 		return false;
 	}
 
 	if (!lib.WinDivertSetParam(handle_, WINDIVERT_PARAM_QUEUE_LENGTH, queueLen_)) {
 		DWORD lastError = GetLastError();
 		QString msg = QString("error in DivertSetParam(DIVERT_PARAM_QUEUE_LEN) %1").arg(lastError);
-		SET_ERR(GErr::FAIL, msg);
+		SET_ERR(GErr::Fail, msg);
 		return false;
 	}
 
 	if (!lib.WinDivertSetParam(handle_, WINDIVERT_PARAM_QUEUE_TIME, queueTime_)) {
 		DWORD lastError = GetLastError();
 		QString msg = QString("error in DivertSetParam(WINDIVERT_PARAM_QUEUE_TIME) %1").arg(lastError);
-		SET_ERR(GErr::FAIL, msg);
+		SET_ERR(GErr::Fail, msg);
 		return false;
 	}
 
@@ -140,14 +140,14 @@ bool GWinDivert::doClose() {
 
 	GWinDivertLib& lib = GWinDivertLib::instance();
 	if (!lib.ok) {
-		SET_ERR(GErr::FAIL, lib.lib_->errorString());
+		SET_ERR(GErr::Fail, lib.lib_->errorString());
 		return false;
 	}
 
 	if (!lib.WinDivertClose(handle_)) {
 		DWORD lastError = GetLastError();
 		QString msg = QString("WinDivertClose return FALSE last error=%1(0x%2)").arg(lastError).arg(QString::number(lastError, 16));
-		SET_ERR(GErr::FAIL, msg);
+		SET_ERR(GErr::Fail, msg);
 	}
 	handle_ = nullptr;
 
@@ -169,7 +169,7 @@ GPacket::Result GWinDivert::read(GPacket* packet) {
 	if (!res) {
 		DWORD lastError = GetLastError();
 		QString msg = QString("WinDivertRecv return FALSE last error=%1(0x%2)").arg(lastError).arg(QString::number(lastError, 16));
-		SET_ERR(GErr::FAIL, msg);
+		SET_ERR(GErr::ReadFailed, msg);
 		return GPacket::Fail;
 	}
 	packet->buf_.data_ = pktBuf_;
@@ -192,7 +192,7 @@ GPacket::Result GWinDivert::read(GPacket* packet) {
 
 GPacket::Result GWinDivert::write(GBuf buf) {
 	(void)buf;
-	SET_ERR(GErr::FAIL, "not supported");
+	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
 }
 
@@ -205,7 +205,7 @@ GPacket::Result GWinDivert::write(GPacket* packet) {
 	if (!res) {
 		DWORD lastError = GetLastError();
 		QString msg = QString("WinDivertSend return FALSE last error=%1(0x%2)").arg(lastError).arg(QString::number(lastError, 16));
-		SET_ERR(GErr::FAIL, msg);
+		SET_ERR(GErr::Fail, msg);
 		return GPacket::Fail;
 	}
 	return GPacket::Ok;
