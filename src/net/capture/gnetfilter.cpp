@@ -291,7 +291,7 @@ GPacket::Result GNetFilter::write(GPacket* packet) {
 
 GPacket::Result GNetFilter::relay(GPacket* packet) {
 	int res;
-	if (packet->ctrl.changed_)
+	if (packet->ctrl_.changed_)
 		res = nfq_set_verdict2(qh_, id_, acceptVerdict_, mark_, packet->buf_.size_, packet->buf_.data_);
 	else
 		res = nfq_set_verdict2(qh_, id_, acceptVerdict_, mark_, 0, nullptr);

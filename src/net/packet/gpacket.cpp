@@ -72,8 +72,8 @@ GPacket& GPacket::operator = (const GPacket& r) {
 	dlt_ = r.dlt_;
 	ts_ = r.ts_;
 	buf_ = r.buf_;
-	ctrl.block_ = r.ctrl.block_;
-	ctrl.changed_ = r.ctrl.changed_;
+	ctrl_.block_ = r.ctrl_.block_;
+	ctrl_.changed_ = r.ctrl_.changed_;
 
 	ethHdr_ = r.ethHdr_;
 	arpHdr_ = r.arpHdr_;
@@ -140,7 +140,7 @@ void GPacket::copyFrom(GPacket* source, GBuf newBuf) {
 	clear();
 	ts_ = source->ts_;
 	buf_ = newBuf;
-	ctrl = source->ctrl;
+	ctrl_ = source->ctrl_;
 
 	parse();
 }

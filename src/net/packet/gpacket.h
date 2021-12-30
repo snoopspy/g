@@ -82,7 +82,7 @@ public:
 	struct {
 		bool block_{false};
 		bool changed_{false};
-	} ctrl;
+	} ctrl_;
 
 	//
 	// header
@@ -121,8 +121,8 @@ public:
 		ts_.tv_sec = 0;
 		ts_.tv_usec = 0;
 		buf_.clear();
-		ctrl.block_ = false;
-		ctrl.changed_ = false;
+		ctrl_.block_ = false;
+		ctrl_.changed_ = false;
 		ethHdr_ = nullptr;
 		arpHdr_ = nullptr;
 		ipHdr_ = nullptr;

@@ -29,7 +29,7 @@ void GCorrectChecksum::correct(GPacket* packet) {
 		}
 	}
 
-	packet->ctrl.changed_ = changed;
+	packet->ctrl_.changed_ = changed;
 	if (changed)
 		emit corrected(packet);
 }

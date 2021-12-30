@@ -92,9 +92,9 @@ int GAsyncNetFilter::_asyncCallback(struct nfq_q_handle* qh, struct nfgenmsg* nf
 	if (ph != nullptr)
 		id = ntohl(ph->packet_id);
 
-	if (ipPacket->ctrl.block_)
+	if (ipPacket->ctrl_.block_)
 		res = nfq_set_verdict2(qh, id, NF_DROP, asyncNetFilter->mark_, 0, nullptr);
-	else if (ipPacket->ctrl.changed_)
+	else if (ipPacket->ctrl_.changed_)
 		res = nfq_set_verdict2(qh, id, asyncNetFilter->acceptVerdict_, asyncNetFilter->mark_, ipPacket->buf_.size_, ipPacket->buf_.data_);
 	else
 		res = nfq_set_verdict2(qh, id, asyncNetFilter->acceptVerdict_, asyncNetFilter->mark_, 0, nullptr);

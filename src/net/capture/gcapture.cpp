@@ -87,7 +87,7 @@ void GCapture::run() {
 		if (res == GPacket::Eof || res == GPacket::Fail) break;
 		emit captured(packet);
 		if (pt == InPath) {
-			if (packet->ctrl.block_)
+			if (packet->ctrl_.block_)
 				res = drop(packet);
 			else
 				res = relay(packet);

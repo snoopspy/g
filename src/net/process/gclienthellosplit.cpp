@@ -110,5 +110,5 @@ void GClientHelloSplit::split(GPacket* packet) {
 		packet->buf_ = backup;
 	}
 
-	packet->ctrl.block_ = true;
+	packet->ctrl_.block_ = true;
 }

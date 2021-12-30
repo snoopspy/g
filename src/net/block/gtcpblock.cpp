@@ -189,5 +189,5 @@ void GTcpBlock::block(GPacket* packet) {
 		emit blocked(packet);
 
 	if (forwardBlockType_ != None)
-		packet->ctrl.block_ = true;
+		packet->ctrl_.block_ = true;
 }
