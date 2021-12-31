@@ -21,9 +21,17 @@ struct GDot11Hdr {
 
 	// typeSubtype
 	enum: le8_t {
+		ProbeRequest = 0x04,
+		ProbeResponse = 0x05,
 		Beacon = 0x08,
-		QosNull = 0x2C,
-		Acknowledgement = 0x1D
+		BlockAck = 0x19,
+		RequestToSend = 0x1B,
+		ClearToSend = 0x1C,
+		Acknowledgement = 0x1D,
+		DataFrame = 0x20,
+		NullFunction = 0x24,
+		QosData = 0x28,
+		QosNull = 0x2C
 	};
 
 	static GDot11Hdr* check(GRadiotapHdr* radiotapHdr, uint32_t size);

@@ -2,15 +2,17 @@
 
 GDot11Hdr* GDot11Hdr::check(GRadiotapHdr* radiotapHdr, uint32_t size) {
 	uint32_t len = radiotapHdr->len_;
-	GDot11Hdr* dot11Hdr = PDot11Hdr(pchar(radiotapHdr) + len);
 	if (size < sizeof(GDot11Hdr) + len) {
-		//GTRACE("invalid size radiotapHdr->len=%u size=%u", len, size);
-		//dump(puchar(radiotapHdr), len /*size*/); // gilgil temp
+		qWarning() << QString("invalid size radiotapHdr->len=%1 size=%2").arg(len).arg(size);
 		return nullptr;
 	}
+	GDot11Hdr* dot11Hdr = PDot11Hdr(pchar(radiotapHdr) + len);
 	return dot11Hdr;
 }
 
+// ----------------------------------------------------------------------------
+// GTEST
+// ----------------------------------------------------------------------------
 #ifdef GTEST
 #include <gtest/gtest.h>
 

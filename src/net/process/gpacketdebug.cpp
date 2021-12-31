@@ -75,10 +75,20 @@ void GPacketDebug::debug(GPacket* packet) {
 	GRadiotapHdr* radiotapHdr = packet->radiotapHdr_;
 	if (radiotapHdr != nullptr) {
 		GDot11Hdr* dot11Hdr = packet->dot11Hdr_;
-		switch (dot11Hdr->typeSubtype()) {
+		le8_t typeSubtype = dot11Hdr->typeSubtype();
+		msg += "Ox" + QString::number(typeSubtype, 16);
+		switch (typeSubtype) {
+			case GDot11Hdr::ProbeRequest: msg += " ProbeRequest"; break;
+			case GDot11Hdr::ProbeResponse: msg += " ProbeResponse"; break;
 			case GDot11Hdr::Beacon: msg += " Beacon"; break;
-			case GDot11Hdr::QosNull: msg += " QosNull"; break;
+			case GDot11Hdr::BlockAck: msg += " BlockAck"; break;
+			case GDot11Hdr::RequestToSend: msg += " RequestToSend"; break;
+			case GDot11Hdr::ClearToSend: msg += " ClearToSend"; break;
 			case GDot11Hdr::Acknowledgement: msg += " Acknowledgement"; break;
+			case GDot11Hdr::DataFrame: msg += " DataFrame"; break;
+			case GDot11Hdr::NullFunction: msg += " NullFunction"; break;
+			case GDot11Hdr::QosData: msg += " QosData"; break;
+			case GDot11Hdr::QosNull: msg += " QosNull"; break;
 		}
 	}
 
