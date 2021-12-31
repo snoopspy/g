@@ -78,17 +78,46 @@ void GPacketDebug::debug(GPacket* packet) {
 		le8_t typeSubtype = dot11Hdr->typeSubtype();
 		msg += "Ox" + QString::number(typeSubtype, 16);
 		switch (typeSubtype) {
+			case GDot11Hdr::AssociationRequest: msg += " AssociationRequest"; break;
+			case GDot11Hdr::AssociationResponse: msg += " AssociationResponse"; break;
+			case GDot11Hdr::ReassociationRequest: msg += " ReassociationRequest"; break;
+			case GDot11Hdr::ReassociationResponse: msg += " ReassociationResponse"; break;
 			case GDot11Hdr::ProbeRequest: msg += " ProbeRequest"; break;
 			case GDot11Hdr::ProbeResponse: msg += " ProbeResponse"; break;
+			case GDot11Hdr::TimingAdvertisement: msg += " TimingAdvertisement"; break;
+			case GDot11Hdr::Reserved: msg += " Reserved"; break;
 			case GDot11Hdr::Beacon: msg += " Beacon"; break;
+			case GDot11Hdr::Atim: msg += " Atim"; break;
+			case GDot11Hdr::Disassociation: msg += " Disassociation"; break;
+			case GDot11Hdr::Authentication: msg += " Authentication"; break;
+			case GDot11Hdr::Deauthentication: msg += " Deauthentication"; break;
+			case GDot11Hdr::Action: msg += " Action"; break;
+			case GDot11Hdr::ActionNoAck: msg += " ActionNoAck"; break;
+			case GDot11Hdr::Trigger: msg += " Trigger"; break;
+			case GDot11Hdr::Tack: msg += " Tack"; break;
+			case GDot11Hdr::BeamformingReportPoll: msg += " BeamformingReportPoll"; break;
+			case GDot11Hdr::VhtHeNdpAnnouncement: msg += " VhtHeNdpAnnouncement"; break;
+			case GDot11Hdr::ControlFrameExtension: msg += " ControlFrameExtension"; break;
+			case GDot11Hdr::ControlWrapper: msg += " ControlWrapper"; break;
+			case GDot11Hdr::BlockAckRequest: msg += " BlockAckRequest"; break;
 			case GDot11Hdr::BlockAck: msg += " BlockAck"; break;
-			case GDot11Hdr::RequestToSend: msg += " RequestToSend"; break;
-			case GDot11Hdr::ClearToSend: msg += " ClearToSend"; break;
-			case GDot11Hdr::Acknowledgement: msg += " Acknowledgement"; break;
-			case GDot11Hdr::DataFrame: msg += " DataFrame"; break;
-			case GDot11Hdr::NullFunction: msg += " NullFunction"; break;
-			case GDot11Hdr::QosData: msg += " QosData"; break;
-			case GDot11Hdr::QosNull: msg += " QosNull"; break;
+			case GDot11Hdr::PsPoll: msg += " PsPoll"; break;
+			case GDot11Hdr::Rts: msg += " Rts"; break;
+			case GDot11Hdr::Cts: msg += " Cts"; break;
+			case GDot11Hdr::Ack: msg += " Ack"; break;
+			case GDot11Hdr::CfEnd: msg += " CfEnd"; break;
+			case GDot11Hdr::CfEndCfACK: msg += " CfEndCfACK"; break;
+			case GDot11Hdr::Data: msg += " Data"; break;
+			case GDot11Hdr::Null: msg += " Null"; break;
+			case GDot11Hdr::QoSData: msg += " QoSData"; break;
+			case GDot11Hdr::QoSDataCfACK: msg += " QoSDataCfACK"; break;
+			case GDot11Hdr::QoSDataCfPoll: msg += " QoSDataCfPoll"; break;
+			case GDot11Hdr::QoSDataCfACKCfPoll: msg += " QoSDataCfACKCfPoll"; break;
+			case GDot11Hdr::QoSNull: msg += " QoSNull"; break;
+			case GDot11Hdr::QoSCfPoll: msg += " QoSCfPoll"; break;
+			case GDot11Hdr::QoSCfACKCfPoll: msg += " QoSCfACKCfPoll"; break;
+			case GDot11Hdr::DmgBeacon: msg += " DmgBeacon"; break;
+			case GDot11Hdr::S1gBeacon: msg += " S1gBeacon"; break;
 		}
 	}
 

@@ -3,7 +3,7 @@
 #include "gdot11hdr.h"
 
 #pragma pack(push, 1)
-struct GQosNullHdr : GDot11Hdr {
+struct GQoSNullHdr : GDot11Hdr {
 	GMac addr1_;
 	GMac addr2_;
 	GMac addr3_;
@@ -18,7 +18,7 @@ struct GQosNullHdr : GDot11Hdr {
 	GMac bssid() { return addr1_; }
 	GMac sta() { return addr2_; }
 
-	static GQosNullHdr* check(GDot11Hdr* dot11Hdr, uint32_t size);
+	static GQoSNullHdr* check(GDot11Hdr* dot11Hdr, uint32_t size);
 };
-typedef GQosNullHdr *PQosNullHdr;
+typedef GQoSNullHdr *PQosNullHdr;
 #pragma pack(pop)
