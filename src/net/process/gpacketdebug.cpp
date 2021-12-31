@@ -74,9 +74,15 @@ void GPacketDebug::debug(GPacket* packet) {
 
 	GRadiotapHdr* radiotapHdr = packet->radiotapHdr_;
 	if (radiotapHdr != nullptr) {
+		QList<QByteArray> ba = radiotapHdr->present_.getInfo(GRadiotapHdr::Present::AntennaSignal);
+		if (ba.count() > 0) {
+			int8_t signal = *ba[0].data();
+			msg += " " + QString::number(signal) + " dBm";
+		}
+
 		GDot11Hdr* dot11Hdr = packet->dot11Hdr_;
 		le8_t typeSubtype = dot11Hdr->typeSubtype();
-		msg += "Ox" + QString::number(typeSubtype, 16);
+		msg += " Ox" + QString::number(typeSubtype, 16);
 		switch (typeSubtype) {
 			case GDot11Hdr::AssociationRequest: msg += " AssociationRequest"; break;
 			case GDot11Hdr::AssociationResponse: msg += " AssociationResponse"; break;

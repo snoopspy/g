@@ -24,13 +24,13 @@ TEST(Dot11Hdr, typeTest) {
 	EXPECT_EQ(ver, 0x00);
 
 	le8_t type = dot11Hdr->type_;
-	EXPECT_EQ(type, GDot11Hdr::Control);
+	EXPECT_EQ(type, GDot11Hdr::ControlFrame);
 
 	le8_t subtype = dot11Hdr->subtype_;
 	EXPECT_EQ(subtype, 0x0D);
 
 	le8_t typeSubtype = dot11Hdr->typeSubtype();
-	EXPECT_EQ(typeSubtype, GDot11Hdr::Acknowledgement);
+	EXPECT_EQ(typeSubtype, GDot11Hdr::Ack);
 }
 
 #endif // GTEST

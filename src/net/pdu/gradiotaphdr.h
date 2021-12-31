@@ -42,7 +42,7 @@ struct GRadiotapHdr {
 			Ext = 31,
 		};
 
-		bool getInfo(BitNo bitNo, QByteArray* out);
+		QList<QByteArray> getInfo(BitNo bitNo);
 
 		Present* next() {
 			if (p_ && 0x80000000 != 0)
