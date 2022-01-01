@@ -110,7 +110,7 @@ GPacket::Result GNetFilter::relay(GPacket* packet) {
 	verdict.id_ = id_;
 	verdict.acceptVerdict_ = acceptVerdict_;
 	verdict.mark_ = mark_;
-	if (packet->ctrl.changed_) {
+	if (packet->ctrl_.changed_) {
 		verdict.size_ = packet->buf_.size_;
 		verdict.data_ = packet->buf_.data_;
 	} else {
