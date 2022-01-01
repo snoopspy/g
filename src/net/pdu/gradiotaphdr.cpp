@@ -4,38 +4,38 @@ struct AlignSizeInfo {
 	int size_;
 	int align_;
 } _alignSizeInfo[] {
-	{8, 8}, // Tsft (u64 mactime)
-	{1, 1}, // Flags (u8 flags)
-	{1, 1}, // Rate (u8)
-	{4, 2}, // Channel (u16 frequency, u16 flags)
-	{2, 2}, // Fhss (u8 hop set, u8 hop pattern)
-	{1, 1}, // AntennaSignal (s8)
-	{1, 1}, // AntennaNoise (s8)
-	{2, 2}, // LockQuality (u16)
-	{1, 1}, // TxAttenuation *
-	{1, 1}, // DbTxAttenuation *
-	{1, 1}, // DbmTxPower *
-	{1, 1}, // Antenna *
-	{1, 1}, // DbAntennaSignal *
-	{1, 1}, // DbAntennaNoise *
-	{2, 2}, // RxFlags (u16)
-	{1, 1}, // TxFlags *
-	{1, 1}, // RtsRetries *
-	{1, 1}, // DataRetries *
-	{1, 1}, // XChannel *
-	{1, 1}, // Mcs *
-	{1, 1}, // AMpdu *
-	{1, 1}, // Vht *
-	{1, 1}, // Times *tamp
-	{1, 1}, // He *
-	{1, 1}, // HeMu *
-	{1, 1}, // HeMuOt *herUser
-	{1, 1}, // ZeroLeng *hPsdu
-	{1, 1}, // LSig *
-	{1, 1}, // Tlv *
-	{0, 0}, // Radio *tapNamespace
-	{1, 1}, // VendorN *amespace
-	{1, 1},// Ext *
+	{8, 8}, // 0, Tsft (u64 mactime)
+	{1, 1}, // 1, Flags (u8 flags)
+	{1, 1}, // 2, Rate (u8)
+	{4, 2}, // 3, Channel (u16 frequency, u16 flags)
+	{2, 2}, // 4, Fhss (u8 hop set, u8 hop pattern)
+	{1, 1}, // 5, AntennaSignal (s8)
+	{1, 1}, // 6, AntennaNoise (s8)
+	{2, 2}, // 7, LockQuality (u16)
+	{1, 1}, // 8, TxAttenuation *
+	{1, 1}, // 9, DbTxAttenuation *
+	{1, 1}, // 10, DbmTxPower *
+	{1, 1}, // 11, Antenna *
+	{1, 1}, // 12, DbAntennaSignal *
+	{1, 1}, // 13, DbAntennaNoise *
+	{2, 2}, // 14, RxFlags (u16)
+	{1, 1}, // 15, TxFlags *
+	{1, 1}, // 16, RtsRetries *
+	{1, 1}, // 17, DataRetries *
+	{1, 1}, // 18, XChannel *
+	{1, 1}, // 19, Mcs *
+	{1, 1}, // 20, AMpdu *
+	{1, 1}, // 21, Vht *
+	{12, 8}, // 22, Times (u64 timestamp, u16 accuracy, u8 unit/position, u8 flags)
+	{1, 1}, // 23, He *
+	{1, 1}, // 24, HeMu *
+	{1, 1}, // 25, HeMuOt *herUser
+	{1, 1}, // 26, ZeroLeng *hPsdu
+	{1, 1}, // 27, LSig *
+	{1, 1}, // 28, Tlv *
+	{0, 0}, // 29, Radio *tapNamespace
+	{1, 1}, // 30, VendorN *amespace
+	{0, 0}, // 31, Ext *
 };
 
 GRadiotapHdr* GRadiotapHdr::check(gbyte* p, uint32_t size) {
@@ -48,35 +48,38 @@ GRadiotapHdr* GRadiotapHdr::check(gbyte* p, uint32_t size) {
 	return radiotapHdr;
 }
 
-QList<QByteArray> GRadiotapHdr::Present::getInfo(BitNo bitNo) {
+QList<QByteArray> GRadiotapHdr::getInfo(BitNo bitNo) {
 	QList<QByteArray> res;
 
-	Present* present = this;
+	char* value = pchar(this);
+	int offset = sizeof(GRadiotapHdr);
+
+	Present* present = &present_;
 	int presentFlagCount = 1;
 	while ((present ->p_ & 0x80000000) != 0) {
 		presentFlagCount++;
+		offset += sizeof(Present);
 		present = present->next();
 	}
 
-	char* presentValue = pchar(present + 1);
-	present = this;
-	for (int i = 0; i < presentFlagCount; i++) {
+	present = &present_;
+	for (int pf = 0; pf < presentFlagCount; pf++) {
 		le32_t mask = 1;
-		int offset = 0;
-		for (le32_t i = 0; i < bitNo; i++) {
+		for (le32_t i = 0; i < 31; i++) {
 			if ((present->p_ & mask) != 0) {
-				int size = _alignSizeInfo[i].size_;
 				int align = _alignSizeInfo[i].align_;
 				if (align > 1)
 					offset = (offset + align - 1) / align * align;
+
+				int size = _alignSizeInfo[i].size_;
+				if (i == bitNo) {
+					char* p = value + offset;
+					QByteArray ba(p, size);
+					res.push_back(ba);
+				}
 				offset += size;
 			}
 			mask <<= 1;
-		}
-		if ((present->p_ & mask) != 0) {
-			char* p = presentValue + offset;
-			QByteArray ba(p, _alignSizeInfo[bitNo].size_);
-			res.push_back(ba);
 		}
 		present = present->next();
 	}
@@ -116,19 +119,19 @@ TEST(RadiotapHdr, beacon_a2000ua_testap) {
 	EXPECT_EQ(radiotapHdr->len_, 32);
 	EXPECT_EQ(le32_t(radiotapHdr->present_), 0xa00040ae);
 
-	QList<QByteArray> ba = radiotapHdr->present_.getInfo(GRadiotapHdr::Present::Flags);
+	QList<QByteArray> ba = radiotapHdr->getInfo(GRadiotapHdr::Flags);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0], QByteArray("\x10"));
 
-	ba = radiotapHdr->present_.getInfo(GRadiotapHdr::Present::Rate);
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Rate);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0], QByteArray("\x02")); // 500Kbps * 2 == 1.0 Mb/s
 
-	ba = radiotapHdr->present_.getInfo(GRadiotapHdr::Present::Channel);
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Channel);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0], QByteArray("\x8a\x09\xa0\x00", 4)); // 2442, 0x00a0
 
-	ba = radiotapHdr->present_.getInfo(GRadiotapHdr::Present::AntennaSignal);
+	ba = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
 	EXPECT_EQ(ba.count(), 3);
 	EXPECT_EQ(ba[0], QByteArray("\xb4")); // -76
 	EXPECT_EQ(ba[1], QByteArray("\xae")); // -82

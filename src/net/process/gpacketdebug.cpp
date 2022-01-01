@@ -74,7 +74,7 @@ void GPacketDebug::debug(GPacket* packet) {
 
 	GRadiotapHdr* radiotapHdr = packet->radiotapHdr_;
 	if (radiotapHdr != nullptr) {
-		QList<QByteArray> ba = radiotapHdr->present_.getInfo(GRadiotapHdr::Present::AntennaSignal);
+		QList<QByteArray> ba = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
 		if (ba.count() > 0) {
 			int8_t signal = *ba[0].data();
 			msg += " " + QString::number(signal) + " dBm";

@@ -6,44 +6,42 @@
 struct GRadiotapHdr {
 	static GRadiotapHdr* check(gbyte* p, uint32_t size);
 
+	enum BitNo : le32_t {
+		Tsft = 0,
+		Flags = 1,
+		Rate = 2,
+		Channel = 3,
+		Fhss = 4,
+		AntennaSignal = 5,
+		AntennaNoise = 6,
+		LockQuality = 7,
+		TxAttenuation = 9,
+		DbTxAttenuation = 9,
+		DbmTxPower = 10,
+		Antenna = 11,
+		DbAntennaSignal = 12,
+		DbAntennaNoise = 13,
+		RxFlags = 14,
+		TxFlags = 15,
+		RtsRetries = 16,
+		DataRetries = 17,
+		XChannel = 18,
+		Mcs = 19,
+		AMpdu = 20,
+		Vht = 21,
+		Timestamp = 22,
+		He = 23,
+		HeMu = 24,
+		HeMuOtherUser = 25,
+		ZeroLenghPsdu = 26,
+		LSig = 27,
+		Tlv = 28,
+		RadiotapNamespace = 29,
+		VendorNamespace = 30,
+		Ext = 31,
+	};
+
 	struct Present {
-		enum BitNo : le32_t {
-			Tsft = 0,
-			Flags = 1,
-			Rate = 2,
-			Channel = 3,
-			Fhss = 4,
-			AntennaSignal = 5,
-			AntennaNoise = 6,
-			LockQuality = 7,
-			TxAttenuation = 9,
-			DbTxAttenuation = 9,
-			DbmTxPower = 10,
-			Antenna = 11,
-			DbAntennaSignal = 12,
-			DbAntennaNoise = 13,
-			RxFlags = 14,
-			TxFlags = 15,
-			RtsRetries = 16,
-			DataRetries = 17,
-			XChannel = 18,
-			Mcs = 19,
-			AMpdu = 20,
-			Vht = 21,
-			Timestamp = 22,
-			He = 23,
-			HeMu = 24,
-			HeMuOtherUser = 25,
-			ZeroLenghPsdu = 26,
-			LSig = 27,
-			Tlv = 28,
-			RadiotapNamespace = 29,
-			VendorNamespace = 30,
-			Ext = 31,
-		};
-
-		QList<QByteArray> getInfo(BitNo bitNo);
-
 		Present* next() {
 			if (p_ && 0x80000000 != 0)
 				return this + 1;
@@ -51,7 +49,7 @@ struct GRadiotapHdr {
 		}
 
 		operator le32_t() { return p_; }
-	protected:
+
 		le32_t p_;
 	};
 
@@ -59,6 +57,9 @@ struct GRadiotapHdr {
 	le8_t pad_;
 	le16_t len_;
 	Present present_;
+
+	QList<QByteArray> getInfo(BitNo bitNo);
+
 };
 typedef GRadiotapHdr *PRadiotapHdr;
 #pragma pack(pop)
