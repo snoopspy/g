@@ -58,7 +58,7 @@ struct GRadiotapHdr {
 	le16_t len_;
 	Present present_;
 
-	QList<QByteArray> getInfo(BitNo bitNo);
+	QList<GBuf> getInfo(BitNo bitNo);
 
 };
 typedef GRadiotapHdr *PRadiotapHdr;
