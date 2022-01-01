@@ -12,30 +12,30 @@ struct AlignSizeInfo {
 	{1, 1}, // 5, AntennaSignal (s8)
 	{1, 1}, // 6, AntennaNoise (s8)
 	{2, 2}, // 7, LockQuality (u16)
-	{1, 1}, // 8, TxAttenuation *
-	{1, 1}, // 9, DbTxAttenuation *
-	{1, 1}, // 10, DbmTxPower *
-	{1, 1}, // 11, Antenna *
-	{1, 1}, // 12, DbAntennaSignal *
-	{1, 1}, // 13, DbAntennaNoise *
+	{2, 2}, // 8, TxAttenuation (u16)
+	{2, 2}, // 9, DbTxAttenuation (u16)
+	{1, 1}, // 10, DbmTxPower (s8)
+	{1, 1}, // 11, Antenna (u8)
+	{1, 1}, // 12, DbAntennaSignal (u8)
+	{1, 1}, // 13, DbAntennaNoise (u8)
 	{2, 2}, // 14, RxFlags (u16)
-	{1, 1}, // 15, TxFlags *
-	{1, 1}, // 16, RtsRetries *
-	{1, 1}, // 17, DataRetries *
-	{1, 1}, // 18, XChannel *
-	{1, 1}, // 19, Mcs *
-	{1, 1}, // 20, AMpdu *
-	{1, 1}, // 21, Vht *
+	{2, 2}, // 15, TxFlags (u16 flags)
+	{1, 1}, // 16, RtsRetries (u8 retries)
+	{1, 1}, // 17, DataRetries (u8 retries)
+	{4, 4}, // 18, XChannel (u32 flags, u16 freq, u8 channel, u8 maxpower)
+	{3, 1}, // 19, Mcs (u8 known, u8 flags, u8 mcs)
+	{8, 4}, // 20, AMpdu (u32 reference number, u16 flags, u8 delimiter CRC value, u8 reserved)
+	{16, 2}, // 21, Vht (u16 known, u8 flags, u8 bandwidth, u8 mcs_nss[4], u8 coding, u8 group_id, u16 partial_aid)
 	{12, 8}, // 22, Times (u64 timestamp, u16 accuracy, u8 unit/position, u8 flags)
-	{1, 1}, // 23, He *
-	{1, 1}, // 24, HeMu *
-	{1, 1}, // 25, HeMuOt *herUser
-	{1, 1}, // 26, ZeroLeng *hPsdu
-	{1, 1}, // 27, LSig *
-	{1, 1}, // 28, Tlv *
-	{0, 0}, // 29, Radio *tapNamespace
-	{1, 1}, // 30, VendorN *amespace
-	{0, 0}, // 31, Ext *
+	{12, 2}, // 23, He (u16 data1, data2, data3, data4, data5, data6)
+	{12, 2}, // 24, HeMu (u16 flags1, u16 flags2, u8 RU_channel1[4], u8 RU_channel2[4])
+	{6, 2}, // 25, HeMuOtherUser (u16 per_user_1, per_user_2, u8 per_user_position, per_user_known)
+	{1, 1}, // 26, ZeroLenghPsdu (u8 type)
+	{4, 2}, // 27, LSig (u16 data1, data2)
+	{4, 4}, // 28, Tlv (list of TLVs detailed below)
+	{0, 0}, // 29, RadiotapNamespace (no contents)
+	{6, 2}, // 30, VendorNamespace (u8 OUI[3], u8 sub_namespace, u16 skip_length)
+	{0, 0}, // 31, Ext
 };
 
 GRadiotapHdr* GRadiotapHdr::check(gbyte* p, uint32_t size) {
@@ -93,21 +93,10 @@ QList<QByteArray> GRadiotapHdr::getInfo(BitNo bitNo) {
 #ifdef GTEST
 #include <gtest/gtest.h>
 
-QVector<QString> pcapFileNames {
-	"pcap/dot11/beacon-a2000ua-testap.pcap",
-	"pcap/dot11/beacon-awus051nh-testap5g.pcap",
-	"pcap/dot11/beacon-awus051nh-testap.pcap",
-	"pcap/dot11/beacon-galaxy7-testap5g.pcap",
-	"pcap/dot11/beacon-galaxy7-testap.pcap",
-	"pcap/dot11/beacon-nexus5-testap5g.pcap",
-	"pcap/dot11/beacon-nexus5-testap.pcap",
-};
-
 #include <GSyncPcapFile>
-TEST(RadiotapHdr, beacon_a2000ua_testap) {
-
+TEST(RadiotapHdr, beacon_a2000ua_testap5g_pcap) {
 	GSyncPcapFile pcapFile;
-	pcapFile.fileName_ = "pcap/dot11/beacon-a2000ua-testap.pcap";
+	pcapFile.fileName_ = "pcap/dot11/beacon-a2000ua-testap5g.pcap";
 	EXPECT_TRUE(pcapFile.open());
 	EXPECT_EQ(pcapFile.dlt(), GPacket::Dot11);
 
@@ -118,27 +107,229 @@ TEST(RadiotapHdr, beacon_a2000ua_testap) {
 	EXPECT_NE(radiotapHdr, nullptr);
 	EXPECT_EQ(radiotapHdr->len_, 32);
 	EXPECT_EQ(le32_t(radiotapHdr->present_), 0xa00040ae);
+	EXPECT_EQ(le32_t(*radiotapHdr->present_.next()), 0xa0000820);
+	EXPECT_EQ(le32_t(*radiotapHdr->present_.next()->next()), 0x00000820);
 
-	QList<QByteArray> ba = radiotapHdr->getInfo(GRadiotapHdr::Flags);
+	QList<QByteArray> ba;
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Flags);
 	EXPECT_EQ(ba.count(), 1);
-	EXPECT_EQ(ba[0], QByteArray("\x10"));
+	EXPECT_EQ(ba[0], QByteArray("\x10")); // 0x10
 
 	ba = radiotapHdr->getInfo(GRadiotapHdr::Rate);
 	EXPECT_EQ(ba.count(), 1);
-	EXPECT_EQ(ba[0], QByteArray("\x02")); // 500Kbps * 2 == 1.0 Mb/s
+	EXPECT_EQ(ba[0], QByteArray("\x0c")); // 500Kbps * 12 == 6.0 Mb/s
 
 	ba = radiotapHdr->getInfo(GRadiotapHdr::Channel);
 	EXPECT_EQ(ba.count(), 1);
-	EXPECT_EQ(ba[0], QByteArray("\x8a\x09\xa0\x00", 4)); // 2442, 0x00a0
+	EXPECT_EQ(ba[0], QByteArray("\x3c\x14\x40\x01", 4)); // 5180, 0x4001
 
 	ba = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
 	EXPECT_EQ(ba.count(), 3);
-	EXPECT_EQ(ba[0], QByteArray("\xb4")); // -76
-	EXPECT_EQ(ba[1], QByteArray("\xae")); // -82
-	EXPECT_EQ(ba[2], QByteArray("\xae")); // -82
+	EXPECT_EQ(ba[0], QByteArray("\xf7")); // -9 -dBm
+	EXPECT_EQ(ba[1], QByteArray("\xf6")); // -10 -dBm
+	EXPECT_EQ(ba[2], QByteArray("\xf6")); // -10 -dBm
 
+	ba = radiotapHdr->getInfo(GRadiotapHdr::LockQuality);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x4b\x00", 2)); // 75
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Antenna);
+	EXPECT_EQ(ba.count(), 2);
+	EXPECT_EQ(ba[0], QByteArray("\x00", 1)); // 0
+	EXPECT_EQ(ba[1], QByteArray("\x01")); // 1
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::RxFlags);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x00\x00", 2)); // 0x0000
 
 	EXPECT_TRUE(pcapFile.close());
 }
 
+TEST(RadiotapHdr, beacon_awus051nh_testap5g_pcap) {
+	GSyncPcapFile pcapFile;
+	pcapFile.fileName_ = "pcap/dot11/beacon-awus051nh-testap5g.pcap";
+	EXPECT_TRUE(pcapFile.open());
+	EXPECT_EQ(pcapFile.dlt(), GPacket::Dot11);
+
+	GDot11Packet packet;
+	EXPECT_EQ(pcapFile.read(&packet), GPacket::Ok);
+
+	GRadiotapHdr* radiotapHdr = packet.radiotapHdr_;
+	EXPECT_NE(radiotapHdr, nullptr);
+	EXPECT_EQ(radiotapHdr->len_, 18);
+	EXPECT_EQ(le32_t(radiotapHdr->present_), 0x0000482e);
+
+	QList<QByteArray> ba;
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Flags);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x00", 1)); // 0x00
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Rate);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x0c")); // 500Kbps * 12 == 6.0 Mb/s
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Channel);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x3c\x14\x40\x01")); // 5180, 0x4001
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\xef")); // -17 dBm
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Antenna);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x01")); // 1
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::RxFlags);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x00\x00", 2)); // 0x0000
+
+	EXPECT_TRUE(pcapFile.close());
+}
+
+TEST(RadiotapHdr, beacon_forcerecon_testap5g_pcap) {
+	GSyncPcapFile pcapFile;
+	pcapFile.fileName_ = "pcap/dot11/beacon-forcerecon-testap5g.pcap";
+	EXPECT_TRUE(pcapFile.open());
+	EXPECT_EQ(pcapFile.dlt(), GPacket::Dot11);
+
+	GDot11Packet packet;
+	EXPECT_EQ(pcapFile.read(&packet), GPacket::Ok);
+
+	GRadiotapHdr* radiotapHdr = packet.radiotapHdr_;
+	EXPECT_NE(radiotapHdr, nullptr);
+	EXPECT_EQ(radiotapHdr->len_, 54);
+	EXPECT_EQ(le32_t(radiotapHdr->present_), 0xa040402f);
+	EXPECT_EQ(le32_t(*radiotapHdr->present_.next()), 0x00000820);
+
+	QList<QByteArray> ba;
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Tsft);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x8c\x48\x6b\x06\x00\x00\x00\x00", 8)); // 107694220
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Flags);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x10")); // 0x10
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Rate);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x0c")); // 500Kbps * 12 == 6.0 Mb/s
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Channel);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x3c\x14\x40\x01")); // 5180, 0x4001
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
+	EXPECT_EQ(ba.count(), 2);
+	EXPECT_EQ(ba[0], QByteArray("\xe4")); // -28 dBm
+	EXPECT_EQ(ba[1], QByteArray("\xe4")); // -28 dBm
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::RxFlags);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x00\x00", 2)); // 0x0000
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Timestamp);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x76\x48\x6b\x06\x00\x00\x00\x00\x16\x00\x11\x03", 12));
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Antenna);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x00", 1)); // 0
+
+	EXPECT_TRUE(pcapFile.close());
+}
+
+TEST(RadiotapHdr, beacon_galaxy7_testap5g_pcap) {
+	GSyncPcapFile pcapFile;
+	pcapFile.fileName_ = "pcap/dot11/beacon-galaxy7-testap5g.pcap";
+	EXPECT_TRUE(pcapFile.open());
+	EXPECT_EQ(pcapFile.dlt(), GPacket::Dot11);
+
+	GDot11Packet packet;
+	EXPECT_EQ(pcapFile.read(&packet), GPacket::Ok);
+
+	GRadiotapHdr* radiotapHdr = packet.radiotapHdr_;
+	EXPECT_NE(radiotapHdr, nullptr);
+	EXPECT_EQ(radiotapHdr->len_, 24);
+	EXPECT_EQ(le32_t(radiotapHdr->present_), 0x0000006b);
+
+	QList<QByteArray> ba;
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Tsft);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x7c\x55\xc3\x5f\x00\x00\x00\x00", 8)); // 1606636924
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Flags);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x10")); // 0x10
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Channel);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x3c\x14\x00\x00", 4)); // 5180, 0x0000
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\xe3")); // -29 dBm
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::AntennaNoise);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\xa4")); // -92 dBm
+
+	EXPECT_TRUE(pcapFile.close());
+}
+
+TEST(RadiotapHdr, beacon_nexus5_testap5g_pcap) {
+	GSyncPcapFile pcapFile;
+	pcapFile.fileName_ = "pcap/dot11/beacon-nexus5-testap5g.pcap";
+	EXPECT_TRUE(pcapFile.open());
+	EXPECT_EQ(pcapFile.dlt(), GPacket::Dot11);
+
+	GDot11Packet packet;
+	EXPECT_EQ(pcapFile.read(&packet), GPacket::Ok);
+
+	GRadiotapHdr* radiotapHdr = packet.radiotapHdr_;
+	EXPECT_NE(radiotapHdr, nullptr);
+	EXPECT_EQ(radiotapHdr->len_, 40);
+	EXPECT_EQ(le32_t(radiotapHdr->present_), 0x4008006f);
+
+	QList<QByteArray> ba;
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Tsft);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\xd7\x00\x2e\xb5\x00\x00\x00\x00", 8)); // 3039690967
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Flags);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x10")); // 0x10
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Rate);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x0c")); // 500Kbps * 12 == 6.0 Mb/s
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Channel);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x3c\x14\x40\x01")); // 5180, 0x4001
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\xe5")); // -27 dBm
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::AntennaNoise);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\xa4")); // -92 dBm
+
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::Mcs);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x00\x00\x00", 3)); // 0x000000
+
+	ba = radiotapHdr->getInfo(GRadiotapHdr::VendorNamespace);
+	EXPECT_EQ(ba.count(), 1);
+	EXPECT_EQ(ba[0], QByteArray("\x4e\x45\x58\x00\x06\x00", 6)); // // cb3002000000 not checked
+
+	EXPECT_TRUE(pcapFile.close());
+}
 #endif // GTEST
