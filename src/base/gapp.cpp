@@ -6,6 +6,7 @@
 #include "base/log/glogfile.h"
 #include "base/log/glogstderr.h"
 #include "base/log/glogudp.h"
+#include "base/sys/gnexmon.h"
 
 std::string getDir(std::string argv) {
 	ssize_t i = argv.length() - 1;
@@ -89,8 +90,9 @@ void GApp::launchDemon() {
 		QString path = QDir::currentPath();
 #ifdef Q_OS_ANDROID
 		QString preloadStr = " ";
-		if (QFile::exists("/system/lib/libfakeioctl.so"))
-			preloadStr = "export LD_PRELOAD=libfakeioctl.so;";
+		QString soFileName = GNexmon::soFileName();
+		if (soFileName != "")
+			preloadStr = "export LD_PRELOAD=" + soFileName + ";";
 		QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, ssdemonFile);
 #else // Q_OS_ANDROID
 		QString run = QString("%1/%2").arg(path, ssdemonFile);

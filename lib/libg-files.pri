@@ -47,6 +47,7 @@ SOURCES += \
 	$${PWD}/../src/base/prop/gpropwidget.cpp \
 	$${PWD}/../src/base/sys/gsignal.cpp \
 	$${PWD}/../src/base/sys/gthread.cpp \
+	$${PWD}/../src/base/sys/gnexmon.cpp \
 	$${PWD}/../src/base/sys/gwaitevent.cpp \
 	$${PWD}/../src/base/widget/gplaintextedit.cpp \
 	$${PWD}/../src/base/widget/gsplitter.cpp \
@@ -178,6 +179,7 @@ HEADERS += \
 	$${PWD}/../src/base/prop/gpropwidget.h \
 	$${PWD}/../src/base/sys/gsignal.h \
 	$${PWD}/../src/base/sys/gthread.h \
+	$${PWD}/../src/base/sys/gnexmon.h \
 	$${PWD}/../src/base/sys/gwaitevent.h \
 	$${PWD}/../src/base/widget/gplaintextedit.h \
 	$${PWD}/../src/base/widget/gsplitter.h \

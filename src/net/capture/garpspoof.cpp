@@ -1,4 +1,5 @@
 #include "garpspoof.h"
+#include "base/sys/gnexmon.h"
 
 // ----------------------------------------------------------------------------
 // GArpSpoof
@@ -279,8 +280,9 @@ void GArpSpoof::runArpRecover(FlowList* flowList) {
 			QString path = QDir::currentPath();
 #ifdef Q_OS_ANDROID
 			QString preloadStr = " ";
-			if (QFile::exists("/system/lib/libfakeioctl.so"))
-				preloadStr = "export LD_PRELOAD=libfakeioctl.so;";
+			QString soFileName = GNexmon::soFileName();
+			if (soFileName != "")
+				preloadStr = "export LD_PRELOAD=" + soFileName + ";";
 			QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, arprecoverFile);
 #else // Q_OS_ANDROID
 			QString run = QString("%1/%2").arg(path, arprecoverFile);
