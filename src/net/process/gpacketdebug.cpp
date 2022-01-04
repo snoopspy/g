@@ -124,6 +124,7 @@ void GPacketDebug::debug(GPacket* packet) {
 			case GDot11Hdr::QoSCfACKCfPoll: msg += " QoSCfACKCfPoll"; break;
 			case GDot11Hdr::DmgBeacon: msg += " DmgBeacon"; break;
 			case GDot11Hdr::S1gBeacon: msg += " S1gBeacon"; break;
+			default: qDebug() << "******** unknown typeSybtype *****"; break;
 		}
 	}
 

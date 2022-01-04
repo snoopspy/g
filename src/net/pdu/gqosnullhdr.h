@@ -3,7 +3,7 @@
 #include "gdot11hdr.h"
 
 #pragma pack(push, 1)
-struct GQoSNullHdr : GDot11Hdr {
+struct G_EXPORT GQoSNullHdr : GDot11Hdr {
 	GMac addr1_;
 	GMac addr2_;
 	GMac addr3_;

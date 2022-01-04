@@ -3,7 +3,7 @@
 #include "gpdu.h"
 
 #pragma pack(push, 1)
-struct GRadiotapHdr {
+struct G_EXPORT GRadiotapHdr {
 	static GRadiotapHdr* check(gbyte* p, uint32_t size);
 
 	enum BitNo : le32_t {

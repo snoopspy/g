@@ -3,7 +3,7 @@
 #include "gradiotaphdr.h"
 
 #pragma pack(push, 1)
-struct GDot11Hdr {
+struct G_EXPORT GDot11Hdr {
 	le8_t ver_:2;
 	le8_t type_:2;
 	le8_t subtype_:4;
