@@ -16,6 +16,5 @@ struct G_EXPORT GDot11AddrHdr : GDot11Hdr {
 	GMac ra() { return addr1_; }
 	GMac ta() { return addr2_; }
 };
-
 typedef GDot11AddrHdr *PDot11AddrHdr;
 #pragma pack(pop)
