@@ -1,5 +1,8 @@
 #include "gbeaconhdr.h"
 
+// ----------------------------------------------------------------------------
+// GBeaconHdr
+// ----------------------------------------------------------------------------
 GBeaconHdr* GBeaconHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
 	assert(dot11Hdr->typeSubtype() == GDot11Hdr::Beacon);
 	if (size < sizeof(GBeaconHdr)) {

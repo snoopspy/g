@@ -1,5 +1,8 @@
 #include "gqosnullhdr.h"
 
+// ----------------------------------------------------------------------------
+// GQoSNullHdr
+// ----------------------------------------------------------------------------
 GQoSNullHdr* GQoSNullHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
 	assert(dot11Hdr->typeSubtype() == GDot11Hdr::QoSNull);
 	if (size < sizeof(GQoSNullHdr)) {

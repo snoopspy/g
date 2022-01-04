@@ -59,6 +59,7 @@ struct G_EXPORT GIp6 final {
 protected:
 	gbyte ip6_[SIZE];
 };
+typedef GIp6 *PIp6;
 
 uint qHash(const GIp6& ip6);
 
@@ -77,4 +78,3 @@ namespace std {
 		}
 	};
 }
-typedef GIp6 *PIp6;

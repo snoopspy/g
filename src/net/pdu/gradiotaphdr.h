@@ -2,10 +2,11 @@
 
 #include "gpdu.h"
 
+// ----------------------------------------------------------------------------
+// GRadiotapHdr
+// ----------------------------------------------------------------------------
 #pragma pack(push, 1)
 struct G_EXPORT GRadiotapHdr {
-	static GRadiotapHdr* check(gbyte* p, uint32_t size);
-
 	enum BitNo : le32_t {
 		Tsft = 0,
 		Flags = 1,
@@ -59,7 +60,7 @@ struct G_EXPORT GRadiotapHdr {
 	Present present_;
 
 	QList<GBuf> getInfo(BitNo bitNo);
-
+	static GRadiotapHdr* check(gbyte* p, uint32_t size);
 };
 typedef GRadiotapHdr *PRadiotapHdr;
 #pragma pack(pop)
