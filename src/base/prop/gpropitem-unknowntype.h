@@ -12,7 +12,6 @@
 
 #ifdef QT_GUI_LIB
 
-#include <QCheckBox>
 #include "gpropitem.h"
 
 // ----------------------------------------------------------------------------
