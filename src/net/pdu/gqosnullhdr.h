@@ -1,12 +1,12 @@
 #pragma once
 
-#include "gdot11addrhdr.h"
+#include "gdot11exthdr.h"
 
 // ----------------------------------------------------------------------------
 // GQoSNullHdr
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
-struct G_EXPORT GQoSNullHdr : GDot11AddrHdr {
+struct G_EXPORT GQoSNullHdr : GDot11ExtHdr {
 	GMac da() { return addr3_; }
 	GMac sa() { return addr2_; }
 	GMac bssid() { return addr1_; }
