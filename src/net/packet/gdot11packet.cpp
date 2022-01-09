@@ -12,9 +12,10 @@ void GDot11Packet::parse() {
 #endif // _DEBUG
 	size_t size = buf_.size_;
 	radiotapHdr_ = GRadiotapHdr::check(buf_.data_, size);
-	if (radiotapHdr_ != nullptr) {
-		dot11Hdr_ = GDot11Hdr::check(radiotapHdr_, size);
-	}
+	if (radiotapHdr_ == nullptr) return;
+	dot11Hdr_ = GDot11Hdr::check(radiotapHdr_, size);
+	if (dot11Hdr_ == nullptr) return;
+	dot11ExtHdr_ = GDot11ExtHdr::check(radiotapHdr_, size);
 #ifdef _DEBUG
 	parsed_ = true;
 #endif // _DEBUG
