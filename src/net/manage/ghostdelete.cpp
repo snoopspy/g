@@ -96,9 +96,11 @@ GHostDelete::ScanThread::~ScanThread() {
 
 void GHostDelete::ScanThread::run() {
 	// qDebug() << "beg " + QString(host_->mac_); // by gilgil 2021.11.13
-	GDuration random = QRandomGenerator::global()->generate() % hostDelete_->randomSleepTime_;
-	if (we_.wait(random)) return;
-	qDebug() << QString("aft we_.wait(%1)").arg(random);
+	if (hostDelete_->randomSleepTime_ > 0) {
+		GDuration random = QRandomGenerator::global()->generate() % hostDelete_->randomSleepTime_;
+		if (we_.wait(random)) return;
+		qDebug() << QString("aft we_.wait(%1)").arg(random);
+	}
 
 	GPcapDevice* device = hostDelete_->pcapDevice_;
 	if (!device->active()) {
