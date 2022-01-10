@@ -328,4 +328,3 @@ void GAutoArpSpoof::removeFlows(GIp senderIp1, GIp targetIp1, GIp senderIp2, GIp
 	Q_ASSERT(flow2 != nullptr);
 	removeFlows(flow1, flow2);
 }
-
