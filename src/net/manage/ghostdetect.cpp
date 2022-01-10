@@ -5,12 +5,6 @@
 // GHostDetect
 // ----------------------------------------------------------------------------
 Q_INVOKABLE GHostDetect::GHostDetect(QObject* parent) : GStateObj(parent) {
-	GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
-	if (entry != nullptr) {
-		GIntf* intf = entry->intf();
-		if (intf != nullptr)
-			intfName_ = intf->name();
-	}
 }
 
 GHostDetect::~GHostDetect() {
@@ -25,7 +19,12 @@ bool GHostDetect::doOpen() {
 		return false;
 	}
 
-	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
+	if (pcapDevice_ == nullptr) {
+		SET_ERR(GErr::ObjectIsNull, "pcapDevice is null");
+		return false;
+	}
+
+	intf_ = pcapDevice_->intf();
 	if (intf_ == nullptr) {
 		SET_ERR(GErr::ObjectIsNull, "intf is null");
 		return false;

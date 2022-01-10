@@ -51,7 +51,7 @@ bool GAutoArpSpoof::doOpen() {
 	}
 	gwMac_ = it.value();
 
-	hostDetect_.intfName_ = intfName_;
+	hostDetect_.pcapDevice_ = this;
 	if (!hostDetect_.open()) {
 		err = hostDetect_.err;
 		return false;
@@ -124,14 +124,10 @@ bool GAutoArpSpoof::doClose() {
 		}
 	}
 
-	qDebug() << "bef GArpSpoof::doClose()"; // gilgil temp 2021.11.13
 	bool res = GArpSpoof::doClose();
 
-	qDebug() << "bef hostScan_.close()"; // gilgil temp 2021.11.13
 	hostScan_.close();
-	qDebug() << "bef hostDelete_.close()"; // gilgil temp 2021.11.13
 	hostDelete_.close();
-	qDebug() << "bef hostDetect_.close()"; // gilgil temp 2021.11.13
 	hostDetect_.close();
 	qDebug() << "completed"; // gilgil temp 2021.11.13
 	return res;
