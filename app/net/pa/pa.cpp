@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-	QApplication a(argc, argv);
+	GApp a(argc, argv);
 	ProbeWidget pw;
 	pw.show();
 	return a.exec();

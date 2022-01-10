@@ -1,16 +1,23 @@
 #include "probewidget.h"
-#include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QHeaderView>
+#include <QVBoxLayout>
 
 ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 	setWindowTitle("ProbeAnalyzer");
 
-	QVBoxLayout* mainLayout = new QVBoxLayout(this);
+	QVBoxLayout* mainLayout = new QVBoxLayout();
 
 	tableWidget_ = new QTableWidget(this);
+	tableWidget_->setColumnCount(2);
+	tableWidget_->setHorizontalHeaderItem(0, new QTableWidgetItem("Mac"));
+	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("Signal"));
+	tableWidget_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	tableWidget_->verticalHeader()->hide();
+
 	mainLayout->addWidget(tableWidget_);
 
-	QHBoxLayout* toolButtonLayout = new QHBoxLayout(this);
+	QHBoxLayout* toolButtonLayout = new QHBoxLayout();
 
 	tbStart_ = new QToolButton(this);
 	tbStart_->setText("Start");
@@ -42,8 +49,27 @@ ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 	tbStart_->setIconSize(size);
 	tbStop_->setIconSize(size);
 	tbOption_->setIconSize(size);
+
+	QObject::connect(tbStart_, &QToolButton::clicked, this, &ProbeWidget::tbStart_clicked);
+	QObject::connect(tbStop_, &QToolButton::clicked, this, &ProbeWidget::tbStop_clicked);
+	QObject::connect(tbOption_, &QToolButton::clicked, this, &ProbeWidget::tbOption_clicked);
 }
 
 ProbeWidget::~ProbeWidget() {
 
+}
+
+void ProbeWidget::tbStart_clicked(bool checked) {
+	(void)checked;
+	qDebug() << "clicked";
+}
+
+void ProbeWidget::tbStop_clicked(bool checked) {
+	(void)checked;
+	qDebug() << "clicked";
+}
+
+void ProbeWidget::tbOption_clicked(bool checked) {
+	(void)checked;
+	qDebug() << "clicked";
 }

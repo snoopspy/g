@@ -16,4 +16,9 @@ public:
 	QToolButton* tbStart_{nullptr};
 	QToolButton* tbStop_{nullptr};
 	QToolButton* tbOption_{nullptr};
+
+signals:
+	void tbStart_clicked(bool checked = false);
+	void tbStop_clicked(bool checked = false);
+	void tbOption_clicked(bool checked = false);
 };
