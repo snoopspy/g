@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>img/new.png</file>
         <file>img/open.png</file>
+        <file>img/option.png</file>
         <file>img/save.png</file>
         <file>img/saveas.png</file>
         <file>img/start.png</file>
