@@ -10,7 +10,7 @@ lib/libg-gui/
 lib/libg-gui-d/
 setup/linux/
 setup/win/
-android-build/
+temp-build/
 *.stash
 *.a
 *.autosave
@@ -24,6 +24,7 @@ android-build/
 *.dll
 *.exe
 *.user
+*.apk
 Makefile
 Makefile.*
 makefile-win

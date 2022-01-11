@@ -43,23 +43,37 @@ if true; then
 	# lib
 	#
 	cd lib
-	mkdir -p android-build
-	cd android-build
+	mkdir -p temp-build
+	cd temp-build
 	$QTBINDIR/qmake ../libg-gui.pro $QMAKE_OPTION
 	$MAKEDIR/make -j$(nproc)
 	cd ../..
 fi
 
 #
-# app
+# snoopspy
 #
 if true; then
-	mkdir -p app/net/snoopspy/android-build
-	cd app/net/snoopspy/android-build
+	mkdir -p app/net/snoopspy/temp-build
+	cd app/net/snoopspy/temp-build
 	$QTBINDIR/qmake ../snoopspy.pro $QMAKE_OPTION
 	$MAKEDIR/make -j$(nproc)
-	$MAKEDIR/make INSTALL_ROOT=./android-build install
-	export ANDROID_SDK_ROOT=/root/sdk && $QTBINDIR/androiddeployqt --input android-snoopspy-deployment-settings.json --output ./android-build --android-platform android-30 --jdk /usr/lib/jvm/jdk8u275-b01 --gradle
-	cp android-build/build/outputs/apk/debug/android-build-debug.apk ../../../../setup/snoopspy-$(sed 's/"//g' ../../../../version.txt).apk
+	$MAKEDIR/make INSTALL_ROOT=./temp-build install
+	export ANDROID_SDK_ROOT=/root/sdk && $QTBINDIR/androiddeployqt --input android-snoopspy-deployment-settings.json --output ./temp-build --android-platform android-30 --jdk /usr/lib/jvm/jdk8u275-b01 --gradle
+	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/snoopspy-$(sed 's/"//g' ../../../../version.txt).apk
+	cd ../../../..
+fi
+
+#
+# pa
+#
+if true; then
+	mkdir -p app/net/pa/temp-build
+	cd app/net/pa/temp-build
+	$QTBINDIR/qmake ../pa.pro $QMAKE_OPTION
+	$MAKEDIR/make -j$(nproc)
+	$MAKEDIR/make INSTALL_ROOT=./temp-build install
+	export ANDROID_SDK_ROOT=/root/sdk && $QTBINDIR/androiddeployqt --input android-pa-deployment-settings.json --output ./temp-build --android-platform android-30 --jdk /usr/lib/jvm/jdk8u275-b01 --gradle
+	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/pa-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
