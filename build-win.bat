@@ -46,6 +46,7 @@ rem
 copy ..\..\bin\arprecover.exe . & strip arprecover.exe
 copy ..\..\bin\netclient.exe . & strip netclient.exe
 copy ..\..\bin\netserver.exe . & strip netserver.exe
+copy ..\..\bin\pa.exe . & strip pa.exe
 copy ..\..\bin\snoopspy.exe . & strip snoopspy.exe
 copy ..\..\bin\sscon.exe . & strip sscon.exe
 copy ..\..\bin\sslog.exe . & strip sslog.exe

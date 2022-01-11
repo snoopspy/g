@@ -15,6 +15,7 @@ cp ../../bin/arprecover .; strip arprecover
 cp ../../bin/corepcap .; strip corepcap
 cp ../../bin/netclient .; strip netclient
 cp ../../bin/netserver .; strip netserver
+cp ../../bin/pa .; strip pa
 cp ../../bin/snoopspy .; strip snoopspy
 cp ../../bin/sscon .; strip sscon
 #cp ../../bin/ssdemon .; strip ssdemon
