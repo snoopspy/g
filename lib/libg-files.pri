@@ -246,7 +246,7 @@ HEADERS += \
 	$${PWD}/../src/net/pdu/gdhcphdr.h \
 	$${PWD}/../src/net/pdu/gdnshdr.h \
 	$${PWD}/../src/net/pdu/gdnsinfo.h \
-	$${PWD}/../src/net/pdu/gdot11exthdr.h	 \
+	$${PWD}/../src/net/pdu/gdot11exthdr.h \
 	$${PWD}/../src/net/pdu/gdot11hdr.h	 \
 	$${PWD}/../src/net/pdu/gethhdr.h \
 	$${PWD}/../src/net/pdu/gicmphdr.h \
