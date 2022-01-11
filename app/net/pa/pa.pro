@@ -4,9 +4,11 @@ DESTDIR = $$PWD/../../../bin
 
 SOURCES += \
     pa.cpp \
+	probeanalyzer.cpp \
 	probewidget.cpp
 
 HEADERS += \
+	probeanalyzer.h \
 	probewidget.h
 
 DISTFILES += \

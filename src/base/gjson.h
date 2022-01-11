@@ -95,5 +95,4 @@ namespace GJson {
 void G_EXPORT operator << (QJsonValueRef ref, const GJson::GTreeViewColumnSizes&& columnSizes);
 void G_EXPORT operator >> (const QJsonValue val, GJson::GTreeViewColumnSizes&& columnSizes);
 
-
 #endif // QT_GUI_LIB

@@ -1,21 +1,20 @@
 #include "probewidget.h"
+
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QProgressBar>
 #include <QVBoxLayout>
 
+#include <GJson>
+#include <GSignal>
+
 ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
+	resize(QSize(640, 480));
 	setWindowTitle("ProbeAnalyzer");
 
 	QVBoxLayout* mainLayout = new QVBoxLayout();
-
-	tableWidget_ = new QTableWidget(this);
-	tableWidget_->setColumnCount(2);
-	tableWidget_->setHorizontalHeaderItem(0, new QTableWidgetItem("Mac"));
-	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("Signal"));
-	tableWidget_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-	tableWidget_->verticalHeader()->hide();
-
-	mainLayout->addWidget(tableWidget_);
 
 	QHBoxLayout* toolButtonLayout = new QHBoxLayout();
 
@@ -39,6 +38,15 @@ ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 
 	mainLayout->addLayout(toolButtonLayout);
 
+	tableWidget_ = new QTableWidget(this);
+	tableWidget_->setColumnCount(2);
+	tableWidget_->setHorizontalHeaderItem(0, new QTableWidgetItem("Mac"));
+	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("Signal"));
+	tableWidget_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	tableWidget_->verticalHeader()->hide();
+
+	mainLayout->addWidget(tableWidget_);
+
 	this->setLayout(mainLayout);
 
 #ifdef Q_OS_ANDROID
@@ -53,23 +61,99 @@ ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &ProbeWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &ProbeWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &ProbeWidget::tbOption_clicked);
+	QObject::connect(&probeAnalyzer_, &ProbeAnalyzer::probeDetected, this, &ProbeWidget::processProbeDetected, Qt::BlockingQueuedConnection);
+
+	propWidget_ = new GPropWidget(&probeAnalyzer_);
+
+#ifndef Q_OS_WIN
+		GSignal& signal = GSignal::instance();
+		QObject::connect(&signal, &GSignal::signaled, this, &ProbeWidget::processSignal);
+		signal.setupAll();
+#endif // Q_OS_WIN
+
+	setControl();
 }
 
 ProbeWidget::~ProbeWidget() {
+	tbStop_->click();
+	setControl();
+	if (propWidget_ != nullptr) {
+		delete propWidget_;
+		propWidget_ = nullptr;
+	}
+}
 
+void ProbeWidget::propLoad(QJsonObject jo) {
+	jo["pa"] >> probeAnalyzer_;
+	jo["rect"] >> GJson::rect(this);
+	jo["propWidget"] >> *propWidget_;
+}
+
+void ProbeWidget::propSave(QJsonObject& jo) {
+	jo["pa"] << probeAnalyzer_;
+	jo["rect"] << GJson::rect(this);
+	jo["propWidget"] << *propWidget_;
+}
+
+void ProbeWidget::setControl() {
+	bool active = probeAnalyzer_.active();
+	tbStart_->setEnabled(!active);
+	tbStop_->setEnabled(active);
+	tbOption_->setEnabled(!active);
+}
+
+void ProbeWidget::processSignal(int signo) {
+#ifdef Q_OS_WIN
+		(void)signo;
+#else // Q_OS_WIN
+		QString str1 = GSignal::getString(signo);
+		QString str2 = strsignal(signo);
+		qWarning() << QString("signo=%1 signal=%2 msg=%3").arg(signo).arg(str1, str2);
+		close();
+#endif
+}
+
+void ProbeWidget::processProbeDetected(GMac mac, int8_t signal) {
+	qDebug() << QString(mac) << signal;
+	int row = tableWidget_->rowCount();
+	tableWidget_->insertRow(row);
+
+	QLineEdit* lineEdit = new QLineEdit(this);
+	lineEdit->setText(QString(mac));
+	tableWidget_->setCellWidget(row, 0, lineEdit);
+
+	QProgressBar* progressBar = new QProgressBar(this);
+	progressBar->setMinimum(probeAnalyzer_.minSignal_);
+	progressBar->setMaximum(0);
+	progressBar->setFormat("%v dBm");
+	progressBar->setValue(signal);
+	tableWidget_->setCellWidget(row, 1, progressBar);
+
+	tableWidget_->scrollToBottom();
 }
 
 void ProbeWidget::tbStart_clicked(bool checked) {
 	(void)checked;
-	qDebug() << "clicked";
+
+	tableWidget_->setRowCount(0);
+
+	if (!probeAnalyzer_.open()) {
+		QMessageBox::warning(this, "Error", probeAnalyzer_.err->msg());
+	}
+	setControl();
 }
 
 void ProbeWidget::tbStop_clicked(bool checked) {
 	(void)checked;
-	qDebug() << "clicked";
+
+	probeAnalyzer_.close();
+	setControl();
 }
 
 void ProbeWidget::tbOption_clicked(bool checked) {
 	(void)checked;
-	qDebug() << "clicked";
+
+	propWidget_->setWindowTitle("Properties");
+	propWidget_->update();
+	propWidget_->show();
 }
