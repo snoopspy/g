@@ -58,12 +58,14 @@ SOURCES += \
 	$${PWD}/../src/net/capture/gasyncnetfilter.cpp \
 	$${PWD}/../src/net/capture/gautoarpspoof.cpp \
 	$${PWD}/../src/net/capture/gcapture.cpp \
+	$${PWD}/../src/net/capture/gmonitordevice.cpp \
 	$${PWD}/../src/net/capture/gnetfilter.cpp \
 	$${PWD}/../src/net/capture/gpcapcapture.cpp \
 	$${PWD}/../src/net/capture/gpcapdevice.cpp \
 	$${PWD}/../src/net/capture/gpcapfile.cpp \
 	$${PWD}/../src/net/capture/gpcappipe.cpp \
 	$${PWD}/../src/net/capture/gpcappipenexmon.cpp \
+	$${PWD}/../src/net/capture/gsyncmonitordevice.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapfile.cpp \
 	$${PWD}/../src/net/capture/gsyncpcappipe.cpp \
@@ -191,12 +193,14 @@ HEADERS += \
 	$${PWD}/../src/net/capture/gasyncnetfilter.h \
 	$${PWD}/../src/net/capture/gautoarpspoof.h \
 	$${PWD}/../src/net/capture/gcapture.h \
+	$${PWD}/../src/net/capture/gmonitordevice.h \
 	$${PWD}/../src/net/capture/gnetfilter.h \
 	$${PWD}/../src/net/capture/gpcapcapture.h \
 	$${PWD}/../src/net/capture/gpcapdevice.h \
 	$${PWD}/../src/net/capture/gpcapfile.h \
 	$${PWD}/../src/net/capture/gpcappipe.h \
 	$${PWD}/../src/net/capture/gpcappipenexmon.h \
+	$${PWD}/../src/net/capture/gsyncmonitordevice.h \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncpcapfile.h \
 	$${PWD}/../src/net/capture/gsyncpcappipe.h \
