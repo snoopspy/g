@@ -37,7 +37,7 @@ bool GHttpExtract::doOpen() {
 	if (!enabled_) return true;
 
 	if (tcpFlowMgr_ == nullptr) {
-		SET_ERR(GErr::OBJECT_IS_NULL, "tcpFlowMgr must be specified");
+		SET_ERR(GErr::ObjectIsNull, "tcpFlowMgr must be specified");
 		return false;
 	}
 	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request("GFlowMgrTest_tcp", sizeof(FlowItem));
@@ -51,7 +51,7 @@ bool GHttpExtract::doOpen() {
 	QDir dir;
 	if (!dir.mkpath(currentFolder_)) {
 		QString msg = QString("can not create directory(%1)").arg(currentFolder_);
-		SET_ERR(GErr::FAIL, msg);
+		SET_ERR(GErr::Fail, msg);
 		return false;
 	}
 
