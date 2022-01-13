@@ -71,7 +71,6 @@ void GGraphWidget::init() {
 	midLeftSplitter_ = new GSplitter(Qt::Vertical, this);
 	factoryWidget_ = new GTreeWidget(this);
 	factoryWidget_->setHeaderLabel("node");
-	factoryWidget_->setIndentation(12);
 	propWidget_ = new GPropWidget(this);
 	scene_ = new GGScene(this);
 	graphView_ = new QGraphicsView(this);
