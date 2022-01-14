@@ -12,7 +12,7 @@ struct G_EXPORT ProbeAnalyzer : GStateObj {
 public:
 	GObjRef getMonitorDevice() { return &monitorDevice_; }
 	GObjRef getCommand() { return &command_; }
-	int minSignal_{-40};
+	int minSignal_{-128};
 
 public:
 	Q_INVOKABLE ProbeAnalyzer(QObject* parent = nullptr);
