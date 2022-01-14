@@ -5,7 +5,7 @@
 // GWritable
 // ----------------------------------------------------------------------------
 GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu, GPacket::Dlt dlt, GDuration msleepTime) {
-	size_t ethernetSize;
+	size_t ethernetSize = 0; // for remove warning
 	switch (dlt) {
 		case GPacket::Eth:
 			ethernetSize = sizeof(GEthHdr);
