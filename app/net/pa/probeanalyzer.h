@@ -22,7 +22,7 @@ protected:
 	bool doOpen() override;
 	bool doClose() override;
 
-protected:
+public:
 	GCommand command_;
 	GMonitorDevice monitorDevice_;
 
