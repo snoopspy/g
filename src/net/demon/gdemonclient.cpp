@@ -90,14 +90,14 @@ bool GDemonClient::connect() {
 	memset(&addr.sin_zero, 0, sizeof(addr.sin_zero));
 
 	bool connected = false;
-	for (int i = 0; i < 10 ; i++) { // 10 seconds
+	for (int i = 0; i < 10 ; i++) { // 5 seconds
 		int res = ::connect(sd_, (struct sockaddr *)&addr, sizeof(addr));
 		if (res != -1) {
 			connected = true;
 			break;
 		}
 		qWarning() << strerror(errno);
-		sleep(1);
+		usleep(500000); // 0.5 sec
 	}
 
 	if (!connected) {
