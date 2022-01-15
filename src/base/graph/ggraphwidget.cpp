@@ -87,7 +87,7 @@ void GGraphWidget::init() {
 	QObject::connect(log, &GLogQObject::writeLogRequred, this, &GGraphWidget::writeLog);
 	logManager.push_back(log);
 
-	mainLayout_->addWidget(toolBar_ , 0);
+	mainLayout_->addWidget(toolBar_, 0);
 	mainLayout_->addWidget(tabWidget_, 1);
 	this->setLayout(mainLayout_);
 
