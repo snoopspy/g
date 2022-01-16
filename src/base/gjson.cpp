@@ -53,6 +53,25 @@ QString GJson::defaultFileName() {
 	return res;
 }
 
+struct GJsonObject {
+	GJsonObject() {
+		fileName_ = GJson::defaultFileName();
+		jo_ = GJson::loadFromFile(fileName_);
+	}
+
+	virtual ~GJsonObject() {
+		GJson::saveToFile(jo_, fileName_);
+	}
+
+	QString fileName_;
+	QJsonObject jo_;
+};
+
+QJsonObject& G_EXPORT GJson::instance() {
+	static GJsonObject gjo;
+	return gjo.jo_;
+}
+
 // ----------------------------------------------------------------------------
 // QList<int>
 // ----------------------------------------------------------------------------

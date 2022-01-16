@@ -149,7 +149,7 @@ void ProbeWidget::tbOption_clicked(bool checked) {
 	GPropDialog propDialog;
 	propDialog.widget_.setObject(&probeAnalyzer_);
 
-	QJsonObject jo = GJson::loadFromFile();
+	QJsonObject& jo = GJson::instance();
 	jo["propDialog"] >> propDialog;
 
 #ifndef Q_OS_ANDROID
@@ -160,5 +160,4 @@ void ProbeWidget::tbOption_clicked(bool checked) {
 	propDialog.exec();
 
 	jo["propDialog"] << propDialog;
-	GJson::saveToFile(jo);
 }

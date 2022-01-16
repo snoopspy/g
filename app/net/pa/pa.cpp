@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 	GApp a(argc, argv);
 	ProbeWidget pw;
 
-	QJsonObject jo = GJson::loadFromFile();
+	QJsonObject& jo = GJson::instance();
 	jo["pw"] >> pw;
 
 	pw.show();
@@ -23,9 +23,7 @@ int main(int argc, char *argv[])
 
 	command->close();
 
-	jo = GJson::loadFromFile();
 	jo["pw"] << pw;
-	GJson::saveToFile(jo);
 
 	return res;
 }

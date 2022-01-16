@@ -28,7 +28,7 @@ protected:
 		graph_.setFactory(&pluginFactory_);
 		graphWidget_.setGraph(&graph_);
 
-		QJsonObject jo = GJson::loadFromFile();
+		QJsonObject& jo = GJson::instance();
 		jo["graphWidget"] >> graphWidget_;
 
 		graphWidget_.show();
@@ -39,9 +39,8 @@ protected:
 	bool doClose() override {
 		graphWidget_.close();
 
-		QJsonObject jo;
+		QJsonObject& jo = GJson::instance();
 		jo["graphWidget"] << graphWidget_;
-		GJson::saveToFile(jo);
 
 		return true;
 	}

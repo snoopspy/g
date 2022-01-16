@@ -7,7 +7,7 @@ int exec(GApp* a, GObj* obj) {
 	GPropWidget propWidget;
 	propWidget.setObject(obj);
 
-	QJsonObject jo = GJson::loadFromFile();
+	QJsonObject& jo = GJson::instance();
 	jo["object"] >> *obj;
 	jo["propWidget"] >> propWidget;
 
@@ -17,7 +17,6 @@ int exec(GApp* a, GObj* obj) {
 
 	jo["object"] << *obj;
 	jo["propWidget"] << propWidget;
-	GJson::saveToFile(jo);
 
 	return res;
 }

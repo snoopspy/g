@@ -20,6 +20,7 @@ namespace GJson {
 	QJsonObject G_EXPORT loadFromFile(QString fileName = "");
 	bool G_EXPORT saveToFile(QJsonObject jo, QString fileName = "");
 	QString G_EXPORT defaultFileName();
+	QJsonObject& G_EXPORT instance();
 }
 
 #include <QList>
