@@ -1,5 +1,6 @@
 #include "base/gerr.h"
 #include "gip6.h"
+#include "gmingw.h"
 
 // ----------------------------------------------------------------------------
 // GIp6
@@ -8,7 +9,6 @@ GIp6::GIp6(const QString& r) {
 	std::string s = r.toStdString();
 	char* p = pchar(s.c_str());
 
-#ifdef Q_OS_LINUX
 	int res = inet_pton(AF_INET6, p, &ip6_);
 	if (res == 1) { // succeed
 	} else { // fail
@@ -22,14 +22,9 @@ GIp6::GIp6(const QString& r) {
 		}
 		memset(ip6_, 0, SIZE);
 	}
-#endif // Q_OS_LINUX
-#ifdef Q_OS_WIN
-	(void)s;(void)p;
-#endif // Q_OS_LINUX
 }
 
 GIp6::operator QString() const {
-#ifdef Q_OS_LINUX
 	char s[INET6_ADDRSTRLEN];
 	const char* res = inet_ntop(AF_INET6, &ip6_, s, INET6_ADDRSTRLEN);
 	if (res == nullptr) {
@@ -37,10 +32,6 @@ GIp6::operator QString() const {
 		return QString();
 	}
 	return QString(s);
-#endif // Q_OS_LINUX
-#ifdef Q_OS_WIN
-	return QString(); // gilgil temp 2010.10.20
-#endif // Q_OS_WIN
 }
 
 uint qHash(const GIp6& ip6) {

@@ -93,6 +93,7 @@ SOURCES += \
 	$${PWD}/../src/net/gip.cpp \
 	$${PWD}/../src/net/gip6.cpp \
 	$${PWD}/../src/net/gmac.cpp \
+	$${PWD}/../src/net/gmingw.cpp \
 	$${PWD}/../src/net/gnet.cpp \
 	$${PWD}/../src/net/gnetinfo.cpp \
 	$${PWD}/../src/net/grtm.cpp \
@@ -228,6 +229,7 @@ HEADERS += \
 	$${PWD}/../src/net/gip.h \
 	$${PWD}/../src/net/gip6.h \
 	$${PWD}/../src/net/gmac.h \
+	$${PWD}/../src/net/gmingw.h \
 	$${PWD}/../src/net/gnet.h \
 	$${PWD}/../src/net/gnetinfo.h \
 	$${PWD}/../src/net/greadable.h \
