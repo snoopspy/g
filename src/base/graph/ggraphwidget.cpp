@@ -71,7 +71,6 @@ void GGraphWidget::init() {
 	midLeftSplitter_ = new GSplitter(Qt::Vertical, this);
 	factoryWidget_ = new GTreeWidget(this);
 	factoryWidget_->setHeaderLabel("node");
-	factoryWidget_->setIndentation(12);
 	propWidget_ = new GPropWidget(this);
 	scene_ = new GGScene(this);
 	graphView_ = new QGraphicsView(this);
@@ -88,7 +87,7 @@ void GGraphWidget::init() {
 	QObject::connect(log, &GLogQObject::writeLogRequred, this, &GGraphWidget::writeLog);
 	logManager.push_back(log);
 
-	mainLayout_->addWidget(toolBar_ , 0);
+	mainLayout_->addWidget(toolBar_, 0);
 	mainLayout_->addWidget(tabWidget_, 1);
 	this->setLayout(mainLayout_);
 

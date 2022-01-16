@@ -17,6 +17,7 @@ struct MyHeightItemDelegate : QStyledItemDelegate
 };
 
 GTreeWidget::GTreeWidget(QWidget *parent) : QTreeWidget(parent) {
+	setIndentation(indentation() * 3 / 2);
 	setItemDelegate(new MyHeightItemDelegate(this));
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

@@ -23,6 +23,9 @@ public:
 	~GMonitorDevice() override;
 
 protected:
+	int16_t radiotapLen_{-1};
+
+protected:
 	bool doOpen() override;
 	bool doClose() override;
 };

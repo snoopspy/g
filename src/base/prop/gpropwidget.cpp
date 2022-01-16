@@ -41,7 +41,6 @@ void GPropWidget::init() {
 	// ----------------------------------
 
 	treeWidget_ = new QTreeWidget(this);
-	treeWidget_->setIndentation(12);
 	treeWidget_->setColumnCount(2);
 	treeWidget_->setHeaderLabels(QStringList() << "property" << "value");
 

@@ -2,9 +2,7 @@
 
 ProbeAnalyzer::ProbeAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
-	command_.openCommands_.clear();
 	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m2\""}));
-	command_.closeCommands_.clear();
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 #endif
 
@@ -16,11 +14,6 @@ ProbeAnalyzer::~ProbeAnalyzer() {
 }
 
 bool ProbeAnalyzer::doOpen() {
-	if (!command_.open()) {
-		err = command_.err;
-		return false;
-	}
-
 	if (!monitorDevice_.open()) {
 		err = monitorDevice_.err;
 		return false;
@@ -31,7 +24,6 @@ bool ProbeAnalyzer::doOpen() {
 
 bool ProbeAnalyzer::doClose() {
 	monitorDevice_.close();
-	command_.close();
 	return true;
 }
 

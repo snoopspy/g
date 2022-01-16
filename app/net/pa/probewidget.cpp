@@ -64,6 +64,7 @@ ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 	QObject::connect(&probeAnalyzer_, &ProbeAnalyzer::probeDetected, this, &ProbeWidget::processProbeDetected, Qt::BlockingQueuedConnection);
 
 	propWidget_ = new GPropWidget(&probeAnalyzer_);
+	propWidget_->setWindowTitle("Properties");
 
 #ifndef Q_OS_WIN
 		GSignal& signal = GSignal::instance();
@@ -153,7 +154,5 @@ void ProbeWidget::tbStop_clicked(bool checked) {
 void ProbeWidget::tbOption_clicked(bool checked) {
 	(void)checked;
 
-	propWidget_->setWindowTitle("Properties");
-	propWidget_->update();
 	propWidget_->show();
 }
