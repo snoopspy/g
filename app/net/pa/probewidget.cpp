@@ -152,6 +152,11 @@ void ProbeWidget::tbOption_clicked(bool checked) {
 	QJsonObject jo = GJson::loadFromFile();
 	jo["propDialog"] >> propDialog;
 
+#ifndef Q_OS_ANDROID
+	propDialog.show();
+#else
+	propDialog.showMaximized();
+#endif
 	propDialog.exec();
 
 	jo["propDialog"] << propDialog;
