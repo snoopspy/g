@@ -63,9 +63,6 @@ ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &ProbeWidget::tbOption_clicked);
 	QObject::connect(&probeAnalyzer_, &ProbeAnalyzer::probeDetected, this, &ProbeWidget::processProbeDetected, Qt::BlockingQueuedConnection);
 
-	propWidget_ = new GPropWidget(&probeAnalyzer_);
-	propWidget_->setWindowTitle("Properties");
-
 #ifndef Q_OS_WIN
 		GSignal& signal = GSignal::instance();
 		QObject::connect(&signal, &GSignal::signaled, this, &ProbeWidget::processSignal);
@@ -78,22 +75,17 @@ ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 ProbeWidget::~ProbeWidget() {
 	tbStop_->click();
 	setControl();
-	if (propWidget_ != nullptr) {
-		delete propWidget_;
-		propWidget_ = nullptr;
-	}
 }
 
 void ProbeWidget::propLoad(QJsonObject jo) {
 	jo["pa"] >> probeAnalyzer_;
 	jo["rect"] >> GJson::rect(this);
-	jo["propWidget"] >> *propWidget_;
+
 }
 
 void ProbeWidget::propSave(QJsonObject& jo) {
 	jo["pa"] << probeAnalyzer_;
 	jo["rect"] << GJson::rect(this);
-	jo["propWidget"] << *propWidget_;
 }
 
 void ProbeWidget::setControl() {
@@ -154,5 +146,14 @@ void ProbeWidget::tbStop_clicked(bool checked) {
 void ProbeWidget::tbOption_clicked(bool checked) {
 	(void)checked;
 
-	propWidget_->show();
+	GPropDialog propDialog;
+	propDialog.widget_.setObject(&probeAnalyzer_);
+
+	QJsonObject jo = GJson::loadFromFile();
+	jo["propDialog"] >> propDialog;
+
+	propDialog.exec();
+
+	jo["propDialog"] << propDialog;
+	GJson::saveToFile(jo);
 }

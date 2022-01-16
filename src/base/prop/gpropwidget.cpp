@@ -14,12 +14,6 @@ GPropWidget::GPropWidget(QWidget *parent) : QWidget(parent) {
 	setControl();
 }
 
-GPropWidget::GPropWidget(QObject* object) : QWidget(nullptr) {
-	init();
-	setObject(object);
-	setControl();
-}
-
 GPropWidget::~GPropWidget() {
 	clear();
 }
@@ -40,7 +34,7 @@ void GPropWidget::init() {
 	*/
 	// ----------------------------------
 
-	treeWidget_ = new QTreeWidget(this);
+	treeWidget_ = new GTreeWidget(this);
 	treeWidget_->setColumnCount(2);
 	treeWidget_->setHeaderLabels(QStringList() << "property" << "value");
 

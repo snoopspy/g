@@ -24,6 +24,7 @@ SOURCES += \
 	$${PWD}/../src/base/log/glogudp.cpp \
 	$${PWD}/../src/base/other/gcommand.cpp \
 	$${PWD}/../src/base/prop/gprop.cpp \
+	$${PWD}/../src/base/prop/gpropdialog.cpp \
 	$${PWD}/../src/base/prop/gpropitem-bool.cpp \
 	$${PWD}/../src/base/prop/gpropitem-char.cpp \
 	$${PWD}/../src/base/prop/gpropitem-checkbox.cpp \
@@ -160,6 +161,7 @@ HEADERS += \
 	$${PWD}/../src/base/log/glogudp.h \
 	$${PWD}/../src/base/other/gcommand.h \
 	$${PWD}/../src/base/prop/gprop.h \
+	$${PWD}/../src/base/prop/gpropdialog.h \
 	$${PWD}/../src/base/prop/gpropitem-bool.h \
 	$${PWD}/../src/base/prop/gpropitem-char.h \
 	$${PWD}/../src/base/prop/gpropitem-checkbox.h \

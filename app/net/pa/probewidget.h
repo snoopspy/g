@@ -5,7 +5,7 @@
 #include <QToolButton>
 
 #include <GProp>
-#include <GPropWidget>
+#include <GPropDialog>
 
 #include "probeanalyzer.h"
 
@@ -29,7 +29,6 @@ public:
 	QToolButton* tbOption_{nullptr};
 	QTableWidget* tableWidget_{nullptr};
 	ProbeAnalyzer probeAnalyzer_;
-	GPropWidget* propWidget_{nullptr};
 
 private slots:
 	void processSignal(int signo);

@@ -14,15 +14,14 @@
 
 #include <QVBoxLayout>
 #include <QToolBar>
-#include <QTreeWidget>
 #include "base/gobj.h"
+#include "base/widget/gtreewidget.h"
 
 // ----------------------------------------------------------------------------
 // GPropWidget
 // ----------------------------------------------------------------------------
 struct G_EXPORT GPropWidget : public QWidget, GProp {
 	GPropWidget(QWidget *parent = nullptr);
-	GPropWidget(QObject* object);
 	~GPropWidget() override;
 
 public:
@@ -43,7 +42,7 @@ public:
 public:
 	QVBoxLayout* mainLayout_;
 	// QToolBar* toolBar_; // gilgil temp 2020.05.21
-	QTreeWidget* treeWidget_;
+	GTreeWidget* treeWidget_;
 
 protected:
 	QObject* object_{nullptr};

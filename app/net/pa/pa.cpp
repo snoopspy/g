@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
 
 	command->close();
 
+	jo = GJson::loadFromFile();
 	jo["pw"] << pw;
 	GJson::saveToFile(jo);
 

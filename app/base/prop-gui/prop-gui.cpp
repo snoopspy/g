@@ -4,7 +4,8 @@
 #include "dept.h"
 
 int exec(GApp* a, GObj* obj) {
-	GPropWidget propWidget(obj);
+	GPropWidget propWidget;
+	propWidget.setObject(obj);
 
 	QJsonObject jo = GJson::loadFromFile();
 	jo["object"] >> *obj;

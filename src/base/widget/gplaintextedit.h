@@ -8,6 +8,8 @@
 //
 // ----------------------------------------------------------------------------
 
+#pragma once
+
 #ifdef QT_GUI_LIB
 
 #include <QPlainTextEdit>
