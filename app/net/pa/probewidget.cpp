@@ -61,7 +61,8 @@ ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &ProbeWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &ProbeWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &ProbeWidget::tbOption_clicked);
-	QObject::connect(&probeAnalyzer_, &ProbeAnalyzer::probeDetected, this, &ProbeWidget::processProbeDetected, Qt::BlockingQueuedConnection);
+	//QObject::connect(&probeAnalyzer_, &ProbeAnalyzer::probeDetected, this, &ProbeWidget::processProbeDetected, Qt::BlockingQueuedConnection);
+	QObject::connect(&probeAnalyzer_, &ProbeAnalyzer::probeDetected, this, &ProbeWidget::processProbeDetected);
 
 #ifndef Q_OS_WIN
 		GSignal& signal = GSignal::instance();

@@ -6,6 +6,10 @@ ProbeAnalyzer::ProbeAnalyzer(QObject* parent) : GStateObj(parent) {
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 #endif
 
+	// for probeDetected signal
+	qRegisterMetaType<GMac>("GMac");
+	qRegisterMetaType<int8_t>("int8_t");
+
 	QObject::connect(&monitorDevice_, &GMonitorDevice::captured, this, &ProbeAnalyzer::processCaptured, Qt::DirectConnection);
 }
 
