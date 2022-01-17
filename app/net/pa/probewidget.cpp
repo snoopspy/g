@@ -61,6 +61,7 @@ ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &ProbeWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &ProbeWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &ProbeWidget::tbOption_clicked);
+
 	QObject::connect(&probeAnalyzer_, &ProbeAnalyzer::probeDetected, this, &ProbeWidget::processProbeDetected);
 	QObject::connect(&probeAnalyzer_.monitorDevice_, &GMonitorDevice::closed, this, &ProbeWidget::processClosed);
 
@@ -94,36 +95,6 @@ void ProbeWidget::setControl() {
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
-}
-
-void ProbeWidget::processSignal(int signo) {
-#ifdef Q_OS_WIN
-		(void)signo;
-#else // Q_OS_WIN
-		QString str1 = GSignal::getString(signo);
-		QString str2 = strsignal(signo);
-		qWarning() << QString("signo=%1 signal=%2 msg=%3").arg(signo).arg(str1, str2);
-		close();
-#endif
-}
-
-void ProbeWidget::processProbeDetected(GMac mac, int8_t signal) {
-	qDebug() << QString(mac) << signal;
-	int row = tableWidget_->rowCount();
-	tableWidget_->insertRow(row);
-
-	QLineEdit* lineEdit = new QLineEdit(this);
-	lineEdit->setText(QString(mac));
-	tableWidget_->setCellWidget(row, 0, lineEdit);
-
-	QProgressBar* progressBar = new QProgressBar(this);
-	progressBar->setMinimum(probeAnalyzer_.minSignal_);
-	progressBar->setMaximum(0);
-	progressBar->setFormat("%v dBm");
-	progressBar->setValue(signal);
-	tableWidget_->setCellWidget(row, 1, progressBar);
-
-	tableWidget_->scrollToBottom();
 }
 
 void ProbeWidget::tbStart_clicked(bool checked) {
@@ -161,6 +132,36 @@ void ProbeWidget::tbOption_clicked(bool checked) {
 	propDialog.exec();
 
 	jo["propDialog"] << propDialog;
+}
+
+void ProbeWidget::processSignal(int signo) {
+#ifdef Q_OS_WIN
+		(void)signo;
+#else // Q_OS_WIN
+		QString str1 = GSignal::getString(signo);
+		QString str2 = strsignal(signo);
+		qWarning() << QString("signo=%1 signal=%2 msg=%3").arg(signo).arg(str1, str2);
+		close();
+#endif
+}
+
+void ProbeWidget::processProbeDetected(GMac mac, int8_t signal) {
+	qDebug() << QString(mac) << signal;
+	int row = tableWidget_->rowCount();
+	tableWidget_->insertRow(row);
+
+	QLineEdit* lineEdit = new QLineEdit(this);
+	lineEdit->setText(QString(mac));
+	tableWidget_->setCellWidget(row, 0, lineEdit);
+
+	QProgressBar* progressBar = new QProgressBar(this);
+	progressBar->setMinimum(probeAnalyzer_.minSignal_);
+	progressBar->setMaximum(0);
+	progressBar->setFormat("%v dBm");
+	progressBar->setValue(signal);
+	tableWidget_->setCellWidget(row, 1, progressBar);
+
+	tableWidget_->scrollToBottom();
 }
 
 void ProbeWidget::processClosed() {

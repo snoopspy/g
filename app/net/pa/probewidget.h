@@ -31,12 +31,12 @@ public:
 	ProbeAnalyzer probeAnalyzer_;
 
 private slots:
-	void processSignal(int signo);
-	void processProbeDetected(GMac mac, int8_t signal);
-
-private slots:
 	void tbStart_clicked(bool checked = false);
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
+
+private slots:
+	void processSignal(int signo);
+	void processProbeDetected(GMac mac, int8_t signal);
 	void processClosed();
 };
