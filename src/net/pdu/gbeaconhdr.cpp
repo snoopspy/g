@@ -4,7 +4,7 @@
 // GBeaconHdr
 // ----------------------------------------------------------------------------
 GBeaconHdr* GBeaconHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
-	assert(dot11Hdr->typeSubtype() == GDot11Hdr::Beacon);
+	Q_ASSERT(dot11Hdr->typeSubtype() == GDot11Hdr::Beacon);
 	if (size < sizeof(GBeaconHdr)) {
 		qWarning() << QString("invalid size %1").arg(size);
 		return nullptr;
@@ -12,16 +12,13 @@ GBeaconHdr* GBeaconHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
 	return PBeaconHdr(dot11Hdr);
 }
 
-GBeaconHdr::TrafficIndicationMap* GBeaconHdr::getTim(uint32_t size) {
-	char* end = pchar(this) + size;
+void* GBeaconHdr::getTag(le8_t num, uint32_t size) {
+	void* end = pchar(this) + size;
 	GBeaconHdr::Tag* t = tag();
 	while (true) {
-		if ((void*)t >= (void*)end) {
-			//qWarning() << QString("beaconHdp=%1 tag=%2 end=%3").arg(pvoid(this)).arg(pvoid(t)).arg(pvoid(end)); // gilgil temp 2021.08.19
-			break;
-		}
-		if (t->num_ == tagTrafficIndicationMap) {
-			TrafficIndicationMap* res = PTrafficIndicationMap(t);
+		if (t >= end) break;
+		if (t->num_ == num) {
+			void* res = pvoid(t);
 			return res;
 		}
 		t = t->next();
@@ -50,7 +47,9 @@ TEST(BeaconHdr, typeTest) {
 		 0x00, 0x42, 0x43, 0x5e, 0x00, 0x62, 0x32, 0x2f, 0x00, 0x0b, 0x05, 0x00, 0x00, 0x2c, 0x12, 0x7a,
 		 0xdd, 0x07, 0x00, 0x0c, 0x43, 0x04, 0x00, 0x00, 00
 	};
-	GRadiotapHdr* radiotapHdr = PRadiotapHdr(packet);
+
+	GRadiotapHdr* radiotapHdr = GRadiotapHdr::check(packet, sizeof(packet));
+	EXPECT_NE(radiotapHdr, nullptr);
 	GBeaconHdr* beaconHdr = PBeaconHdr(packet + radiotapHdr->len_);
 
 	le8_t typeSubtype = beaconHdr->typeSubtype();
@@ -78,11 +77,50 @@ TEST(BeaconHdr, typeTest) {
 
 	GBeaconHdr::Tag* tag = beaconHdr->tag();
 	le8_t num = tag->num_;
-	EXPECT_EQ(num, GBeaconHdr::tagSsidParameterSet);
-	tag = tag->next();
+	EXPECT_EQ(num, GBeaconHdr::TagSsidParameterSet);
 
+	tag = tag->next();
 	num = tag->num_;
-	EXPECT_EQ(num, GBeaconHdr::tagSupportedRated);
+	EXPECT_EQ(num, GBeaconHdr::TagSupportedRated);
+
+	tag = tag->next();
+	num = tag->num_;
+	EXPECT_EQ(num, GBeaconHdr::TagDsParameterSet);
+
+	tag = tag->next();
+	num = tag->num_;
+	EXPECT_EQ(num, GBeaconHdr::TagCountryInformation);
+
+	tag = tag->next();
+	num = tag->num_;
+	EXPECT_EQ(num, GBeaconHdr::TagTrafficIndicationMap);
+
+	tag = tag->next();
+	num = tag->num_;
+	EXPECT_EQ(num, GBeaconHdr::TagVendorSpecific);
+
+	tag = tag->next();
+	num = tag->num_;
+	EXPECT_EQ(num, GBeaconHdr::TagRsnInformation);
+
+	tag = tag->next();
+	num = tag->num_;
+	EXPECT_EQ(num, GBeaconHdr::TagVendorSpecific);
+
+	tag = tag->next();
+	num = tag->num_;
+	EXPECT_EQ(num, GBeaconHdr::TagQbssLoadElement);
+
+	tag = tag->next();
+	num = tag->num_;
+	EXPECT_EQ(num, GBeaconHdr::TagVendorSpecific);
+
+	GBeaconHdr::TrafficIndicationMap* tiMap = GBeaconHdr::PTrafficIndicationMap(beaconHdr->getTag(GBeaconHdr::TagTrafficIndicationMap, sizeof(packet)));
+	EXPECT_NE(tiMap, nullptr);
+	EXPECT_EQ(tiMap->count_, 0);
+	EXPECT_EQ(tiMap->period_, 1);
+	EXPECT_EQ(tiMap->control_, 0);
+	EXPECT_EQ(tiMap->bitmap_, 0);
 }
 
 #endif // GTEST

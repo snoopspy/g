@@ -20,6 +20,9 @@ struct G_EXPORT GBeaconHdr : GDot11ExtHdr {
 	struct Tag {
 		le8_t num_;
 		le8_t len_;
+		void* value() {
+			return (char*)this + sizeof(Tag);
+		}
 		Tag* next() {
 			char* res = (char*)this;
 			res += sizeof(Tag) + this->len_;
@@ -35,9 +38,14 @@ struct G_EXPORT GBeaconHdr : GDot11ExtHdr {
 
 	// tagged parameter number
 	enum: le8_t {
-		tagSsidParameterSet = 0,
-		tagSupportedRated = 1,
-		tagTrafficIndicationMap = 5
+		TagSsidParameterSet = 0,
+		TagSupportedRated = 1,
+		TagDsParameterSet = 3,
+		TagTrafficIndicationMap = 5,
+		TagCountryInformation = 7,
+		TagQbssLoadElement = 11,
+		TagRsnInformation = 48,
+		TagVendorSpecific = 221
 	};
 
 	struct TrafficIndicationMap : Tag {
@@ -49,7 +57,7 @@ struct G_EXPORT GBeaconHdr : GDot11ExtHdr {
 	typedef TrafficIndicationMap *PTrafficIndicationMap;
 
 	static GBeaconHdr* check(GDot11Hdr* dot11Hdr, uint32_t size);
-	TrafficIndicationMap* getTim(uint32_t size);
+	void* getTag(le8_t num, uint32_t size);
 };
 typedef GBeaconHdr *PBeaconHdr;
 #pragma pack(pop)
