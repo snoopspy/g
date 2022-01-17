@@ -50,6 +50,7 @@ SOURCES += \
 	$${PWD}/../src/base/sys/gthread.cpp \
 	$${PWD}/../src/base/sys/gnexmon.cpp \
 	$${PWD}/../src/base/sys/gwaitevent.cpp \
+	$${PWD}/../src/base/widget/gdefaultwidget.cpp \
 	$${PWD}/../src/base/widget/gplaintextedit.cpp \
 	$${PWD}/../src/base/widget/gsplitter.cpp \
 	$${PWD}/../src/base/widget/gtreewidget.cpp \
@@ -187,6 +188,7 @@ HEADERS += \
 	$${PWD}/../src/base/sys/gthread.h \
 	$${PWD}/../src/base/sys/gnexmon.h \
 	$${PWD}/../src/base/sys/gwaitevent.h \
+	$${PWD}/../src/base/widget/gdefaultwidget.h \
 	$${PWD}/../src/base/widget/gplaintextedit.h \
 	$${PWD}/../src/base/widget/gsplitter.h \
 	$${PWD}/../src/base/widget/gtreewidget.h \

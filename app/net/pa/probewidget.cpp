@@ -1,6 +1,5 @@
 #include "probewidget.h"
 
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -8,35 +7,9 @@
 #include <QVBoxLayout>
 
 #include <GJson>
-#include <GSignal>
 
-ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
-	resize(QSize(640, 480));
+ProbeWidget::ProbeWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("ProbeAnalyzer");
-
-	QVBoxLayout* mainLayout = new QVBoxLayout();
-
-	QHBoxLayout* toolButtonLayout = new QHBoxLayout();
-
-	tbStart_ = new QToolButton(this);
-	tbStart_->setText("Start");
-	tbStart_->setIcon(QIcon(":/img/start.png"));
-	tbStart_->setAutoRaise(true);
-	toolButtonLayout->addWidget(tbStart_);
-
-	tbStop_ = new QToolButton(this);
-	tbStop_->setText("Stop");
-	tbStop_->setIcon(QIcon(":/img/stop.png"));
-	tbStop_->setAutoRaise(true);
-	toolButtonLayout->addWidget(tbStop_);
-
-	tbOption_ = new QToolButton(this);
-	tbOption_->setText("Option");
-	tbOption_->setIcon(QIcon(":/img/option.png"));
-	tbOption_->setAutoRaise(true);
-	toolButtonLayout->addWidget(tbOption_);
-
-	mainLayout->addLayout(toolButtonLayout);
 
 	tableWidget_ = new QTableWidget(this);
 	tableWidget_->setColumnCount(2);
@@ -45,18 +18,7 @@ ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 	tableWidget_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	tableWidget_->verticalHeader()->hide();
 
-	mainLayout->addWidget(tableWidget_);
-
-	this->setLayout(mainLayout);
-
-#ifdef Q_OS_ANDROID
-	QSize size(192, 192);
-#else
-	QSize size(32, 32);
-#endif
-	tbStart_->setIconSize(size);
-	tbStop_->setIconSize(size);
-	tbOption_->setIconSize(size);
+	mainLayout_->addWidget(tableWidget_);
 
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &ProbeWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &ProbeWidget::tbStop_clicked);
@@ -64,12 +26,6 @@ ProbeWidget::ProbeWidget(QWidget* parent) : QWidget(parent) {
 
 	QObject::connect(&probeAnalyzer_, &ProbeAnalyzer::probeDetected, this, &ProbeWidget::processProbeDetected);
 	QObject::connect(&probeAnalyzer_.monitorDevice_, &GMonitorDevice::closed, this, &ProbeWidget::processClosed);
-
-#ifndef Q_OS_WIN
-		GSignal& signal = GSignal::instance();
-		QObject::connect(&signal, &GSignal::signaled, this, &ProbeWidget::processSignal);
-		signal.setupAll();
-#endif // Q_OS_WIN
 
 	setControl();
 }
@@ -80,14 +36,13 @@ ProbeWidget::~ProbeWidget() {
 }
 
 void ProbeWidget::propLoad(QJsonObject jo) {
-	jo["pa"] >> probeAnalyzer_;
 	jo["rect"] >> GJson::rect(this);
-
+	jo["pa"] >> probeAnalyzer_;
 }
 
 void ProbeWidget::propSave(QJsonObject& jo) {
-	jo["pa"] << probeAnalyzer_;
 	jo["rect"] << GJson::rect(this);
+	jo["pa"] << probeAnalyzer_;
 }
 
 void ProbeWidget::setControl() {
@@ -115,6 +70,7 @@ void ProbeWidget::tbStop_clicked(bool checked) {
 	setControl();
 }
 
+#include <GPropDialog>
 void ProbeWidget::tbOption_clicked(bool checked) {
 	(void)checked;
 
@@ -132,17 +88,6 @@ void ProbeWidget::tbOption_clicked(bool checked) {
 	propDialog.exec();
 
 	jo["propDialog"] << propDialog;
-}
-
-void ProbeWidget::processSignal(int signo) {
-#ifdef Q_OS_WIN
-		(void)signo;
-#else // Q_OS_WIN
-		QString str1 = GSignal::getString(signo);
-		QString str2 = strsignal(signo);
-		qWarning() << QString("signo=%1 signal=%2 msg=%3").arg(signo).arg(str1, str2);
-		close();
-#endif
 }
 
 void ProbeWidget::processProbeDetected(GMac mac, int8_t signal) {

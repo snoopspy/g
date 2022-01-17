@@ -1,15 +1,10 @@
 #pragma once
 
-#include <QWidget>
+#include <GDefaultWidget>
 #include <QTableWidget>
-#include <QToolButton>
-
-#include <GProp>
-#include <GPropDialog>
-
 #include "probeanalyzer.h"
 
-struct G_EXPORT ProbeWidget : QWidget, GProp {
+struct G_EXPORT ProbeWidget : GDefaultWidget {
 	Q_OBJECT
 
 public:
@@ -24,9 +19,6 @@ public:
 	void setControl();
 
 public:
-	QToolButton* tbStart_{nullptr};
-	QToolButton* tbStop_{nullptr};
-	QToolButton* tbOption_{nullptr};
 	QTableWidget* tableWidget_{nullptr};
 	ProbeAnalyzer probeAnalyzer_;
 
@@ -35,8 +27,6 @@ private slots:
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
 
-private slots:
-	void processSignal(int signo);
 	void processProbeDetected(GMac mac, int8_t signal);
 	void processClosed();
 };
