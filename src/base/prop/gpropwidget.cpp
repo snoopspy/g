@@ -10,6 +10,7 @@
 // GPropWidget
 // ----------------------------------------------------------------------------
 GPropWidget::GPropWidget(QWidget *parent) : QWidget(parent) {
+	resize(QSize(640, 480));
 	init();
 	setControl();
 }
