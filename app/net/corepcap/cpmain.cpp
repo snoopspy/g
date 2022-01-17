@@ -41,8 +41,7 @@ void signalHandler(int signo) {
 	if (signo == SIGSEGV)
 		exit(-1);
 	GTRACE("bef cp.close()");
-	if (cp.active())
-		cp.close();
+	cp.close();
 	GTRACE("aft cp.close()");
 }
 
