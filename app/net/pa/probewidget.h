@@ -38,4 +38,5 @@ private slots:
 	void tbStart_clicked(bool checked = false);
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
+	void processClosed();
 };
