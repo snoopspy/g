@@ -72,38 +72,38 @@ void GSignal::ignore(int signo) {
 }
 
 QString GSignal::getString(int signo) {
-	QString s = "unknown";
+	QString signal = "unknown";
 	switch (signo) {
-		case SIGINT: s = "SIGINT"; break;
-		case SIGILL: s = "SIGILL"; break;
-		case SIGABRT: s = "SIGABRT"; break;
-		case SIGFPE: s = "SIGFPE"; break;
-		case SIGSEGV: s = "SIGSEGV"; break;
-		case SIGTERM: s = "SIGTERM"; break;
+		case SIGINT: signal = "SIGINT"; break;
+		case SIGILL: signal = "SIGILL"; break;
+		case SIGABRT: signal = "SIGABRT"; break;
+		case SIGFPE: signal = "SIGFPE"; break;
+		case SIGSEGV: signal = "SIGSEGV"; break;
+		case SIGTERM: signal = "SIGTERM"; break;
 #ifndef Q_OS_WIN
-		case SIGHUP: s = "SIGHUP"; break;
-		case SIGQUIT: s = "SIGQUIT"; break;
-		case SIGTRAP: s = "SIGTRAP"; break;
-		case SIGKILL: s = "SIGKILL"; break;
-		case SIGBUS: s = "SIGBUS"; break;
-		case SIGSYS: s = "SIGSYS"; break;
-		case SIGPIPE: s = "SIGPIPE"; break;
-		case SIGALRM: s = "SIGALRM"; break;
-		case SIGURG: s = "SIGURG"; break;
-		case SIGSTOP: s = "SIGSTOP"; break;
-		case SIGTSTP: s = "SIGTSTP"; break;
-		case SIGCONT: s = "SIGCONT"; break;
-		case SIGCHLD: s = "SIGCHLD"; break;
-		case SIGTTIN: s = "SIGTTIN"; break;
-		case SIGTTOU: s = "SIGTTOU"; break;
-		case SIGPOLL: s = "SIGPOLL"; break;
-		case SIGXCPU: s = "SIGXCPU"; break;
-		case SIGXFSZ: s = "SIGXFSZ"; break;
-		case SIGVTALRM: s = "SIGVTALRM"; break;
-		case SIGPROF: s = "SIGPROF"; break;
-		case SIGUSR1: s = "SIGUSR1"; break;
-		case SIGUSR2: s = "SIGUSR2"; break;
+		case SIGHUP: signal = "SIGHUP"; break;
+		case SIGQUIT: signal = "SIGQUIT"; break;
+		case SIGTRAP: signal = "SIGTRAP"; break;
+		case SIGKILL: signal = "SIGKILL"; break;
+		case SIGBUS: signal = "SIGBUS"; break;
+		case SIGSYS: signal = "SIGSYS"; break;
+		case SIGPIPE: signal = "SIGPIPE"; break;
+		case SIGALRM: signal = "SIGALRM"; break;
+		case SIGURG: signal = "SIGURG"; break;
+		case SIGSTOP: signal = "SIGSTOP"; break;
+		case SIGTSTP: signal = "SIGTSTP"; break;
+		case SIGCONT: signal = "SIGCONT"; break;
+		case SIGCHLD: signal = "SIGCHLD"; break;
+		case SIGTTIN: signal = "SIGTTIN"; break;
+		case SIGTTOU: signal = "SIGTTOU"; break;
+		case SIGPOLL: signal = "SIGPOLL"; break;
+		case SIGXCPU: signal = "SIGXCPU"; break;
+		case SIGXFSZ: signal = "SIGXFSZ"; break;
+		case SIGVTALRM: signal = "SIGVTALRM"; break;
+		case SIGPROF: signal = "SIGPROF"; break;
+		case SIGUSR1: signal = "SIGUSR1"; break;
+		case SIGUSR2: signal = "SIGUSR2"; break;
 #endif
 	}
-	return s;
+	return signal;
 }
