@@ -668,11 +668,13 @@ GDemon::PcapOpenRes GDemonPcap::open(PcapOpenReq req) {
 		if (pcap_compile(pcap_, &code, req.filter_.data(),  1, uNetMask) < 0) {
 			res.errBuf_ = pcap_geterr(pcap_);
 			GTRACE("error in pcap_compile(%s)", res.errBuf_.data()) ;
+			close();
 			return res;
 		}
 		if (pcap_setfilter(pcap_, &code) < 0) {
 			res.errBuf_ = pcap_geterr(pcap_);
 			GTRACE("error in pcap_setfilter(%s)", res.errBuf_.data()) ;
+			close();
 			return res;
 		}
 	}
@@ -778,9 +780,10 @@ bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
 		}
 	}
 
-	if (req.captureThread_) {
+	if (res.result_) {
 		active_ = true;
-		thread_ = new std::thread(&GDemonPcap::run, this);
+		if (req.captureThread_)
+			thread_ = new std::thread(&GDemonPcap::run, this);
 	}
 
 	return true;
@@ -843,6 +846,7 @@ GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 	if (!h_) {
 		res.errBuf_ = "nfq_open return null";
 		GTRACE("%s", res.errBuf_.data());
+		close();
 		return res;
 	}
 
@@ -850,6 +854,7 @@ GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 	if (nfq_unbind_pf(h_, AF_INET) < 0) {
 		res.errBuf_ = "error during nfq_unbind_pf()";
 		GTRACE("%s", res.errBuf_.data());
+		close();
 		return res;
 	}
 
@@ -857,6 +862,7 @@ GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 	if (nfq_bind_pf(h_, AF_INET) < 0) {
 		res.errBuf_ = "error during nfq_bind_pf()";
 		GTRACE("%s", res.errBuf_.data());
+		close();
 		return res;
 	}
 
@@ -865,6 +871,7 @@ GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 	if (!qh_) {
 		res.errBuf_ = "error during nfq_create_queue()";
 		GTRACE("%s", res.errBuf_.data());
+		close();
 		return res;
 	}
 
@@ -872,6 +879,7 @@ GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 	if (nfq_set_mode(qh_, NFQNL_COPY_PACKET, 0xffff) < 0) {
 		res.errBuf_ = "can't set packet_copy mode";
 		GTRACE("%s", res.errBuf_.data());
+		close();
 		return res;
 	}
 
@@ -996,8 +1004,10 @@ bool GDemonNetFilter::processNfOpen(pchar buf, int32_t size) {
 		}
 	}
 
-	active_ = true;
-	thread_ = new std::thread(&GDemonNetFilter::run, this);
+	if (res.result_) {
+		active_ = true;
+		thread_ = new std::thread(&GDemonNetFilter::run, this);
+	}
 
 	return true;
 }
@@ -1106,6 +1116,7 @@ GDemon::RiOpenRes GDemonRawIp::open(RiOpenReq req) {
 	if (r < 0) {
 		res.errBuf_ = std::string("setsockopt return ") + std::to_string(r) + " " + strerror(errno);
 		GTRACE("%s", res.errBuf_.data());
+		close();
 		return res;
 	}
 
@@ -1146,7 +1157,8 @@ bool GDemonRawIp::processRiOpen(pchar buf, int32_t size) {
 		}
 	}
 
-	active_ = true;
+	if (res.result_)
+		active_ = true;
 
 	return true;
 }
