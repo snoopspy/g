@@ -697,10 +697,6 @@ void GDemonPcap::close() {
 	}
 }
 
-void GDemonPcap::_run(GDemonPcap* pcap) {
-	pcap->run();
-}
-
 void GDemonPcap::run() {
 	GTRACE("GDemonPcap beg");
 
@@ -784,7 +780,7 @@ bool GDemonPcap::processPcapOpen(pchar buf, int32_t size) {
 
 	if (req.captureThread_) {
 		active_ = true;
-		thread_ = new std::thread(GDemonPcap::_run, this);
+		thread_ = new std::thread(&GDemonPcap::run, this);
 	}
 
 	return true;
@@ -944,10 +940,6 @@ void GDemonNetFilter::close() {
 	}
 }
 
-void GDemonNetFilter::_run(GDemonNetFilter* nf) {
-	nf->run();
-}
-
 void GDemonNetFilter::run() {
 	GTRACE("GDemonNetFilter beg");
 	while (active_) {
@@ -1005,7 +997,7 @@ bool GDemonNetFilter::processNfOpen(pchar buf, int32_t size) {
 	}
 
 	active_ = true;
-	thread_ = new std::thread(GDemonNetFilter::_run, this);
+	thread_ = new std::thread(&GDemonNetFilter::run, this);
 
 	return true;
 }

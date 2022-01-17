@@ -80,7 +80,6 @@ struct ArpRecover {
 	FlowMap flowMap_;
 
 	std::thread* sendThread_{nullptr};
-	static void _sendThread(ArpRecover* arpRecover);
 	void sendThread();
 
 	bool open();

@@ -127,7 +127,6 @@ struct GDemonPcap : GDemon {
 
 	PcapOpenRes open(PcapOpenReq req);
 	void close();
-	static void _run(GDemonPcap* pcap);
 	void run();
 
 	bool processPcapOpen(pchar buf, int32_t size);
@@ -154,7 +153,6 @@ struct GDemonNetFilter : GDemon {
 
 	NfOpenRes open(NfOpenReq req);
 	void close();
-	static void _run(GDemonNetFilter* nf);
 	void run();
 
 	bool processNfOpen(pchar buf, int32_t size);

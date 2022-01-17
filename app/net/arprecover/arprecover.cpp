@@ -31,10 +31,6 @@ ArpRecover::~ArpRecover() {
 	close();
 }
 
-void ArpRecover::_sendThread(ArpRecover* arpRecover) {
-	arpRecover->sendThread();
-}
-
 void ArpRecover::sendThread() {
 	while (active_) {
 		std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -63,7 +59,7 @@ bool ArpRecover::open() {
 		return false;
 	}
 
-	sendThread_ = new std::thread(ArpRecover::_sendThread, this);
+	sendThread_ = new std::thread(&ArpRecover::sendThread, this);
 
 	active_ = true;
 	return true;
