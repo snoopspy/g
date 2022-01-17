@@ -9,7 +9,6 @@ ProbeAnalyzer::ProbeAnalyzer(QObject* parent) : GStateObj(parent) {
 	// for probeDetected signal
 	qRegisterMetaType<GMac>("GMac");
 	qRegisterMetaType<int8_t>("int8_t");
-
 	QObject::connect(&monitorDevice_, &GMonitorDevice::captured, this, &ProbeAnalyzer::processCaptured, Qt::DirectConnection);
 }
 

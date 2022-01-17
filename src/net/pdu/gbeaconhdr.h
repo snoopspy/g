@@ -20,9 +20,11 @@ struct G_EXPORT GBeaconHdr : GDot11ExtHdr {
 	struct Tag {
 		le8_t num_;
 		le8_t len_;
+
 		void* value() {
 			return (char*)this + sizeof(Tag);
 		}
+
 		Tag* next() {
 			char* res = (char*)this;
 			res += sizeof(Tag) + this->len_;
@@ -30,7 +32,8 @@ struct G_EXPORT GBeaconHdr : GDot11ExtHdr {
 		}
 	};
 	typedef Tag *PTag;
-	Tag* tag() {
+
+	Tag* getTag() {
 		char* p = pchar(this);
 		p += sizeof(GBeaconHdr);
 		return PTag(p);

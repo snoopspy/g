@@ -64,7 +64,7 @@ bool GHostDetect::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host
 	GEthHdr* ethHdr = packet->ethHdr_;
 	if (ethHdr == nullptr) return false;
 	void* end = packet->buf_.data_ + packet->buf_.size_;
-	GDhcpHdr::Option* option = dhcpHdr->first();
+	GDhcpHdr::Option* option = dhcpHdr->getOption();
 	while (true) {
 		if (option >= end) break;
 		if (option->type_ == GDhcpHdr::RequestedIpAddress) {
@@ -72,8 +72,7 @@ bool GHostDetect::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host
 			*mac = ethHdr->smac();
 			ok = true;
 		} else if (option->type_ == GDhcpHdr::HostName) {
-			QByteArray tmp(pchar(option->value()), option->len_);
-			*hostName = QString(tmp);
+			*hostName = QByteArray(pchar(option->value()), option->len_);
 		}
 		option = option->next();
 		if (option == nullptr) break;

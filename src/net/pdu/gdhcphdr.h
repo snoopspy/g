@@ -65,7 +65,7 @@ struct G_EXPORT GDhcpHdr final {
 	};
 	typedef Option *POption;
 
-	Option* first() {
+	Option* getOption() {
 		return POption((char*)this + sizeof(GDhcpHdr));
 	}
 

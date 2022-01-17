@@ -1,10 +1,8 @@
 #include "probewidget.h"
 
-#include <QHeaderView>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QProgressBar>
-#include <QVBoxLayout>
 
 #include <GJson>
 
@@ -17,7 +15,6 @@ ProbeWidget::ProbeWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("Signal"));
 	tableWidget_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	tableWidget_->verticalHeader()->hide();
-
 	mainLayout_->addWidget(tableWidget_);
 
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &ProbeWidget::tbStart_clicked);
