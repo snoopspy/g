@@ -1,4 +1,4 @@
-#include "gtreewidget.h"
+#include "gtablewidget.h"
 
 #if defined(QT_GUI_LIB) && defined(Q_OS_ANDROID)
 
@@ -17,13 +17,14 @@ struct MyHeightItemDelegate : QStyledItemDelegate
 	}
 };
 
-GTreeWidget::GTreeWidget(QWidget *parent) : QTreeWidget(parent) {
-	setIndentation(indentation() * 3 / 2);
+#include <QDebug>
+GTableWidget::GTableWidget(QWidget *parent) : QTableWidget(parent) {
 	setItemDelegate(new MyHeightItemDelegate(this));
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
-	header()->setFixedHeight(75);
+	horizontalHeader()->setFixedHeight(75);
+	verticalHeader()->setDefaultSectionSize(verticalHeader()->defaultSectionSize() * 3 / 2);
 }
 
 #endif
