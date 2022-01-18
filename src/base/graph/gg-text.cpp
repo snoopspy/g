@@ -8,6 +8,15 @@ GGText::GGText(GObj* node) {
 	setFlag(QGraphicsItem::ItemIsMovable);
 	setFlag(QGraphicsItem::ItemIsSelectable);
 	node_ = node;
+#ifdef Q_OS_ANDROID
+	QFont f = font();
+	int pointSize = f.pointSize();
+	if (pointSize > 0)
+		f.setPointSize(pointSize * 3 / 2);
+	else
+		f.setPointSize(20);
+	setFont(f);
+#endif
 }
 
 GGText::~GGText() {
