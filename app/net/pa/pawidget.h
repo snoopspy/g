@@ -1,15 +1,15 @@
 #pragma once
 
 #include <GDefaultWidget>
-#include <QTableWidget>
+#include <GTableWidget>
 #include "probeanalyzer.h"
 
-struct G_EXPORT ProbeWidget : GDefaultWidget {
+struct G_EXPORT PaWidget : GDefaultWidget {
 	Q_OBJECT
 
 public:
-	ProbeWidget(QWidget* parent = nullptr);
-	~ProbeWidget() override;
+	PaWidget(QWidget* parent = nullptr);
+	~PaWidget() override;
 
 public:
 	void propLoad(QJsonObject jo) override;
@@ -19,7 +19,7 @@ public:
 	void setControl();
 
 public:
-	QTableWidget* tableWidget_{nullptr};
+	GTableWidget* tableWidget_{nullptr};
 	ProbeAnalyzer probeAnalyzer_;
 
 private slots:

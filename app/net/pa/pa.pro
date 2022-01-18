@@ -4,12 +4,12 @@ DESTDIR = $$PWD/../../../bin
 
 SOURCES += \
     pa.cpp \
-	probeanalyzer.cpp \
-	probewidget.cpp
+	pawidget.cpp \
+	probeanalyzer.cpp
 
 HEADERS += \
-	probeanalyzer.h \
-	probewidget.h
+	pawidget.h \
+	probeanalyzer.h
 
 DISTFILES += \
 	android/AndroidManifest.xml \
