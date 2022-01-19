@@ -1,12 +1,12 @@
 #include <QMessageBox>
 #include <GApp>
 #include <GJson>
-#include "wjwidget.h"
+#include "wawidget.h"
 
 int main(int argc, char *argv[])
 {
 	GApp a(argc, argv);
-	WjWidget wj;
+	WaWidget wj;
 
 	QJsonObject& jo = GJson::instance();
 	jo["wj"] >> wj;

@@ -3,7 +3,7 @@
 #include <GCommand>
 #include <GMonitorDevice>
 
-struct G_EXPORT WifiJammer : GStateObj {
+struct G_EXPORT WifiAnalyzer : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(GObjRef monitorDevice READ getMonitorDevice)
 	Q_PROPERTY(bool channelHopping MEMBER channelHopping_)
@@ -15,8 +15,8 @@ public:
 	bool channelHopping_{true};
 
 public:
-	Q_INVOKABLE WifiJammer(QObject* parent = nullptr);
-	~WifiJammer() override;
+	Q_INVOKABLE WifiAnalyzer(QObject* parent = nullptr);
+	~WifiAnalyzer() override;
 
 protected:
 	bool doOpen() override;

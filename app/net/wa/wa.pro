@@ -3,10 +3,10 @@ include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
 
 SOURCES += \
-	wj.cpp \
-	wifijammer.cpp \
-	wjwidget.cpp
+	wa.cpp \
+	wifianalyzer.cpp \
+	wawidget.cpp
 
 HEADERS += \
-	wifijammer.h \
-	wjwidget.h
+	wifianalyzer.h \
+	wawidget.h

@@ -9,6 +9,7 @@ SUBDIRS += \
 	pcap-findalldevs-test \
 	snoopspy \
 	sscon \
+	wa \
 
 linux {
 SUBDIRS += \

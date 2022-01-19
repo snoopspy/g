@@ -1,7 +1,7 @@
-#include "wifijammer.h"
+#include "wifianalyzer.h"
 #include <GBeaconHdr>
 
-WifiJammer::WifiJammer(QObject* parent) : GStateObj(parent) {
+WifiAnalyzer::WifiAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
 	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m2\""}));
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
@@ -9,14 +9,14 @@ WifiJammer::WifiJammer(QObject* parent) : GStateObj(parent) {
 
 	// for probeDetected signal
 	qRegisterMetaType<GMac>("GMac");
-	QObject::connect(&monitorDevice_, &GMonitorDevice::captured, this, &WifiJammer::processCaptured, Qt::DirectConnection);
+	QObject::connect(&monitorDevice_, &GMonitorDevice::captured, this, &WifiAnalyzer::processCaptured, Qt::DirectConnection);
 }
 
-WifiJammer::~WifiJammer() {
+WifiAnalyzer::~WifiAnalyzer() {
 	close();
 }
 
-bool WifiJammer::doOpen() {
+bool WifiAnalyzer::doOpen() {
 	if (!monitorDevice_.open()) {
 		err = monitorDevice_.err;
 		return false;
@@ -25,12 +25,12 @@ bool WifiJammer::doOpen() {
 	return true;
 }
 
-bool WifiJammer::doClose() {
+bool WifiAnalyzer::doClose() {
 	monitorDevice_.close();
 	return true;
 }
 
-void WifiJammer::processCaptured(GPacket* packet) {
+void WifiAnalyzer::processCaptured(GPacket* packet) {
 	GDot11ExtHdr* dot11ExtHdr = packet->dot11ExtHdr_;
 	if (dot11ExtHdr == nullptr) return;
 

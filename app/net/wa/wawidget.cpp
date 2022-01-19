@@ -1,4 +1,4 @@
-#include "wjwidget.h"
+#include "wawidget.h"
 
 #include <QLineEdit>
 #include <QMessageBox>
@@ -6,47 +6,47 @@
 
 #include <GJson>
 
-WjWidget::WjWidget(QWidget* parent) : GDefaultWidget(parent) {
-	setWindowTitle("ProbeAnalyzer");
+WaWidget::WaWidget(QWidget* parent) : GDefaultWidget(parent) {
+	setWindowTitle("WiFiAnalyzer");
 
 	plainTextEdit_ = new GPlainTextEdit(this);
 	plainTextEdit_->setReadOnly(true);
 	plainTextEdit_->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 	mainLayout_->addWidget(plainTextEdit_);
 
-	QObject::connect(tbStart_, &QToolButton::clicked, this, &WjWidget::tbStart_clicked);
-	QObject::connect(tbStop_, &QToolButton::clicked, this, &WjWidget::tbStop_clicked);
-	QObject::connect(tbOption_, &QToolButton::clicked, this, &WjWidget::tbOption_clicked);
+	QObject::connect(tbStart_, &QToolButton::clicked, this, &WaWidget::tbStart_clicked);
+	QObject::connect(tbStop_, &QToolButton::clicked, this, &WaWidget::tbStop_clicked);
+	QObject::connect(tbOption_, &QToolButton::clicked, this, &WaWidget::tbOption_clicked);
 
-	QObject::connect(&wifiJammer_, &WifiJammer::attacked, this, &WjWidget::processAttacked);
-	QObject::connect(&wifiJammer_.monitorDevice_, &GMonitorDevice::closed, this, &WjWidget::processClosed);
+	QObject::connect(&wifiJammer_, &WifiAnalyzer::attacked, this, &WaWidget::processAttacked);
+	QObject::connect(&wifiJammer_.monitorDevice_, &GMonitorDevice::closed, this, &WaWidget::processClosed);
 
 	setControl();
 }
 
-WjWidget::~WjWidget() {
+WaWidget::~WaWidget() {
 	tbStop_->click();
 	setControl();
 }
 
-void WjWidget::propLoad(QJsonObject jo) {
+void WaWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	jo["pa"] >> wifiJammer_;
 }
 
-void WjWidget::propSave(QJsonObject& jo) {
+void WaWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["pa"] << wifiJammer_;
 }
 
-void WjWidget::setControl() {
+void WaWidget::setControl() {
 	bool active = wifiJammer_.active();
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
 }
 
-void WjWidget::tbStart_clicked(bool checked) {
+void WaWidget::tbStart_clicked(bool checked) {
 	(void)checked;
 
 	plainTextEdit_->clear();
@@ -57,7 +57,7 @@ void WjWidget::tbStart_clicked(bool checked) {
 	setControl();
 }
 
-void WjWidget::tbStop_clicked(bool checked) {
+void WaWidget::tbStop_clicked(bool checked) {
 	(void)checked;
 
 	wifiJammer_.close();
@@ -65,7 +65,7 @@ void WjWidget::tbStop_clicked(bool checked) {
 }
 
 #include <GPropDialog>
-void WjWidget::tbOption_clicked(bool checked) {
+void WaWidget::tbOption_clicked(bool checked) {
 	(void)checked;
 
 	GPropDialog propDialog;
@@ -84,13 +84,13 @@ void WjWidget::tbOption_clicked(bool checked) {
 	jo["propDialog"] << propDialog;
 }
 
-void WjWidget::processAttacked(GMac mac, QString ssid) {
+void WaWidget::processAttacked(GMac mac, QString ssid) {
 	QString msg = QString("%1 %2").arg(QString(mac)).arg(ssid);
 	qDebug() << msg;
 	plainTextEdit_->insertPlainText(msg + "\n");
 	plainTextEdit_->verticalScrollBar()->setValue(plainTextEdit_->verticalScrollBar()->maximum());
 }
 
-void WjWidget::processClosed() {
+void WaWidget::processClosed() {
 	tbStop_->click();
 }
