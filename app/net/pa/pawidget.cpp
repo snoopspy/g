@@ -87,12 +87,13 @@ void PaWidget::tbOption_clicked(bool checked) {
 	jo["propDialog"] << propDialog;
 }
 
-void PaWidget::processProbeDetected(GMac mac, int8_t signal) {
+void PaWidget::processProbeDetected(GMac mac, int signal) {
 	qDebug() << QString(mac) << signal;
 	int row = tableWidget_->rowCount();
 	tableWidget_->insertRow(row);
 
 	QLineEdit* lineEdit = new QLineEdit(this);
+	lineEdit->setFrame(false);
 	lineEdit->setText(QString(mac));
 	tableWidget_->setCellWidget(row, 0, lineEdit);
 

@@ -8,7 +8,6 @@ ProbeAnalyzer::ProbeAnalyzer(QObject* parent) : GStateObj(parent) {
 
 	// for probeDetected signal
 	qRegisterMetaType<GMac>("GMac");
-	qRegisterMetaType<int8_t>("int8_t");
 	QObject::connect(&monitorDevice_, &GMonitorDevice::captured, this, &ProbeAnalyzer::processCaptured, Qt::DirectConnection);
 }
 
@@ -42,8 +41,7 @@ void ProbeAnalyzer::processCaptured(GPacket* packet) {
 
 	QList<GBuf> signalList = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
 	if (signalList.count() == 0) return;
-
-	int8_t signal = *pchar(signalList[0].data_);
+	qint8 signal = *pchar(signalList[0].data_);
 	if (signal < minSignal_) return;
 
 	GMac mac = dot11ExtHdr->ta();

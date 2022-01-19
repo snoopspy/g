@@ -6,16 +6,16 @@
 int main(int argc, char *argv[])
 {
 	GApp a(argc, argv);
-	WaWidget wj;
+	WaWidget wa;
 
 	QJsonObject& jo = GJson::instance();
-	jo["wj"] >> wj;
+	jo["wa"] >> wa;
 
-	wj.show();
+	wa.show();
 
-	GCommand* command = &wj.wifiJammer_.command_;
+	GCommand* command = &wa.wifiAnalyzer_.command_;
 	if (!command->open()) {
-		QMessageBox::warning(&wj, "Error", command->err->msg());
+		QMessageBox::warning(&wa, "Error", command->err->msg());
 		return -1;
 	}
 
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
 	command->close();
 
-	jo["wj"] << wj;
+	jo["wa"] << wa;
 
 	return res;
 }

@@ -58,6 +58,13 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 
 	GMac mac = dot11ExtHdr->ta();
 
-	emit attacked(mac, ssid);
+	GRadiotapHdr* radiotapHdr = packet->radiotapHdr_;
+	Q_ASSERT(radiotapHdr != nullptr);
+	QList<GBuf> signalList = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
+	if (signalList.count() == 0) return;
+	qint8 signal = *pchar(signalList[0].data_);
+	if (signal < minSignal_) return;
+
+	emit detected(mac, ssid, signal);
 }
 

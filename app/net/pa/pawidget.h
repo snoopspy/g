@@ -27,6 +27,6 @@ private slots:
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
 
-	void processProbeDetected(GMac mac, int8_t signal);
+	void processProbeDetected(GMac mac, int signal);
 	void processClosed();
 };
