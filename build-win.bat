@@ -50,6 +50,7 @@ copy ..\..\bin\pa.exe . & strip pa.exe
 copy ..\..\bin\snoopspy.exe . & strip snoopspy.exe
 copy ..\..\bin\sscon.exe . & strip sscon.exe
 copy ..\..\bin\sslog.exe . & strip sslog.exe
+copy ..\..\bin\wa.exe . & strip wa.exe
 copy ..\..\bin\WinDivert.dll .
 copy ..\..\bin\WinDivert64.sys .
 copy ..\..\setup\setup-win.txt .
