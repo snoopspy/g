@@ -25,7 +25,7 @@ public:
 	int minSignal_{-128};
 	int updateInterval_{1000};
 	bool channelHopping_{true};
-	ShowType showType_;
+	ShowType showType_{Average};
 	GObjRef getCommand() { return &command_; }
 
 public:

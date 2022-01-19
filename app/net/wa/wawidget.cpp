@@ -60,12 +60,16 @@ void WaWidget::tbStart_clicked(bool checked) {
 
 	devices_.clear();
 	tableWidget_->setRowCount(0);
+
+	if (!wifiAnalyzer_.open()) {
+		tbStop_->click();
+		QMessageBox::warning(this, "Error", wifiAnalyzer_.err->msg());
+		return;
+	}
+
 	timer_->setInterval(wifiAnalyzer_.updateInterval_);
 	timer_->start();
 
-	if (!wifiAnalyzer_.open()) {
-		QMessageBox::warning(this, "Error", wifiAnalyzer_.err->msg());
-	}
 	setControl();
 }
 
@@ -98,8 +102,7 @@ void WaWidget::tbOption_clicked(bool checked) {
 }
 
 void WaWidget::processDetected(GMac mac, QString ssid, int signal) {
-	//QString msg = QString("%1 %2 %3").arg(QString(mac)).arg(ssid).arg(signal);
-	//qDebug() << msg;
+	// qDebug() << QString("%1 %2 %3").arg(QString(mac)).arg(ssid).arg(signal); // gilgil temp 2022.01.19
 
 	{
 		QMutexLocker(&devices_.m_);
@@ -120,11 +123,8 @@ void WaWidget::processClosed() {
 
 void WaWidget::updateDevices() {
 	QMutexLocker(&devices_.m_);
-	qDebug() << "";
-	qDebug() << "device count =" << devices_.count(); // gilgil temp 2022.01.19
 	for (Devices::iterator it = devices_.begin(); it != devices_.end(); it++) {
 		Device& device = it.value();
-		qDebug() << QString("%1 %2").arg(device.ssid_).arg(device.signals_.count()); // gilgil temp 2022.01.19
 		if (device.signals_.count() == 0) continue;
 
 		if (device.progressBar_ == nullptr) {
@@ -175,6 +175,6 @@ void WaWidget::updateDevices() {
 
 		device.progressBar_->setValue(value);
 		device.signals_.clear();
-		qDebug() << QString("%1 %2 %3").arg(QString(device.mac_)).arg(device.ssid_).arg(value);
+		// qDebug() << QString("%1 %2 %3").arg(QString(device.mac_)).arg(device.ssid_).arg(value); // gilgil temp 2022.01.19
 	}
 }

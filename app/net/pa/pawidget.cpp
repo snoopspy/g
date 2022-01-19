@@ -55,8 +55,11 @@ void PaWidget::tbStart_clicked(bool checked) {
 	tableWidget_->setRowCount(0);
 
 	if (!probeAnalyzer_.open()) {
+		tbStop_->click();
 		QMessageBox::warning(this, "Error", probeAnalyzer_.err->msg());
+		return;
 	}
+
 	setControl();
 }
 
