@@ -77,3 +77,17 @@ if true; then
 	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/pa-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
+
+#
+# wa
+#
+if true; then
+	mkdir -p app/net/wa/temp-build
+	cd app/net/wa/temp-build
+	$QTBINDIR/qmake ../wa.pro $QMAKE_OPTION
+	$MAKEDIR/make -j$(nproc)
+	$MAKEDIR/make INSTALL_ROOT=./temp-build install
+	export ANDROID_SDK_ROOT=/root/sdk && $QTBINDIR/androiddeployqt --input android-wa-deployment-settings.json --output ./temp-build --android-platform android-30 --jdk /usr/lib/jvm/jdk8u275-b01 --gradle
+	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/wa-$(sed 's/"//g' ../../../../version.txt).apk
+	cd ../../../..
+fi

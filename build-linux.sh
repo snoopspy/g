@@ -20,6 +20,7 @@ cp ../../bin/snoopspy .; strip snoopspy
 cp ../../bin/sscon .; strip sscon
 #cp ../../bin/ssdemon .; strip ssdemon
 cp ../../bin/sslog .; strip sslog
+cp ../../bin/wa .; strip wa
 cp ../../setup/setup-linux.sh .
 mkdir ss
 cp ../../bin/ss/* ss/
