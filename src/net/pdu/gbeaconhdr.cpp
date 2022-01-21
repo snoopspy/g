@@ -75,7 +75,7 @@ TEST(BeaconHdr, typeTest) {
 	le16_t capabilities = fix->capabilities_;
 	EXPECT_EQ(capabilities, 0x0C11);
 
-	GBeaconHdr::Tag* tag = beaconHdr->tag();
+	GBeaconHdr::Tag* tag = beaconHdr->getTag();
 	le8_t num = tag->num_;
 	EXPECT_EQ(num, GBeaconHdr::TagSsidParameterSet);
 
