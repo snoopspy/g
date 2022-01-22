@@ -8,6 +8,7 @@ SUBDIRS += \
 	pcap-exam \
 	pcap-findalldevs-test \
 	snoopspy \
+	ssch \
 	sscon \
 	wa \
 
