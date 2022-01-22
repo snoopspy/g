@@ -1,8 +1,8 @@
 TARGET=../../../bin/ssdemon
-SRCS=$(wildcard *.cpp) $(wildcard ../../../src/net/demon/gdemon.cpp)
+SRCS=$(wildcard *.cpp) $(wildcard ../../../src/net/demon/gdemon.cpp) $(wildcard ../gaux.cpp)
 OBJS=$(SRCS:%.cpp=%.o)
 
-CPPFLAGS+=-g
+CPPFLAGS+=-g -I..
 CPPFLAGS+=-O2 # for release
 CPPFLAGS+=-Wall -Wextra
 CPPFLAGS+=-I../../../src/net/demon

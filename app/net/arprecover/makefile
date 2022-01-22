@@ -1,8 +1,8 @@
 TARGET=../../../bin/arprecover
-SRCS=$(wildcard *.cpp)
+SRCS=$(wildcard *.cpp) $(wildcard ../gaux.cpp)
 OBJS=$(SRCS:%.cpp=%.o)
 
-CPPFLAGS+=-g
+CPPFLAGS+=-g -I..
 CPPFLAGS+=-O2 # for release
 CPPFLAGS+=-Wall -Wextra
 LDLIBS+=-lpcap -pthread

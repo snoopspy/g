@@ -1,8 +1,8 @@
 TARGET=../../../bin/ssch
-SRCS=$(wildcard *.cpp) $(wildcard ../../../src/net/demon/iw.cpp)
+SRCS=$(wildcard *.cpp) $(wildcard ../../../src/net/demon/demon.cpp) $(wildcard ../gaux.cpp)
 OBJS=$(SRCS:%.cpp=%.o)
 
-CPPFLAGS+=-g
+CPPFLAGS+=-g -I../../../src/net/iw -I..
 CPPFLAGS+=-O2 # for release
 CPPFLAGS+=-Wall -Wextra
 LDLIBS+=-lpcap -pthread
