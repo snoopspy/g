@@ -12,12 +12,14 @@
 
 #ifndef Q_OS_WIN
 
-#include "net/gnet.h"
+#include <list>
+#include <string>
+#include "iwlib.h"
 
 // ----------------------------------------------------------------------------
 // GIw
 // ----------------------------------------------------------------------------
-struct G_EXPORT GIw {
+struct GIw {
 private: // for singleton
 	GIw();
 	virtual ~GIw();
@@ -26,9 +28,12 @@ protected:
 	int skfd_{-1};
 
 public:
-	int channel(QString intfName);
-	bool setChannel(QString intfName, int channel);
-	QList<int> channelList(QString intfName);
+	std::string error_;
+
+public:
+	int channel(std::string intfName);
+	bool setChannel(std::string intfName, int channel);
+	std::list<int> channelList(std::string intfName);
 
 public:
 	static GIw& instance();
