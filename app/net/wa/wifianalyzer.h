@@ -2,6 +2,7 @@
 
 #include <GCommand>
 #include <GMonitorDevice>
+#include <GChannelHop>
 
 struct G_EXPORT WifiAnalyzer : GStateObj {
 	Q_OBJECT
@@ -11,6 +12,7 @@ struct G_EXPORT WifiAnalyzer : GStateObj {
 	Q_PROPERTY(ShowType showType MEMBER showType_)
 	Q_PROPERTY(GObjRef monitorDevice READ getMonitorDevice)
 	Q_PROPERTY(GObjRef command READ getCommand)
+	Q_PROPERTY(GObjRef command READ getChannelHop)
 	Q_ENUMS(ShowType)
 
 public:
@@ -21,12 +23,13 @@ public:
 	};
 
 public:
-	GObjRef getMonitorDevice() { return &monitorDevice_; }
 	int minSignal_{-128};
 	int updateInterval_{1000};
 	bool channelHopping_{true};
 	ShowType showType_{Average};
+	GObjRef getMonitorDevice() { return &monitorDevice_; }
 	GObjRef getCommand() { return &command_; }
+	GObjRef getChannelHop() { return &channelHop_; }
 
 public:
 	Q_INVOKABLE WifiAnalyzer(QObject* parent = nullptr);
@@ -39,6 +42,7 @@ protected:
 public:
 	GMonitorDevice monitorDevice_;
 	GCommand command_;
+	GChannelHop channelHop_;
 
 public slots:
 	void processCaptured(GPacket* packet);

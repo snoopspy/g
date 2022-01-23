@@ -22,11 +22,18 @@ bool WifiAnalyzer::doOpen() {
 		return false;
 	}
 
+	channelHop_.intfName_ = monitorDevice_.intfName_;
+	if (!channelHop_.open()) {
+		err = channelHop_.err;
+		return false;
+	}
+
 	return true;
 }
 
 bool WifiAnalyzer::doClose() {
 	monitorDevice_.close();
+	channelHop_.close();
 	return true;
 }
 
