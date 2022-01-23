@@ -45,14 +45,16 @@ QList<GBuf> GRadiotapHdr::getInfo(BitNo bitNo) {
 	QList<GBuf> res;
 
 	char* value = pchar(this);
-	int offset = sizeof(GRadiotapHdr) - sizeof(Present);
+	int offset = sizeof(GRadiotapHdr);
 
 	Present* present = &present_;
-	int presentFlagCount = 0;
-	while (present != nullptr) {
-		presentFlagCount++;
-		offset += sizeof(Present);
+	int presentFlagCount = 1;
+	while (true) {
 		present = present->next();
+		if (present == nullptr)
+			break;
+		offset += sizeof(Present);
+		presentFlagCount++;
 	}
 
 	present = &present_;
