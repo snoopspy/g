@@ -44,7 +44,7 @@ struct G_EXPORT GRadiotapHdr {
 
 	struct Present {
 		Present* next() {
-			if (p_ && 0x80000000 != 0)
+			if ((p_ & 0x80000000) != 0)
 				return this + 1;
 			return nullptr;
 		}
