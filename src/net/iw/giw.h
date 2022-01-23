@@ -20,23 +20,27 @@
 // GIw
 // ----------------------------------------------------------------------------
 struct GIw {
-private: // for singleton
+public:
 	GIw();
+	GIw(std::string intfName);
 	virtual ~GIw();
 
 protected:
 	int skfd_{-1};
+	struct iw_range	range_;
+	std::string intfName_;
 
 public:
+	static const int BufSize = 256;
 	std::string error_;
 
 public:
-	int channel(std::string intfName);
-	bool setChannel(std::string intfName, int channel);
-	std::list<int> channelList(std::string intfName);
+	bool open(std::string intfName);
+	bool close();
 
-public:
-	static GIw& instance();
+	int channel();
+	bool setChannel(int channel);
+	std::list<int> channelList();
 };
 
 #endif
