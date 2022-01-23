@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GCommand>
 #include <GMonitorDevice>
 #include <GChannelHop>
+#include <GCommand>
 
 struct G_EXPORT WifiAnalyzer : GStateObj {
 	Q_OBJECT
@@ -11,8 +11,8 @@ struct G_EXPORT WifiAnalyzer : GStateObj {
 	Q_PROPERTY(bool channelHopping MEMBER channelHopping_)
 	Q_PROPERTY(ShowType showType MEMBER showType_)
 	Q_PROPERTY(GObjRef monitorDevice READ getMonitorDevice)
+	Q_PROPERTY(GObjRef channelHop READ getChannelHop)
 	Q_PROPERTY(GObjRef command READ getCommand)
-	Q_PROPERTY(GObjRef command READ getChannelHop)
 	Q_ENUMS(ShowType)
 
 public:
@@ -28,8 +28,8 @@ public:
 	bool channelHopping_{true};
 	ShowType showType_{Average};
 	GObjRef getMonitorDevice() { return &monitorDevice_; }
-	GObjRef getCommand() { return &command_; }
 	GObjRef getChannelHop() { return &channelHop_; }
+	GObjRef getCommand() { return &command_; }
 
 public:
 	Q_INVOKABLE WifiAnalyzer(QObject* parent = nullptr);
