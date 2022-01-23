@@ -96,10 +96,10 @@ std::list<int> GIw::channelList() {
 // ----------------------------------------------------------------------------
 #ifdef GTEST
 #include <gtest/gtest.h>
-#include <QDebug>
 
 TEST(GIw, channelTest) {
 	GIw iw("wlan0");
+	std::cerr << "wlan0 channel is " << iw.channel() << std::endl;
 	int channel = iw.channel();
 	EXPECT_NE(channel, -1);
 }
@@ -112,7 +112,11 @@ TEST(GIw, setChannelTest) {
 
 TEST(GIw, channelListTest) {
 	GIw iw("wlan0");
-	qDebug() << "wlan0 channel list is " << iw.channelList();
+	std::list<int> channelList = iw.channelList();
+	std::cerr << "wlan0 channel list is ";
+	for (int channel: channelList)
+		std::cerr << channel << " ";
+	std::cerr << std::endl;
 }
 
 #endif // GTEST
