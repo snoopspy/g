@@ -16,7 +16,6 @@ int main(int argc, char *argv[])
 	GCommand* command = &pw.probeAnalyzer_.command_;
 	if (!command->open()) {
 		QMessageBox::warning(&pw, "Error", command->err->msg());
-		return -1;
 	}
 
 	int res = a.exec();

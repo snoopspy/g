@@ -16,7 +16,6 @@ int main(int argc, char *argv[])
 	GCommand* command = &wa.wifiAnalyzer_.command_;
 	if (!command->open()) {
 		QMessageBox::warning(&wa, "Error", command->err->msg());
-		return -1;
 	}
 
 	int res = a.exec();
