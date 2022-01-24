@@ -17,15 +17,20 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GMonitorDevice : GPcapDevice {
 	Q_OBJECT
+	Q_PROPERTY(bool checkRadiotapLen MEMBER checkRadiotapLen_)
+
+public:
+	bool checkRadiotapLen_{true};
 
 public:
 	Q_INVOKABLE GMonitorDevice(QObject* parent = nullptr);
 	~GMonitorDevice() override;
 
 protected:
-	int16_t radiotapLen_{-1};
-
-protected:
 	bool doOpen() override;
 	bool doClose() override;
+
+protected:
+	int16_t getRadiotapLenFromFile();
+	int16_t getRadiotapLenFromDevice();
 };

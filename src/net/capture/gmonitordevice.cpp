@@ -10,62 +10,129 @@ GMonitorDevice::~GMonitorDevice() {
 }
 
 bool GMonitorDevice::doOpen() {
-	if (radiotapLen_ == -1) {
-		GSyncPcapDevice device;
-		device.intfName_ = intfName_;
-		if (!device.open()) {
-			err = device.err;
+	bool res = false;
+	int16_t  radiotapLen = -1;
+
+	if (checkRadiotapLen_) {
+		radiotapLen = getRadiotapLenFromFile();
+		if (radiotapLen == -1)
+			radiotapLen = getRadiotapLenFromDevice();
+		if (radiotapLen == -1) {
+			SET_ERR(GErr::Fail, "Count not get radiotap len");
 			return false;
 		}
 
-		GPacket::Dlt dlt = device.dlt();
-		if (dlt != GPacket::Dot11) {
-			QString msg = QString("data link type is not do11 %1").arg(GPacket::dltToString(dlt));
+		QString backupFilter = filter_;
+		radiotapLen = htons(radiotapLen);
+		QString lengthFilter = QString("radio[2:2]==%1").arg(radiotapLen);
+		if (filter_ == "")
+			filter_ = lengthFilter;
+		else
+			filter_ = QString("(%1) and (%2)").arg(filter_).arg(lengthFilter);
+
+		res = GPcapDevice::doOpen();
+		filter_ = backupFilter;
+	} else {
+		res = GPcapDevice::doOpen();
+	}
+
+	if (res) {
+		GPacket::Dlt _dlt = dlt();
+		if (_dlt != GPacket::Dot11) {
+			QString msg = QString("Data link type(%1) must be GPacket::Dot11").arg(GPacket::dltToString(_dlt));
 			SET_ERR(GErr::Fail, msg);
 			return false;
 		}
-
-		while (true) {
-			GDot11Packet packet;
-			GPacket::Result res = device.read(&packet);
-			switch (res) {
-				case GPacket::Eof:
-					SET_ERR(GErr::Fail, "device.read return Eof");
-					return false;
-				case GPacket::Fail:
-					SET_ERR(GErr::Fail, "device.read return Fail");
-					return false;
-				case GPacket::None:
-					continue;
-				case GPacket::Ok:
-					break;
-			}
-			GRadiotapHdr* radiotapHdr = packet.radiotapHdr_;
-			if (radiotapHdr == nullptr) {
-				SET_ERR(GErr::ObjectIsNull, "ratiotapHdr is null");
-				return false;
-			}
-			radiotapLen_ = radiotapHdr->len_;
-			qDebug() << QString("radioLen=%1(0x%2)").arg(radiotapLen_).arg(QString::number(radiotapLen_, 16));
-			break;
-		}
-		device.close();
 	}
-
-	QString backupFilter = filter_;
-	int16_t radiotapLen = htons(radiotapLen_);
-	QString lengthFilter = QString("radio[2:2]==%1").arg(radiotapLen);
-	if (filter_ == "")
-		filter_ = lengthFilter;
-	else
-		filter_ = QString("(%1) and (%2)").arg(filter_).arg(lengthFilter);
-
-	bool res = GPcapDevice::doOpen();
-	filter_ = backupFilter;
-
 	return res;
 }
 
 bool GMonitorDevice::doClose() {
 	return GPcapDevice::doClose();
+}
+
+int16_t GMonitorDevice::getRadiotapLenFromFile() {
+	int radiotapLen = -1;
+
+	GIntf* intf = GNetInfo::instance().intfList().findByName(intfName_);
+	if (intf == nullptr) {
+		QString msg = QString("intf(%1) is null").arg(intfName_);
+		SET_ERR(GErr::Fail, msg);
+		return -1;
+	}
+	GMac mac = intf->mac();
+	FILE* fp = fopen("radiotaplen.txt", "rt");
+	if (fp != nullptr) {
+		while (true) {
+			char macBuf[256];
+			int r;
+			int res = fscanf(fp, "%s %d", macBuf, &r);
+			if (res != 2) break;
+			if (mac == GMac(macBuf)) {
+				radiotapLen = r;
+				qDebug() << QString("radiotapLen in file %1(0x%2)").arg(radiotapLen).arg(QString::number(radiotapLen, 16));
+				break;
+			}
+		}
+		fclose(fp);
+	}
+	return int16_t(radiotapLen);
+}
+
+int16_t GMonitorDevice::getRadiotapLenFromDevice() {
+	int radiotapLen = -1;
+	GSyncPcapDevice device;
+	device.intfName_ = intfName_;
+	if (!device.open()) {
+		err = device.err;
+		return -1;
+	}
+
+	GPacket::Dlt _dlt = device.dlt();
+	if (_dlt != GPacket::Dot11) {
+		QString msg = QString("Data link type(%1) must be GPacket::Dot11").arg(GPacket::dltToString(_dlt));
+		SET_ERR(GErr::Fail, msg);
+		return -1;
+	}
+
+	while (true) {
+		GDot11Packet packet;
+		GPacket::Result res = device.read(&packet);
+		switch (res) {
+			case GPacket::Eof:
+				SET_ERR(GErr::Fail, "device.read return Eof");
+				return false;
+			case GPacket::Fail:
+				SET_ERR(GErr::Fail, "device.read return Fail");
+				return false;
+			case GPacket::None:
+				continue;
+			case GPacket::Ok:
+				break;
+		}
+		GRadiotapHdr* radiotapHdr = packet.radiotapHdr_;
+		if (radiotapHdr == nullptr) {
+			SET_ERR(GErr::ObjectIsNull, "ratiotapHdr is null");
+			return -1;
+		}
+		radiotapLen = radiotapHdr->len_;
+		qDebug() << QString("real radiotapLen %1(0x%2)").arg(radiotapLen).arg(QString::number(radiotapLen, 16));
+
+		GIntf* intf = GNetInfo::instance().intfList().findByName(intfName_);
+		if (intf == nullptr) {
+			QString msg = QString("intf(%1) is null").arg(intfName_);
+			SET_ERR(GErr::Fail, msg);
+			return -1;
+		}
+		GMac mac = intf->mac();
+		FILE* fp = fopen("radiotaplen.txt", "at");
+		if (fp != nullptr) {
+			fprintf(fp, "%s %d\n", qPrintable(QString(mac)), radiotapLen);
+			fclose(fp);
+		}
+		break;
+	}
+	device.close();
+
+	return int16_t(radiotapLen);
 }
