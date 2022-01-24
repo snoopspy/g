@@ -44,7 +44,6 @@ struct AlignSizeInfo {
 QList<GBuf> GRadiotapHdr::getInfo(BitNo bitNo) {
 	QList<GBuf> res;
 
-	char* value = pchar(this);
 	int offset = sizeof(GRadiotapHdr);
 
 	Present* present = &present_;
@@ -68,7 +67,7 @@ QList<GBuf> GRadiotapHdr::getInfo(BitNo bitNo) {
 
 				int size = _alignSizeInfo[i].size_;
 				if (i == bitNo) {
-					gbyte* p = pbyte(value) + offset;
+					gbyte* p = pbyte(this) + offset;
 					GBuf buf(p, size);
 					res.push_back(buf);
 				}
