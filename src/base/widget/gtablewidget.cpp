@@ -24,7 +24,7 @@ GTableWidget::GTableWidget(QWidget *parent) : QTableWidget(parent) {
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
 	horizontalHeader()->setFixedHeight(75);
-	verticalHeader()->setDefaultSectionSize(verticalHeader()->defaultSectionSize() * 3 / 2);
+//	verticalHeader()->setDefaultSectionSize(verticalHeader()->defaultSectionSize() * 3 / 2); // gilgil temp 2022.01.25
 }
 
 #endif
