@@ -29,7 +29,7 @@ bool GCommand::doOpen() {
 
 	for (GObj* obj: openCommands_) {
 		GCommandItem* item = PCommandItem(obj);
-		for (QString command: item->commands_) {
+		for (QString& command: item->commands_) {
 			if (command == "") continue;
 			qDebug() << command;
 
@@ -76,7 +76,7 @@ bool GCommand::doClose() {
 
 	for (GObj* obj: closeCommands_) {
 		GCommandItem* item = PCommandItem(obj);
-		for (QString command: item->commands_) {
+		for (QString& command: item->commands_) {
 			if (command == "") continue;
 			qDebug() << command;
 

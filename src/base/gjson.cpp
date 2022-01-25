@@ -86,9 +86,8 @@ void operator << (QJsonValueRef ref, const QList<int>& intList) {
 
 void operator >> (const QJsonValue val, QList<int>& intList) {
 	if (val.isNull()) return;
-	QString s = val.toString();
 	QStringList strList = val.toString().split(',');
-	for (QString s: strList) {
+	for (QString& s: strList) {
 		intList.append(s.toInt());
 	}
 }

@@ -243,7 +243,7 @@ GObj* GGraphWidget::createInstance(QString className) {
 	if (node == nullptr) return nullptr;
 
 	QString objectName = node->metaObject()->className();
-	for (QString removePrefixName: removePrefixNames_) {
+	for (QString& removePrefixName: removePrefixNames_) {
 		if (objectName.startsWith(removePrefixName))
 			objectName = objectName.mid(removePrefixName.length());
 	}

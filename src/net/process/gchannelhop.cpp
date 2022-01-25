@@ -38,7 +38,7 @@ bool GChannelHop::doClose() {
 void GChannelHop::run() {
 	qDebug() << "beg"; // gilgil temp 2022.01.24
 	QList<int> channelList;
-	for (QString c: channelList_) {
+	for (QString& c: channelList_) {
 		int channel = c.toInt();
 		if (channel != 0)
 			channelList.push_back(channel);

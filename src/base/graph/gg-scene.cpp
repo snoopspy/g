@@ -140,12 +140,12 @@ void GGScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 					Q_ASSERT(graph != nullptr);
 
 					QStringList _signalList = startText->node_->signalList();
-					for (QString name: graphWidget_->ignoreSignalNames_) {
+					for (QString& name: graphWidget_->ignoreSignalNames_) {
 						_signalList.removeAll(name);
 					}
 
 					QStringList _slotList = endText->node_->slotList();
-					for (QString name: graphWidget_->ignoreSlotNames_) {
+					for (QString& name: graphWidget_->ignoreSlotNames_) {
 						_slotList.removeAll(name);
 					}
 
