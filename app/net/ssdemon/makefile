@@ -1,16 +1,22 @@
 TARGET=../../../bin/ssdemon
-SRCS=$(wildcard *.cpp) $(wildcard ../../../src/net/demon/gdemon.cpp) $(wildcard ../gaux.cpp)
+SRCS=$(wildcard *.cpp)
+SRCS+=../../../src/net/demon/gdemon.cpp
+SRCS+=../../../src/net/iw/giw.cpp
+SRCS+=../gaux.cpp
 OBJS=$(SRCS:%.cpp=%.o)
+SRCS2=../../../src/net/iw/iwlib.c
+OBJS2=$(SRCS2:%.c=%.o)
+
 
 CPPFLAGS+=-g -I..
 CPPFLAGS+=-O2 # for release
 CPPFLAGS+=-Wall -Wextra
-CPPFLAGS+=-I../../../src/net/demon
+CPPFLAGS+=-I../../../src
 LDLIBS+=-lpcap -pthread -lnetfilter_queue -lmnl -lnfnetlink
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(OBJS) $(OBJS2)
 	$(LINK.cpp) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 clean:
@@ -36,5 +42,11 @@ android-uninstall:
 	adb exec-out "su -c 'mount -o ro,remount /system'"
 
 test:
+	@echo "SRCS"
 	@echo $(SRCS)
+	@echo "SRCS2"
+	@echo $(SRCS2)
+	@echo "OBJS"
 	@echo $(OBJS)
+	@echo "OBJS2"
+	@echo $(OBJS2)
