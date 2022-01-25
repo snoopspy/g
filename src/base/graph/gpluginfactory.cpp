@@ -210,6 +210,7 @@ void GPluginFactory::loadOther() {
 // ----------------------------------------------------------------------------
 // Process
 // ----------------------------------------------------------------------------
+#include <GChannelHop>
 #include <GClientHelloSplit>
 #include <GCorrectChecksum>
 #include <GDnsProcessor>
@@ -217,6 +218,7 @@ void GPluginFactory::loadOther() {
 #include <GPacketDebug>
 
 void GPluginFactory::loadProcess() {
+	qRegisterMetaType<GChannelHop*>();
 	qRegisterMetaType<GClientHelloSplit*>();
 	qRegisterMetaType<GCorrectChecksum*>();
 	qRegisterMetaType<GDnsProcessor*>();
@@ -224,6 +226,7 @@ void GPluginFactory::loadProcess() {
 	qRegisterMetaType<GPacketDebug*>();
 
 	ItemCategory* category = new ItemCategory("process");
+	category->items_.push_back(new ItemNode("GChannelHop"));
 	category->items_.push_back(new ItemNode("GClientHelloSplit"));
 	category->items_.push_back(new ItemNode("GCorrectChecksum"));
 	category->items_.push_back(new ItemNode("GDnsProcessor"));

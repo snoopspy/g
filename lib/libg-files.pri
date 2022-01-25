@@ -89,7 +89,6 @@ SOURCES += \
 	$${PWD}/../src/net/flow/gtcpflowmgr.cpp \
 	$${PWD}/../src/net/flow/gudpflowmgr.cpp \
 	$${PWD}/../src/net/iw/giw.cpp \
-	$${PWD}/../src/net/iw/gchannelhop.cpp \
 	$${PWD}/../src/net/iw/iwlib.c \
 	$${PWD}/../src/net/manage/ghostdelete.cpp \
 	$${PWD}/../src/net/manage/ghostdetect.cpp \
@@ -128,6 +127,7 @@ SOURCES += \
 	$${PWD}/../src/net/pdu/gradiotaphdr.cpp \
 	$${PWD}/../src/net/pdu/gtcphdr.cpp \
 	$${PWD}/../src/net/pdu/gudphdr.cpp \
+	$${PWD}/../src/net/process/gchannelhop.cpp \
 	$${PWD}/../src/net/process/gclienthellosplit.cpp \
 	$${PWD}/../src/net/process/gcorrectchecksum.cpp \
 	$${PWD}/../src/net/process/gdnsprocessor.cpp \
@@ -231,7 +231,6 @@ HEADERS += \
 	$${PWD}/../src/net/flow/gtcpflowmgr.h \
 	$${PWD}/../src/net/flow/gudpflowmgr.h \
 	$${PWD}/../src/net/iw/giw.h \
-	$${PWD}/../src/net/iw/gchannelhop.h \
 	$${PWD}/../src/net/iw/iwlib.h \
 	$${PWD}/../src/net/iw/wireless.h \
 	$${PWD}/../src/net/manage/ghostdelete.h \
@@ -272,6 +271,7 @@ HEADERS += \
 	$${PWD}/../src/net/pdu/gradiotaphdr.h \
 	$${PWD}/../src/net/pdu/gtcphdr.h \
 	$${PWD}/../src/net/pdu/gudphdr.h \
+	$${PWD}/../src/net/process/gchannelhop.h \
 	$${PWD}/../src/net/process/gclienthellosplit.h \
 	$${PWD}/../src/net/process/gcorrectchecksum.h \
 	$${PWD}/../src/net/process/gdnsprocessor.h \
