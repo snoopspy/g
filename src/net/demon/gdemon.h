@@ -92,7 +92,11 @@ struct GDemon {
 
 		CmdRiOpen = 14,
 		CmdRiClose = 15,
-		CmdRiWrite = 16
+		CmdRiWrite = 16,
+
+		CmdChOpen = 17,
+		CmdChClose = 18,
+		CmdChSetChannel = 19
 	};
 	typedef Cmd *PCmd;
 
@@ -337,6 +341,33 @@ struct GDemon {
 	struct RiWrite : Header {
 		int32_t size_;
 		unsigned char* data_{nullptr};
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	//
+	// channel
+	//
+	struct ChOpenReq : Header {
+		std::string intfName_;
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	struct ChOpenRes : Header {
+		bool result_{false};
+		std::string errBuf_{"no error"};
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	struct ChCloseReq : Header {
+		int32_t encode(pchar buffer, int32_t size);
+		int32_t decode(pchar buffer, int32_t size);
+	};
+
+	struct ChSetChannel : Header {
+		int32_t channel_;
 		int32_t encode(pchar buffer, int32_t size);
 		int32_t decode(pchar buffer, int32_t size);
 	};

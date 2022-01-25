@@ -226,6 +226,18 @@ void GDemonSession::run() {
 				if (ri_ == nullptr) ri_ = new GDemonRawIp(this);
 				active = ri_->processRiWrite(buf, size);
 				break;
+			case CmdChOpen:
+				if (ch_ == nullptr) ch_ = new GDemonChannel(this);
+				active = ch_->processChOpen(buf, size);
+				break;
+			case CmdChClose:
+				if (ch_ == nullptr) ch_ = new GDemonChannel(this);
+				active = ch_->processChClose(buf, size);
+				break;
+			case CmdChSetChannel:
+				if (ch_ == nullptr) ch_ = new GDemonChannel(this);
+				active = ch_->processChSetChannel(buf, size);
+				break;
 			default:
 				GTRACE("invalid cmd %d", header->cmd_);
 				active = false;
@@ -645,7 +657,6 @@ GDemonPcap::~GDemonPcap() {
 
 GDemon::PcapOpenRes GDemonPcap::open(PcapOpenReq req) {
 	PcapOpenRes res;
-	res.result_ = false;
 
 	if (pcap_ != nullptr) {
 		res.errBuf_ = "pcap is already opened";
@@ -834,7 +845,6 @@ GDemonNetFilter::~GDemonNetFilter() {
 #include <fcntl.h> // for F_GETFL
 GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 	NfOpenRes res;
-	res.result_ = false;
 
 	if (h_ != nullptr) {
 		res.errBuf_ = "netfilter is already opened";
@@ -1097,7 +1107,6 @@ GDemon::RiOpenRes GDemonRawIp::open(RiOpenReq req) {
 	(void)req;
 
 	RiOpenRes res;
-	res.result_ = false;
 
 	if (sd_ != 0) {
 		res.errBuf_ = "sd_ is already opened";
@@ -1191,6 +1200,94 @@ bool GDemonRawIp::processRiWrite(pchar buf, int32_t size) {
 	int res = ::sendto(sd_, write.data_, write.size_, 0, (sockaddr*)&sin, sizeof(sin));
 	if (res < 0) {
 		GTRACE("sendto return %d(%s) buf len=%d", res, strerror(errno), write.len_);
+		return false;
+	}
+
+	return true;
+}
+
+// ----------------------------------------------------------------------------
+// GDemonChannel
+// ----------------------------------------------------------------------------
+GDemonChannel::GDemonChannel(GDemonSession* session) : session_(session) {
+}
+
+GDemonChannel::~GDemonChannel() {
+	close();
+}
+
+GDemon::ChOpenRes GDemonChannel::open(ChOpenReq req)
+{
+	ChOpenRes res;
+
+	if (!iw_.open(req.intfName_)) {
+		res.errBuf_ = std::string("iw_.open return false %s") + iw_.error_;
+		GTRACE("%s", res.errBuf_.data());
+		close();
+		return res;
+	}
+	res.result_ = true;
+
+	return res;
+}
+
+void GDemonChannel::close() {
+	iw_.close();
+}
+
+bool GDemonChannel::processChOpen(pchar buf, int32_t size) {
+	ChOpenReq req;
+
+	int32_t decLen = req.decode(buf, size);
+	if (decLen == -1) {
+		GTRACE("req.decode return =1");
+		return false;
+	}
+
+	ChOpenRes res = open(req);
+	{
+		GSpinLockGuard guard(session_->sendBufLock_);
+		int32_t encLen = res.encode(session_->sendBuf_, MaxBufSize);
+		if (encLen == -1) {
+			GTRACE("res.encode return -1");
+			return false;
+		}
+
+		int sendLen = ::send(session_->sd_, session_->sendBuf_, encLen, 0);
+		if (sendLen == 0 || sendLen == -1) {
+			GTRACE("send return %d", sendLen);
+			return false;
+		}
+	}
+
+	if (res.result_)
+		active_ = true;
+
+	return true;
+}
+
+bool GDemonChannel::processChClose(pchar buf, int32_t size) {
+	ChCloseReq req;
+	int32_t decLen = req.decode(buf, size);
+	if (decLen == -1) {
+		GTRACE("req.decode return =1");
+		return false;
+	}
+
+	close();
+	return false;
+}
+
+bool GDemonChannel::processChSetChannel(pchar buf, int32_t size) {
+	ChSetChannel setChannel;
+	int32_t decLen = setChannel.decode(buf, size);
+	if (decLen == -1) {
+		GTRACE("req.decode return -1");
+		return false;
+	}
+
+	if (!iw_.setChannel(setChannel.channel_)) {
+		GTRACE("iw_.setChannel(%d) return false %s", setChannel.channel_, iw_.error_.data());
 		return false;
 	}
 

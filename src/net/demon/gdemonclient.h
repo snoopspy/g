@@ -61,5 +61,10 @@ struct GDemonClient : GDemon {
 	void riClose();
 	bool riWrite(RiWrite write);
 
+	// channel
+	ChOpenRes chOpen(std::string intfName);
+	void chClose();
+	bool chSetChannel(int channel);
+
 	static GDemonClient& instance(std::string ip, uint16_t port);
 };

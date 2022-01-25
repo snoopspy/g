@@ -15,6 +15,9 @@
 #include <list>
 #include <string>
 #include "iwlib.h"
+#ifdef Q_OS_ANDROID
+#include "net/demon/gdemonclient.h"
+#endif
 
 // ----------------------------------------------------------------------------
 // GIw
@@ -41,6 +44,11 @@ public:
 	int channel();
 	bool setChannel(int channel);
 	std::list<int> channelList();
+
+#ifdef Q_OS_ANDROID
+protected:
+  GDemonClient* demonClient_{nullptr};
+#endif
 };
 
-#endif
+#endif // Q_OS_WIN

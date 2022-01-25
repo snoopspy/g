@@ -3,6 +3,7 @@
 #include <string.h>
 
 #ifndef Q_OS_WIN
+
 // ----------------------------------------------------------------------------
 // GIw
 // ----------------------------------------------------------------------------
@@ -15,6 +16,12 @@ GIw::GIw(std::string intfName) {
 
 GIw::~GIw() {
 	close();
+#ifdef Q_OS_ANDROID
+	if (demonClient_ != nullptr) {
+		delete demonClient_;
+		demonClient_ = nullptr;
+	}
+#endif
 }
 
 bool GIw::open(std::string intfName) {
@@ -69,6 +76,20 @@ int GIw::channel() {
 	return channel;
 }
 
+#ifdef Q_OS_ANDROID
+#include "net/demon/gtrace.h"
+bool GIw::setChannel(int channel) {
+	if (demonClient_ == nullptr) {
+		demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
+		GDemon::ChOpenRes res = demonClient_->chOpen(intfName_);
+		if (!res.result_) {
+			GTRACE("%s", demonClient_->error_.data());
+		  return false;
+		}
+	}
+	demonClient_->chSetChannel(channel);
+}
+#else
 bool GIw::setChannel(int channel) {
 	double freq = channel;
 	struct iwreq wrq;
@@ -83,6 +104,7 @@ bool GIw::setChannel(int channel) {
 	}
 	return true;
 }
+#endif
 
 std::list<int> GIw::channelList() {
 	std::list<int> result;
