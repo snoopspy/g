@@ -11,7 +11,9 @@
 #pragma once
 
 #include "base/gstateobj.h"
+#ifdef Q_OS_ANDROID
 #include "net/demon/gdemonclient.h"
+#endif
 #include <QProcess>
 
 // ----------------------------------------------------------------------------

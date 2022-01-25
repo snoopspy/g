@@ -12,7 +12,9 @@
 
 #include "gpcapcapture.h"
 #include "net/gnetinfo.h"
+#ifdef Q_OS_ANDROID
 #include "net/demon/gdemonclient.h"
+#endif
 
 // ----------------------------------------------------------------------------
 // GPcapDevice
