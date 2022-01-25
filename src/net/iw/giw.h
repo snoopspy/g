@@ -10,6 +10,10 @@
 
 #pragma once
 
+#ifdef QT_CORE_LIB
+#include <QtCore>
+#endif // QT_CORE_LIB
+
 #ifndef Q_OS_WIN
 
 #include <list>
