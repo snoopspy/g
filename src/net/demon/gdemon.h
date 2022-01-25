@@ -17,7 +17,6 @@
 #include <list>
 #include <string>
 #include <unistd.h>
-#include <thread>
 
 #include <pcap.h>
 
