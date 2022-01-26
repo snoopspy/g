@@ -85,7 +85,7 @@ void GPluginFactory::loadCapture() {
 #endif
 	category->items_.push_back(new ItemNode("GAutoArpSpoof"));
 	category->items_.push_back(new ItemNode("GMonitorDevice"));
-#if defined(Q_OS_LINUX)
+#ifdef Q_OS_LINUX
 	category->items_.push_back(new ItemNode("GNetFilter"));
 #endif
 	category->items_.push_back(new ItemNode("GPcapDevice"));
@@ -218,7 +218,9 @@ void GPluginFactory::loadOther() {
 #include <GPacketDebug>
 
 void GPluginFactory::loadProcess() {
+#ifndef Q_OS_WIN
 	qRegisterMetaType<GChannelHop*>();
+#endif
 	qRegisterMetaType<GClientHelloSplit*>();
 	qRegisterMetaType<GCorrectChecksum*>();
 	qRegisterMetaType<GDnsProcessor*>();

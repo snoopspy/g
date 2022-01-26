@@ -10,8 +10,6 @@
 
 #pragma once
 
-#ifndef Q_OS_WIN
-
 #include <QDebug>
 #include <QList>
 #ifdef Q_OS_ANDROID
@@ -46,5 +44,3 @@ public:
 	bool setChannel(int channel);
 	QList<int> channelList();
 };
-
-#endif // Q_OS_WIN

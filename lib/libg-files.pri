@@ -88,8 +88,6 @@ SOURCES += \
 	$${PWD}/../src/net/flow/gipflowmgr.cpp \
 	$${PWD}/../src/net/flow/gtcpflowmgr.cpp \
 	$${PWD}/../src/net/flow/gudpflowmgr.cpp \
-	$${PWD}/../src/net/iw/giw.cpp \
-	$${PWD}/../src/net/iw/iwlib.c \
 	$${PWD}/../src/net/manage/ghostdelete.cpp \
 	$${PWD}/../src/net/manage/ghostdetect.cpp \
 	$${PWD}/../src/net/manage/ghostscan.cpp \
@@ -230,9 +228,6 @@ HEADERS += \
 	$${PWD}/../src/net/flow/gipflowmgr.h \
 	$${PWD}/../src/net/flow/gtcpflowmgr.h \
 	$${PWD}/../src/net/flow/gudpflowmgr.h \
-	$${PWD}/../src/net/iw/giw.h \
-	$${PWD}/../src/net/iw/iwlib.h \
-	$${PWD}/../src/net/iw/wireless.h \
 	$${PWD}/../src/net/manage/ghostdelete.h \
 	$${PWD}/../src/net/manage/ghostdetect.h \
 	$${PWD}/../src/net/manage/ghostscan.h \
@@ -284,6 +279,13 @@ HEADERS += \
 	$${PWD}/../src/net/write/gwrite.h
 
 linux {
+HEADERS += \
+	$${PWD}/../src/net/iw/giw.h \
+	$${PWD}/../src/net/iw/iwlib.h \
+	$${PWD}/../src/net/iw/wireless.h
+SOURCES += \
+	$${PWD}/../src/net/iw/giw.cpp \
+	$${PWD}/../src/net/iw/iwlib.c \
 }
 win32 {
 	SOURCES += $${PWD}/../src/net/_win/gipadapterinfo.cpp

@@ -9,12 +9,12 @@ SUBDIRS += \
 	pcap-findalldevs-test \
 	snoopspy \
 	sscon \
-	wa \
 
 linux {
 SUBDIRS += \
 	corepcap \
-	ssdemon
+	ssdemon \
+	wa
 }
 
 win32 {

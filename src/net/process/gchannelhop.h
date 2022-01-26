@@ -10,11 +10,11 @@
 
 #pragma once
 
-#ifndef Q_OS_WIN
-
 #include "base/gstateobj.h"
 #include "base/sys/gthread.h"
 #include "base/sys/gwaitevent.h"
+
+#ifndef Q_OS_WIN
 
 #include "net/gnetinfo.h"
 #include "net/iw/giw.h"
