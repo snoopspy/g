@@ -189,24 +189,3 @@ struct GDemonRawIp : GDemon {
 protected:
 	int sd_{0};
 };
-
-// ----------------------------------------------------------------------------
-// GDemonChannel
-// ----------------------------------------------------------------------------
-struct GDemonChannel : GDemon {
-	GDemonChannel(GDemonSession* session);
-	~GDemonChannel() override;
-
-	GDemonSession* session_;
-	bool active_{false};
-
-	ChOpenRes open(ChOpenReq req);
-	void close();
-
-	bool processChOpen(pchar buf, int32_t size);
-	bool processChClose(pchar buf, int32_t size);
-	bool processChSetChannel(pchar buf, int32_t size);
-
-protected:
-	GIw iw_;
-};

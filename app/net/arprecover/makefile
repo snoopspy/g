@@ -1,5 +1,5 @@
 TARGET=../../../bin/arprecover
-SRCS=$(wildcard *.cpp) $(wildcard ../gaux.cpp)
+SRCS=$(wildcard *.cpp) ../gaux.cpp
 OBJS=$(SRCS:%.cpp=%.o)
 
 CPPFLAGS+=-g -I..

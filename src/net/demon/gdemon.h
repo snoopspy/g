@@ -91,11 +91,7 @@ struct GDemon {
 
 		CmdRiOpen = 14,
 		CmdRiClose = 15,
-		CmdRiWrite = 16,
-
-		CmdChOpen = 17,
-		CmdChClose = 18,
-		CmdChSetChannel = 19
+		CmdRiWrite = 16
 	};
 	typedef Cmd *PCmd;
 
