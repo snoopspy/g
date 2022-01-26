@@ -3,6 +3,8 @@
 
 WifiAnalyzer::WifiAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
+	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -c1\""}));
+	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -d\""}));
 	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m2\""}));
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 #endif
@@ -71,7 +73,6 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	QList<GBuf> signalList = radiotapHdr->getInfo(GRadiotapHdr::Channel);
 	if (signalList.count() == 0) return;
 	int16_t freq = *reinterpret_cast<uint16_t*>(signalList[0].data_);
-	qDebug() << freq; // gilgil temp 2022.01.26
 	int channel = GRadiotapHdr::freqToChannel(freq);
 
 	signalList = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
