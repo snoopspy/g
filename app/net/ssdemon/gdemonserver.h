@@ -22,8 +22,6 @@
 #include <linux/netfilter.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
 
-#include "net/iw/giw.h"
-
 // ----------------------------------------------------------------------------
 // GDemonServer
 // ----------------------------------------------------------------------------

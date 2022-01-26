@@ -20,7 +20,7 @@ GChannelHop::~GChannelHop() {
 
 bool GChannelHop::doOpen() {
 	if (!iw_.open(qPrintable(intfName_))) {
-		SET_ERR(GErr::Fail, iw_.error_.data());
+		SET_ERR(GErr::Fail, iw_.error_);
 		return false;
 	}
 	thread_.start();
@@ -44,17 +44,19 @@ void GChannelHop::run() {
 			channelList.push_back(channel);
 	}
 	if (channelList.count() == 0) {
-		std::list<int> cl = iw_.channelList();
+		QList<int> cl = iw_.channelList();
 		for (int c: cl)
 			channelList.push_back(c);
 	}
 	qDebug() << channelList; // gilgil temp 2022.01.24
 	while (active()) {
 		for (int channel: channelList) {
-			if (!iw_.setChannel(channel))
-				qDebug() << iw_.error_.data();
-			qDebug() << "current channel =" << channel; // gilgil temp 2022.01.24
-			emit channelChanged(channel);
+			if (!iw_.setChannel(channel)) {
+				qDebug() << iw_.error_;
+			} else {
+				qDebug() << "current channel =" << channel; // gilgil temp 2022.01.24
+				emit channelChanged(channel);
+			}
 			if (we_.wait(hopInterval_)) break;
 		}
 	}
