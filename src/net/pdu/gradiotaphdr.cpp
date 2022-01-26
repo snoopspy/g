@@ -91,6 +91,26 @@ GRadiotapHdr* GRadiotapHdr::check(gbyte* p, uint32_t size) {
 	return radiotapHdr;
 }
 
+int GRadiotapHdr::freqToChannel(int freq) {
+	if (freq >= 2412 && freq <= 2484) {
+		if (freq % 5 != 2) {
+			qWarning() << QString("freq(%1) must be end with 2 or 7").arg(freq);
+			return -1;
+		}
+		return (freq - 2412) / 5 + 1;
+	}
+
+	if (freq >= 5160 && freq <= 5980) {
+		if (freq % 5 != 0) {
+			qWarning() << QString("freq(%1) must be multiple of 5").arg(freq);
+			return -1;
+		}
+		return (freq - 5160) / 5 + 32;
+	}
+	qWarning() << QString("invalid freq %1").arg(freq);
+	return -1;
+}
+
 // ----------------------------------------------------------------------------
 // GTEST
 // ----------------------------------------------------------------------------

@@ -11,10 +11,11 @@ WaWidget::WaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("WiFiAnalyzer");
 
 	tableWidget_ = new GTableWidget(this);
-	tableWidget_->setColumnCount(3);
+	tableWidget_->setColumnCount(4);
 	tableWidget_->setHorizontalHeaderItem(0, new QTableWidgetItem("Mac"));
 	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("SSID"));
-	tableWidget_->setHorizontalHeaderItem(2, new QTableWidgetItem("Signal"));
+	tableWidget_->setHorizontalHeaderItem(2, new QTableWidgetItem("CH"));
+	tableWidget_->setHorizontalHeaderItem(3, new QTableWidgetItem("Signal"));
 	tableWidget_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	tableWidget_->verticalHeader()->hide();
 	mainLayout_->addWidget(tableWidget_);
@@ -101,7 +102,7 @@ void WaWidget::tbOption_clicked(bool checked) {
 	jo["propDialog"] << propDialog;
 }
 
-void WaWidget::processDetected(GMac mac, QString ssid, int signal) {
+void WaWidget::processDetected(GMac mac, QString ssid, int channel, int signal) {
 	// qDebug() << QString("%1 %2 %3").arg(QString(mac)).arg(ssid).arg(signal); // gilgil temp 2022.01.19
 
 	{
@@ -111,6 +112,7 @@ void WaWidget::processDetected(GMac mac, QString ssid, int signal) {
 			Device item;
 			item.mac_ = mac;
 			item.ssid_ = ssid;
+			item.channel_ = channel;
 			it = devices_.insert(mac, item);
 		}
 		it->signals_.push_back(signal);
@@ -136,15 +138,16 @@ void WaWidget::updateDevices() {
 
 			QLineEdit* lineEdit = new QLineEdit(this);
 			lineEdit->setFrame(false);
+			lineEdit->setReadOnly(true);
 			lineEdit->setText(QString(device.mac_));
 			tableWidget_->setCellWidget(row, 0, lineEdit);
-
 			tableWidget_->setCellWidget(row, 1, new QLabel(device.ssid_));
+			tableWidget_->setCellWidget(row, 2, new QLabel(QString::number(device.channel_)));
 
 			progressBar->setMinimum(wifiAnalyzer_.minSignal_);
 			progressBar->setMaximum(0);
 			progressBar->setFormat("%v dBm");
-			tableWidget_->setCellWidget(row, 2, progressBar);
+			tableWidget_->setCellWidget(row, 3, progressBar);
 
 			tableWidget_->scrollToBottom();
 		}

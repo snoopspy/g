@@ -10,6 +10,7 @@
 struct Device {
 	GMac mac_;
 	QString ssid_;
+	int channel_;
 	QProgressBar* progressBar_{nullptr};
 	QVector<int> signals_;
 };
@@ -43,7 +44,7 @@ private slots:
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
 
-	void processDetected(GMac mac, QString ssid, int signal);
+	void processDetected(GMac mac, QString ssid, int channel, int signal);
 	void processClosed();
 
 	void updateDevices();

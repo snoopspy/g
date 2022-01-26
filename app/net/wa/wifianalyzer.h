@@ -48,5 +48,5 @@ public slots:
 	void processCaptured(GPacket* packet);
 
 signals:
-	void detected(GMac mac, QString ssid, int signal);
+	void detected(GMac mac, QString ssid, int channel, int signal);
 };

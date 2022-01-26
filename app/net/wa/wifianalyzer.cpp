@@ -67,11 +67,17 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 
 	GRadiotapHdr* radiotapHdr = packet->radiotapHdr_;
 	Q_ASSERT(radiotapHdr != nullptr);
-	QList<GBuf> signalList = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
+
+	QList<GBuf> signalList = radiotapHdr->getInfo(GRadiotapHdr::Channel);
 	if (signalList.count() == 0) return;
-	qint8 signal = *pchar(signalList[0].data_);
+	int16_t freq = *reinterpret_cast<uint16_t*>(signalList[0].data_);
+	qDebug() << freq; // gilgil temp 2022.01.26
+	int channel = GRadiotapHdr::freqToChannel(freq);
+
+	signalList = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
+	if (signalList.count() == 0) return;
+	int8_t signal = *pchar(signalList[0].data_);
 	if (signal < minSignal_) return;
 
-	emit detected(mac, ssid, signal);
+	emit detected(mac, ssid, channel, signal);
 }
-

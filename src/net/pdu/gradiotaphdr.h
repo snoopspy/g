@@ -61,6 +61,7 @@ struct G_EXPORT GRadiotapHdr {
 
 	QList<GBuf> getInfo(BitNo bitNo);
 	static GRadiotapHdr* check(gbyte* p, uint32_t size);
+	static int freqToChannel(int freq);
 };
 typedef GRadiotapHdr *PRadiotapHdr;
 #pragma pack(pop)
