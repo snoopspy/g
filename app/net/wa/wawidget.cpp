@@ -118,7 +118,8 @@ void WaWidget::processDetected(GMac mac, QString ssid, int signal) {
 }
 
 void WaWidget::processClosed() {
-	tbStop_->click();
+	if (wifiAnalyzer_.active())
+		tbStop_->click();
 }
 
 void WaWidget::updateDevices() {
