@@ -111,5 +111,6 @@ void PaWidget::processProbeDetected(GMac mac, int signal) {
 }
 
 void PaWidget::processClosed() {
-	tbStop_->click();
+	if (probeAnalyzer_.active())
+		tbStop_->click();
 }
