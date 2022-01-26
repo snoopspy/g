@@ -195,8 +195,8 @@ void operator >> (const QJsonValue val, GJson::GTableWidgetColumnSizes&& columnS
 // ----------------------------------------------------------------------------
 // GTreeViewColumnSizes
 // ----------------------------------------------------------------------------
-GJson::GTreeViewColumnSizes GJson::columnSizes(QTreeView* treeView) {
-	return GJson::GTreeViewColumnSizes(treeView);
+GJson::GTreeViewColumnSizes GJson::columnSizes(QTreeView* treeWidget) {
+	return GJson::GTreeViewColumnSizes(treeWidget);
 }
 
 void operator << (QJsonValueRef ref, const GJson::GTreeViewColumnSizes&& columnSizes) {

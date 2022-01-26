@@ -76,7 +76,7 @@ namespace GJson {
 		GTableWidgetColumnSizes(QTableWidget* tableWidget) { tableWidget_ = tableWidget; }
 		QTableWidget* tableWidget_;
 	};
-	GTableWidgetColumnSizes G_EXPORT columnSizes(QTableWidget* tableView);
+	GTableWidgetColumnSizes G_EXPORT columnSizes(QTableWidget* tableWidget);
 };
 void G_EXPORT operator << (QJsonValueRef ref, const GJson::GTableWidgetColumnSizes&& columnSizes);
 void G_EXPORT operator >> (const QJsonValue val, GJson::GTableWidgetColumnSizes&& columnSizes);
