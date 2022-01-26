@@ -1,6 +1,7 @@
 #include "wawidget.h"
 
 #include <QLabel>
+#include <QHeaderView>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QScrollBar>
@@ -16,7 +17,7 @@ WaWidget::WaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("SSID"));
 	tableWidget_->setHorizontalHeaderItem(2, new QTableWidgetItem("CH"));
 	tableWidget_->setHorizontalHeaderItem(3, new QTableWidgetItem("Signal"));
-	tableWidget_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	tableWidget_->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
 	tableWidget_->verticalHeader()->hide();
 	mainLayout_->addWidget(tableWidget_);
 
@@ -42,11 +43,13 @@ WaWidget::~WaWidget() {
 void WaWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	jo["pa"] >> wifiAnalyzer_;
+	jo["sizes"] >> GJson::columnSizes(tableWidget_);
 }
 
 void WaWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["pa"] << wifiAnalyzer_;
+	jo["sizes"] << GJson::columnSizes(tableWidget_);
 }
 
 void WaWidget::setControl() {
