@@ -141,7 +141,6 @@ void WaWidget::updateDevices() {
             tableWidget_->insertRow(row);
 
 			QProgressBar* progressBar = device.progressBar_  = new QProgressBar(this);
-            qDebug() << device.ssid_ << (void*)progressBar; // gilgil temp 2022.01.27
 
             tableWidget_->setItem(row, 0, new TextItem(QString(device.mac_)));
             tableWidget_->setItem(row, 1, new TextItem(device.ssid_));

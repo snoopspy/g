@@ -9,11 +9,23 @@
 
 struct TextItem: QTableWidgetItem
 {
-    explicit TextItem(QString text) : QTableWidgetItem(text) {
-    }
+	explicit TextItem(QString text) : QTableWidgetItem(text) {}
+
     bool operator< (const QTableWidgetItem &r) const {
-        qDebug() << text() << r.text(); // gilgil temp 2022.01.27
-        return text() < r.text();
+		int col = column();
+		switch (col) {
+			case 0: // mac
+				return text() < r.text();
+			case 1: // ssid
+				return text() < r.text();
+			case 2: // channel;
+				return text().toInt() < r.text().toInt();
+			case 3: // signal
+				return text().toInt() < r.text().toInt();
+			default:
+				qWarning() << "unreachable code";
+				return text() < r.text();
+		}
     }
 };
 

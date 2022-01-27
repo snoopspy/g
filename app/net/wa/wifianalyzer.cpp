@@ -49,36 +49,69 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	GBeaconHdr* beaconHdr = GBeaconHdr::check(dot11ExtHdr, packet->buf_.size_);
 	if (beaconHdr == nullptr) return;
 
+	GMac mac;
+	QString ssid;
+	int channel = -1;
+	int signal = 999;
+
+	//
+	// mac
+	//
+	mac = dot11ExtHdr->ta();
+
+	//
+	// ssid or channel
+	//
 	GBeaconHdr::Tag* tag = beaconHdr->getTag();
 	gbyte* end = packet->buf_.data_ + packet->buf_.size_;
-	QString ssid;
 	while (true) {
 		if (pbyte(tag) >= end) break;
 		le8_t num = tag->num_;
-		if (num == GBeaconHdr::TagSsidParameterSet) {
-			const char* p = pchar(tag->value());
-			ssid = QByteArray(p, tag->len_);
-			break;
+		switch (num) {
+			case GBeaconHdr::TagSsidParameterSet: {
+				char* p = pchar(tag->value());
+				ssid = QByteArray(p, tag->len_);
+				break;
+			}
+			case GBeaconHdr::TagDsParameterSet: {
+				char* p = pchar(tag->value());
+				channel = *p;
+				break;
+			}
+			default:
+				break;
 		}
+		if (ssid != "" && channel != -1)
+			break;
 		tag = tag->next();
 		if (tag == nullptr) break;
 	}
 	if (ssid == "") return;
 
-	GMac mac = dot11ExtHdr->ta();
-
+	//
+	// channel
+	//
 	GRadiotapHdr* radiotapHdr = packet->radiotapHdr_;
 	Q_ASSERT(radiotapHdr != nullptr);
+	if (channel == -1) {
+		qWarning() << QString("can not find channel tag for %1").arg(ssid);
+		QList<GBuf> channelList = radiotapHdr->getInfo(GRadiotapHdr::Channel);
+		if (channelList.count() > 0) {
+			int16_t freq = *reinterpret_cast<uint16_t*>(channelList[0].data_);
+			channel = GRadiotapHdr::freqToChannel(freq);
+		}
 
-	QList<GBuf> signalList = radiotapHdr->getInfo(GRadiotapHdr::Channel);
-	if (signalList.count() == 0) return;
-	int16_t freq = *reinterpret_cast<uint16_t*>(signalList[0].data_);
-	int channel = GRadiotapHdr::freqToChannel(freq);
+	}
 
-	signalList = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
-	if (signalList.count() == 0) return;
-	int8_t signal = *pchar(signalList[0].data_);
-	if (signal < minSignal_) return;
+	//
+	// signal
+	//
+	QList<GBuf> signalList = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
+	if (signalList.count() > 0) {
+		signal = *pchar(signalList[0].data_);
+		if (signal < minSignal_) return;
+	} else
+		return;
 
 	emit detected(mac, ssid, channel, signal);
 }
