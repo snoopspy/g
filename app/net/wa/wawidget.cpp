@@ -19,6 +19,7 @@ WaWidget::WaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tableWidget_->setHorizontalHeaderItem(3, new QTableWidgetItem("Signal"));
 	tableWidget_->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
 	tableWidget_->verticalHeader()->hide();
+    tableWidget_->setSortingEnabled(true);
 	mainLayout_->addWidget(tableWidget_);
 
 	timer_ = new QTimer(this);
@@ -134,25 +135,26 @@ void WaWidget::updateDevices() {
 		if (device.signals_.count() == 0) continue;
 
 		if (device.progressBar_ == nullptr) {
+            tableWidget_->setSortingEnabled(false);
+
 			int row = tableWidget_->rowCount();
-			tableWidget_->insertRow(row);
+            tableWidget_->insertRow(row);
 
 			QProgressBar* progressBar = device.progressBar_  = new QProgressBar(this);
+            qDebug() << device.ssid_ << (void*)progressBar; // gilgil temp 2022.01.27
 
-			QLineEdit* lineEdit = new QLineEdit(this);
-			lineEdit->setFrame(false);
-			lineEdit->setReadOnly(true);
-			lineEdit->setText(QString(device.mac_));
-			tableWidget_->setCellWidget(row, 0, lineEdit);
-			tableWidget_->setCellWidget(row, 1, new QLabel(device.ssid_));
-			tableWidget_->setCellWidget(row, 2, new QLabel(QString::number(device.channel_)));
+            tableWidget_->setItem(row, 0, new TextItem(QString(device.mac_)));
+            tableWidget_->setItem(row, 1, new TextItem(device.ssid_));
+            tableWidget_->setItem(row, 2, new TextItem(QString::number(device.channel_)));
+            device.textItem_ = new TextItem("0");
+            tableWidget_->setItem(row, 3, device.textItem_);
+
 
 			progressBar->setMinimum(wifiAnalyzer_.minSignal_);
 			progressBar->setMaximum(0);
 			progressBar->setFormat("%v dBm");
 			tableWidget_->setCellWidget(row, 3, progressBar);
-
-			tableWidget_->scrollToBottom();
+            tableWidget_->setSortingEnabled(true);
 		}
 
 		int value = 0;
@@ -180,8 +182,9 @@ void WaWidget::updateDevices() {
 			}
 		}
 
-		device.progressBar_->setValue(value);
-		device.signals_.clear();
+        device.progressBar_->setValue(value);
+        device.textItem_->setText(QString::number(value));
+        device.signals_.clear();
 		// qDebug() << QString("%1 %2 %3").arg(QString(device.mac_)).arg(device.ssid_).arg(value); // gilgil temp 2022.01.19
 	}
 }

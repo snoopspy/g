@@ -7,11 +7,23 @@
 #include <GTableWidget>
 #include "wifianalyzer.h"
 
+struct TextItem: QTableWidgetItem
+{
+    explicit TextItem(QString text) : QTableWidgetItem(text) {
+    }
+    bool operator< (const QTableWidgetItem &r) const {
+        qDebug() << text() << r.text(); // gilgil temp 2022.01.27
+        return text() < r.text();
+    }
+};
+
 struct Device {
 	GMac mac_;
 	QString ssid_;
 	int channel_;
+
 	QProgressBar* progressBar_{nullptr};
+    TextItem* textItem_{nullptr};
 	QVector<int> signals_;
 };
 
