@@ -24,7 +24,7 @@ public:
 
 public:
 	int minSignal_{-128};
-	int updateInterval_{1000};
+	int updateInterval_{250};
 	bool channelHopping_{true};
 	ShowType showType_{Average};
 	GObjRef getMonitorDevice() { return &monitorDevice_; }

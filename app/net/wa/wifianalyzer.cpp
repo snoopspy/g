@@ -51,8 +51,8 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 
 	GMac mac;
 	QString ssid;
-	int channel = -1;
-	int signal = 999;
+	int8_t channel = -1;
+	int8_t signal = 127;
 
 	//
 	// mac
@@ -100,7 +100,6 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 			int16_t freq = *reinterpret_cast<uint16_t*>(channelList[0].data_);
 			channel = GRadiotapHdr::freqToChannel(freq);
 		}
-
 	}
 
 	//

@@ -78,7 +78,7 @@ bool GIw::setChannel(int channel) {
 		command
 	};
 	int res = QProcess::execute(program, arguments);
-	qDebug() << program << arguments << res; // gilgil temp 2022.01.26
+	// qDebug() << program << arguments << res; // gilgil temp 2022.01.26
 	if (res != 0) {
 		char buf[BufSize];
 		sprintf(buf, "QProcess::execute(%s) return %d\n", qPrintable(command), res);
