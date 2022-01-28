@@ -2,8 +2,7 @@
 
 ProbeAnalyzer::ProbeAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
-	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m2\""}));
-	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -k1\""}));
+	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m2\"", "su -c \"nexutil -k1\""}));
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 #endif
 

@@ -3,9 +3,7 @@
 
 WifiAnalyzer::WifiAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
-	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -c1\""}));
-	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -d\""}));
-	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m2\""}));
+	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -c1\"", "su -c \"nexutil -d\"", "su -c \"nexutil -m2\""}));
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 #endif
 
