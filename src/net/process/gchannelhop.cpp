@@ -64,6 +64,7 @@ void GChannelHop::run() {
 	qDebug() << channelList; // gilgil temp 2022.01.24
 	while (active()) {
 		for (int channel: channelList) {
+			if (!active()) break;
 			if (!iw_.setChannel(channel)) {
 				qDebug() << iw_.error_;
 			} else {
