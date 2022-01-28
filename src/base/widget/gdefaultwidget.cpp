@@ -32,7 +32,7 @@ GDefaultWidget::GDefaultWidget(QWidget* parent) : QWidget(parent) {
 	this->setLayout(mainLayout_);
 
 #ifdef Q_OS_ANDROID
-	QSize size(128, 128);
+	QSize size(160, 160);
 #else
 	QSize size(32, 32);
 #endif
