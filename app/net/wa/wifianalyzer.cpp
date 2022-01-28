@@ -10,6 +10,7 @@ WifiAnalyzer::WifiAnalyzer(QObject* parent) : GStateObj(parent) {
 	// for probeDetected signal
 	qRegisterMetaType<GMac>("GMac");
 	QObject::connect(&monitorDevice_, &GMonitorDevice::captured, this, &WifiAnalyzer::processCaptured, Qt::DirectConnection);
+	QObject::connect(&channelHop_, &GChannelHop::channelChanged, this, &WifiAnalyzer::processChannelChanged, Qt::DirectConnection);
 }
 
 WifiAnalyzer::~WifiAnalyzer() {
@@ -17,6 +18,8 @@ WifiAnalyzer::~WifiAnalyzer() {
 }
 
 bool WifiAnalyzer::doOpen() {
+	currentChannel_ = -1;
+
 	if (!monitorDevice_.open()) {
 		err = monitorDevice_.err;
 		return false;
@@ -84,6 +87,9 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 		if (tag == nullptr) break;
 	}
 	if (ssid == "") return;
+	if (channel != -1 && ignoreOtherChannelFrame_ && currentChannel_ != channel)
+		return;
+
 
 	//
 	// channel
@@ -110,4 +116,8 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 		return;
 
 	emit detected(mac, ssid, channel, signal);
+}
+
+void WifiAnalyzer::processChannelChanged(int channel) {
+	currentChannel_ = channel;
 }

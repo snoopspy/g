@@ -8,7 +8,7 @@ struct G_EXPORT WifiAnalyzer : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(int minSignal MEMBER minSignal_)
 	Q_PROPERTY(int updateInterval MEMBER updateInterval_)
-	Q_PROPERTY(bool channelHopping MEMBER channelHopping_)
+	Q_PROPERTY(bool ignoreOtherChannelFrame MEMBER ignoreOtherChannelFrame_)
 	Q_PROPERTY(ShowType showType MEMBER showType_)
 	Q_PROPERTY(GObjRef monitorDevice READ getMonitorDevice)
 	Q_PROPERTY(GObjRef channelHop READ getChannelHop)
@@ -25,11 +25,14 @@ public:
 public:
 	int minSignal_{-128};
 	int updateInterval_{250};
-	bool channelHopping_{true};
+	bool ignoreOtherChannelFrame_{true};
 	ShowType showType_{Average};
 	GObjRef getMonitorDevice() { return &monitorDevice_; }
 	GObjRef getChannelHop() { return &channelHop_; }
 	GObjRef getCommand() { return &command_; }
+
+protected:
+	int currentChannel_{-1};
 
 public:
 	Q_INVOKABLE WifiAnalyzer(QObject* parent = nullptr);
@@ -46,6 +49,7 @@ public:
 
 public slots:
 	void processCaptured(GPacket* packet);
+	void processChannelChanged(int channel);
 
 signals:
 	void detected(GMac mac, QString ssid, int channel, int signal);
