@@ -1,7 +1,7 @@
 #include "gbase.h"
 #include <pcap.h>
 
-extern int _debug_gilgil{0};
+int _debug_gilgil{0};
 __thread int _thread_gilgil{0};
 
 const char* G::version() {
