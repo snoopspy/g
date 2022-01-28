@@ -12,7 +12,8 @@
 
 #include <cstddef>
 
-extern __thread int _gilgil;
+extern int _debug_gilgil;
+extern __thread int _thread_gilgil;
 
 typedef void *pvoid;
 typedef char *pchar;
