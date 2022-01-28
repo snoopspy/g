@@ -39,7 +39,7 @@ void ProbeAnalyzer::processCaptured(GPacket* packet) {
 	GRadiotapHdr* radiotapHdr = packet->radiotapHdr_;
 	if (radiotapHdr == nullptr) return;
 
-	QList<GBuf> signalList = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
+	QList<GBuf> signalList = radiotapHdr->presentInfo(GRadiotapHdr::AntennaSignal);
 	if (signalList.count() == 0) return;
 	qint8 signal = *pchar(signalList[0].data_);
 	if (signal < minSignal_) return;

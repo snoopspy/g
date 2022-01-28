@@ -51,8 +51,8 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 
 	GMac mac;
 	QString ssid;
-	int8_t channel = -1;
-	int8_t signal = 127;
+	int channel = -1;
+	int signal = 127;
 
 	//
 	// mac
@@ -95,9 +95,9 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	Q_ASSERT(radiotapHdr != nullptr);
 	if (channel == -1) {
 		qWarning() << QString("can not find channel tag for %1").arg(ssid);
-		QList<GBuf> channelList = radiotapHdr->getInfo(GRadiotapHdr::Channel);
-		if (channelList.count() > 0) {
-			int16_t freq = *reinterpret_cast<uint16_t*>(channelList[0].data_);
+		QList<GBuf> freqList = radiotapHdr->presentInfo(GRadiotapHdr::Channel);
+		if (freqList.count() > 0) {
+			int16_t freq = *reinterpret_cast<uint16_t*>(freqList[0].data_);
 			channel = GRadiotapHdr::freqToChannel(freq);
 		}
 	}
@@ -105,7 +105,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	//
 	// signal
 	//
-	QList<GBuf> signalList = radiotapHdr->getInfo(GRadiotapHdr::AntennaSignal);
+	QList<GBuf> signalList = radiotapHdr->presentInfo(GRadiotapHdr::AntennaSignal);
 	if (signalList.count() > 0) {
 		signal = *pchar(signalList[0].data_);
 		if (signal < minSignal_) return;
