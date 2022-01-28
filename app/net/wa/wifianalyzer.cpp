@@ -63,9 +63,8 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	// ssid or channel
 	//
 	GBeaconHdr::Tag* tag = beaconHdr->firstTag();
-	gbyte* end = packet->buf_.data_ + packet->buf_.size_;
-	while (true) {
-		if (pbyte(tag) >= end) break;
+	void* end = packet->buf_.data_ + packet->buf_.size_;
+	while (tag < end) {
 		le8_t num = tag->num_;
 		switch (num) {
 			case GBeaconHdr::TagSsidParameterSet: {

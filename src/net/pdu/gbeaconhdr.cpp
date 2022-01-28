@@ -15,8 +15,7 @@ GBeaconHdr* GBeaconHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
 void* GBeaconHdr::firstTag(le8_t num, uint32_t size) {
 	void* end = pchar(this) + size;
 	GBeaconHdr::Tag* t = firstTag();
-	while (true) {
-		if (t >= end) break;
+	while (t < end) {
 		if (t->num_ == num) {
 			void* res = pvoid(t);
 			return res;
