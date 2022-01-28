@@ -64,7 +64,7 @@ bool GHostDetect::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host
 	GEthHdr* ethHdr = packet->ethHdr_;
 	if (ethHdr == nullptr) return false;
 	void* end = packet->buf_.data_ + packet->buf_.size_;
-	GDhcpHdr::Option* option = dhcpHdr->getOption();
+	GDhcpHdr::Option* option = dhcpHdr->firstOption();
 	while (true) {
 		if (option >= end) break;
 		if (option->type_ == GDhcpHdr::RequestedIpAddress) {

@@ -12,9 +12,9 @@ GBeaconHdr* GBeaconHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
 	return PBeaconHdr(dot11Hdr);
 }
 
-void* GBeaconHdr::getTag(le8_t num, uint32_t size) {
+void* GBeaconHdr::firstTag(le8_t num, uint32_t size) {
 	void* end = pchar(this) + size;
-	GBeaconHdr::Tag* t = getTag();
+	GBeaconHdr::Tag* t = firstTag();
 	while (true) {
 		if (t >= end) break;
 		if (t->num_ == num) {
@@ -75,7 +75,7 @@ TEST(BeaconHdr, typeTest) {
 	le16_t capabilities = fix->capabilities_;
 	EXPECT_EQ(capabilities, 0x0C11);
 
-	GBeaconHdr::Tag* tag = beaconHdr->getTag();
+	GBeaconHdr::Tag* tag = beaconHdr->firstTag();
 	le8_t num = tag->num_;
 	EXPECT_EQ(num, GBeaconHdr::TagSsidParameterSet);
 
@@ -115,7 +115,7 @@ TEST(BeaconHdr, typeTest) {
 	num = tag->num_;
 	EXPECT_EQ(num, GBeaconHdr::TagVendorSpecific);
 
-	GBeaconHdr::TrafficIndicationMap* tiMap = GBeaconHdr::PTrafficIndicationMap(beaconHdr->getTag(GBeaconHdr::TagTrafficIndicationMap, sizeof(packet)));
+	GBeaconHdr::TrafficIndicationMap* tiMap = GBeaconHdr::PTrafficIndicationMap(beaconHdr->firstTag(GBeaconHdr::TagTrafficIndicationMap, sizeof(packet)));
 	EXPECT_NE(tiMap, nullptr);
 	EXPECT_EQ(tiMap->count_, 0);
 	EXPECT_EQ(tiMap->period_, 1);

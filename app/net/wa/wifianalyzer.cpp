@@ -62,7 +62,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	//
 	// ssid or channel
 	//
-	GBeaconHdr::Tag* tag = beaconHdr->getTag();
+	GBeaconHdr::Tag* tag = beaconHdr->firstTag();
 	gbyte* end = packet->buf_.data_ + packet->buf_.size_;
 	while (true) {
 		if (pbyte(tag) >= end) break;
