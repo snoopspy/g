@@ -18,12 +18,12 @@ struct MyHeightItemDelegate : QStyledItemDelegate
 };
 
 GTreeWidget::GTreeWidget(QWidget *parent) : QTreeWidget(parent) {
-	setIndentation(indentation() * 3 / 2);
+	header()->setFixedHeight(80);
+	QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
 	setItemDelegate(new MyHeightItemDelegate(this));
+	setIndentation(indentation() * 3 / 2);
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
-	header()->setFixedHeight(75);
 }
 
 #endif

@@ -17,14 +17,12 @@ struct MyHeightItemDelegate : QStyledItemDelegate
 	}
 };
 
-#include <QDebug>
 GTableWidget::GTableWidget(QWidget *parent) : QTableWidget(parent) {
+	horizontalHeader()->setFixedHeight(80);
+	QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
 	setItemDelegate(new MyHeightItemDelegate(this));
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
-	horizontalHeader()->setFixedHeight(75);
-//	verticalHeader()->setDefaultSectionSize(verticalHeader()->defaultSectionSize() * 3 / 2); // gilgil temp 2022.01.25
 }
 
 #endif
