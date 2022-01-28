@@ -52,7 +52,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	GMac mac;
 	QString ssid;
 	int channel = -1;
-	int signal = 127;
+	int8_t signal = 127;
 
 	//
 	// mac
