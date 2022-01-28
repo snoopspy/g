@@ -70,7 +70,7 @@ void GGraphWidget::init() {
 	midSplitter_ = new GSplitter(Qt::Horizontal, this);
 	midLeftSplitter_ = new GSplitter(Qt::Vertical, this);
 	factoryWidget_ = new GTreeWidget(this);
-	factoryWidget_->setHeaderLabel("node");
+	factoryWidget_->setHeaderLabel("Component");
 	propWidget_ = new GPropWidget(this);
 	scene_ = new GGScene(this);
 	graphView_ = new QGraphicsView(this);

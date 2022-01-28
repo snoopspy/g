@@ -37,7 +37,7 @@ void GPropWidget::init() {
 
 	treeWidget_ = new GTreeWidget(this);
 	treeWidget_->setColumnCount(2);
-	treeWidget_->setHeaderLabels(QStringList() << "property" << "value");
+	treeWidget_->setHeaderLabels(QStringList() << "Property" << "Value");
 
 	// mainLayout_->addWidget(toolBar_, 0); // gilgil temp 2020.05.21
 	mainLayout_->addWidget(treeWidget_, 1);
