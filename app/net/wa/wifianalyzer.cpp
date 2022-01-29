@@ -80,7 +80,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 		if (tag == nullptr) break;
 	}
 	if (ssid == "") return;
-	if (channel != -1 && ignoreOtherChannelFrame_ && currentChannel_ != channel)
+	if (channel != 0 && ignoreOtherChannelFrame_ && currentChannel_ != channel)
 		return;
 
 
@@ -89,7 +89,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	//
 	GRadioHdr* radioHdr = packet->radioHdr_;
 	Q_ASSERT(radioHdr != nullptr);
-	if (channel == -1) {
+	if (channel == 0) {
 		qWarning() << QString("can not find channel tag for %1").arg(ssid);
 		QList<GBuf> freqList = radioHdr->presentInfo(GRadioHdr::Channel);
 		if (freqList.count() > 0) {
