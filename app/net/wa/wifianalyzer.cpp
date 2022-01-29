@@ -7,9 +7,14 @@ WifiAnalyzer::WifiAnalyzer(QObject* parent) : GStateObj(parent) {
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 #endif
 
+	channelHop_.hopInterval_ = 2000;
+	dot11Block_.writer_ = &pcapDeviceWrite_;
+	pcapDeviceWrite_.mtu_ = 0;
+
 	// for probeDetected signal
 	qRegisterMetaType<GMac>("GMac");
 	QObject::connect(&monitorDevice_, &GMonitorDevice::captured, this, &WifiAnalyzer::processCaptured, Qt::DirectConnection);
+	QObject::connect(&monitorDevice_, &GMonitorDevice::captured, &dot11Block_, &GDot11Block::block, Qt::DirectConnection);
 	QObject::connect(&channelHop_, &GChannelHop::channelChanged, this, &WifiAnalyzer::processChannelChanged, Qt::DirectConnection);
 }
 
@@ -31,12 +36,25 @@ bool WifiAnalyzer::doOpen() {
 		return false;
 	}
 
+	if (!dot11Block_.open()) {
+		err = dot11Block_.err;
+		return false;
+	}
+
+	pcapDeviceWrite_.intfName_ = monitorDevice_.intfName_;
+	if (!pcapDeviceWrite_.open()) {
+		err = pcapDeviceWrite_.err;
+		return false;
+	}
+
 	return true;
 }
 
 bool WifiAnalyzer::doClose() {
 	monitorDevice_.close();
 	channelHop_.close();
+	dot11Block_.close();
+	pcapDeviceWrite_.close();
 	return true;
 }
 
