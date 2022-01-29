@@ -25,12 +25,14 @@
 struct G_EXPORT GChannelHop : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(bool enabled MEMBER enabled_)
+	Q_PROPERTY(bool debugLog_ MEMBER debugLog_)
 	Q_PROPERTY(QString intfName MEMBER intfName_)
 	Q_PROPERTY(int hopInterval MEMBER hopInterval_)
 	Q_PROPERTY(QStringList channelList MEMBER channelList_)
 
 public:
 	bool enabled_{true};
+	bool debugLog_{false};
 	QString intfName_{""};
 	int hopInterval_{250};
 	QStringList channelList_;

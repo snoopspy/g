@@ -69,6 +69,8 @@ void GChannelHop::run() {
 				qDebug() << iw_.error_;
 				break;
 			}
+			if (debugLog_)
+				qDebug() << "channel " << channel;
 			emit channelChanged(channel);
 			if (we_.wait(hopInterval_)) break;
 		}

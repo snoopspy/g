@@ -20,6 +20,7 @@
 struct G_EXPORT GDot11Block : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(bool enabled MEMBER enabled_)
+	Q_PROPERTY(bool debugLog MEMBER debugLog_)
 	Q_PROPERTY(bool authStationAp MEMBER authStationAp_);
 	Q_PROPERTY(bool deauthApBroadcast MEMBER deauthApBroadcast_);
 	Q_PROPERTY(bool deauthStationAp MEMBER deauthStationAp_);
@@ -33,6 +34,7 @@ public:
 
 public:
 	bool enabled_{true};
+	bool debugLog_{false};
 	bool authStationAp_{false};
 	bool deauthApBroadcast_{true};
 	bool deauthStationAp_{false};
