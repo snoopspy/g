@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gradiotaphdr.h"
+#include "gradiohdr.h"
 
 // ----------------------------------------------------------------------------
 // GDot11Hdr
@@ -93,7 +93,7 @@ struct G_EXPORT GDot11Hdr {
 		S1gBeacon = 0x31
 	};
 
-	static GDot11Hdr* check(GRadiotapHdr* radiotapHdr, uint32_t size);
+	static GDot11Hdr* check(GRadioHdr* radioHdr, uint32_t size);
 	void init(TypeSubtype typeSubtype);
 };
 typedef GDot11Hdr *PDot11Hdr;

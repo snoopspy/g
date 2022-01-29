@@ -35,11 +35,11 @@ void GDot11Block::block(GPacket* packet) {
 	if (typeSubtype != GDot11Hdr::Beacon) return;
 
 	struct DeauthFrame {
-		GRadiotapHdr radiotapHdr_;
+		GRadioHdr radioHdr_;
 		GDeauthHdr deauthHdr_;
 	} deauthFrame;
 
-	deauthFrame.radiotapHdr_.init();
+	deauthFrame.radioHdr_.init();
 	deauthFrame.deauthHdr_.init(dot11ExtHdr->ta());
 	writer_->write(GBuf(pbyte(&deauthFrame), sizeof(deauthFrame)));
 

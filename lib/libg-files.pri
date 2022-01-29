@@ -124,7 +124,7 @@ SOURCES += \
 	$${PWD}/../src/net/pdu/giphdr.cpp \
 	$${PWD}/../src/net/pdu/gpdu.cpp \
 	$${PWD}/../src/net/pdu/gqosnullhdr.cpp \
-	$${PWD}/../src/net/pdu/gradiotaphdr.cpp \
+	$${PWD}/../src/net/pdu/gradiohdr.cpp \
 	$${PWD}/../src/net/pdu/gtcphdr.cpp \
 	$${PWD}/../src/net/pdu/gudphdr.cpp \
 	$${PWD}/../src/net/process/gchannelhop.cpp \
@@ -267,7 +267,7 @@ HEADERS += \
 	$${PWD}/../src/net/pdu/giphdr.h \
 	$${PWD}/../src/net/pdu/gpdu.h \
 	$${PWD}/../src/net/pdu/gqosnullhdr.h \
-	$${PWD}/../src/net/pdu/gradiotaphdr.h \
+	$${PWD}/../src/net/pdu/gradiohdr.h \
 	$${PWD}/../src/net/pdu/gtcphdr.h \
 	$${PWD}/../src/net/pdu/gudphdr.h \
 	$${PWD}/../src/net/process/gchannelhop.h \

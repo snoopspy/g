@@ -36,10 +36,10 @@ void ProbeAnalyzer::processCaptured(GPacket* packet) {
 	le8_t typeSubtype = dot11ExtHdr->typeSubtype();
 	if (typeSubtype != GDot11Hdr::ProbeRequest && typeSubtype != GDot11Hdr::Deauthentication) return;
 
-	GRadiotapHdr* radiotapHdr = packet->radiotapHdr_;
-	if (radiotapHdr == nullptr) return;
+	GRadioHdr* radioHdr = packet->radioHdr_;
+	if (radioHdr == nullptr) return;
 
-	QList<GBuf> signalList = radiotapHdr->presentInfo(GRadiotapHdr::AntennaSignal);
+	QList<GBuf> signalList = radioHdr->presentInfo(GRadioHdr::AntennaSignal);
 	if (signalList.count() == 0) return;
 	qint8 signal = *pchar(signalList[0].data_);
 	if (signal < minSignal_) return;

@@ -11,20 +11,20 @@ GMonitorDevice::~GMonitorDevice() {
 
 bool GMonitorDevice::doOpen() {
 	bool res = false;
-	int16_t  radiotapLen = -1;
+	int16_t radioLen = -1;
 
-	if (checkRadiotapLen_) {
-		radiotapLen = getRadiotapLenFromFile();
-		if (radiotapLen == -1)
-			radiotapLen = getRadiotapLenFromDevice();
-		if (radiotapLen == -1) {
-			SET_ERR(GErr::Fail, "Count not get radiotap len");
+	if (checkRadioLen_) {
+		radioLen = getRadioLenFromFile();
+		if (radioLen == -1)
+			radioLen = getRadioLenFromDevice();
+		if (radioLen == -1) {
+			SET_ERR(GErr::Fail, "Count not get radio len");
 			return false;
 		}
 
 		QString backupFilter = filter_;
-		radiotapLen = htons(radiotapLen);
-		QString lengthFilter = QString("radio[2:2]==%1").arg(radiotapLen);
+		radioLen = htons(radioLen);
+		QString lengthFilter = QString("radio[2:2]==%1").arg(radioLen);
 		if (filter_ == "")
 			filter_ = lengthFilter;
 		else
@@ -51,8 +51,8 @@ bool GMonitorDevice::doClose() {
 	return GPcapDevice::doClose();
 }
 
-int16_t GMonitorDevice::getRadiotapLenFromFile() {
-	int radiotapLen = -1;
+int16_t GMonitorDevice::getRadioLenFromFile() {
+	int radioLen = -1;
 
 	GIntf* intf = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf == nullptr) {
@@ -61,7 +61,7 @@ int16_t GMonitorDevice::getRadiotapLenFromFile() {
 		return -1;
 	}
 	GMac mac = intf->mac();
-	FILE* fp = fopen("radiotaplen.txt", "rt");
+	FILE* fp = fopen("radiolen.txt", "rt");
 	if (fp != nullptr) {
 		while (true) {
 			char macBuf[256];
@@ -69,18 +69,18 @@ int16_t GMonitorDevice::getRadiotapLenFromFile() {
 			int res = fscanf(fp, "%s %d", macBuf, &r);
 			if (res != 2) break;
 			if (mac == GMac(macBuf)) {
-				radiotapLen = r;
-				qDebug() << QString("radiotapLen in file %1(0x%2)").arg(radiotapLen).arg(QString::number(radiotapLen, 16));
+				radioLen = r;
+				qDebug() << QString("radioLen in file %1(0x%2)").arg(radioLen).arg(QString::number(radioLen, 16));
 				break;
 			}
 		}
 		fclose(fp);
 	}
-	return int16_t(radiotapLen);
+	return int16_t(radioLen);
 }
 
-int16_t GMonitorDevice::getRadiotapLenFromDevice() {
-	int radiotapLen = -1;
+int16_t GMonitorDevice::getRadioLenFromDevice() {
+	int radioLen = -1;
 	GSyncPcapDevice device;
 	device.intfName_ = intfName_;
 	if (!device.open()) {
@@ -110,13 +110,13 @@ int16_t GMonitorDevice::getRadiotapLenFromDevice() {
 			case GPacket::Ok:
 				break;
 		}
-		GRadiotapHdr* radiotapHdr = packet.radiotapHdr_;
-		if (radiotapHdr == nullptr) {
-			SET_ERR(GErr::ObjectIsNull, "ratiotapHdr is null");
+		GRadioHdr* radioHdr = packet.radioHdr_;
+		if (radioHdr == nullptr) {
+			SET_ERR(GErr::ObjectIsNull, "ratioHdr is null");
 			return -1;
 		}
-		radiotapLen = radiotapHdr->len_;
-		qDebug() << QString("real radiotapLen %1(0x%2)").arg(radiotapLen).arg(QString::number(radiotapLen, 16));
+		radioLen = radioHdr->len_;
+		qDebug() << QString("real radioLen %1(0x%2)").arg(radioLen).arg(QString::number(radioLen, 16));
 
 		GIntf* intf = GNetInfo::instance().intfList().findByName(intfName_);
 		if (intf == nullptr) {
@@ -125,14 +125,14 @@ int16_t GMonitorDevice::getRadiotapLenFromDevice() {
 			return -1;
 		}
 		GMac mac = intf->mac();
-		FILE* fp = fopen("radiotaplen.txt", "at");
+		FILE* fp = fopen("radiolen.txt", "at");
 		if (fp != nullptr) {
-			fprintf(fp, "%s %d\n", qPrintable(QString(mac)), radiotapLen);
+			fprintf(fp, "%s %d\n", qPrintable(QString(mac)), radioLen);
 			fclose(fp);
 		}
 		break;
 	}
 	device.close();
 
-	return int16_t(radiotapLen);
+	return int16_t(radioLen);
 }

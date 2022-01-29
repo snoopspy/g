@@ -93,21 +93,21 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	//
 	// channel
 	//
-	GRadiotapHdr* radiotapHdr = packet->radiotapHdr_;
-	Q_ASSERT(radiotapHdr != nullptr);
+	GRadioHdr* radioHdr = packet->radioHdr_;
+	Q_ASSERT(radioHdr != nullptr);
 	if (channel == -1) {
 		qWarning() << QString("can not find channel tag for %1").arg(ssid);
-		QList<GBuf> freqList = radiotapHdr->presentInfo(GRadiotapHdr::Channel);
+		QList<GBuf> freqList = radioHdr->presentInfo(GRadioHdr::Channel);
 		if (freqList.count() > 0) {
 			int16_t freq = *reinterpret_cast<uint16_t*>(freqList[0].data_);
-			channel = GRadiotapHdr::freqToChannel(freq);
+			channel = GRadioHdr::freqToChannel(freq);
 		}
 	}
 
 	//
 	// signal
 	//
-	QList<GBuf> signalList = radiotapHdr->presentInfo(GRadiotapHdr::AntennaSignal);
+	QList<GBuf> signalList = radioHdr->presentInfo(GRadioHdr::AntennaSignal);
 	if (signalList.count() > 0) {
 		signal = *pchar(signalList[0].data_);
 		if (signal < minSignal_) return;

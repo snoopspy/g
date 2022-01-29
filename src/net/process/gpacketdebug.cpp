@@ -72,9 +72,9 @@ void GPacketDebug::debug(GPacket* packet) {
 		}
 	}
 
-	GRadiotapHdr* radiotapHdr = packet->radiotapHdr_;
-	if (radiotapHdr != nullptr) {
-		QList<GBuf> ba = radiotapHdr->presentInfo(GRadiotapHdr::AntennaSignal);
+	GRadioHdr* radioHdr = packet->radioHdr_;
+	if (radioHdr != nullptr) {
+		QList<GBuf> ba = radioHdr->presentInfo(GRadioHdr::AntennaSignal);
 		if (ba.count() > 0) {
 			int8_t signal = *pchar(ba[0].data_);
 			msg += " " + QString::number(signal) + " dBm";

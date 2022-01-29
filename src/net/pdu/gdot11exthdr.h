@@ -16,7 +16,7 @@ struct G_EXPORT GDot11ExtHdr : GDot11Hdr {
 	GMac ra() { return addr1_; }
 	GMac ta() { return addr2_; }
 
-	static GDot11ExtHdr* check(GRadiotapHdr* radiotapHdr, uint32_t size);
+	static GDot11ExtHdr* check(GRadioHdr* radioHdr, uint32_t size);
 	void init(GMac addr1, GMac addr2, GMac addr3);
 };
 typedef GDot11ExtHdr *PDot11ExtHdr;

@@ -21,7 +21,7 @@
 #include "net/pdu/gudphdr.h"
 #include "net/pdu/gicmphdr.h"
 
-#include "net/pdu/gradiotaphdr.h"
+#include "net/pdu/gradiohdr.h"
 #include "net/pdu/gdot11exthdr.h"
 
 // ----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ public:
 	GBuf tcpData_;
 	GBuf udpData_;
 
-	GRadiotapHdr* radiotapHdr_{nullptr};
+	GRadioHdr* radioHdr_{nullptr};
 	GDot11Hdr* dot11Hdr_{nullptr};
 	GDot11ExtHdr* dot11ExtHdr_{nullptr};
 
@@ -133,7 +133,7 @@ public:
 		icmpHdr_ = nullptr;
 		tcpData_.clear();
 		udpData_.clear();
-		radiotapHdr_ = nullptr;
+		radioHdr_ = nullptr;
 		dot11Hdr_ = nullptr;
 		dot11ExtHdr_ = nullptr;
 #ifdef _DEBUG

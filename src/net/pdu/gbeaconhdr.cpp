@@ -28,7 +28,7 @@ void* GBeaconHdr::firstTag(le8_t num, uint32_t size) {
 #ifdef GTEST
 #include <gtest/gtest.h>
 
-#include "gradiotaphdr.h"
+#include "gradiohdr.h"
 
 TEST(BeaconHdr, typeTest) {
 	uint8_t packet[] = { // dot11-sample.pcap frame.number==1
@@ -47,9 +47,9 @@ TEST(BeaconHdr, typeTest) {
 		 0xdd, 0x07, 0x00, 0x0c, 0x43, 0x04, 0x00, 0x00, 00
 	};
 
-	GRadiotapHdr* radiotapHdr = GRadiotapHdr::check(packet, sizeof(packet));
-	EXPECT_NE(radiotapHdr, nullptr);
-	GBeaconHdr* beaconHdr = PBeaconHdr(packet + radiotapHdr->len_);
+	GRadioHdr* radioHdr = GRadioHdr::check(packet, sizeof(packet));
+	EXPECT_NE(radioHdr, nullptr);
+	GBeaconHdr* beaconHdr = PBeaconHdr(packet + radioHdr->len_);
 
 	le8_t typeSubtype = beaconHdr->typeSubtype();
 	EXPECT_EQ(typeSubtype, GDot11Hdr::Beacon);

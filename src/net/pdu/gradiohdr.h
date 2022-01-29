@@ -3,10 +3,10 @@
 #include "gpdu.h"
 
 // ----------------------------------------------------------------------------
-// GRadiotapHdr
+// GRadioHdr
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
-struct G_EXPORT GRadiotapHdr {
+struct G_EXPORT GRadioHdr {
 	enum BitNo : le32_t {
 		Tsft = 0,
 		Flags = 1,
@@ -59,10 +59,10 @@ struct G_EXPORT GRadiotapHdr {
 	le16_t len_;
 	Present present_;
 
-	static GRadiotapHdr* check(gbyte* p, uint32_t size);
+	static GRadioHdr* check(gbyte* p, uint32_t size);
 	void init();
 	QList<GBuf> presentInfo(BitNo bitNo);
 	static int freqToChannel(int freq);
 };
-typedef GRadiotapHdr *PRadiotapHdr;
+typedef GRadioHdr *PRadioHdr;
 #pragma pack(pop)
