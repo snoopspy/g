@@ -52,7 +52,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 
 	GMac mac;
 	QString ssid;
-	int channel = -1;
+	int channel = 0;
 	int8_t signal = 127;
 
 	//
@@ -69,8 +69,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 		le8_t num = tag->num_;
 		switch (num) {
 			case GBeaconHdr::TagSsidParameterSet: {
-				char* p = pchar(tag->value());
-				ssid = QByteArray(p, tag->len_);
+				ssid = QByteArray(pchar(tag->value()), tag->len_);
 				break;
 			}
 			case GBeaconHdr::TagDsParameterSet: {
@@ -81,7 +80,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 			default:
 				break;
 		}
-		if (ssid != "" && channel != -1)
+		if (ssid != "" && channel != 0)
 			break;
 		tag = tag->next();
 		if (tag == nullptr) break;
