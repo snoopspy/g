@@ -28,8 +28,6 @@ void* GBeaconHdr::firstTag(le8_t num, uint32_t size) {
 #ifdef GTEST
 #include <gtest/gtest.h>
 
-#include "gradiohdr.h"
-
 TEST(BeaconHdr, typeTest) {
 	uint8_t packet[] = { // dot11-sample.pcap frame.number==1
 		 0x00, 0x00, 0x12, 0x00, 0x2e, 0x48, 0x00, 0x00, 0x00, 0x02, 0x6c, 0x09, 0xa0, 0x00, 0xe9, 0x01,

@@ -41,13 +41,7 @@ bool WifiAnalyzer::doClose() {
 }
 
 void WifiAnalyzer::processCaptured(GPacket* packet) {
-	GDot11ExtHdr* dot11ExtHdr = packet->dot11ExtHdr_;
-	if (dot11ExtHdr == nullptr) return;
-
-	le8_t typeSubtype = dot11ExtHdr->typeSubtype();
-	if (typeSubtype != GDot11Hdr::Beacon) return;
-
-	GBeaconHdr* beaconHdr = GBeaconHdr::check(dot11ExtHdr, packet->buf_.size_);
+	GBeaconHdr* beaconHdr = packet->beaconHdr_;
 	if (beaconHdr == nullptr) return;
 
 	GMac mac;
@@ -58,7 +52,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	//
 	// mac
 	//
-	mac = dot11ExtHdr->ta();
+	mac = beaconHdr->ta();
 
 	//
 	// ssid or channel

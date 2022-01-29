@@ -7,8 +7,8 @@
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
 struct G_EXPORT GBeaconHdr : GDot11ExtHdr {
-	GMac sa() { return addr2_; }
 	GMac da() { return addr1_; }
+	GMac sa() { return addr2_; }
 	GMac bssid() { return addr3_; }
 
 	struct Fix {

@@ -23,6 +23,10 @@
 
 #include "net/pdu/gradiohdr.h"
 #include "net/pdu/gdot11exthdr.h"
+struct GDot11ExtHdr;
+struct GBeaconHdr;
+struct GDeauthHdr;
+struct GQoSNullHdr;
 
 // ----------------------------------------------------------------------------
 // GPacket
@@ -104,6 +108,10 @@ public:
 	GDot11Hdr* dot11Hdr_{nullptr};
 	GDot11ExtHdr* dot11ExtHdr_{nullptr};
 
+	GBeaconHdr* beaconHdr_{nullptr};
+	GDeauthHdr* deauthHdr_{nullptr};
+	GQoSNullHdr* qosNullHdr_{nullptr};
+
 	//
 	// constant
 	//
@@ -136,6 +144,10 @@ public:
 		radioHdr_ = nullptr;
 		dot11Hdr_ = nullptr;
 		dot11ExtHdr_ = nullptr;
+		beaconHdr_ = nullptr;
+		deauthHdr_ = nullptr;
+		qosNullHdr_ = nullptr;
+
 #ifdef _DEBUG
 		parsed_ = false;
 #endif // _DEBUG
