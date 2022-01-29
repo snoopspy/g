@@ -32,7 +32,7 @@ public:
 	GObjRef getCommand() { return &command_; }
 
 protected:
-	int currentChannel_{-1};
+	int currentChannel_{0};
 
 public:
 	Q_INVOKABLE WifiAnalyzer(QObject* parent = nullptr);

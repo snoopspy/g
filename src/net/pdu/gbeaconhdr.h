@@ -7,11 +7,11 @@
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
 struct G_EXPORT GBeaconHdr : GDot11ExtHdr {
-	GMac ta() { return addr2_; }
 	GMac sa() { return addr2_; }
+	GMac da() { return addr1_; }
 	GMac bssid() { return addr3_; }
 
-	struct __attribute__((packed)) Fix {
+	struct Fix {
 		le64_t timestamp_; // microsecond
 		le16_t beaconInterval_; // millisecond
 		le16_t capabilities_;

@@ -41,6 +41,23 @@ struct AlignSizeInfo {
 // ----------------------------------------------------------------------------
 // GRadiotapHdr
 // ----------------------------------------------------------------------------
+GRadiotapHdr* GRadiotapHdr::check(gbyte* p, uint32_t size) {
+	GRadiotapHdr* radiotapHdr = PRadiotapHdr(p);
+	le16_t len = radiotapHdr->len_;
+	if (len < sizeof(GRadiotapHdr) || len > size) {
+		qWarning() << QString("len=%1 size=%2").arg(len).arg(size);
+		return nullptr;
+	}
+	return radiotapHdr;
+}
+
+void GRadiotapHdr::init() {
+	ver_ = 0;
+	pad_ = 0;
+	len_ = sizeof(GRadiotapHdr);
+	present_.p_ = 0;
+}
+
 QList<GBuf> GRadiotapHdr::presentInfo(BitNo bitNo) {
 	QList<GBuf> res;
 
@@ -79,16 +96,6 @@ QList<GBuf> GRadiotapHdr::presentInfo(BitNo bitNo) {
 	}
 
 	return res;
-}
-
-GRadiotapHdr* GRadiotapHdr::check(gbyte* p, uint32_t size) {
-	GRadiotapHdr* radiotapHdr = PRadiotapHdr(p);
-	le16_t len = radiotapHdr->len_;
-	if (len < sizeof(GRadiotapHdr) || len > size) {
-		qWarning() << QString("len=%1 size=%2").arg(len).arg(size);
-		return nullptr;
-	}
-	return radiotapHdr;
 }
 
 int GRadiotapHdr::freqToChannel(int freq) {

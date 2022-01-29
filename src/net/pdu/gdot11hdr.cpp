@@ -1,5 +1,8 @@
 #include "gdot11hdr.h"
 
+// ----------------------------------------------------------------------------
+// GDot11Hdr
+// ----------------------------------------------------------------------------
 GDot11Hdr* GDot11Hdr::check(GRadiotapHdr* radiotapHdr, uint32_t size) {
 	uint32_t len = radiotapHdr->len_;
 	if (size < sizeof(GDot11Hdr) + len) {
@@ -8,6 +11,14 @@ GDot11Hdr* GDot11Hdr::check(GRadiotapHdr* radiotapHdr, uint32_t size) {
 	}
 	GDot11Hdr* dot11Hdr = PDot11Hdr(pchar(radiotapHdr) + len);
 	return dot11Hdr;
+}
+
+void GDot11Hdr::init(TypeSubtype typeSubtype) {
+	ver_ = 0;
+	type_ = typeSubtype & 0xC0;
+	subtype_ = typeSubtype & 0x0F;
+	flags_ = 0;
+	duration_ = 0;
 }
 
 // ----------------------------------------------------------------------------

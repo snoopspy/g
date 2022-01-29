@@ -18,7 +18,7 @@ WifiAnalyzer::~WifiAnalyzer() {
 }
 
 bool WifiAnalyzer::doOpen() {
-	currentChannel_ = -1;
+	currentChannel_ = 0;
 
 	if (!monitorDevice_.open()) {
 		err = monitorDevice_.err;

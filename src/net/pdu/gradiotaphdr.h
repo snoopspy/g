@@ -59,8 +59,9 @@ struct G_EXPORT GRadiotapHdr {
 	le16_t len_;
 	Present present_;
 
-	QList<GBuf> presentInfo(BitNo bitNo);
 	static GRadiotapHdr* check(gbyte* p, uint32_t size);
+	void init();
+	QList<GBuf> presentInfo(BitNo bitNo);
 	static int freqToChannel(int freq);
 };
 typedef GRadiotapHdr *PRadiotapHdr;

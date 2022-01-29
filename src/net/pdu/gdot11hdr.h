@@ -94,6 +94,7 @@ struct G_EXPORT GDot11Hdr {
 	};
 
 	static GDot11Hdr* check(GRadiotapHdr* radiotapHdr, uint32_t size);
+	void init(TypeSubtype typeSubtype);
 };
 typedef GDot11Hdr *PDot11Hdr;
 #pragma pack(pop)

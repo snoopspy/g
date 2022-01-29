@@ -56,6 +56,7 @@ SOURCES += \
 	$${PWD}/../src/base/widget/gtablewidget.cpp \
 	$${PWD}/../src/base/widget/gtreewidget.cpp \
 	$${PWD}/../src/net/block/gblock.cpp \
+	$${PWD}/../src/net/block/gdot11block.cpp \
 	$${PWD}/../src/net/block/gtcpblock.cpp \
 	$${PWD}/../src/net/capture/garpspoof.cpp \
 	$${PWD}/../src/net/capture/gasyncnetfilter.cpp \
@@ -111,6 +112,7 @@ SOURCES += \
 	$${PWD}/../src/net/packet/gpacket.cpp \
 	$${PWD}/../src/net/pdu/garphdr.cpp \
 	$${PWD}/../src/net/pdu/gbeaconhdr.cpp \
+	$${PWD}/../src/net/pdu/gdeauthhdr.cpp \
 	$${PWD}/../src/net/pdu/gdhcphdr.cpp \
 	$${PWD}/../src/net/pdu/gdnshdr.cpp \
 	$${PWD}/../src/net/pdu/gdnsinfo.cpp \
@@ -196,6 +198,7 @@ HEADERS += \
 	$${PWD}/../src/base/widget/gtablewidget.h \
 	$${PWD}/../src/base/widget/gtreewidget.h \
 	$${PWD}/../src/net/block/gblock.h \
+	$${PWD}/../src/net/block/gdot11block.h \
 	$${PWD}/../src/net/block/gtcpblock.h \
 	$${PWD}/../src/net/capture/garpspoof.h \
 	$${PWD}/../src/net/capture/gasyncnetfilter.h \
@@ -252,6 +255,7 @@ HEADERS += \
 	$${PWD}/../src/net/packet/gpacket.h \
 	$${PWD}/../src/net/pdu/garphdr.h \
 	$${PWD}/../src/net/pdu/gbeaconhdr.h \
+	$${PWD}/../src/net/pdu/gdeauthhdr.h \
 	$${PWD}/../src/net/pdu/gdhcphdr.h \
 	$${PWD}/../src/net/pdu/gdnshdr.h \
 	$${PWD}/../src/net/pdu/gdnsinfo.h \

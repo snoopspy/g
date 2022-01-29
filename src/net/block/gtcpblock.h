@@ -40,15 +40,13 @@ public:
 	void setWriter(GObjPtr value) { writer_ = dynamic_cast<GWrite*>(value.data()); }
 
 public:
-	GWrite* writer_{nullptr};
-
-public:
 	bool enabled_{true};
 	BlockType forwardBlockType_{Rst};
 	QStringList forwardFinMsg_;
 	BlockType backwardBlockType_{Rst};
 	QStringList backwardFinMsg_;
 	int bufSize_{GPacket::MaxBufSize};
+	GWrite* writer_{nullptr};
 
 public:
 	Q_INVOKABLE GTcpBlock(QObject* parent = nullptr) : GStateObj(parent) {}
