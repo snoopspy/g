@@ -12,13 +12,19 @@ protected:
 	QSize minimumSizeHint() const override { return QSize(64, 64); }
 };
 
+// ----------------------------------------------------------------------------
+// GPlainTextEdit
+// ----------------------------------------------------------------------------
 GPlainTextEdit::GPlainTextEdit(QWidget *parent) : QPlainTextEdit(parent) {
-	setVerticalScrollBar(new MyScrollBar(this->verticalScrollBar()));
+	init();
 }
 
 GPlainTextEdit::GPlainTextEdit(const QString &text, QWidget *parent) : QPlainTextEdit(text, parent) {
+	init();
+}
+
+void GPlainTextEdit::init() {
 	setVerticalScrollBar(new MyScrollBar(this->verticalScrollBar()));
 }
 
 #endif
-

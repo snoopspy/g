@@ -14,9 +14,16 @@
 
 #include <QTableWidget>
 
+// ----------------------------------------------------------------------------
+// GTableWidget
+// ----------------------------------------------------------------------------
 #ifdef Q_OS_ANDROID
 struct GTableWidget : QTableWidget {
 	explicit GTableWidget(QWidget *parent = nullptr);
+	GTableWidget(int rows, int columns, QWidget *parent = nullptr);
+
+protected:
+	void init();
 };
 #else
 typedef QTableWidget GTableWidget;

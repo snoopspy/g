@@ -3,6 +3,9 @@
 
 #ifdef QT_GUI_LIB
 
+// ----------------------------------------------------------------------------
+// GDefaultWidget
+// ----------------------------------------------------------------------------
 GDefaultWidget::GDefaultWidget(QWidget* parent) : QWidget(parent) {
 	resize(QSize(640, 480));
 

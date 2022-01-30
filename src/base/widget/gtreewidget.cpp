@@ -17,6 +17,9 @@ struct MyHeightItemDelegate : QStyledItemDelegate
 	}
 };
 
+// ----------------------------------------------------------------------------
+// GTableWidget
+// ----------------------------------------------------------------------------
 GTreeWidget::GTreeWidget(QWidget *parent) : QTreeWidget(parent) {
 	header()->setFixedHeight(80);
 	QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);

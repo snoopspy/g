@@ -17,7 +17,18 @@ struct MyHeightItemDelegate : QStyledItemDelegate
 	}
 };
 
+// ----------------------------------------------------------------------------
+// GTableWidget
+// ----------------------------------------------------------------------------
 GTableWidget::GTableWidget(QWidget *parent) : QTableWidget(parent) {
+	init();
+}
+
+GTableWidget::GTableWidget(int rows, int columns, QWidget *parent) : QTableWidget(rows, columns, parent) {
+	init();
+}
+
+void GTableWidget::init() {
 	horizontalHeader()->setFixedHeight(80);
 	QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
 	setItemDelegate(new MyHeightItemDelegate(this));

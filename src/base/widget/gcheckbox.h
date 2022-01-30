@@ -12,21 +12,21 @@
 
 #ifdef QT_GUI_LIB
 
-#include <QSplitter>
+#include <QCheckBox>
 
 // ----------------------------------------------------------------------------
-// GSplitter
+// GCheckBox
 // ----------------------------------------------------------------------------
 #ifdef Q_OS_ANDROID
-struct GSplitter : QSplitter {
-	explicit GSplitter(QWidget* parent = nullptr);
-	explicit GSplitter(Qt::Orientation orientation, QWidget* parent = nullptr);
+struct GCheckBox : QCheckBox {
+	explicit GCheckBox(QWidget *parent = nullptr);
+	explicit GCheckBox(const QString &text, QWidget *parent = nullptr);
 
 protected:
 	void init();
 };
 #else
-typedef QSplitter GSplitter;
+typedef QCheckBox GCheckBox;
 #endif
 
 #endif // QT_GUI_LIB

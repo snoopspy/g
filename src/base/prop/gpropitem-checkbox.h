@@ -12,7 +12,7 @@
 
 #ifdef QT_GUI_LIB
 
-#include <QCheckBox>
+#include <GCheckBox>
 #include "gpropitem.h"
 
 // ----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ public:
 	GPropItemCheckBox(GPropItemParam* param);
 
 public:
-	QCheckBox* checkBox_{nullptr};
+	GCheckBox* checkBox_{nullptr};
 };
 
 #endif // QT_GUI_LIB

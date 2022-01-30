@@ -14,6 +14,9 @@
 
 #include <QTreeWidget>
 
+// ----------------------------------------------------------------------------
+// GTableWidget
+// ----------------------------------------------------------------------------
 #ifdef Q_OS_ANDROID
 struct GTreeWidget : QTreeWidget {
 	explicit GTreeWidget(QWidget *parent = nullptr);
