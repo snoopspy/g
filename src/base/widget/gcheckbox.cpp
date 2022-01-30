@@ -2,6 +2,8 @@
 
 #if defined(QT_GUI_LIB) && defined(Q_OS_ANDROID)
 
+#include <QStyle>
+
 // ----------------------------------------------------------------------------
 // GCheckBox
 // ----------------------------------------------------------------------------
@@ -14,7 +16,7 @@ GCheckBox::GCheckBox(const QString &text, QWidget *parent) : QCheckBox(text, par
 }
 
 void GCheckBox::init() {
-	setStyleSheet("QCheckBox::indicator {width:50px;height: 50px;}");
+	setStyleSheet("QCheckBox { color : #AAAAAA; }\nQCheckBox::indicator { width : 65px; height : 65px; border : }");
 }
 
 #endif
