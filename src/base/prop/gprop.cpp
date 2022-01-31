@@ -98,11 +98,11 @@ bool GProp::propLoad(QJsonObject jo, QMetaProperty mpro) {
 		}
 
 	if (userType == qMetaTypeId<GObjPtr>()) {
-		GGraph* graph = dynamic_cast<GGraph*>(object->parent());
-		if (graph != nullptr) {
+		GObj* parent = dynamic_cast<GObj*>(object->parent());
+		if (parent != nullptr) {
 			QString s = variant.toString();
 			if (s != "") {
-				GObj* node = graph->nodes_.findNode(s);
+				GObj* node = parent->findChild<GObj*>(s);
 				if (node != nullptr) {
 					GObjPtr objPtr = node;
 					res = object->setProperty(propName, QVariant::fromValue<GObjPtr>(objPtr));

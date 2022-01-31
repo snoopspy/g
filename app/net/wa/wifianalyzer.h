@@ -14,9 +14,9 @@ struct G_EXPORT WifiAnalyzer : GStateObj {
 	Q_PROPERTY(ShowType showType MEMBER showType_)
 	Q_PROPERTY(GObjRef monitorDevice READ getMonitorDevice)
 	Q_PROPERTY(GObjRef channelHop READ getChannelHop)
-	Q_PROPERTY(GObjRef command READ getCommand)
 	Q_PROPERTY(GObjRef dot11Block READ getDot11Block)
 	Q_PROPERTY(GObjRef pcapDeviceWrite READ getPcapDeviceWrite)
+	Q_PROPERTY(GObjRef command READ getCommand)
 	Q_ENUMS(ShowType)
 
 public:
@@ -33,9 +33,9 @@ public:
 	ShowType showType_{Average};
 	GObjRef getMonitorDevice() { return &monitorDevice_; }
 	GObjRef getChannelHop() { return &channelHop_; }
-	GObjRef getCommand() { return &command_; }
 	GObjRef getDot11Block() { return &dot11Block_; }
 	GObjRef getPcapDeviceWrite() { return &pcapDeviceWrite_; }
+	GObjRef getCommand() { return &command_; }
 
 protected:
 	int currentChannel_{0};
@@ -49,11 +49,11 @@ protected:
 	bool doClose() override;
 
 public:
-	GMonitorDevice monitorDevice_;
-	GCommand command_;
-	GChannelHop channelHop_;
-	GDot11Block dot11Block_;
-	GPcapDeviceWrite pcapDeviceWrite_;
+	GMonitorDevice monitorDevice_{this};
+	GChannelHop channelHop_{this};
+	GDot11Block dot11Block_{this};
+	GPcapDeviceWrite pcapDeviceWrite_{this};
+	GCommand command_{this};
 
 public slots:
 	void processCaptured(GPacket* packet);
