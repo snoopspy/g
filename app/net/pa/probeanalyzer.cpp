@@ -34,7 +34,7 @@ void ProbeAnalyzer::processCaptured(GPacket* packet) {
 	if (dot11ExtHdr == nullptr) return;
 
 	le8_t typeSubtype = dot11ExtHdr->typeSubtype();
-	if (typeSubtype != GDot11Hdr::ProbeRequest && typeSubtype != GDot11Hdr::Deauthentication) return;
+	if (typeSubtype != GDot11Hdr::ProbeRequest && typeSubtype != GDot11Hdr::Deauthentication && typeSubtype != GDot11Hdr::Disassociation) return;
 
 	GRadioHdr* radioHdr = packet->radioHdr_;
 	if (radioHdr == nullptr) return;
