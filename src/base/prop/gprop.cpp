@@ -1,6 +1,5 @@
 #include "gprop.h"
 #include "base/gobj.h"
-#include "base/graph/ggraph.h"
 
 // ----------------------------------------------------------------------------
 // GProp
