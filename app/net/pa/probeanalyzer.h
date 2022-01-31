@@ -23,8 +23,8 @@ protected:
 	bool doClose() override;
 
 public:
-	GMonitorDevice monitorDevice_;
-	GCommand command_;
+	GMonitorDevice monitorDevice_{this};
+	GCommand command_{this};
 
 public slots:
 	void processCaptured(GPacket* packet);
