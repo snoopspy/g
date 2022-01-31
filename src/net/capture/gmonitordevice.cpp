@@ -1,5 +1,6 @@
 #include "gmonitordevice.h"
 #include "gsyncpcapdevice.h"
+#include "net/iw/giw.h"
 #include "net/packet/gdot11packet.h"
 
 GMonitorDevice::GMonitorDevice(QObject* parent) : GPcapDevice(parent) {
@@ -80,7 +81,17 @@ int16_t GMonitorDevice::getRadioLenFromFile() {
 }
 
 int16_t GMonitorDevice::getRadioLenFromDevice() {
-	int radioLen = -1;
+	GIw iw;
+	if (!iw.open(intfName_)) {
+		SET_ERR(GErr::Fail, iw.error_);
+		return -1;
+	}
+	if (!iw.setChannel(1)) {
+		SET_ERR(GErr::Fail, iw.error_);
+		return -1;
+	}
+	iw.close();
+
 	GSyncPcapDevice device;
 	device.intfName_ = intfName_;
 	if (!device.open()) {
@@ -95,6 +106,7 @@ int16_t GMonitorDevice::getRadioLenFromDevice() {
 		return -1;
 	}
 
+	int radioLen = -1;
 	while (true) {
 		GDot11Packet packet;
 		GPacket::Result res = device.read(&packet);
