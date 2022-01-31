@@ -39,7 +39,7 @@ bool GMonitorDevice::doOpen() {
 	if (res) {
 		GPacket::Dlt _dlt = dlt();
 		if (_dlt != GPacket::Dot11) {
-			QString msg = QString("Data link type(%1) must be GPacket::Dot11").arg(GPacket::dltToString(_dlt));
+			QString msg = QString("Data link type(%1 - %2) must be GPacket::Dot11").arg(intfName_).arg(GPacket::dltToString(_dlt));
 			SET_ERR(GErr::Fail, msg);
 			return false;
 		}
@@ -90,7 +90,7 @@ int16_t GMonitorDevice::getRadioLenFromDevice() {
 
 	GPacket::Dlt _dlt = device.dlt();
 	if (_dlt != GPacket::Dot11) {
-		QString msg = QString("Data link type(%1) must be GPacket::Dot11").arg(GPacket::dltToString(_dlt));
+		QString msg = QString("Data link type(%1 - %2) must be GPacket::Dot11").arg(intfName_).arg(GPacket::dltToString(_dlt));
 		SET_ERR(GErr::Fail, msg);
 		return -1;
 	}
