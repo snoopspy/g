@@ -21,10 +21,10 @@ struct G_EXPORT GDot11Block : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(bool enabled MEMBER enabled_)
 	Q_PROPERTY(bool debugLog MEMBER debugLog_)
-	Q_PROPERTY(bool authStationAp MEMBER authStationAp_);
+	Q_PROPERTY(bool authStaAp MEMBER authStaAp_);
 	Q_PROPERTY(bool deauthApBroadcast MEMBER deauthApBroadcast_);
-	Q_PROPERTY(bool deauthStationAp MEMBER deauthStationAp_);
-	Q_PROPERTY(bool disassociateStationAp MEMBER disassociateStationAp_);
+	Q_PROPERTY(bool deauthStaAp MEMBER deauthStaAp_);
+	Q_PROPERTY(bool disassociateStaAp MEMBER disassociateStaAp_);
 	Q_PROPERTY(ulong sendInterval MEMBER sendInterval_)
 	Q_PROPERTY(GObjPtr writer READ getWriter WRITE setWriter)
 
@@ -35,10 +35,10 @@ public:
 public:
 	bool enabled_{true};
 	bool debugLog_{false};
-	bool authStationAp_{false};
+	bool authStaAp_{false};
 	bool deauthApBroadcast_{true};
-	bool deauthStationAp_{false};
-	bool disassociateStationAp_{false};
+	bool deauthStaAp_{false};
+	bool disassociateStaAp_{false};
 	GDuration sendInterval_{100};
 	GWrite* writer_{nullptr};
 
@@ -52,6 +52,7 @@ protected:
 
 protected:
 	QAtomicInt currentChannel_{0};
+
 
 public slots:
 	void block(GPacket* packet);
