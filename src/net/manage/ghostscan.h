@@ -21,8 +21,8 @@
 struct G_EXPORT GHostScan : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(bool enabled MEMBER enabled_)
-	Q_PROPERTY(ulong rescanSleepTime MEMBER rescanSleepTime_)
-	Q_PROPERTY(ulong sendSleepTime MEMBER sendSleepTime_)
+	Q_PROPERTY(ulong rescanInterval MEMBER rescanInterval_)
+	Q_PROPERTY(ulong sendInterval MEMBER sendInterval_)
 	Q_PROPERTY(GObjPtr pcapDevice READ getPcapDevice WRITE setPcapDevice)
 
 	GObjPtr getPcapDevice() { return pcapDevice_; }
@@ -30,8 +30,8 @@ struct G_EXPORT GHostScan : GStateObj {
 
 public:
 	bool enabled_{true};
-	GDuration rescanSleepTime_{600000}; // 10 minutes
-	GDuration sendSleepTime_{50}; // 50 msecs
+	GDuration rescanInterval_{600000}; // 10 minutes
+	GDuration sendInterval_{50}; // 50 msecs
 	GPcapDevice* pcapDevice_{nullptr};
 
 public:

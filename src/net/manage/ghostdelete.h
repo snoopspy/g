@@ -18,10 +18,10 @@
 struct G_EXPORT GHostDelete : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(bool enabled MEMBER enabled_)
-	Q_PROPERTY(ulong checkSleepTime MEMBER checkSleepTime_)
+	Q_PROPERTY(ulong checkInterval MEMBER checkInterval_)
 	Q_PROPERTY(qint64 scanStartTimeout MEMBER scanStartTimeout_)
-	Q_PROPERTY(ulong randomSleepTime MEMBER randomSleepTime_)
-	Q_PROPERTY(ulong sendSleepTime MEMBER sendSleepTime_)
+	Q_PROPERTY(ulong randomInterval MEMBER randomInterval_)
+	Q_PROPERTY(ulong sendInterval MEMBER sendInterval_)
 	Q_PROPERTY(qint64 deleteTimeout MEMBER deleteTimeout_)
 	Q_PROPERTY(GObjPtr pcapDevice READ getPcapDevice WRITE setPcapDevice)
 	Q_PROPERTY(GObjPtr hostDetect READ getHostDetect WRITE setHostDetect)
@@ -33,10 +33,10 @@ struct G_EXPORT GHostDelete : GStateObj {
 
 public:
 	bool enabled_{true};
-	GDuration checkSleepTime_{1000}; // 1 sec
+	GDuration checkInterval_{1000}; // 1 sec
 	qint64 scanStartTimeout_{60000}; // 60 secs
-	GDuration randomSleepTime_{5000}; // 5 secs
-	GDuration sendSleepTime_{1000}; // 1 sec
+	GDuration randomInterval_{5000}; // 5 secs
+	GDuration sendInterval_{1000}; // 1 sec
 	qint64 deleteTimeout_{10000}; // 10 secs
 	GPcapDevice* pcapDevice_{nullptr};
 	GHostDetect* hostDetect_{nullptr};

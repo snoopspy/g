@@ -75,10 +75,10 @@ void GHostScan::run() {
 				qWarning() << QString("device_->write return %1").arg(int(res));
 				break;
 			}
-			if (we_.wait(sendSleepTime_)) break;
+			if (we_.wait(sendInterval_)) break;
 		}
 		if (!active() || !pcapDevice_->active()) break;
-		if (we_.wait(rescanSleepTime_)) break;
+		if (we_.wait(rescanInterval_)) break;
 	}
 
 	qDebug() << "end";

@@ -77,7 +77,7 @@ void GHostDelete::checkRun() {
 				it++;
 			}
 		}
-		if (checkThread_.we_.wait(checkSleepTime_)) break;
+		if (checkThread_.we_.wait(checkInterval_)) break;
 	}
 
 	qDebug() << "end";
@@ -96,8 +96,8 @@ GHostDelete::ScanThread::~ScanThread() {
 
 void GHostDelete::ScanThread::run() {
 	// qDebug() << "beg " + QString(host_->mac_); // by gilgil 2021.11.13
-	if (hostDelete_->randomSleepTime_ > 0) {
-		GDuration random = QRandomGenerator::global()->generate() % hostDelete_->randomSleepTime_;
+	if (hostDelete_->randomInterval_ > 0) {
+		GDuration random = QRandomGenerator::global()->generate() % hostDelete_->randomInterval_;
 		if (we_.wait(random)) return;
 		qDebug() << QString("aft we_.wait(%1)").arg(random);
 	}
@@ -140,7 +140,7 @@ void GHostDelete::ScanThread::run() {
 		if (res != GPacket::Ok) {
 			qWarning() << QString("device_->write return %1").arg(int(res));
 		}
-		if (we_.wait(hostDelete_->sendSleepTime_)) break;
+		if (we_.wait(hostDelete_->sendInterval_)) break;
 		if (!device->active() || !hostDelete_->active()) break;
 
 		qint64 now = et.elapsed();
