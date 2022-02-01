@@ -27,6 +27,7 @@ bool GHostScan::doClose() {
 	if (!enabled_) return true;
 
 	we_.wakeAll();
+	scanThread_.quit();
 	bool res = scanThread_.wait();
 	return res;
 }

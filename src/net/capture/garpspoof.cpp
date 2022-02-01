@@ -158,6 +158,7 @@ bool GArpSpoof::doClose() {
 	if (!enabled_) return true;
 
 	infectThread_.we_.wakeAll();
+	infectThread_.quit();
 	infectThread_.wait();
 
 	sendArpRecoverAll(GArpHdr::Request);

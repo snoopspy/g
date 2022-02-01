@@ -50,18 +50,18 @@ protected:
 	bool doClose() override;
 
 protected:
-		void checkRun();
+	void checkRun();
 
-		struct CheckThread : GThread {
-			CheckThread(QObject *parent) : GThread(parent) {}
-			~CheckThread() override {}
-			GWaitEvent we_;
-			void run() override {
-				GHostDelete* hasm = dynamic_cast<GHostDelete*>(parent());
-				Q_ASSERT(hasm != nullptr);
-				hasm->checkRun();
-			}
-		} checkThread_{this};
+	struct CheckThread : GThread {
+		CheckThread(QObject *parent) : GThread(parent) {}
+		~CheckThread() override {}
+		GWaitEvent we_;
+		void run() override {
+			GHostDelete* hd = dynamic_cast<GHostDelete*>(parent());
+			Q_ASSERT(hd != nullptr);
+			hd->checkRun();
+		}
+	} checkThread_{this};
 
 protected:
 	struct ScanThread : GThread {

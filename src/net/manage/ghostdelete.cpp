@@ -41,6 +41,7 @@ bool GHostDelete::doClose() {
 	}
 	checkThread_.we_.wakeAll();
 	qDebug() << "";
+	checkThread_.quit();
 	bool res = checkThread_.wait();
 	qDebug() << "";
 	return res;
