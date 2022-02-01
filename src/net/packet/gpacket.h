@@ -13,6 +13,7 @@
 #include <pcap.h>
 #include <QObject>
 #include "net/pdu/gpdu.h"
+
 #include "net/pdu/gethhdr.h"
 #include "net/pdu/garphdr.h"
 #include "net/pdu/giphdr.h"
@@ -23,10 +24,9 @@
 
 #include "net/pdu/gradiohdr.h"
 #include "net/pdu/gdot11exthdr.h"
-struct GDot11ExtHdr;
-struct GBeaconHdr;
-struct GDeauthHdr;
-struct GQoSNullHdr;
+#include "net/pdu/gdeauthhdr.h"
+#include "net/pdu/gbeaconhdr.h"
+#include "net/pdu/gqosnullhdr.h"
 
 // ----------------------------------------------------------------------------
 // GPacket

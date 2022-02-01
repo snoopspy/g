@@ -1,7 +1,4 @@
 #include "gdot11packet.h"
-#include "net/pdu/gbeaconhdr.h"
-#include "net/pdu/gdeauthhdr.h"
-#include "net/pdu/gqosnullhdr.h"
 
 // ----------------------------------------------------------------------------
 // GDot11Packet
