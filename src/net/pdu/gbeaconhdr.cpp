@@ -12,7 +12,7 @@ GBeaconHdr* GBeaconHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
 	return PBeaconHdr(dot11Hdr);
 }
 
-void* GBeaconHdr::firstTag(le8_t num, uint32_t size) {
+void* GBeaconHdr::findFirstTag(le8_t num, uint32_t size) {
 	void* end = pchar(this) + size;
 	GBeaconHdr::Tag* t = firstTag();
 	while (t < end) {

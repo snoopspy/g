@@ -60,7 +60,7 @@ struct G_EXPORT GBeaconHdr : GDot11ExtHdr {
 	typedef TrafficIndicationMap *PTrafficIndicationMap;
 
 	static GBeaconHdr* check(GDot11Hdr* dot11Hdr, uint32_t size);
-	void* firstTag(le8_t num, uint32_t size);
+	void* findFirstTag(le8_t num, uint32_t size);
 };
 typedef GBeaconHdr *PBeaconHdr;
 #pragma pack(pop)
