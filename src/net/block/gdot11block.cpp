@@ -102,8 +102,11 @@ void GDot11Block::attack(Ap& ap) {
 		writer_->write(buf);
 	}
 	if (timAttack_) {
-		GBuf buf(pbyte(ap.timFrame_.data()), ap.timFrame_.size());
-		writer_->write(buf);
+		if (!ap.timFrame_.isEmpty()) {
+			GBuf buf(pbyte(ap.timFrame_.data()), ap.timFrame_.size());
+			writer_->write(buf);
+			qDebug() << QString(ap.mac_); // gilgil temp 2022.02.02
+		}
 	}
 }
 
@@ -142,7 +145,7 @@ void GDot11Block::attackRun() {
 	while (active()) {
 		if (attackThread_.we_.wait(attackInterval_)) break;
 		{
-			// QMutexLocker ml(&apMap_.m_); // gilgil temp
+			QMutexLocker ml(&apMap_.m_);
 			ApMap::iterator it = apMap_.find(currentChannel_);
 			if (it == apMap_.end()) continue;
 			Aps& aps = it.value();

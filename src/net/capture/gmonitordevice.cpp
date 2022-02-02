@@ -11,6 +11,8 @@ GMonitorDevice::~GMonitorDevice() {
 }
 
 bool GMonitorDevice::doOpen() {
+	if (!enabled_) return true;
+
 	bool res = false;
 	int16_t radioLen = -1;
 
@@ -49,6 +51,8 @@ bool GMonitorDevice::doOpen() {
 }
 
 bool GMonitorDevice::doClose() {
+	if (!enabled_) return true;
+
 	return GPcapDevice::doClose();
 }
 
