@@ -21,7 +21,6 @@ struct G_EXPORT GHostDetect : GStateObj {
 	Q_PROPERTY(bool checkDhcp MEMBER checkDhcp_)
 	Q_PROPERTY(bool checkArp MEMBER checkArp_)
 	Q_PROPERTY(bool checkIp MEMBER checkIp_)
-	Q_PROPERTY(qint64 redetectInterval MEMBER redetectInterval_)
 	Q_PROPERTY(GObjPtr pcapDevice READ getPcapDevice WRITE setPcapDevice)
 
 	GObjPtr getPcapDevice() { return pcapDevice_; }
@@ -32,7 +31,6 @@ public:
 	bool checkDhcp_{true};
 	bool checkArp_{true};
 	bool checkIp_{true};
-	qint64 redetectInterval_{3600000}; // 1 hour
 	GPcapDevice* pcapDevice_{nullptr};
 
 public:

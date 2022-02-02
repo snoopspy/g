@@ -50,26 +50,13 @@ protected:
 	bool doClose() override;
 
 protected:
-	void checkRun();
-
-	struct CheckThread : GThread {
-		CheckThread(QObject *parent) : GThread(parent) {}
-		~CheckThread() override {}
-		GWaitEvent we_;
-		void run() override {
-			GHostDelete* hd = dynamic_cast<GHostDelete*>(parent());
-			Q_ASSERT(hd != nullptr);
-			hd->checkRun();
-		}
-	} checkThread_{this};
-
-protected:
+	QElapsedTimer et_;
 	struct ScanThread : GThread {
 		ScanThread(GHostDelete* hostDelete, GHostDetect::Host* host);
 		~ScanThread() override;
 		void run() override;
 
-		GHostDelete* hostDelete_{nullptr};
+		GHostDelete* hd_{nullptr};
 		GHostDetect::Host* host_{nullptr};
 		GWaitEvent we_;
 	};
@@ -77,6 +64,9 @@ protected:
 	struct ScanThreadMap: QMap<GMac, ScanThread*> {
 		QMutex m_;
 	} stm_;
+
+public slots:
+	void processHostDetected(GHostDetect::Host* host);
 
 public:
 	bool propLoad(QJsonObject jo, QMetaProperty mpro) override;

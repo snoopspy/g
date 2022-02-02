@@ -31,8 +31,7 @@ protected:
 	void loadDelay();
 	void loadFilter();
 	void loadFlow();
-	void loadManage();
-	void loadOther();
+	void loadHost();
 	void loadProcess();
 	void loadWrite();
 

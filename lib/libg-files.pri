@@ -22,7 +22,6 @@ SOURCES += \
 	$${PWD}/../src/base/log/glogstderr.cpp \
 	$${PWD}/../src/base/log/glogstdout.cpp \
 	$${PWD}/../src/base/log/glogudp.cpp \
-	$${PWD}/../src/base/other/gcommand.cpp \
 	$${PWD}/../src/base/prop/gprop.cpp \
 	$${PWD}/../src/base/prop/gpropdialog.cpp \
 	$${PWD}/../src/base/prop/gpropitem-bool.cpp \
@@ -90,9 +89,9 @@ SOURCES += \
 	$${PWD}/../src/net/flow/gipflowmgr.cpp \
 	$${PWD}/../src/net/flow/gtcpflowmgr.cpp \
 	$${PWD}/../src/net/flow/gudpflowmgr.cpp \
-	$${PWD}/../src/net/manage/ghostdelete.cpp \
-	$${PWD}/../src/net/manage/ghostdetect.cpp \
-	$${PWD}/../src/net/manage/ghostscan.cpp \
+	$${PWD}/../src/net/host/ghostdelete.cpp \
+	$${PWD}/../src/net/host/ghostdetect.cpp \
+	$${PWD}/../src/net/host/ghostscan.cpp \
 	$${PWD}/../src/net/gatm.cpp \
 	$${PWD}/../src/net/gintf.cpp \
 	$${PWD}/../src/net/gip.cpp \
@@ -130,6 +129,7 @@ SOURCES += \
 	$${PWD}/../src/net/pdu/gudphdr.cpp \
 	$${PWD}/../src/net/process/gchannelhop.cpp \
 	$${PWD}/../src/net/process/gclienthellosplit.cpp \
+	$${PWD}/../src/net/process/gcommand.cpp \
 	$${PWD}/../src/net/process/gcorrectchecksum.cpp \
 	$${PWD}/../src/net/process/gdnsprocessor.cpp \
 	$${PWD}/../src/net/process/gflowmgrdebug.cpp \
@@ -233,9 +233,9 @@ HEADERS += \
 	$${PWD}/../src/net/flow/gipflowmgr.h \
 	$${PWD}/../src/net/flow/gtcpflowmgr.h \
 	$${PWD}/../src/net/flow/gudpflowmgr.h \
-	$${PWD}/../src/net/manage/ghostdelete.h \
-	$${PWD}/../src/net/manage/ghostdetect.h \
-	$${PWD}/../src/net/manage/ghostscan.h \
+	$${PWD}/../src/net/host/ghostdelete.h \
+	$${PWD}/../src/net/host/ghostdetect.h \
+	$${PWD}/../src/net/host/ghostscan.h \
 	$${PWD}/../src/net/gatm.h \
 	$${PWD}/../src/net/gintf.h \
 	$${PWD}/../src/net/gip.h \
@@ -274,6 +274,7 @@ HEADERS += \
 	$${PWD}/../src/net/pdu/gudphdr.h \
 	$${PWD}/../src/net/process/gchannelhop.h \
 	$${PWD}/../src/net/process/gclienthellosplit.h \
+	$${PWD}/../src/net/process/gcommand.h \
 	$${PWD}/../src/net/process/gcorrectchecksum.h \
 	$${PWD}/../src/net/process/gdnsprocessor.h \
 	$${PWD}/../src/net/process/gflowmgrdebug.h \

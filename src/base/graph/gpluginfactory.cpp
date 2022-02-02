@@ -23,8 +23,7 @@ void GPluginFactory::loadDefault() {
 	loadDelay();
 	loadFilter();
 	loadFlow();
-	loadManage();
-	loadOther();
+	loadHost();
 	loadProcess();
 	loadWrite();
 }
@@ -183,29 +182,15 @@ void GPluginFactory::loadFlow() {
 #include <GHostDetect>
 #include <GHostScan>
 
-void GPluginFactory::loadManage() {
+void GPluginFactory::loadHost() {
 	qRegisterMetaType<GHostDelete*>();
 	qRegisterMetaType<GHostDetect*>();
 	qRegisterMetaType<GHostScan*>();
 
-	ItemCategory* category = new ItemCategory("manage");
+	ItemCategory* category = new ItemCategory("host");
 	category->items_.push_back(new ItemNode("GHostDelete"));
 	category->items_.push_back(new ItemNode("GHostDetect"));
 	category->items_.push_back(new ItemNode("GHostScan"));
-
-	items_.push_back(category);
-}
-
-// ----------------------------------------------------------------------------
-// Other
-// ----------------------------------------------------------------------------
-#include <GCommand>
-
-void GPluginFactory::loadOther() {
-	qRegisterMetaType<GCommand*>();
-
-	ItemCategory* category = new ItemCategory("other");
-	category->items_.push_back(new ItemNode("GCommand"));
 
 	items_.push_back(category);
 }
@@ -215,6 +200,7 @@ void GPluginFactory::loadOther() {
 // ----------------------------------------------------------------------------
 #include <GChannelHop>
 #include <GClientHelloSplit>
+#include <GCommand>
 #include <GCorrectChecksum>
 #include <GDnsProcessor>
 #include <GFlowMgrDebug>
@@ -226,6 +212,7 @@ void GPluginFactory::loadProcess() {
 #endif
 	qRegisterMetaType<GClientHelloSplit*>();
 	qRegisterMetaType<GCorrectChecksum*>();
+	qRegisterMetaType<GCommand*>();
 	qRegisterMetaType<GDnsProcessor*>();
 	qRegisterMetaType<GFlowMgrDebug*>();
 	qRegisterMetaType<GPacketDebug*>();
@@ -233,6 +220,7 @@ void GPluginFactory::loadProcess() {
 	ItemCategory* category = new ItemCategory("process");
 	category->items_.push_back(new ItemNode("GChannelHop"));
 	category->items_.push_back(new ItemNode("GClientHelloSplit"));
+	category->items_.push_back(new ItemNode("GCommand"));
 	category->items_.push_back(new ItemNode("GCorrectChecksum"));
 	category->items_.push_back(new ItemNode("GDnsProcessor"));
 	category->items_.push_back(new ItemNode("GFlowMgrDebug"));

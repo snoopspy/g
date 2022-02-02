@@ -11,9 +11,9 @@
 #pragma once
 
 #include "garpspoof.h"
-#include "net/manage/ghostdetect.h"
-#include "net/manage/ghostdelete.h"
-#include "net/manage/ghostscan.h"
+#include "net/host/ghostdetect.h"
+#include "net/host/ghostdelete.h"
+#include "net/host/ghostscan.h"
 
 // ----------------------------------------------------------------------------
 // GAutoArpSpoof

@@ -12,7 +12,7 @@
 
 #include "gcapture.h"
 #include "net/packet/gippacket.h"
-#include "base/other/gcommand.h"
+#include "net/process/gcommand.h"
 
 #ifdef Q_OS_LINUX
 

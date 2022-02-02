@@ -31,7 +31,7 @@ struct G_EXPORT GHostScan : GStateObj {
 public:
 	bool enabled_{true};
 	GDuration rescanInterval_{600000}; // 10 minutes
-	GDuration sendInterval_{50}; // 50 msecs
+	GDuration sendInterval_{10}; // 10 msecs
 	GPcapDevice* pcapDevice_{nullptr};
 
 public:

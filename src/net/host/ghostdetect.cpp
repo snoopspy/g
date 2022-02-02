@@ -34,12 +34,13 @@ bool GHostDetect::doOpen() {
 	myMac_ = intf_->mac();
 	gwIp_ = intf_->gateway();
 
+	hosts_.clear();
+
 	return true;
 }
 
 bool GHostDetect::doClose() {
 	if (!enabled_) return true;
-	hosts_.clear();
 	return true;
 }
 
@@ -149,6 +150,7 @@ void GHostDetect::detect(GPacket* packet) {
 		} else {
 			it.value().lastAccess_ = et_.elapsed();
 		}
+		qDebug() << "last access " << QString(mac) << QString(ip); // gilgil temp 2022.02.03
 	}
 	if (newHost != hosts_.end()) {
 		qDebug() << QString("%1 %2").arg(QString(mac), QString(ip));

@@ -18,6 +18,17 @@ bool GHostScan::doOpen() {
 		return false;
 	}
 
+	GIntf* intf = pcapDevice_->intf();
+	if (intf == nullptr) {
+		SET_ERR(GErr::ObjectIsNull, "intf is null");
+		return false;
+	}
+
+	if (intf->ip() == 0) {
+		SET_ERR(GErr::Fail, "Internet is not connected");
+		return false;
+	}
+
 	scanThread_.start();
 
 	return true;
