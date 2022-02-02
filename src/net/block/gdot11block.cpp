@@ -11,6 +11,8 @@ GDot11Block::~GDot11Block() {
 }
 
 bool GDot11Block::doOpen() {
+	if (!enabled_) return true;
+
 	if (writer_ == nullptr) {
 		SET_ERR(GErr::ObjectIsNull, "writer must be specified");
 		return false;
@@ -23,6 +25,8 @@ bool GDot11Block::doOpen() {
 }
 
 bool GDot11Block::doClose() {
+	if (!enabled_) return true;
+
 	attackThread_.we_.wakeAll();
 	attackThread_.quit();
 	attackThread_.wait();
