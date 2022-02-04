@@ -19,21 +19,27 @@ bool GDot11Block::doOpen() {
 	}
 
 	apMap_.clear();
-	attackThread_.start();
-	deleteThread_.start();
+
+	if (attackInterval_ != 0) {
+		attackThread_.start();
+		deleteThread_.start();
+	}
+
 	return true;
 }
 
 bool GDot11Block::doClose() {
 	if (!enabled_) return true;
 
-	attackThread_.we_.wakeAll();
-	attackThread_.quit();
-	attackThread_.wait();
+	if (attackInterval_ != 0) {
+		attackThread_.we_.wakeAll();
+		attackThread_.quit();
+		attackThread_.wait();
 
-	deleteThread_.we_.wakeAll();
-	deleteThread_.quit();
-	deleteThread_.wait();
+		deleteThread_.we_.wakeAll();
+		deleteThread_.quit();
+		deleteThread_.wait();
+	}
 
 	return true;
 }

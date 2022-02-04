@@ -7,7 +7,6 @@ WifiAnalyzer::WifiAnalyzer(QObject* parent) : GStateObj(parent) {
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 #endif
 
-	channelHop_.hopInterval_ = 2000;
 	dot11Block_.writer_ = &pcapDeviceWrite_;
 	pcapDeviceWrite_.mtu_ = 0;
 
