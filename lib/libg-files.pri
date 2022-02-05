@@ -165,7 +165,6 @@ HEADERS += \
 	$${PWD}/../src/base/log/glogstderr.h \
 	$${PWD}/../src/base/log/glogstdout.h \
 	$${PWD}/../src/base/log/glogudp.h \
-	$${PWD}/../src/base/other/gcommand.h \
 	$${PWD}/../src/base/prop/gprop.h \
 	$${PWD}/../src/base/prop/gpropdialog.h \
 	$${PWD}/../src/base/prop/gpropitem-bool.h \
