@@ -22,6 +22,8 @@ WifiAnalyzer::~WifiAnalyzer() {
 }
 
 bool WifiAnalyzer::doOpen() {
+    GThreadMgr::suspendStart();
+
 	currentChannel_ = 0;
 
 	if (!monitorDevice_.open()) {
@@ -45,6 +47,8 @@ bool WifiAnalyzer::doOpen() {
 		err = pcapDeviceWrite_.err;
 		return false;
 	}
+
+    GThreadMgr::resumeStart();
 
 	return true;
 }
