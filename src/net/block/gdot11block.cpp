@@ -107,15 +107,15 @@ void GDot11Block::processBeacon(GPacket* packet) {
 }
 
 void GDot11Block::attack(Ap& ap) {
+    qDebug() << "";
 	if (deauthApBroadcast_) {
 		GBuf buf(pbyte(&ap.deauthFrame_), sizeof(ap.deauthFrame_));
-		writer_->write(buf);
+            writer_->write(buf);
 	}
 	if (timAttack_) {
 		if (!ap.timFrame_.isEmpty()) {
 			GBuf buf(pbyte(ap.timFrame_.data()), ap.timFrame_.size());
 			writer_->write(buf);
-			qDebug() << QString(ap.mac_); // gilgil temp 2022.02.02
 		}
 	}
 }
@@ -161,7 +161,6 @@ void GDot11Block::attackRun() {
 			Aps& aps = it.value();
 
 			for (Ap& ap: aps) {
-				qDebug() << ap.channel_ << QString(ap.mac_);
 				attack(ap);
 				if (attackThread_.we_.wait(sendInterval_)) break;
 			}
