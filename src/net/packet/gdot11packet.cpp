@@ -14,22 +14,22 @@ void GDot11Packet::parse() {
 	radioHdr_ = GRadioHdr::check(buf_.data_, size);
 
 	if (radioHdr_ == nullptr) return;
+	dot11_ = GDot11::check(radioHdr_, size);
+
+	if (dot11_ == nullptr) return;
 	dot11Hdr_ = GDot11Hdr::check(radioHdr_, size);
 
-	if (dot11Hdr_ == nullptr) return;
-	dot11ExtHdr_ = GDot11ExtHdr::check(radioHdr_, size);
-
 	size -= radioHdr_->len_;
-	le8_t typeSubtype = dot11Hdr_->typeSubtype();
+	le8_t typeSubtype = dot11_->typeSubtype();
 	switch(typeSubtype) {
-		case GDot11Hdr::Beacon:
-			beaconHdr_ = GBeaconHdr::check(dot11Hdr_, size);
+		case GDot11::Beacon:
+			beaconHdr_ = GBeaconHdr::check(dot11_, size);
 			break;
-		case GDot11Hdr::Deauthentication:
-			deauthHdr_ = GDeauthHdr::check(dot11Hdr_, size);
+		case GDot11::Deauthentication:
+			deauthHdr_ = GDeauthHdr::check(dot11_, size);
 			break;
-		case GDot11Hdr::QoSNull:
-			qosNullHdr_ = GQoSNullHdr::check(dot11Hdr_, size);
+		case GDot11::QoSNull:
+			qosNullHdr_ = GQoSNullHdr::check(dot11_, size);
 			break;
 		default:
 			break;

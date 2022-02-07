@@ -30,11 +30,11 @@ bool ProbeAnalyzer::doClose() {
 }
 
 void ProbeAnalyzer::processCaptured(GPacket* packet) {
-	GDot11ExtHdr* dot11ExtHdr = packet->dot11ExtHdr_;
-	if (dot11ExtHdr == nullptr) return;
+	GDot11Hdr* dot11Hdr = packet->dot11Hdr_;
+	if (dot11Hdr == nullptr) return;
 
-	le8_t typeSubtype = dot11ExtHdr->typeSubtype();
-	if (typeSubtype != GDot11Hdr::ProbeRequest && typeSubtype != GDot11Hdr::Deauthentication && typeSubtype != GDot11Hdr::Disassociation) return;
+	le8_t typeSubtype = dot11Hdr->typeSubtype();
+	if (typeSubtype != GDot11::ProbeRequest && typeSubtype != GDot11::Deauthentication && typeSubtype != GDot11::Disassociation) return;
 
 	GRadioHdr* radioHdr = packet->radioHdr_;
 	if (radioHdr == nullptr) return;
@@ -44,7 +44,7 @@ void ProbeAnalyzer::processCaptured(GPacket* packet) {
 	qint8 signal = *pchar(signalList[0].data_);
 	if (signal < minSignal_) return;
 
-	GMac mac = dot11ExtHdr->ta();
+	GMac mac = dot11Hdr->ta();
 
 	emit probeDetected(mac, signal);
 }

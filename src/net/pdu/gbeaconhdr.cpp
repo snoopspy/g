@@ -3,8 +3,8 @@
 // ----------------------------------------------------------------------------
 // GBeaconHdr
 // ----------------------------------------------------------------------------
-GBeaconHdr* GBeaconHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
-	Q_ASSERT(dot11Hdr->typeSubtype() == GDot11Hdr::Beacon);
+GBeaconHdr* GBeaconHdr::check(GDot11* dot11Hdr, uint32_t size) {
+	Q_ASSERT(dot11Hdr->typeSubtype() == GDot11::Beacon);
 	if (size < sizeof(GBeaconHdr)) {
 		qWarning() << QString("invalid size %1").arg(size);
 		return nullptr;
@@ -50,7 +50,7 @@ TEST(BeaconHdr, typeTest) {
 	GBeaconHdr* beaconHdr = PBeaconHdr(packet + radioHdr->len_);
 
 	le8_t typeSubtype = beaconHdr->typeSubtype();
-	EXPECT_EQ(typeSubtype, GDot11Hdr::Beacon);
+	EXPECT_EQ(typeSubtype, GDot11::Beacon);
 
 	le16_t duration = beaconHdr->duration_;
 	EXPECT_EQ(duration, 0);
@@ -112,7 +112,7 @@ TEST(BeaconHdr, typeTest) {
 	num = tag->num_;
 	EXPECT_EQ(num, GBeaconHdr::TagVendorSpecific);
 
-	GBeaconHdr::TrafficIndicationMap* tiMap = GBeaconHdr::PTrafficIndicationMap(beaconHdr->firstTag(GBeaconHdr::TagTrafficIndicationMap, sizeof(packet)));
+	GBeaconHdr::TrafficIndicationMap* tiMap = GBeaconHdr::PTrafficIndicationMap(beaconHdr->findFirstTag(GBeaconHdr::TagTrafficIndicationMap, sizeof(packet)));
 	EXPECT_NE(tiMap, nullptr);
 	EXPECT_EQ(tiMap->count_, 0);
 	EXPECT_EQ(tiMap->period_, 1);

@@ -3,8 +3,8 @@
 // ----------------------------------------------------------------------------
 // GDeauthHdr
 // ----------------------------------------------------------------------------
-GDeauthHdr* GDeauthHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
-	Q_ASSERT(dot11Hdr->typeSubtype() == GDot11Hdr::Deauthentication);
+GDeauthHdr* GDeauthHdr::check(GDot11* dot11Hdr, uint32_t size) {
+	Q_ASSERT(dot11Hdr->typeSubtype() == GDot11::Deauthentication);
 	if (size < sizeof(GDeauthHdr)) {
 		qWarning() << QString("invalid size %1").arg(size);
 		return nullptr;
@@ -13,8 +13,8 @@ GDeauthHdr* GDeauthHdr::check(GDot11Hdr* dot11Hdr, uint32_t size) {
 }
 
 void GDeauthHdr::init(GMac apMac) {
-	GDot11Hdr::init(GDot11Hdr::Deauthentication);
-	GDot11ExtHdr::init(GMac::broadcastMac(), apMac, apMac);
+	GDot11::init(GDot11::Deauthentication);
+	GDot11Hdr::init(GMac::broadcastMac(), apMac, apMac);
 	fix_.reasonCode_ = ReceivedFromNonAssociatedSTA;
 }
 

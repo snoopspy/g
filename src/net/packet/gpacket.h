@@ -23,7 +23,7 @@
 #include "net/pdu/gicmphdr.h"
 
 #include "net/pdu/gradiohdr.h"
-#include "net/pdu/gdot11exthdr.h"
+#include "net/pdu/gdot11hdr.h"
 #include "net/pdu/gdeauthhdr.h"
 #include "net/pdu/gbeaconhdr.h"
 #include "net/pdu/gqosnullhdr.h"
@@ -105,8 +105,8 @@ public:
 	GBuf udpData_;
 
 	GRadioHdr* radioHdr_{nullptr};
+	GDot11* dot11_{nullptr};
 	GDot11Hdr* dot11Hdr_{nullptr};
-	GDot11ExtHdr* dot11ExtHdr_{nullptr};
 
 	GBeaconHdr* beaconHdr_{nullptr};
 	GDeauthHdr* deauthHdr_{nullptr};
@@ -142,8 +142,8 @@ public:
 		tcpData_.clear();
 		udpData_.clear();
 		radioHdr_ = nullptr;
+		dot11_ = nullptr;
 		dot11Hdr_ = nullptr;
-		dot11ExtHdr_ = nullptr;
 		beaconHdr_ = nullptr;
 		deauthHdr_ = nullptr;
 		qosNullHdr_ = nullptr;

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "gdot11exthdr.h"
+#include "gdot11hdr.h"
 
 // ----------------------------------------------------------------------------
 // GBeaconHdr
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
-struct G_EXPORT GBeaconHdr : GDot11ExtHdr {
+struct G_EXPORT GBeaconHdr : GDot11Hdr {
 	GMac da() { return addr1_; }
 	GMac sa() { return addr2_; }
 	GMac bssid() { return addr3_; }
@@ -59,7 +59,7 @@ struct G_EXPORT GBeaconHdr : GDot11ExtHdr {
 	};
 	typedef TrafficIndicationMap *PTrafficIndicationMap;
 
-	static GBeaconHdr* check(GDot11Hdr* dot11Hdr, uint32_t size);
+	static GBeaconHdr* check(GDot11* dot11Hdr, uint32_t size);
 	void* findFirstTag(le8_t num, uint32_t size);
 };
 typedef GBeaconHdr *PBeaconHdr;

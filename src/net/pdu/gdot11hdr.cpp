@@ -6,42 +6,16 @@
 GDot11Hdr* GDot11Hdr::check(GRadioHdr* radioHdr, uint32_t size) {
 	uint32_t len = radioHdr->len_;
 	if (size < sizeof(GDot11Hdr) + len) {
-		qWarning() << QString("invalid size radioHdr->len=%1 size=%2").arg(len).arg(size);
 		return nullptr;
 	}
-	GDot11Hdr* dot11Hdr = PDot11Hdr(pchar(radioHdr) + len);
-	return dot11Hdr;
+	GDot11Hdr* dot11ExtHdr = PDot11ExtHdr(pchar(radioHdr) + len);
+	return dot11ExtHdr;
 }
 
-void GDot11Hdr::init(TypeSubtype typeSubtype) {
-	ver_ = 0;
-	type_ = typeSubtype & 0xC0;
-	subtype_ = typeSubtype & 0x0F;
-	flags_ = 0;
-	duration_ = 0;
+void GDot11Hdr::init(GMac addr1, GMac addr2, GMac addr3) {
+	addr1_ = addr1;
+	addr2_ = addr2;
+	addr3_ = addr3;
+	frag_ = 0;
+	seq_ = 0;
 }
-
-// ----------------------------------------------------------------------------
-// GTEST
-// ----------------------------------------------------------------------------
-#ifdef GTEST
-#include <gtest/gtest.h>
-
-TEST(Dot11Hdr, typeTest) {
-	uint8_t packet[] = { 0xd4, 0x10 }; // dot11-sample.pcap frame.number==10
-	GDot11Hdr* dot11Hdr = PDot11Hdr(packet);
-
-	le8_t ver = dot11Hdr->ver_;
-	EXPECT_EQ(ver, 0x00);
-
-	le8_t type = dot11Hdr->type_;
-	EXPECT_EQ(type, GDot11Hdr::ControlFrame);
-
-	le8_t subtype = dot11Hdr->subtype_;
-	EXPECT_EQ(subtype, 0x0D);
-
-	le8_t typeSubtype = dot11Hdr->typeSubtype();
-	EXPECT_EQ(typeSubtype, GDot11Hdr::Ack);
-}
-
-#endif // GTEST

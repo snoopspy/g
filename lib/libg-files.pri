@@ -116,7 +116,7 @@ SOURCES += \
 	$${PWD}/../src/net/pdu/gdhcphdr.cpp \
 	$${PWD}/../src/net/pdu/gdnshdr.cpp \
 	$${PWD}/../src/net/pdu/gdnsinfo.cpp \
-	$${PWD}/../src/net/pdu/gdot11exthdr.cpp \
+	$${PWD}/../src/net/pdu/gdot11.cpp \
 	$${PWD}/../src/net/pdu/gdot11hdr.cpp \
 	$${PWD}/../src/net/pdu/gethhdr.cpp \
 	$${PWD}/../src/net/pdu/gicmphdr.cpp \
@@ -260,8 +260,8 @@ HEADERS += \
 	$${PWD}/../src/net/pdu/gdhcphdr.h \
 	$${PWD}/../src/net/pdu/gdnshdr.h \
 	$${PWD}/../src/net/pdu/gdnsinfo.h \
-	$${PWD}/../src/net/pdu/gdot11exthdr.h \
-	$${PWD}/../src/net/pdu/gdot11hdr.h	 \
+	$${PWD}/../src/net/pdu/gdot11.h	 \
+	$${PWD}/../src/net/pdu/gdot11hdr.h \
 	$${PWD}/../src/net/pdu/gethhdr.h \
 	$${PWD}/../src/net/pdu/gicmphdr.h \
 	$${PWD}/../src/net/pdu/gip6hdr.h \

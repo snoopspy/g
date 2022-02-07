@@ -1,12 +1,12 @@
 #pragma once
 
-#include "gdot11exthdr.h"
+#include "gdot11hdr.h"
 
 // ----------------------------------------------------------------------------
 // GDeauthHdr
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
-struct G_EXPORT GDeauthHdr : GDot11ExtHdr {
+struct G_EXPORT GDeauthHdr : GDot11Hdr {
 	GMac da() { return addr1_; }
 	GMac sa() { return addr2_; }
 	GMac bssid() { return addr3_; }
@@ -25,7 +25,7 @@ struct G_EXPORT GDeauthHdr : GDot11ExtHdr {
 		StationAp
 	};
 
-	static GDeauthHdr* check(GDot11Hdr* dot11Hdr, uint32_t size);
+	static GDeauthHdr* check(GDot11* dot11Hdr, uint32_t size);
 	void init(GMac apMac); // AP broadcast
 	void init(GMac apMac, GMac staMac, Direction direction);
 };

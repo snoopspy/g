@@ -116,20 +116,20 @@ QList<int> GIw::channelList() {
 #include <gtest/gtest.h>
 
 TEST(GIw, channelTest) {
-	GIw iw("wlan0");
-	std::cerr << "wlan0 channel is " << iw.channel() << std::endl;
+	GIw iw("mon0");
+	std::cerr << "mon0 channel is " << iw.channel() << std::endl;
 	int channel = iw.channel();
 	EXPECT_NE(channel, -1);
 }
 
 TEST(GIw, setChannelTest) {
-	GIw iw("wlan0");
+	GIw iw("mon0");
 	EXPECT_TRUE(iw.setChannel(1));
 	// EXPECT_FALSE(iw.setChannel(999));
 }
 
 TEST(GIw, channelListTest) {
-	GIw iw("wlan0");
+	GIw iw("mon0");
 	QList<int> channelList = iw.channelList();
 	std::cerr << "wlan0 channel list is ";
 	for (int channel: channelList)
