@@ -67,7 +67,6 @@ void GChannelHop::run() {
 			if (!active()) break;
 			if (!iw_.setChannel(channel)) {
 				qDebug() << iw_.error_;
-				break;
 			}
 			if (debugLog_)
 				qDebug() << "channel " << channel;
