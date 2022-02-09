@@ -35,6 +35,7 @@ bool GPcapPipe::doOpen() {
 	qDebug() << command_;
 
 	QStringList arguments = QProcess::splitCommand(command_);
+	qDebug() << arguments; // gilgil temp 2022.02.09
 	if (arguments.count() == 0) {
 		SET_ERR(GErr::Fail, "argument size is zero");
 		return false;
@@ -55,6 +56,11 @@ bool GPcapPipe::doOpen() {
 	pcap_hdr_t hdr;
 	qint64 recvLen = recvAll(pchar(&hdr), sizeof(hdr));
 	if (recvLen != sizeof(hdr))	return false;
+	if (hdr.magic_number != 0xA1B2C3D4 && hdr.magic_number != 0xD4C3B2A1) {
+		QString msg = QString("Invalid pcap header format %1").arg(pchar(&hdr));
+		SET_ERR(GErr::Fail, msg);
+		return false;
+	}
 
 	int dataLink =hdr.network;
 	dlt_ = GPacket::intToDlt(dataLink);
