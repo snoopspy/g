@@ -101,8 +101,8 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 		tag = tag->next();
 		if (tag == nullptr) break;
 	}
-	if (ssid == "") return;
-	if (channel != 0 && ignoreOtherChannelFrame_ && currentChannel_ != channel)
+	if (ssid == "" || channel == 0) return;
+	if (ignoreOtherChannelFrame_ && currentChannel_ != channel)
 		return;
 
 
@@ -127,6 +127,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	if (signalList.count() > 0) {
 		signal = *pchar(signalList[0].data_);
 		if (signal < minSignal_) return;
+		if (signal == 0) return; // invalid signal
 	} else
 		return;
 
