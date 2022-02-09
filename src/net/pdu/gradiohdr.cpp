@@ -45,7 +45,7 @@ GRadioHdr* GRadioHdr::check(gbyte* p, uint32_t size) {
 	GRadioHdr* radioHdr = PRadioHdr(p);
 	le16_t len = radioHdr->len_;
 	if (len < sizeof(GRadioHdr) || len > size) {
-		qWarning() << QString("invalid size radioHdr->len=%1(0x%2) size=%3").arg(len, len).arg(size);
+		qWarning() << QString("invalid size radioHdr->len=%1(0x%2) size=%3").arg(len).arg(len).arg(size);
 		return nullptr;
 	}
 	return radioHdr;
