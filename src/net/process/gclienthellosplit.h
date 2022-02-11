@@ -11,7 +11,7 @@
 #pragma once
 
 #include "base/gstateobj.h"
-#include "net/flow/gtcpflowmgr.h"
+#include "net/manager/gtcpflowmgr.h"
 #include "net/write/gwrite.h"
 
 // ----------------------------------------------------------------------------
@@ -52,8 +52,8 @@ protected:
 
 public:
 	// GTcpFlowMgr::Managable
-	void tcpFlowCreated(GFlow::TcpFlowKey* key, GFlow::Value* value) override;
-	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GFlow::Value* value) override;
+	void tcpFlowCreated(GFlow::TcpFlowKey* key, GMgr::Value* value) override;
+	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GMgr::Value* value) override;
 
 public slots:
 	void split(GPacket* packet);

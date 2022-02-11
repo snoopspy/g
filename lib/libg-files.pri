@@ -83,12 +83,9 @@ SOURCES += \
 	$${PWD}/../src/net/delay/gsyncdelay.cpp \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.cpp \
 	$${PWD}/../src/net/filter/gbpfilter.cpp \
-	$${PWD}/../src/net/flow/gflow.cpp \
-	$${PWD}/../src/net/flow/gflowkey.cpp \
-	$${PWD}/../src/net/flow/gflowmgr.cpp \
-	$${PWD}/../src/net/flow/gipflowmgr.cpp \
-	$${PWD}/../src/net/flow/gtcpflowmgr.cpp \
-	$${PWD}/../src/net/flow/gudpflowmgr.cpp \
+	$${PWD}/../src/net/manager/gipflowmgr.cpp \
+	$${PWD}/../src/net/manager/gtcpflowmgr.cpp \
+	$${PWD}/../src/net/manager/gudpflowmgr.cpp \
 	$${PWD}/../src/net/host/ghostdelete.cpp \
 	$${PWD}/../src/net/host/ghostdetect.cpp \
 	$${PWD}/../src/net/host/ghostscan.cpp \
@@ -226,12 +223,11 @@ HEADERS += \
 	$${PWD}/../src/net/delay/gsyncdelay.h \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.h \
 	$${PWD}/../src/net/filter/gbpfilter.h \
-	$${PWD}/../src/net/flow/gflow.h \
-	$${PWD}/../src/net/flow/gflowkey.h \
-	$${PWD}/../src/net/flow/gflowmgr.h \
-	$${PWD}/../src/net/flow/gipflowmgr.h \
-	$${PWD}/../src/net/flow/gtcpflowmgr.h \
-	$${PWD}/../src/net/flow/gudpflowmgr.h \
+	$${PWD}/../src/net/manager/gflowkey.h \
+	$${PWD}/../src/net/manager/gipflowmgr.h \
+	$${PWD}/../src/net/manager/gmgr.h \
+	$${PWD}/../src/net/manager/gtcpflowmgr.h \
+	$${PWD}/../src/net/manager/gudpflowmgr.h \
 	$${PWD}/../src/net/host/ghostdelete.h \
 	$${PWD}/../src/net/host/ghostdetect.h \
 	$${PWD}/../src/net/host/ghostscan.h \

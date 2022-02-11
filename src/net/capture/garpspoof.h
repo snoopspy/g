@@ -12,8 +12,8 @@
 
 #include "gsyncpcapdevice.h"
 #include "net/gatm.h"
-#include "net/flow/gflowkey.h"
 #include "net/filter/gbpfilter.h"
+#include "net/manager/gflowkey.h"
 
 // ----------------------------------------------------------------------------
 // GArpSpoofFlow

@@ -25,14 +25,14 @@ bool GClientHelloSplit::doClose() {
 	return true;
 }
 
-void GClientHelloSplit::tcpFlowCreated(GFlow::TcpFlowKey* key, GFlow::Value* value) {
+void GClientHelloSplit::tcpFlowCreated(GFlow::TcpFlowKey* key, GMgr::Value* value) {
 	// qDebug() << QString("_tcpFlowCreated %1:%2>%3:%4").arg(QString(key->sip_), QString::number(key->sport_), QString(key->dip_), QString::number(key->dport_)); // gilgil temp 2021.04.07
 	(void)key;
 	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
 	new (flowItem) FlowItem;
 }
 
-void GClientHelloSplit::tcpFlowDeleted(GFlow::TcpFlowKey* key, GFlow::Value* value) {
+void GClientHelloSplit::tcpFlowDeleted(GFlow::TcpFlowKey* key, GMgr::Value* value) {
 	(void)key;
 	(void)value;
 	// qDebug() << QString("_tcpFlowDeleted %1:%2>%3:%4").arg(QString(key->sip_), QString::number(key->sport_), QString(key->dip_), QString::number(key->dport_)); // gilgil temp 2021.04.07

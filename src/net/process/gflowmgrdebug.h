@@ -11,9 +11,9 @@
 #pragma once
 
 #include "base/gstateobj.h"
-#include "net/flow/gipflowmgr.h"
-#include "net/flow/gtcpflowmgr.h"
-#include "net/flow/gudpflowmgr.h"
+#include "net/manager/gipflowmgr.h"
+#include "net/manager/gtcpflowmgr.h"
+#include "net/manager/gudpflowmgr.h"
 
 // ----------------------------------------------------------------------------
 // GFlowMgrDebug
@@ -66,16 +66,16 @@ protected:
 
 public:
 	// GIpFlowMgr::Managable
-	void ipFlowCreated(GFlow::IpFlowKey* key, GFlow::Value* value) override;
-	void ipFlowDeleted(GFlow::IpFlowKey* key, GFlow::Value* value) override;
+	void ipFlowCreated(GFlow::IpFlowKey* key, GMgr::Value* value) override;
+	void ipFlowDeleted(GFlow::IpFlowKey* key, GMgr::Value* value) override;
 
 	// GTcpFlowMgr::Managable
-	void tcpFlowCreated(GFlow::TcpFlowKey* key, GFlow::Value* value) override;
-	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GFlow::Value* value) override;
+	void tcpFlowCreated(GFlow::TcpFlowKey* key, GMgr::Value* value) override;
+	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GMgr::Value* value) override;
 
 	// GUdpFlowMgr::Managable
-	void udpFlowCreated(GFlow::UdpFlowKey* key, GFlow::Value* value) override;
-	void udpFlowDeleted(GFlow::UdpFlowKey* key, GFlow::Value* value) override;
+	void udpFlowCreated(GFlow::UdpFlowKey* key, GMgr::Value* value) override;
+	void udpFlowDeleted(GFlow::UdpFlowKey* key, GMgr::Value* value) override;
 
 public slots:
 	void debug(GPacket* packet);

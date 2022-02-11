@@ -1,41 +1,41 @@
-#include "gudpflowmgr.h"
+#include "gipflowmgr.h"
 
 // ----------------------------------------------------------------------------
-// GUdpFlowMgr
+// GIpFlowMgr
 // ----------------------------------------------------------------------------
-bool GUdpFlowMgr::doOpen() {
+bool GIpFlowMgr::doOpen() {
 	flowMap_.clear();
-	return GFlowMgr::doOpen();
+	return GMgr::doOpen();
 }
 
-bool GUdpFlowMgr::doClose() {
+bool GIpFlowMgr::doClose() {
 	for (Managable* manager: managables_) {
 		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
-			GFlow::UdpFlowKey key = it.key();
-			GFlow::Value* value = it.value();
-			manager->udpFlowDeleted(&key, value);
+			GFlow::IpFlowKey key = it.key();
+			GMgr::Value* value = it.value();
+			manager->ipFlowDeleted(&key, value);
 		}
 	}
 	flowMap_.clear();
-	return GFlowMgr::doClose();
+	return GMgr::doClose();
 }
 
-void GUdpFlowMgr::deleteOldFlowMaps(long now) {
+void GIpFlowMgr::deleteOldFlowMaps(long now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
-		GFlow::Value* value = it.value();
+		GMgr::Value* value = it.value();
 		long elapsed = now - value->ts_.tv_sec;
 		long timeout = 0;
 		switch (value->state_) {
-			case GFlow::Value::Half: timeout = halfTimeout_; break;
-			case GFlow::Value::Full: timeout = fullTimeout_; break;
-			case GFlow::Value::Rst: qCritical() << "unrecheable Rst"; timeout = 0; break;
-			case GFlow::Value::Fin: qCritical() << "unrecheable Fin"; timeout = 0; break;
+			case GMgr::Value::Half: timeout = halfTimeout_; break;
+			case GMgr::Value::Full: timeout = fullTimeout_; break;
+			case GMgr::Value::Rst: qCritical() << "unrecheable Rst"; timeout = 0; break;
+			case GMgr::Value::Fin: qCritical() << "unrecheable Fin"; timeout = 0; break;
 		}
 		if (elapsed >= timeout) {
-			GFlow::UdpFlowKey* key = const_cast<GFlow::UdpFlowKey*>(&it.key());
+			GFlow::IpFlowKey* key = const_cast<GFlow::IpFlowKey*>(&it.key());
 			for (Managable* manager: managables_)
-				manager->udpFlowCreated(key, value);
+				manager->ipFlowDeleted(key, value);
 			it = flowMap_.erase(it);
 			continue;
 		}
@@ -43,7 +43,7 @@ void GUdpFlowMgr::deleteOldFlowMaps(long now) {
 	}
 }
 
-void GUdpFlowMgr::process(GPacket* packet) {
+void GIpFlowMgr::process(GPacket* packet) {
 	long now = packet->ts_.tv_sec;
 	if (checkInterval_ != 0 && now - lastCheckTick_ >= checkInterval_) {
 		deleteOldFlowMaps(now);
@@ -53,13 +53,8 @@ void GUdpFlowMgr::process(GPacket* packet) {
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr == nullptr) return;
 
-	GUdpHdr* udpHdr = packet->udpHdr_;
-	if (udpHdr == nullptr) return;
-
 	key_.sip_ = ipHdr->sip();
-	key_.sport_ = udpHdr->sport();
 	key_.dip_ = ipHdr->dip();
-	key_.dport_ = udpHdr->dport();
 	FlowMap::iterator it = flowMap_.find(key_);
 
 	rKey_ = key_.reverse();
@@ -69,14 +64,14 @@ void GUdpFlowMgr::process(GPacket* packet) {
 		rVal_ = rIt.value();
 
 	if (it == flowMap_.end()) {
-		val_ = GFlow::Value::allocate(GFlow::Value::Half, requestItems_.totalMemSize_);
+		val_ = GMgr::Value::allocate(GMgr::Value::Half, requestItems_.totalMemSize_);
 		it = flowMap_.insert(key_, val_);
 		for (Managable* manager: managables_)
-			manager->udpFlowCreated(&key_, val_);
+			manager->ipFlowCreated(&key_, val_);
 
 		if (rVal_ != nullptr) {
-			val_->state_ = GFlow::Value::Full;
-			rVal_->state_ = GFlow::Value::Full;
+			val_->state_ = GMgr::Value::Full;
+			rVal_->state_ = GMgr::Value::Full;
 		}
 	} else {
 		val_ = it.value();

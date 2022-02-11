@@ -10,17 +10,38 @@
 
 #pragma once
 
-#include <QVector>
-#ifdef Q_OS_WIN
-#include <winsock2.h> // for u_char, struct timeval
-#endif
-
-#include "base/gbase.h"
+#include "base/gstateobj.h"
+#include "net/packet/gpacket.h"
+#include "gflowkey.h"
 
 // ----------------------------------------------------------------------------
-// GFlow
+// GMgr
 // ----------------------------------------------------------------------------
-namespace GFlow {
+struct G_EXPORT GMgr : GStateObj {
+	Q_OBJECT
+	Q_PROPERTY(long checkInterval MEMBER checkInterval_)
+
+public:
+	long checkInterval_{1}; // 1 second
+
+public:
+	GMgr(QObject* parent = nullptr) : GStateObj(parent) {}
+	~GMgr() override { close(); }
+
+protected:
+	bool doOpen() override {
+		lastCheckTick_ = 0;
+		return true;
+	}
+
+	bool doClose() override {
+		return true;
+	}
+
+protected:
+	long lastCheckTick_{0};
+
+public:
 	// --------------------------------------------------------------------------
 	// Value
 	// --------------------------------------------------------------------------
@@ -81,4 +102,4 @@ namespace GFlow {
 			return currentOffset;
 		}
 	};
-}
+};
