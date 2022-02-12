@@ -15,9 +15,9 @@
 #include "gflowkey.h"
 
 // ----------------------------------------------------------------------------
-// GMgr
+// GPktMgr
 // ----------------------------------------------------------------------------
-struct G_EXPORT GMgr : GStateObj {
+struct G_EXPORT GPktMgr : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(long checkInterval MEMBER checkInterval_)
 
@@ -25,8 +25,8 @@ public:
 	long checkInterval_{1}; // 1 second
 
 public:
-	GMgr(QObject* parent = nullptr) : GStateObj(parent) {}
-	~GMgr() override { close(); }
+	GPktMgr(QObject* parent = nullptr) : GStateObj(parent) {}
+	~GPktMgr() override { close(); }
 
 protected:
 	bool doOpen() override {

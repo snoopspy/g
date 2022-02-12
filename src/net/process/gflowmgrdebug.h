@@ -66,16 +66,16 @@ protected:
 
 public:
 	// GIpFlowMgr::Managable
-	void ipFlowCreated(GFlow::IpFlowKey* key, GMgr::Value* value) override;
-	void ipFlowDeleted(GFlow::IpFlowKey* key, GMgr::Value* value) override;
+	void ipFlowCreated(GFlow::IpFlowKey* key, GPktMgr::Value* value) override;
+	void ipFlowDeleted(GFlow::IpFlowKey* key, GPktMgr::Value* value) override;
 
 	// GTcpFlowMgr::Managable
-	void tcpFlowCreated(GFlow::TcpFlowKey* key, GMgr::Value* value) override;
-	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GMgr::Value* value) override;
+	void tcpFlowCreated(GFlow::TcpFlowKey* key, GPktMgr::Value* value) override;
+	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GPktMgr::Value* value) override;
 
 	// GUdpFlowMgr::Managable
-	void udpFlowCreated(GFlow::UdpFlowKey* key, GMgr::Value* value) override;
-	void udpFlowDeleted(GFlow::UdpFlowKey* key, GMgr::Value* value) override;
+	void udpFlowCreated(GFlow::UdpFlowKey* key, GPktMgr::Value* value) override;
+	void udpFlowDeleted(GFlow::UdpFlowKey* key, GPktMgr::Value* value) override;
 
 public slots:
 	void debug(GPacket* packet);

@@ -52,8 +52,8 @@ protected:
 
 public:
 	// GTcpFlowMgr::Managable
-	void tcpFlowCreated(GFlow::TcpFlowKey* key, GMgr::Value* value) override;
-	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GMgr::Value* value) override;
+	void tcpFlowCreated(GFlow::TcpFlowKey* key, GPktMgr::Value* value) override;
+	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GPktMgr::Value* value) override;
 
 public slots:
 	void split(GPacket* packet);

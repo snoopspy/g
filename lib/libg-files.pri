@@ -225,7 +225,7 @@ HEADERS += \
 	$${PWD}/../src/net/filter/gbpfilter.h \
 	$${PWD}/../src/net/manager/gflowkey.h \
 	$${PWD}/../src/net/manager/gipflowmgr.h \
-	$${PWD}/../src/net/manager/gmgr.h \
+	$${PWD}/../src/net/manager/gpktmgr.h \
 	$${PWD}/../src/net/manager/gtcpflowmgr.h \
 	$${PWD}/../src/net/manager/gudpflowmgr.h \
 	$${PWD}/../src/net/host/ghostdelete.h \
