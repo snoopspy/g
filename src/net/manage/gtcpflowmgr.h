@@ -15,7 +15,7 @@
 // ----------------------------------------------------------------------------
 // GTcpFlowMgr
 // ----------------------------------------------------------------------------
-struct G_EXPORT GTcpFlowMgr : GPktMgr {
+struct G_EXPORT GTcpFlowMgr : GPacketMgr {
 	Q_OBJECT
 	Q_PROPERTY(long halfTimeout MEMBER halfTimeout_)
 	Q_PROPERTY(long fullTimeout MEMBER fullTimeout_)
@@ -33,8 +33,8 @@ public:
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void tcpFlowCreated(GFlow::TcpFlowKey* key, GPktMgr::Value* value) = 0;
-		virtual void tcpFlowDeleted(GFlow::TcpFlowKey* key, GPktMgr::Value* value) = 0;
+		virtual void tcpFlowCreated(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) = 0;
+		virtual void tcpFlowDeleted(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -44,24 +44,24 @@ protected:
 	// --------------------------------------------------------------------------
 	// FlowMap
 	// --------------------------------------------------------------------------
-	struct FlowMap : QMap<GFlow::TcpFlowKey, GPktMgr::Value*> {
+	struct FlowMap : QMap<GFlow::TcpFlowKey, GPacketMgr::Value*> {
 		void clear() {
-			for (GPktMgr::Value* value: *this) {
-				GPktMgr::Value::deallocate(value);
+			for (GPacketMgr::Value* value: *this) {
+				GPacketMgr::Value::deallocate(value);
 			}
-			QMap<GFlow::TcpFlowKey, GPktMgr::Value*>::clear();
+			QMap<GFlow::TcpFlowKey, GPacketMgr::Value*>::clear();
 		}
 
 		FlowMap::iterator erase(FlowMap::iterator it) {
-			GPktMgr::Value* value = it.value();
-			GPktMgr::Value::deallocate(value);
-			return QMap<GFlow::TcpFlowKey, GPktMgr::Value*>::erase(it);
+			GPacketMgr::Value* value = it.value();
+			GPacketMgr::Value::deallocate(value);
+			return QMap<GFlow::TcpFlowKey, GPacketMgr::Value*>::erase(it);
 		}
 	};
 	// --------------------------------------------------------------------------
 
 public:
-	Q_INVOKABLE GTcpFlowMgr(QObject* parent = nullptr) : GPktMgr(parent) {}
+	Q_INVOKABLE GTcpFlowMgr(QObject* parent = nullptr) : GPacketMgr(parent) {}
 	~GTcpFlowMgr() override { close(); }
 
 protected:
@@ -69,7 +69,7 @@ protected:
 	bool doClose() override;
 
 public:
-	GPktMgr::RequestItems requestItems_;
+	GPacketMgr::RequestItems requestItems_;
 
 protected:
 	FlowMap flowMap_;
@@ -77,9 +77,9 @@ protected:
 
 public:
 	GFlow::TcpFlowKey key_;
-	GPktMgr::Value* val_{nullptr};
+	GPacketMgr::Value* val_{nullptr};
 	GFlow::TcpFlowKey rKey_;
-	GPktMgr::Value* rVal_{nullptr};
+	GPacketMgr::Value* rVal_{nullptr};
 
 public slots:
 	void manage(GPacket* packet);

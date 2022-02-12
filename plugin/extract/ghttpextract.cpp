@@ -62,14 +62,14 @@ bool GHttpExtract::doClose() {
 	return true;
 }
 
-void GHttpExtract::tcpFlowCreated(GFlow::TcpFlowKey* key, GFlow::Value* value) {
+void GHttpExtract::tcpFlowCreated(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) {
 	(void)key;
 	if (!enabled_) return;
 	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
 	new (flowItem) FlowItem(this);
 }
 
-void GHttpExtract::tcpFlowDeleted(GFlow::TcpFlowKey* key, GFlow::Value* value) {
+void GHttpExtract::tcpFlowDeleted(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) {
 	(void)key;
 	if (!enabled_) return;
 	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));

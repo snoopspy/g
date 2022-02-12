@@ -15,7 +15,7 @@
 // ----------------------------------------------------------------------------
 // GUdpFlowMgr
 // ----------------------------------------------------------------------------
-struct G_EXPORT GUdpFlowMgr : GPktMgr {
+struct G_EXPORT GUdpFlowMgr : GPacketMgr {
 	Q_OBJECT
 	Q_PROPERTY(long halfTimeout MEMBER halfTimeout_)
 	Q_PROPERTY(long fullTimeout MEMBER fullTimeout_)
@@ -29,8 +29,8 @@ public:
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void udpFlowCreated(GFlow::UdpFlowKey* key, GPktMgr::Value* value) = 0;
-		virtual void udpFlowDeleted(GFlow::UdpFlowKey* key, GPktMgr::Value* value) = 0;
+		virtual void udpFlowCreated(GFlow::UdpFlowKey* key, GPacketMgr::Value* value) = 0;
+		virtual void udpFlowDeleted(GFlow::UdpFlowKey* key, GPacketMgr::Value* value) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -40,24 +40,24 @@ protected:
 	// --------------------------------------------------------------------------
 	// FlowMap
 	// --------------------------------------------------------------------------
-	struct FlowMap : QMap<GFlow::UdpFlowKey, GPktMgr::Value*> {
+	struct FlowMap : QMap<GFlow::UdpFlowKey, GPacketMgr::Value*> {
 		void clear() {
-			for (GPktMgr::Value* value: *this) {
-				GPktMgr::Value::deallocate(value);
+			for (GPacketMgr::Value* value: *this) {
+				GPacketMgr::Value::deallocate(value);
 			}
-			QMap<GFlow::UdpFlowKey, GPktMgr::Value*>::clear();
+			QMap<GFlow::UdpFlowKey, GPacketMgr::Value*>::clear();
 		}
 
 		FlowMap::iterator erase(FlowMap::iterator it) {
-			GPktMgr::Value* value = it.value();
-			GPktMgr::Value::deallocate(value);
-			return QMap<GFlow::UdpFlowKey, GPktMgr::Value*>::erase(it);
+			GPacketMgr::Value* value = it.value();
+			GPacketMgr::Value::deallocate(value);
+			return QMap<GFlow::UdpFlowKey, GPacketMgr::Value*>::erase(it);
 		}
 	};
 	// --------------------------------------------------------------------------
 
 public:
-	Q_INVOKABLE GUdpFlowMgr(QObject* parent = nullptr) : GPktMgr(parent) {}
+	Q_INVOKABLE GUdpFlowMgr(QObject* parent = nullptr) : GPacketMgr(parent) {}
 	~GUdpFlowMgr() override { close(); }
 
 protected:
@@ -65,7 +65,7 @@ protected:
 	bool doClose() override;
 
 public:
-	GPktMgr::RequestItems requestItems_;
+	GPacketMgr::RequestItems requestItems_;
 
 protected:
 	FlowMap flowMap_;
@@ -73,9 +73,9 @@ protected:
 
 public:
 	GFlow::UdpFlowKey key_;
-	GPktMgr::Value* val_{nullptr};
+	GPacketMgr::Value* val_{nullptr};
 	GFlow::UdpFlowKey rKey_;
-	GPktMgr::Value* rVal_{nullptr};
+	GPacketMgr::Value* rVal_{nullptr};
 
 public slots:
 	void manage(GPacket* packet);

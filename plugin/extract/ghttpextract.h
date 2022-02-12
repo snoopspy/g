@@ -11,7 +11,7 @@
 #pragma once
 
 #include "gextract.h"
-#include "net/flow/gtcpflowmgr.h"
+#include "net/manage/gtcpflowmgr.h"
 #include <QRegularExpression>
 
 // ----------------------------------------------------------------------------
@@ -77,8 +77,8 @@ protected:
 
 public:
 	// GTcpFlowMgr::Managable
-	void tcpFlowCreated(GFlow::TcpFlowKey* key, GFlow::Value* value) override;
-	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GFlow::Value* value) override;
+	void tcpFlowCreated(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) override;
+	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) override;
 
 public slots:
 	void write(GPacket* packet);

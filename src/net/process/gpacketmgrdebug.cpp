@@ -25,40 +25,40 @@ bool GPacketMgrDebug::doClose() {
 	return true;
 }
 
-void GPacketMgrDebug::ipFlowCreated(GFlow::IpFlowKey* key, GPktMgr::Value* value) {
+void GPacketMgrDebug::ipFlowCreated(GFlow::IpFlowKey* key, GPacketMgr::Value* value) {
 	if (!enabled_) return;
 	qDebug() << QString("_ipFlowCreated %1>%2").arg(QString(key->sip_), QString(key->dip_));
 	FlowItem* flowItem = PFlowItem(value->mem(ipFlowOffset_));
 	new (flowItem) FlowItem;
 }
 
-void GPacketMgrDebug::ipFlowDeleted(GFlow::IpFlowKey* key, GPktMgr::Value* value) {
+void GPacketMgrDebug::ipFlowDeleted(GFlow::IpFlowKey* key, GPacketMgr::Value* value) {
 	(void)value;
 	if (!enabled_) return;
 	qDebug() << QString("_ipFlowDeleted %1>%2").arg(QString(key->sip_), QString(key->dip_));
 }
 
-void GPacketMgrDebug::tcpFlowCreated(GFlow::TcpFlowKey* key, GPktMgr::Value* value) {
+void GPacketMgrDebug::tcpFlowCreated(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) {
 	if (!enabled_) return;
 	qDebug() << QString("_tcpFlowCreated %1:%2>%3:%4").arg(QString(key->sip_), QString::number(key->sport_), QString(key->dip_), QString::number(key->dport_));
 	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
 	new (flowItem) FlowItem;
 }
 
-void GPacketMgrDebug::tcpFlowDeleted(GFlow::TcpFlowKey* key, GPktMgr::Value* value) {
+void GPacketMgrDebug::tcpFlowDeleted(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) {
 	(void)value;
 	if (!enabled_) return;
 	qDebug() << QString("_tcpFlowDeleted %1:%2>%3:%4").arg(QString(key->sip_), QString::number(key->sport_), QString(key->dip_), QString::number(key->dport_));
 }
 
-void GPacketMgrDebug::udpFlowCreated(GFlow::UdpFlowKey* key, GPktMgr::Value* value) {
+void GPacketMgrDebug::udpFlowCreated(GFlow::UdpFlowKey* key, GPacketMgr::Value* value) {
 	if (!enabled_) return;
 	qDebug() << QString("_udpFlowCreated %1:%2>%3:%4").arg(QString(key->sip_), QString::number(key->sport_), QString(key->dip_), QString::number(key->dport_));
 	FlowItem* flowItem = PFlowItem(value->mem(ipFlowOffset_));
 	new (flowItem) FlowItem;
 }
 
-void GPacketMgrDebug::udpFlowDeleted(GFlow::UdpFlowKey* key, GPktMgr::Value* value) {
+void GPacketMgrDebug::udpFlowDeleted(GFlow::UdpFlowKey* key, GPacketMgr::Value* value) {
 	(void)value;
 	if (!enabled_) return;
 	qDebug() << QString("_udpFlowDeleted %1:%2>%3:%4").arg(QString(key->sip_), QString::number(key->sport_), QString(key->dip_), QString::number(key->dport_));
