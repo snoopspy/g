@@ -1,26 +1,26 @@
-#include "gipflowmgr.h"
+#include "gudpflowmgr.h"
 
 // ----------------------------------------------------------------------------
-// GIpFlowMgr
+// GUdpFlowMgr
 // ----------------------------------------------------------------------------
-bool GIpFlowMgr::doOpen() {
+bool GUdpFlowMgr::doOpen() {
 	flowMap_.clear();
 	return GPktMgr::doOpen();
 }
 
-bool GIpFlowMgr::doClose() {
+bool GUdpFlowMgr::doClose() {
 	for (Managable* manager: managables_) {
 		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
-			GFlow::IpFlowKey key = it.key();
+			GFlow::UdpFlowKey key = it.key();
 			GPktMgr::Value* value = it.value();
-			manager->ipFlowDeleted(&key, value);
+			manager->udpFlowDeleted(&key, value);
 		}
 	}
 	flowMap_.clear();
 	return GPktMgr::doClose();
 }
 
-void GIpFlowMgr::deleteOldFlowMaps(long now) {
+void GUdpFlowMgr::deleteOldFlowMaps(long now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
 		GPktMgr::Value* value = it.value();
@@ -33,9 +33,9 @@ void GIpFlowMgr::deleteOldFlowMaps(long now) {
 			case GPktMgr::Value::Fin: qCritical() << "unrecheable Fin"; timeout = 0; break;
 		}
 		if (elapsed >= timeout) {
-			GFlow::IpFlowKey* key = const_cast<GFlow::IpFlowKey*>(&it.key());
+			GFlow::UdpFlowKey* key = const_cast<GFlow::UdpFlowKey*>(&it.key());
 			for (Managable* manager: managables_)
-				manager->ipFlowDeleted(key, value);
+				manager->udpFlowCreated(key, value);
 			it = flowMap_.erase(it);
 			continue;
 		}
@@ -43,7 +43,7 @@ void GIpFlowMgr::deleteOldFlowMaps(long now) {
 	}
 }
 
-void GIpFlowMgr::process(GPacket* packet) {
+void GUdpFlowMgr::manage(GPacket* packet) {
 	long now = packet->ts_.tv_sec;
 	if (checkInterval_ != 0 && now - lastCheckTick_ >= checkInterval_) {
 		deleteOldFlowMaps(now);
@@ -53,8 +53,13 @@ void GIpFlowMgr::process(GPacket* packet) {
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr == nullptr) return;
 
+	GUdpHdr* udpHdr = packet->udpHdr_;
+	if (udpHdr == nullptr) return;
+
 	key_.sip_ = ipHdr->sip();
+	key_.sport_ = udpHdr->sport();
 	key_.dip_ = ipHdr->dip();
+	key_.dport_ = udpHdr->dport();
 	FlowMap::iterator it = flowMap_.find(key_);
 
 	rKey_ = key_.reverse();
@@ -67,7 +72,7 @@ void GIpFlowMgr::process(GPacket* packet) {
 		val_ = GPktMgr::Value::allocate(GPktMgr::Value::Half, requestItems_.totalMemSize_);
 		it = flowMap_.insert(key_, val_);
 		for (Managable* manager: managables_)
-			manager->ipFlowCreated(&key_, val_);
+			manager->udpFlowCreated(&key_, val_);
 
 		if (rVal_ != nullptr) {
 			val_->state_ = GPktMgr::Value::Full;
@@ -79,5 +84,5 @@ void GIpFlowMgr::process(GPacket* packet) {
 	Q_ASSERT(val_ != nullptr);
 	val_->ts_ = packet->ts_;
 
-	emit processed(packet);
+	emit managed(packet);
 }

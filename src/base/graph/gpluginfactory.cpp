@@ -22,8 +22,8 @@ void GPluginFactory::loadDefault() {
 	loadConvert();
 	loadDelay();
 	loadFilter();
-	loadFlow();
 	loadHost();
+	loadManage();
 	loadProcess();
 	loadWrite();
 }
@@ -156,27 +156,7 @@ void GPluginFactory::loadFilter() {
 }
 
 // ----------------------------------------------------------------------------
-// Flow
-// ----------------------------------------------------------------------------
-#include <GIpFlowMgr>
-#include <GTcpFlowMgr>
-#include <GUdpFlowMgr>
-
-void GPluginFactory::loadFlow() {
-	qRegisterMetaType<GIpFlowMgr*>();
-	qRegisterMetaType<GTcpFlowMgr*>();
-	qRegisterMetaType<GUdpFlowMgr*>();
-
-	ItemCategory* category = new ItemCategory("flow");
-	category->items_.push_back(new ItemNode("GIpFlowMgr"));
-	category->items_.push_back(new ItemNode("GTcpFlowMgr"));
-	category->items_.push_back(new ItemNode("GUdpFlowMgr"));
-
-	items_.push_back(category);
-}
-
-// ----------------------------------------------------------------------------
-// Manage
+// Host
 // ----------------------------------------------------------------------------
 #include <GHostDelete>
 #include <GHostDetect>
@@ -196,6 +176,26 @@ void GPluginFactory::loadHost() {
 }
 
 // ----------------------------------------------------------------------------
+// Manage
+// ----------------------------------------------------------------------------
+#include <GIpFlowMgr>
+#include <GTcpFlowMgr>
+#include <GUdpFlowMgr>
+
+void GPluginFactory::loadManage() {
+	qRegisterMetaType<GIpFlowMgr*>();
+	qRegisterMetaType<GTcpFlowMgr*>();
+	qRegisterMetaType<GUdpFlowMgr*>();
+
+	ItemCategory* category = new ItemCategory("manage");
+	category->items_.push_back(new ItemNode("GIpFlowMgr"));
+	category->items_.push_back(new ItemNode("GTcpFlowMgr"));
+	category->items_.push_back(new ItemNode("GUdpFlowMgr"));
+
+	items_.push_back(category);
+}
+
+// ----------------------------------------------------------------------------
 // Process
 // ----------------------------------------------------------------------------
 #include <GChannelHop>
@@ -203,8 +203,8 @@ void GPluginFactory::loadHost() {
 #include <GCommand>
 #include <GCorrectChecksum>
 #include <GDnsProcessor>
-#include <GFlowMgrDebug>
 #include <GPacketDebug>
+#include <GPacketMgrDebug>
 
 void GPluginFactory::loadProcess() {
 #ifndef Q_OS_WIN
@@ -214,8 +214,8 @@ void GPluginFactory::loadProcess() {
 	qRegisterMetaType<GCorrectChecksum*>();
 	qRegisterMetaType<GCommand*>();
 	qRegisterMetaType<GDnsProcessor*>();
-	qRegisterMetaType<GFlowMgrDebug*>();
 	qRegisterMetaType<GPacketDebug*>();
+	qRegisterMetaType<GPacketMgrDebug*>();
 
 	ItemCategory* category = new ItemCategory("process");
 	category->items_.push_back(new ItemNode("GChannelHop"));
@@ -223,8 +223,8 @@ void GPluginFactory::loadProcess() {
 	category->items_.push_back(new ItemNode("GCommand"));
 	category->items_.push_back(new ItemNode("GCorrectChecksum"));
 	category->items_.push_back(new ItemNode("GDnsProcessor"));
-	category->items_.push_back(new ItemNode("GFlowMgrDebug"));
 	category->items_.push_back(new ItemNode("GPacketDebug"));
+	category->items_.push_back(new ItemNode("GPacketMgrDebug"));
 
 	items_.push_back(category);
 }

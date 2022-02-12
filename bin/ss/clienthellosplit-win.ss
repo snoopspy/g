@@ -4,12 +4,12 @@
             "receiver": "tcpFlowMgr1",
             "sender": "winDivert1",
             "signal": "captured(GPacket*)",
-            "slot": "process(GPacket*)"
+            "slot": "manage(GPacket*)"
         },
         {
             "receiver": "clientHelloSplit1",
             "sender": "tcpFlowMgr1",
-            "signal": "processed(GPacket*)",
+            "signal": "managed(GPacket*)",
             "slot": "split(GPacket*)"
         },
         {

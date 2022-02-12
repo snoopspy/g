@@ -83,9 +83,9 @@ SOURCES += \
 	$${PWD}/../src/net/delay/gsyncdelay.cpp \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.cpp \
 	$${PWD}/../src/net/filter/gbpfilter.cpp \
-	$${PWD}/../src/net/manager/gipflowmgr.cpp \
-	$${PWD}/../src/net/manager/gtcpflowmgr.cpp \
-	$${PWD}/../src/net/manager/gudpflowmgr.cpp \
+	$${PWD}/../src/net/manage/gipflowmgr.cpp \
+	$${PWD}/../src/net/manage/gtcpflowmgr.cpp \
+	$${PWD}/../src/net/manage/gudpflowmgr.cpp \
 	$${PWD}/../src/net/host/ghostdelete.cpp \
 	$${PWD}/../src/net/host/ghostdetect.cpp \
 	$${PWD}/../src/net/host/ghostscan.cpp \
@@ -129,8 +129,8 @@ SOURCES += \
 	$${PWD}/../src/net/process/gcommand.cpp \
 	$${PWD}/../src/net/process/gcorrectchecksum.cpp \
 	$${PWD}/../src/net/process/gdnsprocessor.cpp \
-	$${PWD}/../src/net/process/gflowmgrdebug.cpp \
 	$${PWD}/../src/net/process/gpacketdebug.cpp \
+	$${PWD}/../src/net/process/gpacketmgrdebug.cpp \
 	$${PWD}/../src/net/write/gpcapdevicewrite.cpp \
 	$${PWD}/../src/net/write/gpcapfilewrite.cpp \
 	$${PWD}/../src/net/write/gpcapwrite.cpp \
@@ -223,11 +223,11 @@ HEADERS += \
 	$${PWD}/../src/net/delay/gsyncdelay.h \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.h \
 	$${PWD}/../src/net/filter/gbpfilter.h \
-	$${PWD}/../src/net/manager/gflowkey.h \
-	$${PWD}/../src/net/manager/gipflowmgr.h \
-	$${PWD}/../src/net/manager/gpktmgr.h \
-	$${PWD}/../src/net/manager/gtcpflowmgr.h \
-	$${PWD}/../src/net/manager/gudpflowmgr.h \
+	$${PWD}/../src/net/manage/gflowkey.h \
+	$${PWD}/../src/net/manage/gipflowmgr.h \
+	$${PWD}/../src/net/manage/gpacketmgr.h \
+	$${PWD}/../src/net/manage/gtcpflowmgr.h \
+	$${PWD}/../src/net/manage/gudpflowmgr.h \
 	$${PWD}/../src/net/host/ghostdelete.h \
 	$${PWD}/../src/net/host/ghostdetect.h \
 	$${PWD}/../src/net/host/ghostscan.h \
@@ -272,8 +272,8 @@ HEADERS += \
 	$${PWD}/../src/net/process/gcommand.h \
 	$${PWD}/../src/net/process/gcorrectchecksum.h \
 	$${PWD}/../src/net/process/gdnsprocessor.h \
-	$${PWD}/../src/net/process/gflowmgrdebug.h \
 	$${PWD}/../src/net/process/gpacketdebug.h \
+	$${PWD}/../src/net/process/gpacketmgrdebug.h \
 	$${PWD}/../src/net/write/gpcapdevicewrite.h \
 	$${PWD}/../src/net/write/gpcapfilewrite.h \
 	$${PWD}/../src/net/write/gpcapwrite.h \

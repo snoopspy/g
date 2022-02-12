@@ -3,14 +3,14 @@
         {
             "receiver": "clientHelloSplit1",
             "sender": "tcpFlowMgr1",
-            "signal": "processed(GPacket*)",
+            "signal": "managed(GPacket*)",
             "slot": "split(GPacket*)"
         },
         {
             "receiver": "tcpFlowMgr1",
             "sender": "netFilter1",
             "signal": "captured(GPacket*)",
-            "slot": "process(GPacket*)"
+            "slot": "manage(GPacket*)"
         },
         {
             "receiver": "rawIpSocketWrite1",

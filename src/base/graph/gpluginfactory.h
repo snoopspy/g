@@ -30,8 +30,8 @@ protected:
 	void loadConvert();
 	void loadDelay();
 	void loadFilter();
-	void loadFlow();
 	void loadHost();
+	void loadManage();
 	void loadProcess();
 	void loadWrite();
 

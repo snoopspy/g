@@ -11,7 +11,7 @@
 #pragma once
 
 #include "base/gstateobj.h"
-#include "net/manager/gtcpflowmgr.h"
+#include "net/manage/gtcpflowmgr.h"
 #include "net/write/gwrite.h"
 
 // ----------------------------------------------------------------------------

@@ -11,14 +11,14 @@
 #pragma once
 
 #include "base/gstateobj.h"
-#include "net/manager/gipflowmgr.h"
-#include "net/manager/gtcpflowmgr.h"
-#include "net/manager/gudpflowmgr.h"
+#include "net/manage/gipflowmgr.h"
+#include "net/manage/gtcpflowmgr.h"
+#include "net/manage/gudpflowmgr.h"
 
 // ----------------------------------------------------------------------------
-// GFlowMgrDebug
+// GPacketMgrDebug
 // ----------------------------------------------------------------------------
-struct G_EXPORT GFlowMgrDebug : GStateObj, GIpFlowMgr::Managable, GTcpFlowMgr::Managable, GUdpFlowMgr::Managable {
+struct G_EXPORT GPacketMgrDebug : GStateObj, GIpFlowMgr::Managable, GTcpFlowMgr::Managable, GUdpFlowMgr::Managable {
 	Q_OBJECT
 	Q_PROPERTY(bool enabled MEMBER enabled_)
 	Q_PROPERTY(GObjPtr ipFlowMgr READ getIpFlowMgr WRITE setIpFlowMgr)
@@ -52,8 +52,8 @@ public:
 	// --------------------------------------------------------------------------
 
 public:
-	Q_INVOKABLE GFlowMgrDebug(QObject* parent = nullptr) : GStateObj(parent) {}
-	~GFlowMgrDebug() override { close(); }
+	Q_INVOKABLE GPacketMgrDebug(QObject* parent = nullptr) : GStateObj(parent) {}
+	~GPacketMgrDebug() override { close(); }
 
 protected:
 	bool doOpen() override;

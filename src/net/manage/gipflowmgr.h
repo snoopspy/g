@@ -10,31 +10,27 @@
 
 #pragma once
 
-#include "gpktmgr.h"
+#include "gpacketmgr.h"
 
 // ----------------------------------------------------------------------------
-// GTcpFlowMgr
+// GIpFlowMgr
 // ----------------------------------------------------------------------------
-struct G_EXPORT GTcpFlowMgr : GPktMgr {
+struct G_EXPORT GIpFlowMgr : GPktMgr {
 	Q_OBJECT
 	Q_PROPERTY(long halfTimeout MEMBER halfTimeout_)
 	Q_PROPERTY(long fullTimeout MEMBER fullTimeout_)
-	Q_PROPERTY(long rstTimeout MEMBER rstTimeout_)
-	Q_PROPERTY(long finTimeout MEMBER finTimeout_)
 
 public:
 	long halfTimeout_{60 * 1}; // 1 minutes
 	long fullTimeout_{60 * 3}; // 3 minutes
-	long rstTimeout_{10}; // 10 seconds
-	long finTimeout_{20}; // 20 seconds
 
 public:
 	// --------------------------------------------------------------------------
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void tcpFlowCreated(GFlow::TcpFlowKey* key, GPktMgr::Value* value) = 0;
-		virtual void tcpFlowDeleted(GFlow::TcpFlowKey* key, GPktMgr::Value* value) = 0;
+		virtual void ipFlowCreated(GFlow::IpFlowKey* key, GPktMgr::Value* value) = 0;
+		virtual void ipFlowDeleted(GFlow::IpFlowKey* key, GPktMgr::Value* value) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -44,25 +40,25 @@ protected:
 	// --------------------------------------------------------------------------
 	// FlowMap
 	// --------------------------------------------------------------------------
-	struct FlowMap : QMap<GFlow::TcpFlowKey, GPktMgr::Value*> {
+	struct FlowMap : QMap<GFlow::IpFlowKey, GPktMgr::Value*> {
 		void clear() {
 			for (GPktMgr::Value* value: *this) {
 				GPktMgr::Value::deallocate(value);
 			}
-			QMap<GFlow::TcpFlowKey, GPktMgr::Value*>::clear();
+			QMap<GFlow::IpFlowKey, GPktMgr::Value*>::clear();
 		}
 
 		FlowMap::iterator erase(FlowMap::iterator it) {
 			GPktMgr::Value* value = it.value();
 			GPktMgr::Value::deallocate(value);
-			return QMap<GFlow::TcpFlowKey, GPktMgr::Value*>::erase(it);
+			return QMap<GFlow::IpFlowKey, GPktMgr::Value*>::erase(it);
 		}
 	};
 	// --------------------------------------------------------------------------
 
 public:
-	Q_INVOKABLE GTcpFlowMgr(QObject* parent = nullptr) : GPktMgr(parent) {}
-	~GTcpFlowMgr() override { close(); }
+	Q_INVOKABLE GIpFlowMgr(QObject* parent = nullptr) : GPktMgr(parent) {}
+	~GIpFlowMgr() override { close(); }
 
 protected:
 	bool doOpen() override;
@@ -76,14 +72,14 @@ protected:
 	void deleteOldFlowMaps(long now);
 
 public:
-	GFlow::TcpFlowKey key_;
+	GFlow::IpFlowKey key_;
 	GPktMgr::Value* val_{nullptr};
-	GFlow::TcpFlowKey rKey_;
+	GFlow::IpFlowKey rKey_;
 	GPktMgr::Value* rVal_{nullptr};
 
 public slots:
-	void process(GPacket* packet);
+	void manage(GPacket* packet);
 
 signals:
-	void processed(GPacket* packet);
+	void managed(GPacket* packet);
 };
