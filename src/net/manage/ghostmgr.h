@@ -13,24 +13,22 @@
 #include "gpacketmgr.h"
 
 // ----------------------------------------------------------------------------
-// GIpFlowMgr
+// GHostMgr
 // ----------------------------------------------------------------------------
-struct G_EXPORT GIpFlowMgr : GPacketMgr {
+struct G_EXPORT GHostMgr : GPacketMgr {
 	Q_OBJECT
-	Q_PROPERTY(long halfTimeout MEMBER halfTimeout_)
-	Q_PROPERTY(long fullTimeout MEMBER fullTimeout_)
+	Q_PROPERTY(long timeout MEMBER timeout_)
 
 public:
-	long halfTimeout_{60 * 1}; // 1 minutes
-	long fullTimeout_{60 * 3}; // 3 minutes
+	long timeout_{60}; // 1 minutes
 
 public:
 	// --------------------------------------------------------------------------
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void ipFlowCreated(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) = 0;
-		virtual void ipFlowDeleted(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) = 0;
+		virtual void hostCreated(GMac mac, GPacketMgr::Value* value) = 0;
+		virtual void hostDeleted(GMac mac, GPacketMgr::Value* value) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -40,25 +38,25 @@ protected:
 	// --------------------------------------------------------------------------
 	// FlowMap
 	// --------------------------------------------------------------------------
-	struct FlowMap : QMap<GFlow::IpFlowKey, GPacketMgr::Value*> {
+	struct FlowMap : QMap<GMac, GPacketMgr::Value*> {
 		void clear() {
 			for (GPacketMgr::Value* value: *this) {
 				GPacketMgr::Value::deallocate(value);
 			}
-			QMap<GFlow::IpFlowKey, GPacketMgr::Value*>::clear();
+			QMap<GMac, GPacketMgr::Value*>::clear();
 		}
 
 		FlowMap::iterator erase(FlowMap::iterator it) {
 			GPacketMgr::Value* value = it.value();
 			GPacketMgr::Value::deallocate(value);
-			return QMap<GFlow::IpFlowKey, GPacketMgr::Value*>::erase(it);
+			return QMap<GMac, GPacketMgr::Value*>::erase(it);
 		}
 	};
 	// --------------------------------------------------------------------------
 
 public:
-	Q_INVOKABLE GIpFlowMgr(QObject* parent = nullptr) : GPacketMgr(parent) {}
-	~GIpFlowMgr() override { close(); }
+	Q_INVOKABLE GHostMgr(QObject* parent = nullptr) : GPacketMgr(parent) {}
+	~GHostMgr() override { close(); }
 
 protected:
 	bool doOpen() override;
@@ -72,10 +70,8 @@ protected:
 	void deleteOldFlowMaps(long now);
 
 public:
-	GFlow::IpFlowKey ipFlowKey_;
+	GMac mac_;
 	GPacketMgr::Value* val_{nullptr};
-	GFlow::IpFlowKey rIpFlowKey_;
-	GPacketMgr::Value* rVal_{nullptr};
 
 public slots:
 	void manage(GPacket* packet);

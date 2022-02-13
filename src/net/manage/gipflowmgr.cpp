@@ -11,9 +11,9 @@ bool GIpFlowMgr::doOpen() {
 bool GIpFlowMgr::doClose() {
 	for (Managable* manager: managables_) {
 		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
-			GFlow::IpFlowKey key = it.key();
+			GFlow::IpFlowKey ipFlowKey = it.key();
 			GPacketMgr::Value* value = it.value();
-			manager->ipFlowDeleted(&key, value);
+			manager->ipFlowDeleted(ipFlowKey, value);
 		}
 	}
 	flowMap_.clear();
@@ -33,9 +33,9 @@ void GIpFlowMgr::deleteOldFlowMaps(long now) {
 			case GPacketMgr::Value::Fin: qCritical() << "unrecheable Fin"; timeout = 0; break;
 		}
 		if (elapsed >= timeout) {
-			GFlow::IpFlowKey* key = const_cast<GFlow::IpFlowKey*>(&it.key());
+			GFlow::IpFlowKey ipFlowKey = it.key();
 			for (Managable* manager: managables_)
-				manager->ipFlowDeleted(key, value);
+				manager->ipFlowDeleted(ipFlowKey, value);
 			it = flowMap_.erase(it);
 			continue;
 		}
@@ -53,21 +53,21 @@ void GIpFlowMgr::manage(GPacket* packet) {
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr == nullptr) return;
 
-	key_.sip_ = ipHdr->sip();
-	key_.dip_ = ipHdr->dip();
-	FlowMap::iterator it = flowMap_.find(key_);
+	ipFlowKey_.sip_ = ipHdr->sip();
+	ipFlowKey_.dip_ = ipHdr->dip();
+	FlowMap::iterator it = flowMap_.find(ipFlowKey_);
 
-	rKey_ = key_.reverse();
+	rIpFlowKey_ = ipFlowKey_.reverse();
 	rVal_ = nullptr;
-	FlowMap::iterator rIt = flowMap_.find(rKey_);
+	FlowMap::iterator rIt = flowMap_.find(rIpFlowKey_);
 	if (rIt != flowMap_.end())
 		rVal_ = rIt.value();
 
 	if (it == flowMap_.end()) {
 		val_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
-		it = flowMap_.insert(key_, val_);
+		it = flowMap_.insert(ipFlowKey_, val_);
 		for (Managable* manager: managables_)
-			manager->ipFlowCreated(&key_, val_);
+			manager->ipFlowCreated(ipFlowKey_, val_);
 
 		if (rVal_ != nullptr) {
 			val_->state_ = GPacketMgr::Value::Full;

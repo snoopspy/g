@@ -11,9 +11,9 @@ bool GUdpFlowMgr::doOpen() {
 bool GUdpFlowMgr::doClose() {
 	for (Managable* manager: managables_) {
 		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
-			GFlow::UdpFlowKey key = it.key();
+			GFlow::UdpFlowKey udpFlowKey = it.key();
 			GPacketMgr::Value* value = it.value();
-			manager->udpFlowDeleted(&key, value);
+			manager->udpFlowDeleted(udpFlowKey, value);
 		}
 	}
 	flowMap_.clear();
@@ -33,9 +33,9 @@ void GUdpFlowMgr::deleteOldFlowMaps(long now) {
 			case GPacketMgr::Value::Fin: qCritical() << "unrecheable Fin"; timeout = 0; break;
 		}
 		if (elapsed >= timeout) {
-			GFlow::UdpFlowKey* key = const_cast<GFlow::UdpFlowKey*>(&it.key());
+			GFlow::UdpFlowKey udpFlowKey = it.key();
 			for (Managable* manager: managables_)
-				manager->udpFlowCreated(key, value);
+				manager->udpFlowCreated(udpFlowKey, value);
 			it = flowMap_.erase(it);
 			continue;
 		}
@@ -56,23 +56,23 @@ void GUdpFlowMgr::manage(GPacket* packet) {
 	GUdpHdr* udpHdr = packet->udpHdr_;
 	if (udpHdr == nullptr) return;
 
-	key_.sip_ = ipHdr->sip();
-	key_.sport_ = udpHdr->sport();
-	key_.dip_ = ipHdr->dip();
-	key_.dport_ = udpHdr->dport();
-	FlowMap::iterator it = flowMap_.find(key_);
+	udpFlowkey_.sip_ = ipHdr->sip();
+	udpFlowkey_.sport_ = udpHdr->sport();
+	udpFlowkey_.dip_ = ipHdr->dip();
+	udpFlowkey_.dport_ = udpHdr->dport();
+	FlowMap::iterator it = flowMap_.find(udpFlowkey_);
 
-	rKey_ = key_.reverse();
+	rUdpFlowKey_ = udpFlowkey_.reverse();
 	rVal_ = nullptr;
-	FlowMap::iterator rIt = flowMap_.find(rKey_);
+	FlowMap::iterator rIt = flowMap_.find(rUdpFlowKey_);
 	if (rIt != flowMap_.end())
 		rVal_ = rIt.value();
 
 	if (it == flowMap_.end()) {
 		val_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
-		it = flowMap_.insert(key_, val_);
+		it = flowMap_.insert(udpFlowkey_, val_);
 		for (Managable* manager: managables_)
-			manager->udpFlowCreated(&key_, val_);
+			manager->udpFlowCreated(udpFlowkey_, val_);
 
 		if (rVal_ != nullptr) {
 			val_->state_ = GPacketMgr::Value::Full;

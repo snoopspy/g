@@ -25,17 +25,18 @@ bool GClientHelloSplit::doClose() {
 	return true;
 }
 
-void GClientHelloSplit::tcpFlowCreated(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) {
-	// qDebug() << QString("_tcpFlowCreated %1:%2>%3:%4").arg(QString(key->sip_), QString::number(key->sport_), QString(key->dip_), QString::number(key->dport_)); // gilgil temp 2021.04.07
-	(void)key;
+void GClientHelloSplit::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) {
+	// qDebug() << QString("_tcpFlowCreated %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
+	(void)tcpFlowKey;
 	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
 	new (flowItem) FlowItem;
 }
 
-void GClientHelloSplit::tcpFlowDeleted(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) {
-	(void)key;
-	(void)value;
-	// qDebug() << QString("_tcpFlowDeleted %1:%2>%3:%4").arg(QString(key->sip_), QString::number(key->sport_), QString(key->dip_), QString::number(key->dport_)); // gilgil temp 2021.04.07
+void GClientHelloSplit::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) {
+	(void)tcpFlowKey;
+	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
+	flowItem->~FlowItem();
+	// qDebug() << QString("_tcpFlowDeleted %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
 }
 
 void GClientHelloSplit::split(GPacket* packet) {
@@ -61,10 +62,10 @@ void GClientHelloSplit::split(GPacket* packet) {
 
 	if (tcpData.data_[0] != 0x16 || tcpData.data_[1] != 0x03) return;
 
-	GFlow::TcpFlowKey* key = &tcpFlowMgr_->key_;
+	GFlow::TcpFlowKey* tcpFlowKey = &tcpFlowMgr_->tcpFlowKey_;
 	qDebug() << QString("split!!! tcp size=%1 %2:%3>%4:%5")
 		.arg(packet->buf_.size_)
-		.arg(QString(key->sip_)).arg(key->sport_).arg(QString(key->dip_)).arg(key->dport_); // gilgil temp 2016.10.10
+		.arg(QString(tcpFlowKey->sip_)).arg(tcpFlowKey->sport_).arg(QString(tcpFlowKey->dip_)).arg(tcpFlowKey->dport_); // gilgil temp 2016.10.10
 
 	size_t orgDataSize = tcpData.size_;
 	size_t firstDataSize = 16;

@@ -24,7 +24,7 @@ struct G_EXPORT GTcpFlowMgr : GPacketMgr {
 
 public:
 	long halfTimeout_{60 * 1}; // 1 minutes
-	long fullTimeout_{60 * 3}; // 3 minutes
+	long fullTimeout_{60 * 60}; // 1 hour
 	long rstTimeout_{10}; // 10 seconds
 	long finTimeout_{20}; // 20 seconds
 
@@ -33,8 +33,8 @@ public:
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void tcpFlowCreated(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) = 0;
-		virtual void tcpFlowDeleted(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) = 0;
+		virtual void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) = 0;
+		virtual void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -76,9 +76,9 @@ protected:
 	void deleteOldFlowMaps(long now);
 
 public:
-	GFlow::TcpFlowKey key_;
+	GFlow::TcpFlowKey tcpFlowKey_;
 	GPacketMgr::Value* val_{nullptr};
-	GFlow::TcpFlowKey rKey_;
+	GFlow::TcpFlowKey rTcpFlowKey_;
 	GPacketMgr::Value* rVal_{nullptr};
 
 public slots:

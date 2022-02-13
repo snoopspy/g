@@ -11,9 +11,9 @@ bool GTcpFlowMgr::doOpen() {
 bool GTcpFlowMgr::doClose() {
 	for (Managable* manager: managables_) {
 		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
-			GFlow::TcpFlowKey key = it.key();
+			GFlow::TcpFlowKey tcpFlowKey = it.key();
 			GPacketMgr::Value* value = it.value();
-			manager->tcpFlowDeleted(&key, value);
+			manager->tcpFlowDeleted(tcpFlowKey, value);
 		}
 	}
 	flowMap_.clear();
@@ -33,9 +33,9 @@ void GTcpFlowMgr::deleteOldFlowMaps(long now) {
 			case GPacketMgr::Value::Fin: timeout = finTimeout_; break;
 		}
 		if (elapsed >= timeout) {
-			GFlow::TcpFlowKey* key = const_cast<GFlow::TcpFlowKey*>(&it.key());
+			GFlow::TcpFlowKey tcpFlowKey = it.key();
 			for (Managable* manager: managables_)
-				manager->tcpFlowDeleted(key, value);
+				manager->tcpFlowDeleted(tcpFlowKey, value);
 			it = flowMap_.erase(it);
 			continue;
 		}
@@ -56,23 +56,23 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 	GTcpHdr* tcpHdr = packet->tcpHdr_;
 	if (tcpHdr == nullptr) return;
 
-	key_.sip_ = ipHdr->sip();
-	key_.sport_ = tcpHdr->sport();
-	key_.dip_ = ipHdr->dip();
-	key_.dport_ = tcpHdr->dport();
-	FlowMap::iterator it = flowMap_.find(key_);
+	tcpFlowKey_.sip_ = ipHdr->sip();
+	tcpFlowKey_.sport_ = tcpHdr->sport();
+	tcpFlowKey_.dip_ = ipHdr->dip();
+	tcpFlowKey_.dport_ = tcpHdr->dport();
+	FlowMap::iterator it = flowMap_.find(tcpFlowKey_);
 
-	rKey_ = key_.reverse();
+	rTcpFlowKey_ = tcpFlowKey_.reverse();
 	rVal_ = nullptr;
-	FlowMap::iterator rIt = flowMap_.find(rKey_);
+	FlowMap::iterator rIt = flowMap_.find(rTcpFlowKey_);
 	if (rIt != flowMap_.end())
 		rVal_ = rIt.value();
 
 	if (it == flowMap_.end()) {
 		val_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
-		it = flowMap_.insert(key_, val_);
+		it = flowMap_.insert(tcpFlowKey_, val_);
 		for (Managable* manager: managables_)
-			manager->tcpFlowCreated(&key_, val_);
+			manager->tcpFlowCreated(tcpFlowKey_, val_);
 
 		if (rVal_ != nullptr) {
 			val_->state_ = GPacketMgr::Value::Full;

@@ -29,8 +29,8 @@ public:
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void udpFlowCreated(GFlow::UdpFlowKey* key, GPacketMgr::Value* value) = 0;
-		virtual void udpFlowDeleted(GFlow::UdpFlowKey* key, GPacketMgr::Value* value) = 0;
+		virtual void udpFlowCreated(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) = 0;
+		virtual void udpFlowDeleted(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -72,9 +72,9 @@ protected:
 	void deleteOldFlowMaps(long now);
 
 public:
-	GFlow::UdpFlowKey key_;
+	GFlow::UdpFlowKey udpFlowkey_;
 	GPacketMgr::Value* val_{nullptr};
-	GFlow::UdpFlowKey rKey_;
+	GFlow::UdpFlowKey rUdpFlowKey_;
 	GPacketMgr::Value* rVal_{nullptr};
 
 public slots:

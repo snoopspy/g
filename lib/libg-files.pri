@@ -83,6 +83,7 @@ SOURCES += \
 	$${PWD}/../src/net/delay/gsyncdelay.cpp \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.cpp \
 	$${PWD}/../src/net/filter/gbpfilter.cpp \
+	$${PWD}/../src/net/manage/ghostmgr.cpp \
 	$${PWD}/../src/net/manage/gipflowmgr.cpp \
 	$${PWD}/../src/net/manage/gtcpflowmgr.cpp \
 	$${PWD}/../src/net/manage/gudpflowmgr.cpp \
@@ -224,6 +225,7 @@ HEADERS += \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.h \
 	$${PWD}/../src/net/filter/gbpfilter.h \
 	$${PWD}/../src/net/manage/gflowkey.h \
+	$${PWD}/../src/net/manage/ghostmgr.h \
 	$${PWD}/../src/net/manage/gipflowmgr.h \
 	$${PWD}/../src/net/manage/gpacketmgr.h \
 	$${PWD}/../src/net/manage/gtcpflowmgr.h \
