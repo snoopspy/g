@@ -33,7 +33,11 @@ GApp::GApp(int &argc, char** argv) : QCoreApplication(argc, argv) {
 #endif // QT_GUI_LIB
 
 #ifndef Q_OS_ANDROID
-	chdir(getDir(argv[0]).data());
+	int res = chdir(getDir(argv[0]).data());
+	if (res != 0) {
+		GLastErr lastErr;
+		fprintf(stderr, "%s\n", qPrintable(lastErr.msg()));
+	}
 #endif
 
 	initLogger();
