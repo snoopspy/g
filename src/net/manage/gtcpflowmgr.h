@@ -33,7 +33,7 @@ public:
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) = 0;
+		virtual void tcpFlowDetected(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) = 0;
 		virtual void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) = 0;
 	};
 	typedef QSet<Managable*> Managables;

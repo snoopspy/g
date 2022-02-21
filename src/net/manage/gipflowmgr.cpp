@@ -67,7 +67,7 @@ void GIpFlowMgr::manage(GPacket* packet) {
 		val_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
 		it = flowMap_.insert(ipFlowKey_, val_);
 		for (Managable* manager: managables_)
-			manager->ipFlowCreated(ipFlowKey_, val_);
+			manager->ipFlowDetected(ipFlowKey_, val_);
 
 		if (rVal_ != nullptr) {
 			val_->state_ = GPacketMgr::Value::Full;

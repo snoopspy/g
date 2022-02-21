@@ -52,7 +52,7 @@ protected:
 
 public:
 	// GTcpFlowMgr::Managable
-	void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) override;
+	void tcpFlowDetected(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) override;
 	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) override;
 
 public slots:

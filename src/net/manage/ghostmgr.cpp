@@ -74,7 +74,7 @@ void GHostMgr::manage(GPacket* packet) {
 		val_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Full /*meaninglesss*/, requestItems_.totalMemSize_);
 		it = flowMap_.insert(mac, val_);
 		for (Managable* manager: managables_)
-			manager->hostCreated(mac, val_);
+			manager->hostDetected(mac, val_);
 	}
 	else {
 		val_ = it.value();

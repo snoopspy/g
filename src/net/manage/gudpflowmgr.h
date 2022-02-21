@@ -29,7 +29,7 @@ public:
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void udpFlowCreated(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) = 0;
+		virtual void udpFlowDetected(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) = 0;
 		virtual void udpFlowDeleted(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) = 0;
 	};
 	typedef QSet<Managable*> Managables;

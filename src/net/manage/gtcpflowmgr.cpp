@@ -72,7 +72,7 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 		val_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
 		it = flowMap_.insert(tcpFlowKey_, val_);
 		for (Managable* manager: managables_)
-			manager->tcpFlowCreated(tcpFlowKey_, val_);
+			manager->tcpFlowDetected(tcpFlowKey_, val_);
 
 		if (rVal_ != nullptr) {
 			val_->state_ = GPacketMgr::Value::Full;

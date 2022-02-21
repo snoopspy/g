@@ -78,19 +78,19 @@ protected:
 
 public:
 	// GHostMgr::Managable
-	void hostCreated(GMac mac, GPacketMgr::Value* value) override;
+	void hostDetected(GMac mac, GPacketMgr::Value* value) override;
 	void hostDeleted(GMac mac, GPacketMgr::Value* value) override;
 
 	// GIpFlowMgr::Managable
-	void ipFlowCreated(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) override;
+	void ipFlowDetected(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) override;
 	void ipFlowDeleted(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) override;
 
 	// GTcpFlowMgr::Managable
-	void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) override;
+	void tcpFlowDetected(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) override;
 	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) override;
 
 	// GUdpFlowMgr::Managable
-	void udpFlowCreated(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) override;
+	void udpFlowDetected(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) override;
 	void udpFlowDeleted(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) override;
 
 public slots:

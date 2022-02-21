@@ -27,7 +27,7 @@ public:
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void hostCreated(GMac mac, GPacketMgr::Value* value) = 0;
+		virtual void hostDetected(GMac mac, GPacketMgr::Value* value) = 0;
 		virtual void hostDeleted(GMac mac, GPacketMgr::Value* value) = 0;
 	};
 	typedef QSet<Managable*> Managables;

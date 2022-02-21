@@ -25,8 +25,8 @@ bool GClientHelloSplit::doClose() {
 	return true;
 }
 
-void GClientHelloSplit::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) {
-	// qDebug() << QString("_tcpFlowCreated %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
+void GClientHelloSplit::tcpFlowDetected(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) {
+	// qDebug() << QString("_tcpFlowDetected %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
 	(void)tcpFlowKey;
 	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
 	new (flowItem) FlowItem;
