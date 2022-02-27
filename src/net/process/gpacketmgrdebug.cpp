@@ -32,7 +32,7 @@ bool GPacketMgrDebug::doClose() {
 
 void GPacketMgrDebug::hostDetected(GMac mac, GPacketMgr::Value* value) {
 	if (!enabled_) return;
-	qDebug() << QString("hostCreated %1").arg(QString(mac));
+	qDebug() << QString("hostDetected %1").arg(QString(mac));
 	FlowItem* flowItem = PFlowItem(value->mem(hostOffset_));
 	new (flowItem) FlowItem;
 }
@@ -46,7 +46,7 @@ void GPacketMgrDebug::hostDeleted(GMac mac, GPacketMgr::Value* value) {
 
 void GPacketMgrDebug::ipFlowDetected(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) {
 	if (!enabled_) return;
-	qDebug() << QString("ipFlowCreated %1>%2").arg(QString(ipFlowKey.sip_), QString(ipFlowKey.dip_));
+	qDebug() << QString("ipFlowDetected %1>%2").arg(QString(ipFlowKey.sip_), QString(ipFlowKey.dip_));
 	FlowItem* flowItem = PFlowItem(value->mem(ipFlowOffset_));
 	new (flowItem) FlowItem;
 }
@@ -60,7 +60,7 @@ void GPacketMgrDebug::ipFlowDeleted(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Valu
 
 void GPacketMgrDebug::tcpFlowDetected(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) {
 	if (!enabled_) return;
-	qDebug() << QString("tcpFlowCreated %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_));
+	qDebug() << QString("tcpFlowDetected %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_));
 	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
 	new (flowItem) FlowItem;
 }
@@ -74,7 +74,7 @@ void GPacketMgrDebug::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::V
 
 void GPacketMgrDebug::udpFlowDetected(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) {
 	if (!enabled_) return;
-	qDebug() << QString("udpFlowCreated %1:%2>%3:%4").arg(QString(udpFlowKey.sip_), QString::number(udpFlowKey.sport_), QString(udpFlowKey.dip_), QString::number(udpFlowKey.dport_));
+	qDebug() << QString("udpFlowDetected %1:%2>%3:%4").arg(QString(udpFlowKey.sip_), QString::number(udpFlowKey.sport_), QString(udpFlowKey.dip_), QString::number(udpFlowKey.dport_));
 	FlowItem* flowItem = PFlowItem(value->mem(ipFlowOffset_));
 	new (flowItem) FlowItem;
 }
