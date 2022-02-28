@@ -47,19 +47,19 @@ public:
 
 public:
 	// --------------------------------------------------------------------------
-	// FlowItem
+	// Item
 	// --------------------------------------------------------------------------
-	struct FlowItem {
+	struct Item {
 		size_t packets{0};
 		size_t bytes{0};
-		FlowItem() {
+		Item() {
 			GDEBUG_CTOR
 		}
-		~FlowItem() {
+		~Item() {
 			GDEBUG_DTOR
 		}
 	};
-	typedef FlowItem *PFlowItem;
+	typedef Item *PItem;
 	// --------------------------------------------------------------------------
 
 public:

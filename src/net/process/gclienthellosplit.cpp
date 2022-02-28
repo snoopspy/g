@@ -8,7 +8,7 @@ bool GClientHelloSplit::doOpen() {
 		SET_ERR(GErr::ObjectIsNull, "tcpFlowMgr must be specified");
 		return false;
 	}
-	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request("GFlowMgrTest_tcp", sizeof(FlowItem));
+	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request("GFlowMgrTest_tcp", sizeof(Item));
 	tcpFlowMgr_->managables_.insert(this);
 
 	Q_ASSERT(splittedTcpDataBuf_ == nullptr);
@@ -28,14 +28,14 @@ bool GClientHelloSplit::doClose() {
 void GClientHelloSplit::tcpFlowDetected(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) {
 	// qDebug() << QString("_tcpFlowDetected %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
 	(void)tcpFlowKey;
-	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
-	new (flowItem) FlowItem;
+	Item* item = PItem(value->mem(tcpFlowOffset_));
+	new (item) Item;
 }
 
 void GClientHelloSplit::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) {
 	(void)tcpFlowKey;
-	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
-	flowItem->~FlowItem();
+	Item* item = PItem(value->mem(tcpFlowOffset_));
+	item->~Item();
 	// qDebug() << QString("_tcpFlowDeleted %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
 }
 
@@ -46,17 +46,17 @@ void GClientHelloSplit::split(GPacket* packet) {
 	if (tcpHdr == nullptr) return;
 
 	Q_ASSERT(tcpFlowMgr_->val_ != nullptr);
-	FlowItem* flowItem = PFlowItem(tcpFlowMgr_->val_->mem(tcpFlowOffset_));
-	if (flowItem->processed_) return;
+	Item* item = PItem(tcpFlowMgr_->val_->mem(tcpFlowOffset_));
+	if (item->processed_) return;
 
 	if (tcpHdr->flags() & GTcpHdr::Syn && tcpHdr->flags() & GTcpHdr::Ack) {
-		flowItem->processed_ = true;
+		item->processed_ = true;
 		return;
 	}
 
 	GBuf tcpData = packet->tcpData_;
 	if (!tcpData.valid()) return; // no tcp data
-	flowItem->processed_ = true;
+	item->processed_ = true;
 
 	if (tcpData.size_ <= 16) return; // too small data
 

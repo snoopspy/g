@@ -43,7 +43,6 @@ void GHostMgr::manage(GPacket* packet) {
 		lastCheckTick_ = now;
 	}
 
-	GMac mac;
 	switch (packet->dlt()) {
 		case GPacket::Eth: {
 			GEthHdr* ethHdr = packet->ethHdr_;
@@ -51,7 +50,7 @@ void GHostMgr::manage(GPacket* packet) {
 				qWarning() << "ethHdr is null";
 				return;
 			}
-			mac = ethHdr->smac();
+			mac_ = ethHdr->smac();
 			break;
 		}
 		case GPacket::Ip:
@@ -61,7 +60,7 @@ void GHostMgr::manage(GPacket* packet) {
 			GDot11Hdr* dot11Hdr = packet->dot11Hdr_;
 			if (dot11Hdr == nullptr)
 				return;
-			mac = dot11Hdr->ta();
+			mac_ = dot11Hdr->ta();
 			break;
 		}
 		case GPacket::Null:
@@ -69,12 +68,12 @@ void GHostMgr::manage(GPacket* packet) {
 			return;
 	}
 
-	FlowMap::iterator it = flowMap_.find(mac);
+	FlowMap::iterator it = flowMap_.find(mac_);
 	if (it == flowMap_.end()) {
 		val_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Full /*meaninglesss*/, requestItems_.totalMemSize_);
-		it = flowMap_.insert(mac, val_);
+		it = flowMap_.insert(mac_, val_);
 		for (Managable* manager: managables_)
-			manager->hostDetected(mac, val_);
+			manager->hostDetected(mac_, val_);
 	}
 	else {
 		val_ = it.value();

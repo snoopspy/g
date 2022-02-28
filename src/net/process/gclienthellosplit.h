@@ -30,12 +30,12 @@ public:
 	int bufSize_{GPacket::MaxBufSize};
 
 	// --------------------------------------------------------------------------
-	// FlowItem
+	// Item
 	// --------------------------------------------------------------------------
-	struct FlowItem {
+	struct Item {
 		bool processed_{false};
 	};
-	typedef FlowItem *PFlowItem;
+	typedef Item *PItem;
 	// --------------------------------------------------------------------------
 
 public:
