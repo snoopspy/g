@@ -77,6 +77,7 @@ protected:
 	struct Item {
 		WatchThread* watchThread_{nullptr};
 		Item(GHostWatch* hostWatch, GMac mac, GHostMgr::Value* value) {
+			qDebug() << "ccc"; // gilgil temp 2022.03.07
 			watchThread_ = new WatchThread(hostWatch, mac, value);
 			watchThread_->start();
 		}

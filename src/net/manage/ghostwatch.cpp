@@ -106,36 +106,40 @@ void GHostWatch::WatchThread::run() {
 	QElapsedTimer* et = &hw_->et_;
 	qint64 start = et->elapsed();
 	__time_t startEpoch = value_->ts_.tv_sec;
-	while (hw_->active()) {
+	while (device->active() && hw_->active()) {
 		if (we_.wait(hw_->checkInterval_))
 			break;
 
 		qint64 now = et->elapsed();
-		qDebug() << "ts_.tv_sec" << value_->ts_.tv_sec;
-		qDebug() << "scanStartTimeoutSec" << hw_->scanStartTimeoutSec_;
-		qDebug() << "startEpoch" << startEpoch;
-		qDebug() << "now" << now;
-		qDebug() << "start" << start;
 		if (value_->ts_.tv_sec + hw_->scanStartTimeoutSec_ <= startEpoch + (now - start) / 1000) {
 			if (hw_->randomInterval_ > 0) {
 				GDuration random = QRandomGenerator::global()->generate() % hw_->randomInterval_;
-				if (we_.wait(random)) break;
-				qDebug() << "random" << random; // gilgil temp 2022.02.03
+				if (we_.wait(random))
+					break;
 			}
 
+			bool exit = false;
 			while (true) {
 				qDebug() << "arp request" << QString(mac) << QString(ip); // gilgil temp 2022.02.03
+				if (!device->active()) {
+					qWarning() << "device is not active";
+					break;
+				}
 				GPacket::Result res = device->write(GBuf(pbyte(&packet), sizeof(packet)));
 				if (res != GPacket::Ok) {
 					qWarning() << QString("device_->write return %1").arg(int(res));
 				}
-				if (we_.wait(hw_->sendInterval_)) break;
+				if (we_.wait(hw_->sendInterval_)) {
+					exit = true;
+					break;
+				}
 
 				if (value_->ts_.tv_sec + hw_->scanStartTimeoutSec_ > startEpoch + (now - start) / 1000) { // detected
 					qDebug() << QString("detected %1 %2").arg(QString(mac), QString(ip));
 					break;
 				}
 			}
+			if (exit) break;
 		}
 	}
 	qDebug() << "end " << QString(mac) << QString(ip); // by gilgil 2022.03.02

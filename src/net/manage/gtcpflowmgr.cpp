@@ -45,7 +45,7 @@ void GTcpFlowMgr::deleteOldFlowMaps(long now) {
 
 void GTcpFlowMgr::manage(GPacket* packet) {
 	long now = packet->ts_.tv_sec;
-	if (checkInterval_ != 0 && now - lastCheckTick_ >= checkInterval_) {
+	if (checkIntervalSec_ != 0 && now - lastCheckTick_ >= checkIntervalSec_) {
 		deleteOldFlowMaps(now);
 		lastCheckTick_ = now;
 	}

@@ -48,7 +48,7 @@ void GHostMgr::deleteOldFlowMaps(long now) {
 	while (it != hostMap_.end()) {
 		GHostMgr::Value* value = it.value();
 		long elapsed = now - value->ts_.tv_sec;
-		if (elapsed >= timeout_) {
+		if (elapsed >= timeoutSec_) {
 			GMac mac = it.key();
 			qDebug() << QString("deleted %1 %2").arg(QString(mac)).arg(QString(it.value()->ip_)); // gilgil temp 2022.03.07
 			for (Managable* manager: managables_)
@@ -85,7 +85,7 @@ bool GHostMgr::processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip) {
 
 void GHostMgr::manage(GPacket* packet) {
 	long now = packet->ts_.tv_sec;
-	if (checkInterval_ != 0 && now - lastCheckTick_ >= checkInterval_) {
+	if (checkIntervalSec_ != 0 && now - lastCheckTick_ >= checkIntervalSec_) {
 		deleteOldFlowMaps(now);
 		lastCheckTick_ = now;
 	}

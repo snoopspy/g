@@ -19,10 +19,10 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GPacketMgr : GStateObj {
 	Q_OBJECT
-	Q_PROPERTY(long checkInterval MEMBER checkInterval_)
+	Q_PROPERTY(long checkIntervalSec MEMBER checkIntervalSec_)
 
 public:
-	long checkInterval_{1}; // 1 second
+	long checkIntervalSec_{1}; // 1 second
 
 public:
 	GPacketMgr(QObject* parent = nullptr) : GStateObj(parent) {}
