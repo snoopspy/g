@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gpacketmgr.h"
+#include "net/capture/gpcapdevice.h"
 
 // ----------------------------------------------------------------------------
 // GHostMgr
@@ -18,17 +19,44 @@
 struct G_EXPORT GHostMgr : GPacketMgr {
 	Q_OBJECT
 	Q_PROPERTY(long timeout MEMBER timeout_)
+	Q_PROPERTY(GObjPtr pcapDevice READ getPcapDevice WRITE setPcapDevice)
+
+	GObjPtr getPcapDevice() { return pcapDevice_; }
+	void setPcapDevice(GObjPtr value) { pcapDevice_ = dynamic_cast<GPcapDevice*>(value.data()); }
 
 public:
+	bool enabled_{true};
 	long timeout_{60}; // 1 minutes
+	GPcapDevice* pcapDevice_{nullptr};
+
+public:
+	// --------------------------------------------------------------------------
+	// Value
+	// --------------------------------------------------------------------------
+	struct Value {
+		struct timeval ts_;
+		GIp ip_;
+		u_char totalMem_[0];
+
+		static struct Value* allocate(size_t totalMemSize) {
+			Value* res = reinterpret_cast<Value*>(malloc(sizeof(struct Value) + totalMemSize));
+			return res;
+		}
+
+		static void deallocate(Value* value) {
+			free(static_cast<void*>(value));
+		}
+
+		void* mem(size_t offset) { return totalMem_ + offset; }
+	};
 
 public:
 	// --------------------------------------------------------------------------
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void hostDetected(GMac mac, GPacketMgr::Value* value) = 0;
-		virtual void hostDeleted(GMac mac, GPacketMgr::Value* value) = 0;
+		virtual void hostDetected(GMac mac, GHostMgr::Value* value) = 0;
+		virtual void hostDeleted(GMac mac, GHostMgr::Value* value) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -36,20 +64,20 @@ public:
 
 protected:
 	// --------------------------------------------------------------------------
-	// FlowMap
+	// HostMap
 	// --------------------------------------------------------------------------
-	struct FlowMap : QMap<GMac, GPacketMgr::Value*> {
+	struct HostMap : QMap<GMac, GHostMgr::Value*> {
 		void clear() {
-			for (GPacketMgr::Value* value: *this) {
-				GPacketMgr::Value::deallocate(value);
+			for (GHostMgr::Value* value: *this) {
+				GHostMgr::Value::deallocate(value);
 			}
-			QMap<GMac, GPacketMgr::Value*>::clear();
+			QMap<GMac, GHostMgr::Value*>::clear();
 		}
 
-		FlowMap::iterator erase(FlowMap::iterator it) {
-			GPacketMgr::Value* value = it.value();
-			GPacketMgr::Value::deallocate(value);
-			return QMap<GMac, GPacketMgr::Value*>::erase(it);
+		HostMap::iterator erase(HostMap::iterator it) {
+			GHostMgr::Value* value = it.value();
+			GHostMgr::Value::deallocate(value);
+			return QMap<GMac, GHostMgr::Value*>::erase(it);
 		}
 	};
 	// --------------------------------------------------------------------------
@@ -66,12 +94,21 @@ public:
 	GPacketMgr::RequestItems requestItems_;
 
 protected:
-	FlowMap flowMap_;
+	GIntf* intf_{nullptr};
+	GIp myIp_{0};
+	GMac myMac_{GMac::nullMac()};
+	GIp gwIp_{0};
+	HostMap hostMap_;
+
 	void deleteOldFlowMaps(long now);
+
+protected:
+	bool processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip);
+	bool processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip);
 
 public:
 	GMac mac_;
-	GPacketMgr::Value* val_{nullptr};
+	Value* val_{nullptr};
 
 public slots:
 	void manage(GPacket* packet);

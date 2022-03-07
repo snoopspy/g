@@ -179,18 +179,21 @@ void GPluginFactory::loadHost() {
 // Manage
 // ----------------------------------------------------------------------------
 #include <GHostMgr>
+#include <GHostWatch>
 #include <GIpFlowMgr>
 #include <GTcpFlowMgr>
 #include <GUdpFlowMgr>
 
 void GPluginFactory::loadManage() {
 	qRegisterMetaType<GHostMgr*>();
+	qRegisterMetaType<GHostWatch*>();
 	qRegisterMetaType<GIpFlowMgr*>();
 	qRegisterMetaType<GTcpFlowMgr*>();
 	qRegisterMetaType<GUdpFlowMgr*>();
 
 	ItemCategory* category = new ItemCategory("manage");
 	category->items_.push_back(new ItemNode("GHostMgr"));
+	category->items_.push_back(new ItemNode("GHostWatch"));
 	category->items_.push_back(new ItemNode("GIpFlowMgr"));
 	category->items_.push_back(new ItemNode("GTcpFlowMgr"));
 	category->items_.push_back(new ItemNode("GUdpFlowMgr"));

@@ -29,15 +29,6 @@ public:
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 	int bufSize_{GPacket::MaxBufSize};
 
-	// --------------------------------------------------------------------------
-	// Item
-	// --------------------------------------------------------------------------
-	struct Item {
-		bool processed_{false};
-	};
-	typedef Item *PItem;
-	// --------------------------------------------------------------------------
-
 public:
 	Q_INVOKABLE GClientHelloSplit(QObject* parent = nullptr) : GStateObj(parent) {}
 	~GClientHelloSplit() override { close(); }
@@ -47,13 +38,22 @@ protected:
 	bool doClose() override;
 
 protected:
-	size_t tcpFlowOffset_{0};
 	gbyte* splittedTcpDataBuf_{nullptr};
 
 public:
 	// GTcpFlowMgr::Managable
+	size_t tcpFlowOffset_{0};
 	void tcpFlowDetected(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) override;
 	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) override;
+
+	// --------------------------------------------------------------------------
+	// Item
+	// --------------------------------------------------------------------------
+	struct Item {
+		bool processed_{false};
+	};
+	typedef Item *PItem;
+	// --------------------------------------------------------------------------
 
 public slots:
 	void split(GPacket* packet);

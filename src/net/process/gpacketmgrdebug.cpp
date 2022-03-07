@@ -30,16 +30,16 @@ bool GPacketMgrDebug::doClose() {
 	return true;
 }
 
-void GPacketMgrDebug::hostDetected(GMac mac, GPacketMgr::Value* value) {
+void GPacketMgrDebug::hostDetected(GMac mac, GHostMgr::Value* value) {
 	if (!enabled_) return;
-	qDebug() << QString("hostDetected %1").arg(QString(mac));
+	qDebug() << QString("hostDetected %1 %2").arg(QString(mac), QString(value->ip_));
 	Item* item = PItem(value->mem(hostOffset_));
 	new (item) Item;
 }
 
-void GPacketMgrDebug::hostDeleted(GMac mac, GPacketMgr::Value* value) {
+void GPacketMgrDebug::hostDeleted(GMac mac, GHostMgr::Value* value) {
 	if (!enabled_) return;
-	qDebug() << QString("hostDeleted %1").arg(QString(mac));
+	qDebug() << QString("hostDeleted %1 %2").arg(QString(mac), QString(value->ip_));
 	Item* item = PItem(value->mem(hostOffset_));
 	item->~Item();
 }

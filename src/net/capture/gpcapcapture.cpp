@@ -72,6 +72,7 @@ GPacket::Result GPcapCapture::read(GPacket* packet) {
 }
 
 GPacket::Result GPcapCapture::write(GBuf buf) {
+	Q_ASSERT(pcap_ != nullptr);
 	int i = pcap_sendpacket(pcap_, buf.data_, int(buf.size_));
 	if (i == 0) return GPacket::Ok;
 	char* e = pcap_geterr(pcap_);
@@ -81,7 +82,6 @@ GPacket::Result GPcapCapture::write(GBuf buf) {
 }
 
 GPacket::Result GPcapCapture::write(GPacket* packet) {
-	// qDebug() << packet->buf_.size_; // gilgil temp 2021.07.12
 	GPacket::Result res;
 	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->len() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr)
 		res = writeMtuSplit(packet, mtu_, GPacket::Eth);

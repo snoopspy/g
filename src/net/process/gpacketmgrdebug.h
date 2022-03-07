@@ -78,8 +78,8 @@ protected:
 
 public:
 	// GHostMgr::Managable
-	void hostDetected(GMac mac, GPacketMgr::Value* value) override;
-	void hostDeleted(GMac mac, GPacketMgr::Value* value) override;
+	void hostDetected(GMac mac, GHostMgr::Value* value) override;
+	void hostDeleted(GMac mac, GHostMgr::Value* value) override;
 
 	// GIpFlowMgr::Managable
 	void ipFlowDetected(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) override;
