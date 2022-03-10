@@ -35,7 +35,7 @@ struct G_EXPORT GHostWatch : GStateObj, GHostMgr::Managable {
 public:
 	bool enabled_{true};
 	GDuration checkInterval_{1000}; // 1 sec
-	qint64 scanStartTimeoutSec_{60}; // 60 secs
+	qint64 scanStartTimeoutSec_{50}; // 50 secs
 	GDuration randomInterval_{5000}; // 5 secs
 	GDuration sendInterval_{1000}; // 1 sec
 	GPcapDevice* pcapDevice_{nullptr};
