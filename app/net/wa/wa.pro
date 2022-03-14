@@ -4,12 +4,12 @@ DESTDIR = $$PWD/../../../bin
 
 SOURCES += \
 	wa.cpp \
-	wifianalyzer.cpp \
-	wawidget.cpp
+	wawidget.cpp \
+	wifianalyzer.cpp
 
 HEADERS += \
-	wifianalyzer.h \
-	wawidget.h
+	wawidget.h \
+	wifianalyzer.h
 
 DISTFILES += \
 	android/AndroidManifest.xml \
