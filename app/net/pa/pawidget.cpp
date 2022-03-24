@@ -7,7 +7,7 @@
 #include <GJson>
 
 PaWidget::PaWidget(QWidget* parent) : GDefaultWidget(parent) {
-	setWindowTitle("ProbeAnalyzer");
+	setWindowTitle("Probe Analyzer");
 
 	tableWidget_ = new GTableWidget(this);
 	tableWidget_->setColumnCount(2);
