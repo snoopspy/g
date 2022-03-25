@@ -21,7 +21,7 @@
 // ----------------------------------------------------------------------------
 // GDefaultWidget
 // ----------------------------------------------------------------------------
-struct G_EXPORT GDefaultWidget : QWidget, GProp {
+struct G_EXPORT GDefaultWidget : QWidget {
 	Q_OBJECT
 
 public:
