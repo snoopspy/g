@@ -1,14 +1,15 @@
 #include "hostanalyzer.h"
 
-HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
+Q_INVOKABLE HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
-	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m2\"", "su -c \"nexutil -k1\""}));
+	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 #endif
 
 	hostMgr_.pcapDevice_ = &pcapDevice_;
 	hostWatch_.pcapDevice_ = &pcapDevice_;
 	hostWatch_.hostMgr_ = &hostMgr_;
+	hostScan_.pcapDevice_ = &pcapDevice_;
 
 	// for probeDetected signal
 	qRegisterMetaType<GMac>("GMac");
@@ -35,6 +36,14 @@ bool HostAnalyzer::doOpen() {
 		return false;
 	}
 
+	if (!hostScan_.open()) {
+		err = hostScan_.err;
+		return false;
+	}
+
+	hostOffset_ = hostMgr_.requestItems_.request("GHostWatch-host", sizeof(QTreeWidgetItem));
+	hostMgr_.managables_.insert(this);
+
 	return true;
 }
 
@@ -42,5 +51,24 @@ bool HostAnalyzer::doClose() {
 	pcapDevice_.close();
 	hostMgr_.close();
 	hostWatch_.close();
+	hostScan_.close();
 	return true;
+}
+
+void HostAnalyzer::hostDetected(GMac mac, GHostMgr::Value* value) {
+	QMetaObject::invokeMethod(this, [=]() {
+		QTreeWidgetItem* item = reinterpret_cast<QTreeWidgetItem*>(value->mem(hostOffset_));
+		qDebug() << pvoid(item); // gilgil temp 2022.03.25
+		new (item) QTreeWidgetItem(QStringList{QString(mac)});
+		treeWidget_->addTopLevelItem(item);
+	});
+}
+
+void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::Value* value) {
+	(void)mac;
+	QMetaObject::invokeMethod(this, [=]() {
+		QTreeWidgetItem* item = reinterpret_cast<QTreeWidgetItem*>(value->mem(hostOffset_));
+		qDebug() << pvoid(item); // gilgil temp 2022.03.25
+		item->~QTreeWidgetItem();
+	});
 }

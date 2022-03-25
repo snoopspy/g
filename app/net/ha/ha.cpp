@@ -6,23 +6,23 @@
 int main(int argc, char *argv[])
 {
 	GApp a(argc, argv);
-	HaWidget pw;
+	HaWidget hw;
 
 	QJsonObject& jo = GJson::instance();
-	jo["pw"] >> pw;
+	jo["hw"] >> hw;
 
-	pw.show();
+	hw.show();
 
-	GCommand* command = &pw.hostAnalyzer_.command_;
+	GCommand* command = &hw.hostAnalyzer_.command_;
 	if (!command->open()) {
-		QMessageBox::warning(&pw, "Error", command->err->msg());
+		QMessageBox::warning(&hw, "Error", command->err->msg());
 	}
 
 	int res = a.exec();
 
 	command->close();
 
-	jo["pw"] << pw;
+	jo["hw"] << hw;
 
 	return res;
 }

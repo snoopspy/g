@@ -49,7 +49,7 @@ protected:
 	bool doOpen() override;
 	bool doClose() override;
 
-public:
+protected:
 	// GHostMgr::Managable
 	size_t hostOffset_{0};
 	void hostDetected(GMac mac, GHostMgr::Value* value) override;

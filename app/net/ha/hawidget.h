@@ -4,7 +4,7 @@
 #include <GTreeWidget>
 #include "hostanalyzer.h"
 
-struct G_EXPORT HaWidget : GDefaultWidget {
+struct G_EXPORT HaWidget : GDefaultWidget, GProp {
 	Q_OBJECT
 
 public:
@@ -27,6 +27,5 @@ private slots:
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
 
-	void processProbeDetected(GMac mac, int signal);
 	void processClosed();
 };

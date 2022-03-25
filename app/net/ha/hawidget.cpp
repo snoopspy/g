@@ -20,8 +20,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &HaWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &HaWidget::tbOption_clicked);
 
-	QObject::connect(&hostAnalyzer_, &HostAnalyzer::probeDetected, this, &HaWidget::processProbeDetected);
-	QObject::connect(&hostAnalyzer_.pcapDevice_, &GPcapDevice::closed, this, &HaWidget::processClosed);
+	hostAnalyzer_.treeWidget_ = treeWidget_;
 
 	setControl();
 }
@@ -33,12 +32,14 @@ HaWidget::~HaWidget() {
 
 void HaWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
-	jo["pa"] >> hostAnalyzer_;
+	jo["sizes"] >> GJson::columnSizes(treeWidget_);
+	jo["ha"] >> hostAnalyzer_;
 }
 
 void HaWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
-	jo["pa"] << hostAnalyzer_;
+	jo["sizes"] << GJson::columnSizes(treeWidget_);
+	jo["ha"] << hostAnalyzer_;
 }
 
 void HaWidget::setControl() {
@@ -87,12 +88,6 @@ void HaWidget::tbOption_clicked(bool checked) {
 	propDialog.exec();
 
 	jo["propDialog"] << propDialog;
-}
-
-void HaWidget::processProbeDetected(GMac mac, int signal) {
-	qDebug() << QString(mac) << signal;
-	QTreeWidgetItem* item = new QTreeWidgetItem(QStringList{QString(mac), ""});
-	treeWidget_->addTopLevelItem(item);
 }
 
 void HaWidget::processClosed() {
