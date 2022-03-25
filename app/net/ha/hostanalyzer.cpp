@@ -58,8 +58,7 @@ bool HostAnalyzer::doClose() {
 void HostAnalyzer::hostDetected(GMac mac, GHostMgr::Value* value) {
 	QMetaObject::invokeMethod(this, [=]() {
 		QTreeWidgetItem* item = reinterpret_cast<QTreeWidgetItem*>(value->mem(hostOffset_));
-		qDebug() << pvoid(item); // gilgil temp 2022.03.25
-		new (item) QTreeWidgetItem(QStringList{QString(mac)});
+		new (item) QTreeWidgetItem(QStringList{QString(value->ip_), QString(mac)});
 		treeWidget_->addTopLevelItem(item);
 	});
 }
@@ -68,7 +67,6 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::Value* value) {
 	(void)mac;
 	QMetaObject::invokeMethod(this, [=]() {
 		QTreeWidgetItem* item = reinterpret_cast<QTreeWidgetItem*>(value->mem(hostOffset_));
-		qDebug() << pvoid(item); // gilgil temp 2022.03.25
 		item->~QTreeWidgetItem();
 	});
 }
