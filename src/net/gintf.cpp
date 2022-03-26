@@ -58,7 +58,7 @@ GIntfList::GIntfList() {
 	char errBuf[PCAP_ERRBUF_SIZE];
 	int i = pcap_findalldevs(&allDevs, errBuf);
 	if (i != 0) { // if error occured
-		qWarning() << QString("error in pcap_findalldevs_ex (%1)").arg(errBuf);
+		qWarning() << QString("error in pcap_findalldevs (%1)").arg(errBuf);
 		return;
 	}
 
