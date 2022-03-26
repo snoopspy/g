@@ -7,6 +7,7 @@
 #include "base/log/glogstderr.h"
 #include "base/log/glogudp.h"
 #include "base/sys/gnexmon.h"
+#include "net/demon/gdemon.h"
 
 std::string getDir(std::string argv) {
 	ssize_t i = argv.length() - 1;
@@ -27,9 +28,9 @@ std::string getDir(std::string argv) {
 // GApp
 // ----------------------------------------------------------------------------
 #ifdef QT_GUI_LIB
-GApp::GApp(int &argc, char** argv) : QApplication(argc, argv) {
+GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon) : QApplication(argc, argv) {
 #else
-GApp::GApp(int &argc, char** argv) : QCoreApplication(argc, argv) {
+GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon) : QCoreApplication(argc, argv) {
 #endif // QT_GUI_LIB
 
 #ifndef Q_OS_ANDROID
@@ -48,12 +49,30 @@ GApp::GApp(int &argc, char** argv) : QCoreApplication(argc, argv) {
 	qInfo() << "Copyright (c) Gilbert Lee All rights reserved";
 	qInfo() << G::pcap_lib_version();
 
-	launchDemon();
+#ifdef Q_OS_ANDROID
+	copyFileFromAssets("arprecover", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+	copyFileFromAssets("corepcap", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+	copyFileFromAssets("ssdemon", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+#endif // Q_OS_ANDROID
+
+	if (demon)
+		launchDemon(&demon_, GDemon::DefaultPort);
+	if (nexmonDemon) {
+		QString soFileName = GNexmon::soFileName();
+		launchDemon(&nexmonDemon_, GDemon::NexmonPort, soFileName);
+	}
 }
 
 GApp::~GApp() {
-	demon_.terminate();
-	demon_.waitForFinished();
+	if (demon_.state() == QProcess::Running) {
+		demon_.terminate();
+		demon_.waitForFinished();
+	}
+	if (nexmonDemon_.state() == QProcess::Running) {
+		nexmonDemon_.terminate();
+		nexmonDemon_.waitForFinished();
+	}
+
 #ifdef Q_OS_ANDROID
 	system("su -c 'pkill ssdemon'"); // ssdemon is not terminated properly on android
 #endif // Q_OS_ANDROID
@@ -80,13 +99,7 @@ void GApp::initLogger() {
 	}
 }
 
-void GApp::launchDemon() {
-#ifdef Q_OS_ANDROID
-	copyFileFromAssets("arprecover", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
-	copyFileFromAssets("corepcap", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
-	copyFileFromAssets("ssdemon", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
-#endif // Q_OS_ANDROID
-
+void GApp::launchDemon(QProcess* demon, int port, QString soFileName) {
 	QString ssdemonFile = "ssdemon";
 	if (QFile::exists(ssdemonFile)) {
 		QStringList arguments;
@@ -94,16 +107,17 @@ void GApp::launchDemon() {
 		QString path = QDir::currentPath();
 #ifdef Q_OS_ANDROID
 		QString preloadStr = " ";
-		QString soFileName = GNexmon::soFileName();
 		if (soFileName != "")
 			preloadStr = "export LD_PRELOAD=" + soFileName + ";";
-		QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, ssdemonFile);
+		QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4 %5").arg(path + "/../lib", preloadStr, path, ssdemonFile, QString::number(port));
 #else // Q_OS_ANDROID
+		(void)port;
+		(void)soFileName;
 		QString run = QString("%1/%2").arg(path, ssdemonFile);
 #endif // Q_OS_ANDROID
 		arguments.append(run);
 		qDebug() << arguments;
-		demon_.start("su", arguments);
+		demon->start("su", arguments);
 	}
 }
 

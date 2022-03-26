@@ -29,12 +29,13 @@ struct G_EXPORT GApp : QCoreApplication {
 #endif // QT_GUI_LIB
 
 public:
-	GApp(int &argc, char** argv);
+	GApp(int &argc, char** argv, bool demon = true, bool nexmonDemon = true);
 	~GApp() override;
 
 	QProcess demon_;
+	QProcess nexmonDemon_;
 
 	static void initLogger();
-	void launchDemon();
+	void launchDemon(QProcess* demon, int port, QString soFileName = "");
 	static bool copyFileFromAssets(QString fileName, QFile::Permissions permissions);
 };
