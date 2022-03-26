@@ -51,8 +51,11 @@ int main(int argc, char* argv[]) {
 
 	char wd[BUFSIZ];
 	memset(wd, 0, BUFSIZ);
-	getcwd(wd, BUFSIZ);
-	chdir(GAux::getDir(argv[0]).data());
+	if (getcwd(wd, BUFSIZ) == nullptr)
+		GTRACE("getcwd return null");
+	int res = chdir(GAux::getDir(argv[0]).data());
+	if (res != 0)
+		GTRACE("chdir return %d", res);
 	GTRACE("ssdemon %s started login=%s dir=%s %s %s", GAux::getVersion(), getlogin(), wd, __DATE__, __TIME__);
 
 	std::string arguments;

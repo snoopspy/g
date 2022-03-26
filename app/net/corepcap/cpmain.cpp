@@ -83,8 +83,11 @@ int main(int argc, char* argv[]) {
 	;
 	char wd[BUFSIZ];
 	memset(wd, 0, BUFSIZ);
-	getcwd(wd, BUFSIZ);
-	chdir(getDir(argv[0]).data());
+	if (getcwd(wd, BUFSIZ) == nullptr)
+		GTRACE("getcwd return null");
+	int res = chdir(getDir(argv[0]).data());
+	if (res != 0)
+		GTRACE("chdir return %d", res);
 	GTRACE("corepcap %s started login=%s dir=%s %s %s", version, getlogin(), wd, __DATE__, __TIME__);
 
 	std::string arguments;
