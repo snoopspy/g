@@ -16,7 +16,7 @@ bool GHostMgr::doOpen() {
 	}
 
 	myIp_ = intf_->ip();
-	if (myIp_ =- 0) {
+	if (myIp_ == 0) {
 		SET_ERR(GErr::ValueIsZero, "ip is zero");
 		return false;
 	}
