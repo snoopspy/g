@@ -21,30 +21,41 @@ HostAnalyzer::~HostAnalyzer() {
 }
 
 bool HostAnalyzer::doOpen() {
-	if (!pcapDevice_.open()) {
-		err = pcapDevice_.err;
-		return false;
+	GThreadMgr::suspendStart();
+
+	bool ok = true;
+	while (true) {
+		if (!pcapDevice_.open()) {
+			err = pcapDevice_.err;
+			ok = false;
+			break;
+		}
+
+		if (!hostMgr_.open()) {
+			err = hostMgr_.err;
+			ok = false;
+			break;
+		}
+
+		if (!hostWatch_.open()) {
+			err = hostWatch_.err;
+			ok = false;
+			break;
+		}
+
+		if (!hostScan_.open()) {
+			err = hostScan_.err;
+			ok = false;
+			break;
+		}
+
+		hostOffset_ = hostMgr_.requestItems_.request("GHostWatch-host", sizeof(QTreeWidgetItem));
+		hostMgr_.managables_.insert(this);
+		break;
 	}
 
-	if (!hostMgr_.open()) {
-		err = hostMgr_.err;
-		return false;
-	}
-
-	if (!hostWatch_.open()) {
-		err = hostWatch_.err;
-		return false;
-	}
-
-	if (!hostScan_.open()) {
-		err = hostScan_.err;
-		return false;
-	}
-
-	hostOffset_ = hostMgr_.requestItems_.request("GHostWatch-host", sizeof(QTreeWidgetItem));
-	hostMgr_.managables_.insert(this);
-
-	return true;
+	GThreadMgr::resumeStart();
+	return ok;
 }
 
 bool HostAnalyzer::doClose() {
