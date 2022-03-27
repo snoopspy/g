@@ -8,7 +8,7 @@ bool GClientHelloSplit::doOpen() {
 		SET_ERR(GErr::ObjectIsNull, "tcpFlowMgr must be specified");
 		return false;
 	}
-	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request("GClientHelloSplit_tcpFlow", sizeof(Item));
+	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request("GClientHelloSplit-tcpFlow", sizeof(Item));
 	tcpFlowMgr_->managables_.insert(this);
 
 	Q_ASSERT(splittedTcpDataBuf_ == nullptr);

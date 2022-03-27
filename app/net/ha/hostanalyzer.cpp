@@ -49,7 +49,7 @@ bool HostAnalyzer::doOpen() {
 			break;
 		}
 
-		hostOffset_ = hostMgr_.requestItems_.request("GHostWatch-host", sizeof(QTreeWidgetItem));
+		hostOffset_ = hostMgr_.requestItems_.request("GHostAnalyzer-host", sizeof(QTreeWidgetItem));
 		hostMgr_.managables_.insert(this);
 		break;
 	}
@@ -69,6 +69,7 @@ bool HostAnalyzer::doClose() {
 void HostAnalyzer::hostDetected(GMac mac, GHostMgr::Value* value) {
 	QMetaObject::invokeMethod(this, [=]() {
 		QTreeWidgetItem* item = reinterpret_cast<QTreeWidgetItem*>(value->mem(hostOffset_));
+		qDebug() << "hostOffset_=" << hostOffset_ << "item=" << (void*)item; // gilgil temp 2022.03.28
 		new (item) QTreeWidgetItem(QStringList{QString(value->ip_), QString(mac)});
 		treeWidget_->addTopLevelItem(item);
 	});
@@ -78,6 +79,7 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::Value* value) {
 	(void)mac;
 	QMetaObject::invokeMethod(this, [=]() {
 		QTreeWidgetItem* item = reinterpret_cast<QTreeWidgetItem*>(value->mem(hostOffset_));
+		qDebug() << "hostOffset_=" << hostOffset_ << "item=" << (void*)item; // gilgil temp 2022.03.28
 		item->~QTreeWidgetItem();
 	});
 }

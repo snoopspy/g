@@ -85,6 +85,7 @@ public:
 		size_t totalMemSize_{0};
 
 		size_t request(const char* id /* void* */, size_t memSize) {
+			// qDebug() << id << (void*)id; // by gilgil 2022.03.28
 			size_t currentOffset = 0;
 			for (RequestItem& item: *this) {
 				if (item.id_ == id) return currentOffset;
