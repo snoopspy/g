@@ -23,6 +23,7 @@ bool GHostWatch::doOpen() {
 		SET_ERR(GErr::ObjectIsNull, "hostMgr is null");
 		return false;
 	}
+
 	hostOffset_ = hostMgr_->requestItems_.request("GHostWatch-host", sizeof(Item));
 	hostMgr_->managables_.insert(this);
 	et_.start();
@@ -68,10 +69,10 @@ GHostWatch::WatchThread::~WatchThread() {
 
 }
 
+#include "net/write/gpcapdevicewrite.h"
 void GHostWatch::WatchThread::run() {
 	GMac mac = mac_;
 	GIp ip = value_->ip_;
-
 	qDebug() << "beg " << QString(mac) << QString(ip); // by gilgil 2022.03.02
 
 	GPcapDevice* device = hw_->pcapDevice_;
@@ -84,6 +85,13 @@ void GHostWatch::WatchThread::run() {
 
 	GIp myIp = intf->ip();
 	GMac myMac = intf->mac();
+
+	GPcapDeviceWrite deviceWrite;
+	deviceWrite.intfName_ = device->intfName_;
+	if (!deviceWrite.open()) {
+		qDebug() << QString("deviceWrite.open(%1) return false").arg(deviceWrite.intfName_);
+		return;
+	}
 
 	GEthArpHdr packet;
 
@@ -121,13 +129,9 @@ void GHostWatch::WatchThread::run() {
 			bool exit = false;
 			while (true) {
 				qDebug() << "arp request" << QString(mac) << QString(ip); // gilgil temp 2022.02.03
-				if (!device->active()) {
-					qWarning() << "device is not active";
-					break;
-				}
-				GPacket::Result res = device->write(GBuf(pbyte(&packet), sizeof(packet)));
+				GPacket::Result res = deviceWrite.write(GBuf(pbyte(&packet), sizeof(packet)));
 				if (res != GPacket::Ok) {
-					qWarning() << QString("device_->write return %1").arg(int(res));
+					qWarning() << QString("deviceWrite.write return %1").arg(int(res));
 				}
 				if (we_.wait(hw_->sendInterval_)) {
 					exit = true;
