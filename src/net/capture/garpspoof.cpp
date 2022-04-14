@@ -311,9 +311,9 @@ void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac attackMac, bool infect
 
 	packet->arpHdr_.hrd_ = htons(GArpHdr::ETHER);
 	packet->arpHdr_.pro_ = htons(GEthHdr::Ip4);
-	packet->arpHdr_.hln_ = sizeof(GMac);
-	packet->arpHdr_.pln_ = sizeof(GIp);
-	// packet->arpHdr_.op_ = htons(operation); // do not set here
+	packet->arpHdr_.hln_ = GMac::SIZE;
+	packet->arpHdr_.pln_ = GIp::SIZE;
+	// packet->arpHdr_.op_ = htons(operation); // set later
 	packet->arpHdr_.smac_ = infect ? attackMac : targetMac_; // infect(true) or recover(false)
 	packet->arpHdr_.sip_ = htonl(targetIp_);
 	packet->arpHdr_.tmac_ = senderMac_;

@@ -14,6 +14,7 @@
 #include "net/gatm.h"
 #include "net/filter/gbpfilter.h"
 #include "net/manage/gflowkey.h"
+#include "net/pdu/getharphdr.h"
 
 // ----------------------------------------------------------------------------
 // GArpSpoofFlow

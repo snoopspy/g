@@ -103,8 +103,8 @@ bool GAtm::sendQueries() {
 
 	query.arpHdr_.hrd_ = htons(GArpHdr::ETHER);
 	query.arpHdr_.pro_ = htons(GEthHdr::Ip4);
-	query.arpHdr_.hln_ = sizeof(GMac);
-	query.arpHdr_.pln_ = sizeof(GIp);
+	query.arpHdr_.hln_ = GMac::SIZE;
+	query.arpHdr_.pln_ = GIp::SIZE;
 	query.arpHdr_.op_ = htons(GArpHdr::Request);
 	query.arpHdr_.smac_ = intf_->mac();
 	query.arpHdr_.sip_ = htonl(intf_->ip());
