@@ -94,6 +94,7 @@ bool GAtm::wait(GDuration timeout) {
 	return succeed;
 }
 
+#include "net/pdu/getharphdr.h"
 bool GAtm::sendQueries() {
 	GEthArpHdr query;
 	query.ethHdr_.dmac_ = GMac::broadcastMac();

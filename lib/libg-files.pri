@@ -55,6 +55,7 @@ SOURCES += \
 	$${PWD}/../src/base/widget/gsplitter.cpp \
 	$${PWD}/../src/base/widget/gtablewidget.cpp \
 	$${PWD}/../src/base/widget/gtreewidget.cpp \
+	$${PWD}/../src/net/block/garpblock.cpp \
 	$${PWD}/../src/net/block/gblock.cpp \
 	$${PWD}/../src/net/block/gdot11block.cpp \
 	$${PWD}/../src/net/block/gtcpblock.cpp \
@@ -117,6 +118,7 @@ SOURCES += \
 	$${PWD}/../src/net/pdu/gdnsinfo.cpp \
 	$${PWD}/../src/net/pdu/gdot11.cpp \
 	$${PWD}/../src/net/pdu/gdot11hdr.cpp \
+	$${PWD}/../src/net/pdu/getharphdr.cpp \
 	$${PWD}/../src/net/pdu/gethhdr.cpp \
 	$${PWD}/../src/net/pdu/gicmphdr.cpp \
 	$${PWD}/../src/net/pdu/gip6hdr.cpp \
@@ -197,6 +199,7 @@ HEADERS += \
 	$${PWD}/../src/base/widget/gsplitter.h \
 	$${PWD}/../src/base/widget/gtablewidget.h \
 	$${PWD}/../src/base/widget/gtreewidget.h \
+	$${PWD}/../src/net/block/garpblock.h \
 	$${PWD}/../src/net/block/gblock.h \
 	$${PWD}/../src/net/block/gdot11block.h \
 	$${PWD}/../src/net/block/gtcpblock.h \
@@ -262,6 +265,7 @@ HEADERS += \
 	$${PWD}/../src/net/pdu/gdnsinfo.h \
 	$${PWD}/../src/net/pdu/gdot11.h	 \
 	$${PWD}/../src/net/pdu/gdot11hdr.h \
+	$${PWD}/../src/net/pdu/getharphdr.h \
 	$${PWD}/../src/net/pdu/gethhdr.h \
 	$${PWD}/../src/net/pdu/gicmphdr.h \
 	$${PWD}/../src/net/pdu/gip6hdr.h \
