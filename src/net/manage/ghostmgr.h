@@ -107,8 +107,8 @@ protected:
 	bool processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip);
 
 public:
-	GMac mac_;
-	Value* val_{nullptr};
+	GMac currentMac_;
+	Value* currentVal_{nullptr};
 
 public slots:
 	void manage(GPacket* packet);

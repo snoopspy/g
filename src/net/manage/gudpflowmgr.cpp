@@ -56,33 +56,33 @@ void GUdpFlowMgr::manage(GPacket* packet) {
 	GUdpHdr* udpHdr = packet->udpHdr_;
 	if (udpHdr == nullptr) return;
 
-	udpFlowkey_.sip_ = ipHdr->sip();
-	udpFlowkey_.sport_ = udpHdr->sport();
-	udpFlowkey_.dip_ = ipHdr->dip();
-	udpFlowkey_.dport_ = udpHdr->dport();
-	FlowMap::iterator it = flowMap_.find(udpFlowkey_);
+	currentUdpFlowkey_.sip_ = ipHdr->sip();
+	currentUdpFlowkey_.sport_ = udpHdr->sport();
+	currentUdpFlowkey_.dip_ = ipHdr->dip();
+	currentUdpFlowkey_.dport_ = udpHdr->dport();
+	FlowMap::iterator it = flowMap_.find(currentUdpFlowkey_);
 
-	rUdpFlowKey_ = udpFlowkey_.reverse();
-	rVal_ = nullptr;
-	FlowMap::iterator rIt = flowMap_.find(rUdpFlowKey_);
+	currentRevUdpFlowKey_ = currentUdpFlowkey_.reverse();
+	currentRevVal_ = nullptr;
+	FlowMap::iterator rIt = flowMap_.find(currentRevUdpFlowKey_);
 	if (rIt != flowMap_.end())
-		rVal_ = rIt.value();
+		currentRevVal_ = rIt.value();
 
 	if (it == flowMap_.end()) {
-		val_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
-		it = flowMap_.insert(udpFlowkey_, val_);
+		currentVal_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
+		it = flowMap_.insert(currentUdpFlowkey_, currentVal_);
 		for (Managable* manager: managables_)
-			manager->udpFlowDetected(udpFlowkey_, val_);
+			manager->udpFlowDetected(currentUdpFlowkey_, currentVal_);
 
-		if (rVal_ != nullptr) {
-			val_->state_ = GPacketMgr::Value::Full;
-			rVal_->state_ = GPacketMgr::Value::Full;
+		if (currentRevVal_ != nullptr) {
+			currentVal_->state_ = GPacketMgr::Value::Full;
+			currentRevVal_->state_ = GPacketMgr::Value::Full;
 		}
 	} else {
-		val_ = it.value();
+		currentVal_ = it.value();
 	}
-	Q_ASSERT(val_ != nullptr);
-	val_->ts_ = packet->ts_;
+	Q_ASSERT(currentVal_ != nullptr);
+	currentVal_->ts_ = packet->ts_;
 
 	emit managed(packet);
 }

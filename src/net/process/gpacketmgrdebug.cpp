@@ -91,11 +91,11 @@ void GPacketMgrDebug::debug(GPacket* packet) {
 
 	if (packet->ethHdr_ != nullptr) {
 		if (hostMgr_ != nullptr) {
-			Q_ASSERT(hostMgr_->val_ != nullptr);
-			Item* item = PItem(hostMgr_->val_->mem(hostOffset_));
+			Q_ASSERT(hostMgr_->currentVal_ != nullptr);
+			Item* item = PItem(hostMgr_->currentVal_->mem(hostOffset_));
 			item->packets++;
 			item->bytes += packet->buf_.size_;
-			GMac mac = hostMgr_->mac_;
+			GMac mac = hostMgr_->currentMac_;
 			qDebug() << QString("eth size=%1 packets=%2 bytes=%3 %4")
 				.arg(packet->buf_.size_).arg(item->packets).arg(item->bytes)
 				.arg(QString(mac));
@@ -104,11 +104,11 @@ void GPacketMgrDebug::debug(GPacket* packet) {
 
 	if (packet->ipHdr_ != nullptr) {
 		if (ipFlowMgr_ != nullptr) {
-			Q_ASSERT(ipFlowMgr_->val_ != nullptr);
-			Item* item = PItem(ipFlowMgr_->val_->mem(ipFlowOffset_));
+			Q_ASSERT(ipFlowMgr_->currentVal_ != nullptr);
+			Item* item = PItem(ipFlowMgr_->currentVal_->mem(ipFlowOffset_));
 			item->packets++;
 			item->bytes += packet->buf_.size_;
-			GFlow::IpFlowKey* ipFlowKey = &ipFlowMgr_->ipFlowKey_;
+			GFlow::IpFlowKey* ipFlowKey = &ipFlowMgr_->currentIpFlowKey_;
 			qDebug() << QString("ip size=%1 packets=%2 bytes=%3 %4>%5")
 				.arg(packet->buf_.size_).arg(item->packets).arg(item->bytes)
 				.arg(QString(ipFlowKey->sip_)).arg(QString(ipFlowKey->dip_));
@@ -116,11 +116,11 @@ void GPacketMgrDebug::debug(GPacket* packet) {
 
 		if (packet->tcpHdr_ != nullptr) {
 			if (tcpFlowMgr_ != nullptr) {
-				Q_ASSERT(tcpFlowMgr_->val_ != nullptr);
-				Item* item = PItem(tcpFlowMgr_->val_->mem(tcpFlowOffset_));
+				Q_ASSERT(tcpFlowMgr_->currentVal_ != nullptr);
+				Item* item = PItem(tcpFlowMgr_->currentVal_->mem(tcpFlowOffset_));
 				item->packets++;
 				item->bytes += packet->buf_.size_;
-				GFlow::TcpFlowKey* tcpFlowKey = &tcpFlowMgr_->tcpFlowKey_;
+				GFlow::TcpFlowKey* tcpFlowKey = &tcpFlowMgr_->currentTcpFlowKey_;
 				qDebug() << QString("tcp size=%1 packets=%2 bytes=%3 %4:%5>%6:%7")
 					.arg(packet->buf_.size_).arg(item->packets).arg(item->bytes)
 					.arg(QString(tcpFlowKey->sip_)).arg(tcpFlowKey->sport_).arg(QString(tcpFlowKey->dip_)).arg(tcpFlowKey->dport_);
@@ -129,11 +129,11 @@ void GPacketMgrDebug::debug(GPacket* packet) {
 
 		if (packet->udpHdr_ != nullptr) {
 			if (udpFlowMgr_ != nullptr) {
-				Q_ASSERT(udpFlowMgr_->val_ != nullptr);
-				Item* item = PItem(udpFlowMgr_->val_->mem(udpFlowOffset_));
+				Q_ASSERT(udpFlowMgr_->currentVal_ != nullptr);
+				Item* item = PItem(udpFlowMgr_->currentVal_->mem(udpFlowOffset_));
 				item->packets++;
 				item->bytes += packet->buf_.size_;
-				GFlow::UdpFlowKey* udpFlowKey = &udpFlowMgr_->udpFlowkey_;
+				GFlow::UdpFlowKey* udpFlowKey = &udpFlowMgr_->currentUdpFlowkey_;
 				qDebug() << QString("udp size=%1 packets=%2 bytes=%3 %4:%5>%6:%7")
 					.arg(packet->buf_.size_).arg(item->packets).arg(item->bytes)
 					.arg(QString(udpFlowKey->sip_)).arg(udpFlowKey->sport_).arg(QString(udpFlowKey->dip_)).arg(udpFlowKey->dport_);

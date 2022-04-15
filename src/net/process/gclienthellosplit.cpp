@@ -45,8 +45,8 @@ void GClientHelloSplit::split(GPacket* packet) {
 	GTcpHdr* tcpHdr = packet->tcpHdr_;
 	if (tcpHdr == nullptr) return;
 
-	Q_ASSERT(tcpFlowMgr_->val_ != nullptr);
-	Item* item = PItem(tcpFlowMgr_->val_->mem(tcpFlowOffset_));
+	Q_ASSERT(tcpFlowMgr_->currentVal_ != nullptr);
+	Item* item = PItem(tcpFlowMgr_->currentVal_->mem(tcpFlowOffset_));
 	if (item->processed_) return;
 
 	if (tcpHdr->flags() & GTcpHdr::Syn && tcpHdr->flags() & GTcpHdr::Ack) {
@@ -62,7 +62,7 @@ void GClientHelloSplit::split(GPacket* packet) {
 
 	if (tcpData.data_[0] != 0x16 || tcpData.data_[1] != 0x03) return;
 
-	GFlow::TcpFlowKey* tcpFlowKey = &tcpFlowMgr_->tcpFlowKey_;
+	GFlow::TcpFlowKey* tcpFlowKey = &tcpFlowMgr_->currentTcpFlowKey_;
 	qDebug() << QString("split!!! tcp size=%1 %2:%3>%4:%5")
 		.arg(packet->buf_.size_)
 		.arg(QString(tcpFlowKey->sip_)).arg(tcpFlowKey->sport_).arg(QString(tcpFlowKey->dip_)).arg(tcpFlowKey->dport_); // gilgil temp 2016.10.10

@@ -43,7 +43,8 @@ bool GHostScan::doClose() {
 	return res;
 }
 
-#include "net/gatm.h" // for GEthArpHdr
+#include "net/pdu/getharphdr.h"
+
 void GHostScan::run() {
 	qDebug() << "beg";
 

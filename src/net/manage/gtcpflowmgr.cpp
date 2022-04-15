@@ -56,39 +56,39 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 	GTcpHdr* tcpHdr = packet->tcpHdr_;
 	if (tcpHdr == nullptr) return;
 
-	tcpFlowKey_.sip_ = ipHdr->sip();
-	tcpFlowKey_.sport_ = tcpHdr->sport();
-	tcpFlowKey_.dip_ = ipHdr->dip();
-	tcpFlowKey_.dport_ = tcpHdr->dport();
-	FlowMap::iterator it = flowMap_.find(tcpFlowKey_);
+	currentTcpFlowKey_.sip_ = ipHdr->sip();
+	currentTcpFlowKey_.sport_ = tcpHdr->sport();
+	currentTcpFlowKey_.dip_ = ipHdr->dip();
+	currentTcpFlowKey_.dport_ = tcpHdr->dport();
+	FlowMap::iterator it = flowMap_.find(currentTcpFlowKey_);
 
-	rTcpFlowKey_ = tcpFlowKey_.reverse();
-	rVal_ = nullptr;
-	FlowMap::iterator rIt = flowMap_.find(rTcpFlowKey_);
+	currentRevTcpFlowKey_ = currentTcpFlowKey_.reverse();
+	currentRevVal_ = nullptr;
+	FlowMap::iterator rIt = flowMap_.find(currentRevTcpFlowKey_);
 	if (rIt != flowMap_.end())
-		rVal_ = rIt.value();
+		currentRevVal_ = rIt.value();
 
 	if (it == flowMap_.end()) {
-		val_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
-		it = flowMap_.insert(tcpFlowKey_, val_);
+		currentVal_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
+		it = flowMap_.insert(currentTcpFlowKey_, currentVal_);
 		for (Managable* manager: managables_)
-			manager->tcpFlowDetected(tcpFlowKey_, val_);
+			manager->tcpFlowDetected(currentTcpFlowKey_, currentVal_);
 
-		if (rVal_ != nullptr) {
-			val_->state_ = GPacketMgr::Value::Full;
-			rVal_->state_ = GPacketMgr::Value::Full;
+		if (currentRevVal_ != nullptr) {
+			currentVal_->state_ = GPacketMgr::Value::Full;
+			currentRevVal_->state_ = GPacketMgr::Value::Full;
 		}
 	} else {
-		val_ = it.value();
+		currentVal_ = it.value();
 	}
-	Q_ASSERT(val_ != nullptr);
-	val_->ts_ = packet->ts_;
+	Q_ASSERT(currentVal_ != nullptr);
+	currentVal_->ts_ = packet->ts_;
 
 	if ((tcpHdr->flags() & (GTcpHdr::Rst | GTcpHdr::Fin)) != 0) {
 		GPacketMgr::Value::State state = (tcpHdr->flags() & GTcpHdr::Rst) ? GPacketMgr::Value::Rst : GPacketMgr::Value::Fin;
-		val_->state_ = state;
-		if (rVal_ != nullptr) {
-			rVal_->state_ = state;
+		currentVal_->state_ = state;
+		if (currentRevVal_ != nullptr) {
+			currentRevVal_->state_ = state;
 		}
 	}
 

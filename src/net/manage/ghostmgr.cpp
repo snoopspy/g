@@ -111,21 +111,21 @@ void GHostMgr::manage(GPacket* packet) {
 	if (!detected) return;
 	if (ip == myIp_ || ip == gwIp_) return;
 
-	mac_ = mac;
-	HostMap::iterator it = hostMap_.find(mac_);
+	currentMac_ = mac;
+	HostMap::iterator it = hostMap_.find(currentMac_);
 	if (it == hostMap_.end()) {
 		qDebug() << QString("detected %1 %2").arg(QString(mac)).arg(QString(ip)); // gilgil temp 2022.03.07
-		val_ = reinterpret_cast<Value*>(GHostMgr::Value::allocate(requestItems_.totalMemSize_ + sizeof(GIp)));
-		val_->ip_ = ip;
-		it = hostMap_.insert(mac_, val_);
+		currentVal_ = reinterpret_cast<Value*>(GHostMgr::Value::allocate(requestItems_.totalMemSize_ + sizeof(GIp)));
+		currentVal_->ip_ = ip;
+		it = hostMap_.insert(currentMac_, currentVal_);
 		for (Managable* manager: managables_)
-			manager->hostDetected(mac_, val_);
+			manager->hostDetected(currentMac_, currentVal_);
 	}
 	else {
-		val_ = it.value();
+		currentVal_ = it.value();
 	}
-	Q_ASSERT(val_ != nullptr);
-	val_->ts_ = packet->ts_;
+	Q_ASSERT(currentVal_ != nullptr);
+	currentVal_->ts_ = packet->ts_;
 
 	emit managed(packet);
 }

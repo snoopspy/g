@@ -70,6 +70,8 @@ GHostWatch::WatchThread::~WatchThread() {
 }
 
 #include "net/write/gpcapdevicewrite.h"
+#include "net/pdu/getharphdr.h"
+
 void GHostWatch::WatchThread::run() {
 	GMac mac = mac_;
 	GIp ip = value_->ip_;

@@ -65,6 +65,8 @@ GHostDelete::ScanThread::ScanThread(GHostDelete* hostDelete, GHostDetect::Host* 
 GHostDelete::ScanThread::~ScanThread() {
 }
 
+#include "net/pdu/getharphdr.h"
+
 void GHostDelete::ScanThread::run() {
 	qDebug() << "beg " << QString(host_->mac_) << QString(host_->ip_); // by gilgil 2021.11.13
 

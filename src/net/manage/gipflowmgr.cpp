@@ -53,31 +53,31 @@ void GIpFlowMgr::manage(GPacket* packet) {
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr == nullptr) return;
 
-	ipFlowKey_.sip_ = ipHdr->sip();
-	ipFlowKey_.dip_ = ipHdr->dip();
-	FlowMap::iterator it = flowMap_.find(ipFlowKey_);
+	currentIpFlowKey_.sip_ = ipHdr->sip();
+	currentIpFlowKey_.dip_ = ipHdr->dip();
+	FlowMap::iterator it = flowMap_.find(currentIpFlowKey_);
 
-	rIpFlowKey_ = ipFlowKey_.reverse();
-	rVal_ = nullptr;
-	FlowMap::iterator rIt = flowMap_.find(rIpFlowKey_);
+	currentRevIpFlowKey_ = currentIpFlowKey_.reverse();
+	currentRevVal_ = nullptr;
+	FlowMap::iterator rIt = flowMap_.find(currentRevIpFlowKey_);
 	if (rIt != flowMap_.end())
-		rVal_ = rIt.value();
+		currentRevVal_ = rIt.value();
 
 	if (it == flowMap_.end()) {
-		val_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
-		it = flowMap_.insert(ipFlowKey_, val_);
+		currentVal_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
+		it = flowMap_.insert(currentIpFlowKey_, currentVal_);
 		for (Managable* manager: managables_)
-			manager->ipFlowDetected(ipFlowKey_, val_);
+			manager->ipFlowDetected(currentIpFlowKey_, currentVal_);
 
-		if (rVal_ != nullptr) {
-			val_->state_ = GPacketMgr::Value::Full;
-			rVal_->state_ = GPacketMgr::Value::Full;
+		if (currentRevVal_ != nullptr) {
+			currentVal_->state_ = GPacketMgr::Value::Full;
+			currentRevVal_->state_ = GPacketMgr::Value::Full;
 		}
 	} else {
-		val_ = it.value();
+		currentVal_ = it.value();
 	}
-	Q_ASSERT(val_ != nullptr);
-	val_->ts_ = packet->ts_;
+	Q_ASSERT(currentVal_ != nullptr);
+	currentVal_->ts_ = packet->ts_;
 
 	emit managed(packet);
 }
