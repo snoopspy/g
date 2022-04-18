@@ -44,12 +44,12 @@ protected:
 	// --------------------------------------------------------------------------
 	// FlowMap
 	// --------------------------------------------------------------------------
-	struct FlowMap : QMap<GFlow::TcpFlowKey, Value*> {
+	struct FlowMap : QMap<GFlow::TcpFlowKey, GPacketMgr::Value*> {
 		void clear() {
 			for (Value* value: *this) {
 				GPacketMgr::Value::deallocate(value);
 			}
-			QMap<GFlow::TcpFlowKey, Value*>::clear();
+			QMap<GFlow::TcpFlowKey, GPacketMgr::Value*>::clear();
 		}
 
 		FlowMap::iterator erase(FlowMap::iterator it) {

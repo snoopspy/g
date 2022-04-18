@@ -304,7 +304,7 @@ GArpSpoof::Flow::Flow(GIp senderIp, GMac senderMac, GIp targetIp, GMac targetMac
 	targetMac_ = targetMac;
 }
 
-void GArpSpoof::Flow::makePacket(GEthArpHdr* packet, GMac attackMac, bool infect) {
+void GArpSpoof::Flow::makePacket(GEthArpPacket* packet, GMac attackMac, bool infect) {
 	packet->ethHdr_.dmac_ = senderMac_;
 	packet->ethHdr_.smac_ = attackMac;
 	packet->ethHdr_.type_ = htons(GEthHdr::Arp);

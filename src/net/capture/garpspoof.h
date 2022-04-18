@@ -14,7 +14,7 @@
 #include "net/gatm.h"
 #include "net/filter/gbpfilter.h"
 #include "net/manage/gflowkey.h"
-#include "net/pdu/getharphdr.h"
+#include "net/pdu/getharppacket.h"
 
 // ----------------------------------------------------------------------------
 // GArpSpoofFlow
@@ -98,12 +98,12 @@ protected:
 		GIp targetIp_;
 		GMac targetMac_;
 
-		GEthArpHdr infectPacket_;
-		GEthArpHdr recoverPacket_;
+		GEthArpPacket infectPacket_;
+		GEthArpPacket recoverPacket_;
 
 		Flow() {}
 		Flow(GIp senderIp, GMac senderMac, GIp targetIp, GMac targetMac);
-		void makePacket(GEthArpHdr* packet, GMac attackMac, bool infect);
+		void makePacket(GEthArpPacket* packet, GMac attackMac, bool infect);
 	};
 	struct FlowList : QList<Flow> { // for arp infect and recover
 		QMutex m_;

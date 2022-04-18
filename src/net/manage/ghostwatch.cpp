@@ -1,5 +1,5 @@
 #include "ghostwatch.h"
-#include "net/gatm.h" // for GEthArpHdr
+#include "net/pdu/getharppacket.h"
 
 // ----------------------------------------------------------------------------
 // GHostWatch
@@ -69,8 +69,8 @@ GHostWatch::WatchThread::~WatchThread() {
 
 }
 
+#include "net/pdu/getharppacket.h"
 #include "net/write/gpcapdevicewrite.h"
-#include "net/pdu/getharphdr.h"
 
 void GHostWatch::WatchThread::run() {
 	GMac mac = mac_;
@@ -95,7 +95,7 @@ void GHostWatch::WatchThread::run() {
 		return;
 	}
 
-	GEthArpHdr packet;
+	GEthArpPacket packet;
 
 	GEthHdr* ethHdr = &packet.ethHdr_;
 	ethHdr->dmac_ = mac; // Unicast

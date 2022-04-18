@@ -65,7 +65,7 @@ GHostDelete::ScanThread::ScanThread(GHostDelete* hostDelete, GHostDetect::Host* 
 GHostDelete::ScanThread::~ScanThread() {
 }
 
-#include "net/pdu/getharphdr.h"
+#include "net/pdu/getharppacket.h"
 
 void GHostDelete::ScanThread::run() {
 	qDebug() << "beg " << QString(host_->mac_) << QString(host_->ip_); // by gilgil 2021.11.13
@@ -81,7 +81,7 @@ void GHostDelete::ScanThread::run() {
 	GIp myIp = intf->ip();
 	GMac myMac = intf->mac();
 
-	GEthArpHdr packet;
+	GEthArpPacket packet;
 
 	GEthHdr* ethHdr = &packet.ethHdr_;
 	ethHdr->dmac_ = host_->mac_; // Unicast

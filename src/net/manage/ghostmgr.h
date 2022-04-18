@@ -62,7 +62,7 @@ public:
 	Managables managables_;
 	// --------------------------------------------------------------------------
 
-protected:
+public:
 	// --------------------------------------------------------------------------
 	// HostMap
 	// --------------------------------------------------------------------------
@@ -79,7 +79,7 @@ protected:
 			GHostMgr::Value::deallocate(value);
 			return QMap<GMac, GHostMgr::Value*>::erase(it);
 		}
-	};
+	} hostMap_;
 	// --------------------------------------------------------------------------
 
 public:
@@ -98,7 +98,6 @@ protected:
 	GIp myIp_{0};
 	GMac myMac_{GMac::nullMac()};
 	GIp gwIp_{0};
-	HostMap hostMap_;
 
 	void deleteOldFlowMaps(long now);
 

@@ -43,7 +43,7 @@ bool GHostScan::doClose() {
 	return res;
 }
 
-#include "net/pdu/getharphdr.h"
+#include "net/pdu/getharppacket.h"
 
 void GHostScan::run() {
 	qDebug() << "beg";
@@ -61,7 +61,7 @@ void GHostScan::run() {
 	GIp endIp = intf->getEndIp();
 	qDebug() << QString("begIp=%1 endIp=%2").arg(QString(begIp), QString(endIp));
 
-	GEthArpHdr packet;
+	GEthArpPacket packet;
 
 	GEthHdr* ethHdr = &packet.ethHdr_;
 	ethHdr->dmac_ = GMac::broadcastMac();

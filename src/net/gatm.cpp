@@ -94,9 +94,9 @@ bool GAtm::wait(GDuration timeout) {
 	return succeed;
 }
 
-#include "net/pdu/getharphdr.h"
+#include "net/pdu/getharppacket.h"
 bool GAtm::sendQueries() {
-	GEthArpHdr query;
+	GEthArpPacket query;
 	query.ethHdr_.dmac_ = GMac::broadcastMac();
 	query.ethHdr_.smac_ = intf_->mac();
 	query.ethHdr_.type_ = htons(GEthHdr::Arp);

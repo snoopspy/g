@@ -31,16 +31,19 @@ void GPluginFactory::loadDefault() {
 // ----------------------------------------------------------------------------
 // Block
 // ----------------------------------------------------------------------------
+#include <GArpBlock>
 #include <GBlock>
 #include <GDot11Block>
 #include <GTcpBlock>
 
 void GPluginFactory::loadBlock() {
+	qRegisterMetaType<GArpBlock*>();
 	qRegisterMetaType<GBlock*>();
 	qRegisterMetaType<GDot11Block*>();
 	qRegisterMetaType<GTcpBlock*>();
 
 	ItemCategory* category = new ItemCategory("block");
+	category->items_.push_back(new ItemNode("GArpBlock"));
 	category->items_.push_back(new ItemNode("GBlock"));
 	category->items_.push_back(new ItemNode("GDot11Block"));
 	category->items_.push_back(new ItemNode("GTcpBlock"));

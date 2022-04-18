@@ -56,14 +56,14 @@ protected:
 
 	typedef QPair<GFlow::IpFlowKey, GFlow::IpFlowKey> TwoFlowKey;
 	struct FloodingThread : QThread {
-		FloodingThread(GAutoArpSpoof* parent, TwoFlowKey twoFlowKey, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2);
+		FloodingThread(GAutoArpSpoof* parent, TwoFlowKey twoFlowKey, GEthArpPacket infectPacket1, GEthArpPacket infectPacket2);
 		~FloodingThread() override;
 		void run() override;
 
 		GAutoArpSpoof* parent_;
 		GWaitEvent we_;
 		TwoFlowKey twoFlowKey_;
-		GEthArpHdr infectPacket_[2];
+		GEthArpPacket infectPacket_[2];
 	};
 	struct FloodingThreadMap : QMap<TwoFlowKey, FloodingThread*> {
 		QRecursiveMutex m_;

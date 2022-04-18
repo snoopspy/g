@@ -187,7 +187,7 @@ void GAutoArpSpoof::processHostDetected(GHostDetect::Host* host) {
 	}
 }
 
-GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GAutoArpSpoof::TwoFlowKey twoFlowKey, GEthArpHdr infectPacket1, GEthArpHdr infectPacket2) : QThread(parent) {
+GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GAutoArpSpoof::TwoFlowKey twoFlowKey, GEthArpPacket infectPacket1, GEthArpPacket infectPacket2) : QThread(parent) {
 	// GDEBUG_CTOR
 	parent_ = parent;
 	twoFlowKey_ = twoFlowKey;
@@ -215,7 +215,7 @@ void GAutoArpSpoof::FloodingThread::run() {
 		qint64 elapsed = timer.elapsed();
 		if (elapsed > qint64(parent_->floodingTimeout_)) break;
 		for (int i = 0; i < 2; i++) {
-			GBuf buf(pbyte(&infectPacket_[i]), sizeof(GEthArpHdr));
+			GBuf buf(pbyte(&infectPacket_[i]), sizeof(GEthArpPacket));
 			parent_->write(buf);
 			if (we_.wait(parent_->sendInterval_)) break;
 		}
