@@ -1,0 +1,17 @@
+#include "getharppacket.h"
+
+void GEthArpPacket::init(GMac dmac, GMac smac, uint16_t operation, GMac senderMac, GIp senderIp, GMac targetMac, GIp targetIp) {
+	ethHdr_.dmac_ = dmac;
+	ethHdr_.smac_ = smac;
+	ethHdr_.type_ = htons(GEthHdr::Arp);
+
+	arpHdr_.hrd_ = htons(GArpHdr::ETHER);
+	arpHdr_.pro_ = htons(GEthHdr::Ip4);
+	arpHdr_.hln_ = GMac::SIZE;
+	arpHdr_.pln_ = GIp::SIZE;
+	arpHdr_.op_ = htons(operation);
+	arpHdr_.smac_ = senderMac;
+	arpHdr_.sip_ = htonl(targetIp);
+	arpHdr_.tmac_ = targetMac;
+	arpHdr_.tip_ = htonl(senderIp);
+}
