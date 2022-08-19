@@ -43,7 +43,7 @@ struct Devices : QMap<GMac, Device> {
 	QMutex m_;
 };
 
-struct G_EXPORT WaWidget : GDefaultWidget {
+struct G_EXPORT WaWidget : GDefaultWidget, GProp {
 	Q_OBJECT
 
 public:
