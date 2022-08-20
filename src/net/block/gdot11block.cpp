@@ -107,7 +107,6 @@ void GDot11Block::processBeacon(GPacket* packet) {
 }
 
 void GDot11Block::attack(Ap& ap) {
-    qDebug() << "";
 	if (deauthApBroadcast_) {
 		GBuf buf(pbyte(&ap.deauthFrame_), sizeof(ap.deauthFrame_));
             writer_->write(buf);
