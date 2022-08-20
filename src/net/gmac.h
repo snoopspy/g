@@ -59,6 +59,10 @@ public:
 		return mac_[0] == 0x01 && mac_[1] == 0x00 && mac_[2] == 0x5E && (mac_[3] & 0x80) == 0x00;
 	}
 
+	bool isRandom() const {
+		return (mac_[1] & 0x11) == 0x10;
+	}
+
 	static GMac randomMac();
 	static GMac& nullMac();
 	static GMac& broadcastMac();
