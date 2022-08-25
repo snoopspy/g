@@ -4,7 +4,7 @@
 #include <GTableWidget>
 #include "probeanalyzer.h"
 
-struct G_EXPORT PaWidget : GDefaultWidget {
+struct G_EXPORT PaWidget : GDefaultWidget, GProp {
 	Q_OBJECT
 
 public:
