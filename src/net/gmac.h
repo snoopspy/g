@@ -60,7 +60,7 @@ public:
 	}
 
 	bool isRandom() const {
-		return (mac_[1] & 0x11) == 0x10;
+		return (mac_[0] & 0x11) == 0x10;
 	}
 
 	static GMac randomMac();
