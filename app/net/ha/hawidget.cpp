@@ -12,7 +12,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	treeWidget_ = new GTreeWidget(this);
 
 	treeWidget_->setSortingEnabled(true);
-	treeWidget_->setHeaderLabels(QStringList{"", "Mac", "HostName"});
+	treeWidget_->setHeaderLabels(QStringList{"IP", "Mac", "HostName"});
 
 	mainLayout_->addWidget(treeWidget_);
 
