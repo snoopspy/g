@@ -58,7 +58,7 @@ void GRadioHdr::init() {
 	present_.p_ = 0;
 }
 
-QList<GBuf> GRadioHdr::presentInfo(BitNo bitNo) {
+QList<GBuf> GRadioHdr::getPresentFlags(PresentFlag presentFlag) {
 	QList<GBuf> res;
 
 	int offset = sizeof(GRadioHdr);
@@ -83,7 +83,7 @@ QList<GBuf> GRadioHdr::presentInfo(BitNo bitNo) {
 					offset = (offset + align - 1) / align * align;
 
 				int size = _alignSizeInfo[i].size_;
-				if (i == bitNo) {
+				if (i == presentFlag) {
 					gbyte* p = pbyte(this) + offset;
 					GBuf buf(p, size);
 					res.push_back(buf);
@@ -143,39 +143,39 @@ TEST(RadioHdr, beacon_a2000ua_testap5g_pcap) {
 
 	QList<GBuf> ba;
 
-	ba = radioHdr->presentInfo(GRadioHdr::Flags);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Flags);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x10", 1), 0);
 
-	ba = radioHdr->presentInfo(GRadioHdr::Rate);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Rate);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x0c", 1), 0); // 500Kbps * 12 == 6.0 Mb/s
 
-	ba = radioHdr->presentInfo(GRadioHdr::Channel);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Channel);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 4);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x3c\x14\x40\x01", 4), 0); // 5180, 0x4001
 
-	ba = radioHdr->presentInfo(GRadioHdr::AntennaSignal);
+	ba = radioHdr->getPresentFlags(GRadioHdr::AntennaSignal);
 	EXPECT_EQ(ba.count(), 3);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\xf7", 1), 0); // -9 -dBm
 	EXPECT_EQ(memcmp(ba[1].data_, "\xf6", 1), 0); // -10 -dBm
 	EXPECT_EQ(memcmp(ba[2].data_, "\xf6", 1), 0); // -10 -dBm
 
-	ba = radioHdr->presentInfo(GRadioHdr::LockQuality);
+	ba = radioHdr->getPresentFlags(GRadioHdr::LockQuality);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 2);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x4b\x00", 2), 0); // 75
 
-	ba = radioHdr->presentInfo(GRadioHdr::Antenna);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Antenna);
 	EXPECT_EQ(ba.count(), 2);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x00", 1), 0); // 0
 	EXPECT_EQ(memcmp(ba[1].data_, "\x01", 1), 0); // 1
 
-	ba = radioHdr->presentInfo(GRadioHdr::RxFlags);
+	ba = radioHdr->getPresentFlags(GRadioHdr::RxFlags);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 2);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x00\x00", 2), 0); // 0x0000
@@ -199,32 +199,32 @@ TEST(RadioHdr, beacon_awus051nh_testap5g_pcap) {
 
 	QList<GBuf> ba;
 
-	ba = radioHdr->presentInfo(GRadioHdr::Flags);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Flags);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x00", 1), 0); // 0x00
 
-	ba = radioHdr->presentInfo(GRadioHdr::Rate);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Rate);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x0c", 1), 0); // 500Kbps * 12 == 6.0 Mb/s
 
-	ba = radioHdr->presentInfo(GRadioHdr::Channel);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Channel);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 4);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x3c\x14\x40\x01", 4), 0); // 5180, 0x4001
 
-	ba = radioHdr->presentInfo(GRadioHdr::AntennaSignal);
+	ba = radioHdr->getPresentFlags(GRadioHdr::AntennaSignal);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\xef", 1), 0); // -17 dBm
 
-	ba = radioHdr->presentInfo(GRadioHdr::Antenna);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Antenna);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x01", 1), 0); // 1
 
-	ba = radioHdr->presentInfo(GRadioHdr::RxFlags);
+	ba = radioHdr->getPresentFlags(GRadioHdr::RxFlags);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 2);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x00\x00", 2), 0); // 0x0000
@@ -249,43 +249,43 @@ TEST(RadioHdr, beacon_forcerecon_testap5g_pcap) {
 
 	QList<GBuf> ba;
 
-	ba = radioHdr->presentInfo(GRadioHdr::Tsft);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Tsft);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 8);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x8c\x48\x6b\x06\x00\x00\x00\x00", 8), 0); // 107694220
 
-	ba = radioHdr->presentInfo(GRadioHdr::Flags);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Flags);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x10", 1), 0); // 0x10
 
-	ba = radioHdr->presentInfo(GRadioHdr::Rate);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Rate);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x0c", 1), 0); // 500Kbps * 12 == 6.0 Mb/s
 
-	ba = radioHdr->presentInfo(GRadioHdr::Channel);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Channel);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 4);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x3c\x14\x40\x01", 1), 0); // 5180, 0x4001
 
-	ba = radioHdr->presentInfo(GRadioHdr::AntennaSignal);
+	ba = radioHdr->getPresentFlags(GRadioHdr::AntennaSignal);
 	EXPECT_EQ(ba.count(), 2);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\xe4", 1), 0); // -28 dBm
 	EXPECT_EQ(memcmp(ba[1].data_, "\xe4", 1), 0); // -28 dBm
 
-	ba = radioHdr->presentInfo(GRadioHdr::RxFlags);
+	ba = radioHdr->getPresentFlags(GRadioHdr::RxFlags);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 2);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x00\x00", 2), 0); // 0x0000
 
-	ba = radioHdr->presentInfo(GRadioHdr::Timestamp);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Timestamp);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 12);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x76\x48\x6b\x06\x00\x00\x00\x00\x16\x00\x11\x03", 12), 0);
 
-	ba = radioHdr->presentInfo(GRadioHdr::Antenna);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Antenna);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x00", 1), 0); // 0
@@ -309,26 +309,26 @@ TEST(RadioHdr, beacon_galaxy7_testap5g_pcap) {
 
 	QList<GBuf> ba;
 
-	ba = radioHdr->presentInfo(GRadioHdr::Tsft);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Tsft);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 8);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x7c\x55\xc3\x5f\x00\x00\x00\x00", 8), 0); // 1606636924
 
-	ba = radioHdr->presentInfo(GRadioHdr::Flags);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Flags);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x10", 1), 0); // 0x10
 
-	ba = radioHdr->presentInfo(GRadioHdr::Channel);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Channel);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 4);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x3c\x14\x00\x00", 4), 0); // 5180, 0x0000
 
-	ba = radioHdr->presentInfo(GRadioHdr::AntennaSignal);
+	ba = radioHdr->getPresentFlags(GRadioHdr::AntennaSignal);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\xe3", 1), 0); // -29 dBm
 
-	ba = radioHdr->presentInfo(GRadioHdr::AntennaNoise);
+	ba = radioHdr->getPresentFlags(GRadioHdr::AntennaNoise);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\xa4", 1), 0); // -92 dBm
@@ -352,42 +352,42 @@ TEST(RadioHdr, beacon_nexus5_testap5g_pcap) {
 
 	QList<GBuf> ba;
 
-	ba = radioHdr->presentInfo(GRadioHdr::Tsft);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Tsft);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 8);
 	EXPECT_EQ(memcmp(ba[0].data_, "\xd7\x00\x2e\xb5\x00\x00\x00\x00", 8), 0); // 3039690967
 
-	ba = radioHdr->presentInfo(GRadioHdr::Flags);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Flags);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x10", 1), 0); // 0x10
 
-	ba = radioHdr->presentInfo(GRadioHdr::Rate);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Rate);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x0c", 1), 0); // 500Kbps * 12 == 6.0 Mb/s
 
-	ba = radioHdr->presentInfo(GRadioHdr::Channel);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Channel);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 4);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x3c\x14\x40\x01", 4), 0); // 5180, 0x4001
 
-	ba = radioHdr->presentInfo(GRadioHdr::AntennaSignal);
+	ba = radioHdr->getPresentFlags(GRadioHdr::AntennaSignal);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\xe5", 1), 0); // -27 dBm
 
-	ba = radioHdr->presentInfo(GRadioHdr::AntennaNoise);
+	ba = radioHdr->getPresentFlags(GRadioHdr::AntennaNoise);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 1);
 	EXPECT_EQ(memcmp(ba[0].data_, "\xa4", 1), 0); // -92 dBm
 
-	ba = radioHdr->presentInfo(GRadioHdr::Mcs);
+	ba = radioHdr->getPresentFlags(GRadioHdr::Mcs);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 3);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x00\x00\x00", 3), 0); // 0x000000
 
-	ba = radioHdr->presentInfo(GRadioHdr::VendorNamespace);
+	ba = radioHdr->getPresentFlags(GRadioHdr::VendorNamespace);
 	EXPECT_EQ(ba.count(), 1);
 	EXPECT_EQ(ba[0].size_, 6);
 	EXPECT_EQ(memcmp(ba[0].data_, "\x4e\x45\x58\x00\x06\x00", 6), 0); // cb3002000000 not checked

@@ -113,7 +113,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	Q_ASSERT(radioHdr != nullptr);
 	if (channel == 0) {
 		qWarning() << QString("can not find channel tag for %1").arg(ssid);
-		QList<GBuf> freqList = radioHdr->presentInfo(GRadioHdr::Channel);
+		QList<GBuf> freqList = radioHdr->getPresentFlags(GRadioHdr::Channel);
 		if (freqList.count() > 0) {
 			int16_t freq = *reinterpret_cast<uint16_t*>(freqList[0].data_);
 			channel = GRadioHdr::freqToChannel(freq);
@@ -123,7 +123,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	//
 	// signal
 	//
-	QList<GBuf> signalList = radioHdr->presentInfo(GRadioHdr::AntennaSignal);
+	QList<GBuf> signalList = radioHdr->getPresentFlags(GRadioHdr::AntennaSignal);
 	if (signalList.count() > 0) {
 		signal = *pchar(signalList[0].data_);
 		if (signal < minSignal_) return;

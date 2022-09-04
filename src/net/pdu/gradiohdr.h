@@ -7,7 +7,7 @@
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
 struct G_EXPORT GRadioHdr {
-	enum BitNo : le32_t {
+	enum PresentFlag : le32_t {
 		Tsft = 0,
 		Flags = 1,
 		Rate = 2,
@@ -61,7 +61,7 @@ struct G_EXPORT GRadioHdr {
 
 	static GRadioHdr* check(gbyte* p, uint32_t size);
 	void init();
-	QList<GBuf> presentInfo(BitNo bitNo);
+	QList<GBuf> getPresentFlags(PresentFlag presentFlag);
 	static int freqToChannel(int freq);
 };
 typedef GRadioHdr *PRadioHdr;
