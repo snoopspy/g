@@ -86,17 +86,6 @@ bool GMonitorDevice::getRadioInfoFromFile() {
 }
 
 bool GMonitorDevice::getRadioInfoFromDevice() {
-	GIw iw;
-	if (!iw.open(intfName_)) {
-		SET_ERR(GErr::Fail, iw.error_);
-		return false;
-	}
-	if (!iw.setChannel(1)) {
-		SET_ERR(GErr::Fail, iw.error_);
-		return false;
-	}
-	iw.close();
-
 	GSyncPcapDevice device;
 	device.intfName_ = intfName_;
 	if (!device.open()) {
@@ -108,8 +97,20 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 	if (_dlt != GPacket::Dot11) {
 		QString msg = QString("Data link type(%1 - %2) must be GPacket::Dot11").arg(intfName_).arg(GPacket::dltToString(_dlt));
 		SET_ERR(GErr::Fail, msg);
+		device.close();
 		return false;
 	}
+
+	GIw iw;
+	if (!iw.open(intfName_)) {
+		SET_ERR(GErr::Fail, iw.error_);
+		return false;
+	}
+	if (!iw.setChannel(1)) {
+		SET_ERR(GErr::Fail, iw.error_);
+		return false;
+	}
+	iw.close();
 
 	int len = -1;
 	while (true) {
@@ -118,9 +119,11 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 		switch (res) {
 			case GPacket::Eof:
 				SET_ERR(GErr::Fail, "device.read return Eof");
+				device.close();
 				return false;
 			case GPacket::Fail:
 				SET_ERR(GErr::Fail, "device.read return Fail");
+				device.close();
 				return false;
 			case GPacket::None:
 				continue;
@@ -153,6 +156,7 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 		if (intf == nullptr) {
 			QString msg = QString("intf(%1) is null").arg(intfName_);
 			SET_ERR(GErr::Fail, msg);
+			device.close();
 			return false;
 		}
 		GMac mac = intf->mac();
