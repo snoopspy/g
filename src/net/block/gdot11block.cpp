@@ -138,7 +138,7 @@ QByteArray GDot11Block::extractBeaconTimFrame(GPacket *packet) {
 				qWarning() << "fcsSize=" << fcsSize;
 		}
 	}
-	qDebug() << "beaconSize=%1 fcsSize=%2" << beaconSize << fcsSize;
+	qDebug() << QString("beaconSize=%1 fcsSize=%2").arg(beaconSize).arg(fcsSize);
 	beaconSize -= fcsSize;
 
 	if (beaconSize > BUFSIZ - sizeof(GRadioHdr)) {
