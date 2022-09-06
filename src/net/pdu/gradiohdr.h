@@ -39,7 +39,18 @@ struct G_EXPORT GRadioHdr {
 		Tlv = 28,
 		RadiotapNamespace = 29,
 		VendorNamespace = 30,
-		Ext = 31,
+		Ext = 31
+	};
+
+	enum Flag : le8_t {
+		Cfp = 0x01,
+		Preamble = 0x02,
+		Wep = 0x04,
+		Fragmentation = 0x08,
+		fcsAtEnd = 0x10,
+		dataPad = 0x20,
+		badFcs = 0x40,
+		shortGi = 0x80
 	};
 
 	struct Present {

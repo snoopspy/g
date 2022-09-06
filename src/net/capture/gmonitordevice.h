@@ -30,7 +30,13 @@ protected:
 	bool doOpen() override;
 	bool doClose() override;
 
+public:
+	struct {
+		int16_t len_;
+		uint32_t fcsSize_;
+	} radioInfo_;
+
 protected:
-	int16_t getRadioLenFromFile();
-	int16_t getRadioLenFromDevice();
+	bool getRadioInfoFromFile();
+	bool getRadioInfoFromDevice();
 };

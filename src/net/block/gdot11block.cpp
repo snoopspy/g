@@ -127,7 +127,20 @@ QByteArray GDot11Block::extractBeaconTimFrame(GPacket *packet) {
 	Q_ASSERT(beaconHdr != nullptr);
 
 	size_t beaconSize = packet->buf_.size_ - radioHdr->len_;
-	qDebug() << "beaconSize=" << beaconSize;
+
+	uint32_t fcsSize = 0;
+	QList<GBuf> bufList = radioHdr->getPresentFlags(GRadioHdr::Flags);
+	for (GBuf& buf: bufList) {
+		uint8_t flag = buf.data_[0];
+		if (flag & GRadioHdr::fcsAtEnd) {
+			fcsSize += sizeof(uint32_t);
+			if (fcsSize > sizeof(uint32_t))
+				qWarning() << "fcsSize=" << fcsSize;
+		}
+	}
+	qDebug() << "beaconSize=%1 fcsSize=%2" << beaconSize << fcsSize;
+	beaconSize -= fcsSize;
+
 	if (beaconSize > BUFSIZ - sizeof(GRadioHdr)) {
 		qWarning() << QString("too big packet size(%1)").arg(packet->buf_.size_);
 		return QByteArray();

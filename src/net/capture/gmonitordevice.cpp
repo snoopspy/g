@@ -14,24 +14,22 @@ bool GMonitorDevice::doOpen() {
 	if (!enabled_) return true;
 
 	bool res = false;
-	int16_t radioLen = -1;
 
-	if (checkRadioLen_) {
-		radioLen = getRadioLenFromFile();
-		if (radioLen == -1)
-			radioLen = getRadioLenFromDevice();
-		if (radioLen == -1) {
-			SET_ERR(GErr::Fail, "Count not get radio len");
+	if (!getRadioInfoFromFile()) {
+		if (!getRadioInfoFromDevice()) {
+			SET_ERR(GErr::Fail, "cat not get radio info");
 			return false;
 		}
+	}
 
+	if (checkRadioLen_) {
 		QString backupFilter = filter_;
-		radioLen = htons(radioLen);
+		uint16_t radioLen = htons(radioInfo_.len_);
 		QString lengthFilter = QString("radio[2:2]==%1").arg(radioLen);
 		if (filter_ == "")
 			filter_ = lengthFilter;
 		else
-			filter_ = QString("(%1) and (%2)").arg(filter_).arg(lengthFilter);
+			filter_ = QString("(%1) and (%2)").arg(filter_, lengthFilter);
 
 		res = GPcapDevice::doOpen();
 		filter_ = backupFilter;
@@ -42,7 +40,7 @@ bool GMonitorDevice::doOpen() {
 	if (res) {
 		GPacket::Dlt _dlt = dlt();
 		if (_dlt != GPacket::Dot11) {
-			QString msg = QString("Data link type(%1 - %2) must be GPacket::Dot11").arg(intfName_).arg(GPacket::dltToString(_dlt));
+			QString msg = QString("Data link type(%1 - %2) must be GPacket::Dot11").arg(intfName_, GPacket::dltToString(_dlt));
 			SET_ERR(GErr::Fail, msg);
 			return false;
 		}
@@ -56,9 +54,7 @@ bool GMonitorDevice::doClose() {
 	return GPcapDevice::doClose();
 }
 
-int16_t GMonitorDevice::getRadioLenFromFile() {
-	int radioLen = -1;
-
+bool GMonitorDevice::getRadioInfoFromFile() {
 	GIntf* intf = GNetInfo::instance().intfList().findByName(intfName_);
 	if (intf == nullptr) {
 		QString msg = QString("intf(%1) is null").arg(intfName_);
@@ -66,33 +62,38 @@ int16_t GMonitorDevice::getRadioLenFromFile() {
 		return -1;
 	}
 	GMac mac = intf->mac();
-	FILE* fp = fopen("radiolen.txt", "rt");
+	FILE* fp = fopen("radioinfo.txt", "rt");
 	if (fp != nullptr) {
 		while (true) {
 			char macBuf[256];
-			int r;
-			int res = fscanf(fp, "%s %d", macBuf, &r);
-			if (res != 2) break;
+			int len;
+			int fcsSize;
+			int res = fscanf(fp, "%s %d %d", macBuf, &len, &fcsSize);
+			if (res != 3) {
+				qWarning() << "fscanf return" << res;
+				return false;
+			}
 			if (mac == GMac(macBuf)) {
-				radioLen = r;
-				qDebug() << QString("radioLen in file %1(0x%2)").arg(radioLen).arg(QString::number(radioLen, 16));
-				break;
+				qDebug() << QString("file radioInfo len=%1 fcsSize=%2").arg(len).arg(fcsSize);
+				radioInfo_.len_ = len;
+				radioInfo_.fcsSize_  = fcsSize;
+				return true;
 			}
 		}
 		fclose(fp);
 	}
-	return int16_t(radioLen);
+	return false;
 }
 
-int16_t GMonitorDevice::getRadioLenFromDevice() {
+bool GMonitorDevice::getRadioInfoFromDevice() {
 	GIw iw;
 	if (!iw.open(intfName_)) {
 		SET_ERR(GErr::Fail, iw.error_);
-		return -1;
+		return false;
 	}
 	if (!iw.setChannel(1)) {
 		SET_ERR(GErr::Fail, iw.error_);
-		return -1;
+		return false;
 	}
 	iw.close();
 
@@ -100,17 +101,17 @@ int16_t GMonitorDevice::getRadioLenFromDevice() {
 	device.intfName_ = intfName_;
 	if (!device.open()) {
 		err = device.err;
-		return -1;
+		return false;
 	}
 
 	GPacket::Dlt _dlt = device.dlt();
 	if (_dlt != GPacket::Dot11) {
 		QString msg = QString("Data link type(%1 - %2) must be GPacket::Dot11").arg(intfName_).arg(GPacket::dltToString(_dlt));
 		SET_ERR(GErr::Fail, msg);
-		return -1;
+		return false;
 	}
 
-	int radioLen = -1;
+	int len = -1;
 	while (true) {
 		GDot11Packet packet;
 		GPacket::Result res = device.read(&packet);
@@ -128,27 +129,41 @@ int16_t GMonitorDevice::getRadioLenFromDevice() {
 		}
 		GRadioHdr* radioHdr = packet.radioHdr_;
 		if (radioHdr == nullptr) {
-			SET_ERR(GErr::ObjectIsNull, "ratioHdr is null");
-			return -1;
+			SET_ERR(GErr::ObjectIsNull, "radioHdr is null");
+			return false;
 		}
-		radioLen = radioHdr->len_;
-		qDebug() << QString("real radioLen %1(0x%2)").arg(radioLen).arg(QString::number(radioLen, 16));
+		len = radioHdr->len_;
+
+		uint32_t fcsSize = 0;
+		QList<GBuf> bufList = radioHdr->getPresentFlags(GRadioHdr::Flags);
+		for (GBuf& buf: bufList) {
+			uint8_t flag = buf.data_[0];
+			if (flag & GRadioHdr::fcsAtEnd) {
+				fcsSize += sizeof(uint32_t);
+				if (fcsSize > sizeof(uint32_t))
+					qWarning() << "fcsSize=" << fcsSize;
+			}
+		}
+
+		qDebug() << QString("device radioInfo len=%1 fcsSize=%2").arg(len).arg(fcsSize);
+		radioInfo_.len_ = len;
+		radioInfo_.fcsSize_  = fcsSize;
 
 		GIntf* intf = GNetInfo::instance().intfList().findByName(intfName_);
 		if (intf == nullptr) {
 			QString msg = QString("intf(%1) is null").arg(intfName_);
 			SET_ERR(GErr::Fail, msg);
-			return -1;
+			return false;
 		}
 		GMac mac = intf->mac();
-		FILE* fp = fopen("radiolen.txt", "at");
+		FILE* fp = fopen("radioinfo.txt", "at");
 		if (fp != nullptr) {
-			fprintf(fp, "%s %d\n", qPrintable(QString(mac)), radioLen);
+			fprintf(fp, "%s %d %d\n", qPrintable(QString(mac)), len, fcsSize);
 			fclose(fp);
 		}
 		break;
 	}
 	device.close();
 
-	return int16_t(radioLen);
+	return true;
 }
