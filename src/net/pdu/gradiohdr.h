@@ -47,10 +47,10 @@ struct G_EXPORT GRadioHdr {
 		Preamble = 0x02,
 		Wep = 0x04,
 		Fragmentation = 0x08,
-		fcsAtEnd = 0x10,
-		dataPad = 0x20,
-		badFcs = 0x40,
-		shortGi = 0x80
+		FcsAtEnd = 0x10,
+		DataPad = 0x20,
+		BadFcs = 0x40,
+		ShortGi = 0x80
 	};
 
 	struct Present {

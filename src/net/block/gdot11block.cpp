@@ -132,7 +132,7 @@ QByteArray GDot11Block::extractBeaconTimFrame(GPacket *packet) {
 	QList<GBuf> bufList = radioHdr->getPresentFlags(GRadioHdr::Flags);
 	for (GBuf& buf: bufList) {
 		uint8_t flag = buf.data_[0];
-		if (flag & GRadioHdr::fcsAtEnd) {
+		if (flag & GRadioHdr::FcsAtEnd) {
 			fcsSize += sizeof(uint32_t);
 			if (fcsSize > sizeof(uint32_t))
 				qWarning() << "fcsSize=" << fcsSize;
