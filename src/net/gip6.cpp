@@ -20,7 +20,7 @@ GIp6::GIp6(const QString& r) {
 				qWarning() << "inet_pton return " << res << " " << GLastErr();
 				break;
 		}
-		memset(ip6_, 0, SIZE);
+		memset(ip6_, 0, Size);
 	}
 }
 
@@ -38,10 +38,10 @@ uint qHash(const GIp6& ip6) {
 #ifdef Q_OS_ANDROID
 	gbyte* p = pbyte(&ip6);
 	size_t res = 0;
-	for(size_t i = 0; i < GIp6::SIZE; ++i) res = res * 31 + size_t(*p++);
+	for(size_t i = 0; i < GIp6::Size; ++i) res = res * 31 + size_t(*p++);
 	return res;
 #else // Q_OS_ANDROID
-	return std::_Hash_impl::hash(&ip6, GIp6::SIZE);
+	return std::_Hash_impl::hash(&ip6, GIp6::Size);
 #endif // Q_OS_ANDROID
 }
 
@@ -51,7 +51,7 @@ uint qHash(const GIp6& ip6) {
 #ifdef GTEST
 #include <gtest/gtest.h>
 
-static u_char _loopback[GIp6::SIZE] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+static u_char _loopback[GIp6::Size] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
 
 TEST(GIp6, ctorTest) {
 	GIp6 ip61; // ()
@@ -72,8 +72,8 @@ TEST(GIp6, castingTest) {
 	GIp6 ip6{"::1"};
 
 	const gbyte* uc = ip6; // operator const u_char*()
-	gbyte temp[GIp6::SIZE];
-	for (int i = 0; i < GIp6::SIZE; i++)
+	gbyte temp[GIp6::Size];
+	for (int i = 0; i < GIp6::Size; i++)
 		temp[i] = *uc++;
 	EXPECT_EQ(ip6, temp);
 

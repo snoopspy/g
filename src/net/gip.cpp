@@ -9,7 +9,7 @@ GIp::GIp(const QString& r) {
 	std::string s = r.toStdString();
 	pbyte p = pbyte(&ip_);
 	int res = sscanf(s.c_str(), "%hhu.%hhu.%hhu.%hhu", &p[0], &p[1], &p[2], &p[3]);
-	if (res != SIZE) {
+	if (res != Size) {
 		qWarning() << QString("sscanf(%1) return %2").arg(r).arg(res);
 		ip_ = 0;
 		return;

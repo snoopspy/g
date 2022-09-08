@@ -10,9 +10,9 @@ GMac::GMac(const QString& r) {
 			s += ch.toLatin1();
 	}
 	int res = sscanf(s.c_str(), "%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx", &mac_[0], &mac_[1], &mac_[2], &mac_[3], &mac_[4], &mac_[5]);
-	if (res != SIZE) {
+	if (res != Size) {
 		qWarning() << QString("sscanf(%1) return %2").arg(r).arg(res);
-		memset(mac_, 0, SIZE);
+		memset(mac_, 0, Size);
 	}
 }
 
@@ -24,7 +24,7 @@ GMac::operator QString() const {
 
 GMac GMac::randomMac() {
 	GMac res;
-	for (int i = 0; i < SIZE; i++)
+	for (int i = 0; i < Size; i++)
 		res.mac_[i] = gbyte(rand() % 256);
 	res.mac_[0] &= 0x7F;
 	return res;
@@ -46,10 +46,10 @@ uint qHash(const GMac& mac) {
 #ifdef Q_OS_ANDROID
 	gbyte* p = pbyte(&mac);
 	size_t res = 0;
-	for(size_t i = 0; i < GMac::SIZE; ++i) res = res * 31 + size_t(*p++);
+	for(size_t i = 0; i < GMac::Size; ++i) res = res * 31 + size_t(*p++);
 	return res;
 #else // Q_OS_ANDROID
-	return std::_Hash_impl::hash(&mac, GMac::SIZE);
+	return std::_Hash_impl::hash(&mac, GMac::Size);
 #endif // Q_OS_ANDROID
 }
 
@@ -79,8 +79,8 @@ TEST(GMac, castingTest) {
 	GMac mac("001122-334455");
 
 	const gbyte* uc = (gbyte*)mac; // operator gbyte*()
-	gbyte temp[GMac::SIZE];
-	for (int i = 0; i < GMac::SIZE; i++)
+	gbyte temp[GMac::Size];
+	for (int i = 0; i < GMac::Size; i++)
 		temp[i] = *uc++;
 	EXPECT_TRUE(memcmp(&mac, temp, 6) == 0);
 

@@ -7,8 +7,8 @@ void GEthArpPacket::init(GMac dmac, GMac smac, uint16_t operation, GMac senderMa
 
 	arpHdr_.hrd_ = htons(GArpHdr::ETHER);
 	arpHdr_.pro_ = htons(GEthHdr::Ip4);
-	arpHdr_.hln_ = GMac::SIZE;
-	arpHdr_.pln_ = GIp::SIZE;
+	arpHdr_.hln_ = GMac::Size;
+	arpHdr_.pln_ = GIp::Size;
 	arpHdr_.op_ = htons(operation);
 	arpHdr_.smac_ = senderMac;
 	arpHdr_.sip_ = htonl(targetIp);

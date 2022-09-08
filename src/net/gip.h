@@ -16,7 +16,7 @@
 // GIp
 // ----------------------------------------------------------------------------
 struct G_EXPORT GIp final {
-	static constexpr int SIZE = 4;
+	static constexpr int Size = 4;
 
 	// constructor
 	GIp() {}

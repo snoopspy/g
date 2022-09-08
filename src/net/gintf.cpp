@@ -94,7 +94,7 @@ GIntfList::GIntfList() {
 		PIP_ADAPTER_INFO adapter = GIpAdapterInfo::instance().findByAdapterName(dev->name);
 		if (adapter != nullptr) {
 			intf.desc_ = adapter->Description;
-			if (adapter->AddressLength == GMac::SIZE)
+			if (adapter->AddressLength == GMac::Size)
 				intf.mac_ = adapter->Address;
 			intf.ip_ = QString(adapter->IpAddressList.IpAddress.String);
 			intf.mask_ = QString(adapter->IpAddressList.IpMask.String);

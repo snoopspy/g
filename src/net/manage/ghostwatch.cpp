@@ -105,8 +105,8 @@ void GHostWatch::WatchThread::run() {
 	GArpHdr* arpHdr = &packet.arpHdr_;
 	arpHdr->hrd_ = htons(GArpHdr::ETHER);
 	arpHdr->pro_ = htons(GEthHdr::Ip4);
-	arpHdr->hln_ = GMac::SIZE;
-	arpHdr->pln_ = GIp::SIZE;
+	arpHdr->hln_ = GMac::Size;
+	arpHdr->pln_ = GIp::Size;
 	arpHdr->op_ = htons(GArpHdr::Request);
 	arpHdr->smac_ = myMac;
 	arpHdr->sip_ = htonl(myIp);

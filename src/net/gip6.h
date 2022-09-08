@@ -16,32 +16,32 @@
 // GIp6
 // ----------------------------------------------------------------------------
 struct G_EXPORT GIp6 final {
-	static constexpr int SIZE = 16;
+	static constexpr int Size = 16;
 
 	// constructor
 	GIp6() {}
-	GIp6(const GIp6& r) { memcpy(ip6_, r.ip6_, SIZE); }
-	GIp6(const gbyte* r) { memcpy(ip6_, r, SIZE); }
+	GIp6(const GIp6& r) { memcpy(ip6_, r.ip6_, Size); }
+	GIp6(const gbyte* r) { memcpy(ip6_, r, Size); }
 	GIp6(const QString& r);
 
 	// assign operator
-	GIp6& operator = (const GIp6& r) { memcpy(this->ip6_, r.ip6_, SIZE); return *this; }
+	GIp6& operator = (const GIp6& r) { memcpy(this->ip6_, r.ip6_, Size); return *this; }
 
 	// casting operator
 	operator gbyte*() const { return const_cast<gbyte*>(ip6_); } // default casting operator
 	explicit operator QString() const;
 
 	// comparison operator
-	bool operator == (const GIp6& r) const { return memcmp(ip6_, r.ip6_, SIZE) == 0; }
-	bool operator != (const GIp6& r) const { return memcmp(ip6_, r.ip6_, SIZE) != 0; }
-	bool operator < (const GIp6& r) const { return memcmp(ip6_, r.ip6_, SIZE) < 0; }
-	bool operator > (const GIp6& r) const { return memcmp(ip6_, r.ip6_, SIZE) > 0; }
-	bool operator <= (const GIp6& r) const { return memcmp(ip6_, r.ip6_, SIZE) <= 0; }
-	bool operator >= (const GIp6& r) const { return memcmp(ip6_, r.ip6_, SIZE) >= 0; }
-	bool operator == (const u_char* r) const { return memcmp(ip6_, r, SIZE) == 0; }
+	bool operator == (const GIp6& r) const { return memcmp(ip6_, r.ip6_, Size) == 0; }
+	bool operator != (const GIp6& r) const { return memcmp(ip6_, r.ip6_, Size) != 0; }
+	bool operator < (const GIp6& r) const { return memcmp(ip6_, r.ip6_, Size) < 0; }
+	bool operator > (const GIp6& r) const { return memcmp(ip6_, r.ip6_, Size) > 0; }
+	bool operator <= (const GIp6& r) const { return memcmp(ip6_, r.ip6_, Size) <= 0; }
+	bool operator >= (const GIp6& r) const { return memcmp(ip6_, r.ip6_, Size) >= 0; }
+	bool operator == (const u_char* r) const { return memcmp(ip6_, r, Size) == 0; }
 
 	void clear() {
-		memset(ip6_, 0, SIZE);
+		memset(ip6_, 0, Size);
 	}
 
 	bool isLocalHost() {
@@ -57,7 +57,7 @@ struct G_EXPORT GIp6 final {
 	}
 
 protected:
-	gbyte ip6_[SIZE];
+	gbyte ip6_[Size];
 };
 typedef GIp6 *PIp6;
 
@@ -70,10 +70,10 @@ namespace std {
 #ifdef Q_OS_ANDROID
 			gbyte* p = pbyte(&ip6);
 			size_t res = 0;
-			for(size_t i = 0; i < GIp6::SIZE; ++i) res = res * 31 + size_t(*p++);
+			for(size_t i = 0; i < GIp6::Size; ++i) res = res * 31 + size_t(*p++);
 			return res;
 #else // Q_OS_ANDROID
-			return std::_Hash_impl::hash(&ip6, GIp6::SIZE);
+			return std::_Hash_impl::hash(&ip6, GIp6::Size);
 #endif // Q_OS_ANDROID
 		}
 	};

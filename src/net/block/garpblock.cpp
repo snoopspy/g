@@ -31,8 +31,8 @@ bool GArpBlock::doOpen() {
 
 	infectPacket_.arpHdr_.hrd_ = htons(GArpHdr::ETHER);
 	infectPacket_.arpHdr_.pro_ = htons(GEthHdr::Ip4);
-	infectPacket_.arpHdr_.hln_ = GMac::SIZE;
-	infectPacket_.arpHdr_.pln_ = GIp::SIZE;
+	infectPacket_.arpHdr_.hln_ = GMac::Size;
+	infectPacket_.arpHdr_.pln_ = GIp::Size;
 	infectPacket_.arpHdr_.op_ = htons(GArpHdr::Reply);
 	infectPacket_.arpHdr_.smac_ = intf->mac();
 	infectPacket_.arpHdr_.sip_ = htonl(intf->ip());
