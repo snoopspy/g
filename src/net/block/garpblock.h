@@ -55,8 +55,8 @@ protected:
 public:
 	// GHostMgr::Managable
 	size_t itemOffset_{0};
-	void hostDetected(GMac mac, GHostMgr::Value* value) override;
-	void hostDeleted(GMac mac, GHostMgr::Value* value) override;
+	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 	// --------------------------------------------------------------------------
 	// Item

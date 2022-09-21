@@ -78,20 +78,20 @@ protected:
 
 public:
 	// GHostMgr::Managable
-	void hostDetected(GMac mac, GHostMgr::Value* value) override;
-	void hostDeleted(GMac mac, GHostMgr::Value* value) override;
+	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 	// GIpFlowMgr::Managable
-	void ipFlowDetected(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) override;
-	void ipFlowDeleted(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) override;
+	void ipFlowCreated(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFlowValue* ipFlowValue) override;
+	void ipFlowDeleted(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFlowValue* ipFlowValue) override;
 
 	// GTcpFlowMgr::Managable
-	void tcpFlowDetected(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) override;
-	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) override;
+	void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
+	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 
 	// GUdpFlowMgr::Managable
-	void udpFlowDetected(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) override;
-	void udpFlowDeleted(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) override;
+	void udpFlowCreated(GFlow::UdpFlowKey udpFlowKey, GUdpFlowMgr::UdpFlowValue* udpFlowValue) override;
+	void udpFlowDeleted(GFlow::UdpFlowKey udpFlowKey, GUdpFlowMgr::UdpFlowValue* udpFlowValue) override;
 
 public slots:
 	void debug(GPacket* packet);

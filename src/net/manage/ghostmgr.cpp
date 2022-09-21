@@ -35,8 +35,8 @@ bool GHostMgr::doClose() {
 	for (Managable* manager: managables_) {
 		for (HostMap::iterator it = hostMap_.begin(); it != hostMap_.end(); it++) {
 			GMac mac = it.key();
-			GHostMgr::Value* value = it.value();
-			manager->hostDeleted(mac, value);
+			HostValue* hostValue = it.value();
+			manager->hostDeleted(mac, hostValue);
 		}
 	}
 	hostMap_.clear();
@@ -46,13 +46,13 @@ bool GHostMgr::doClose() {
 void GHostMgr::deleteOldFlowMaps(long now) {
 	HostMap::iterator it = hostMap_.begin();
 	while (it != hostMap_.end()) {
-		GHostMgr::Value* value = it.value();
-		long elapsed = now - value->ts_.tv_sec;
+		HostValue* hostValue = it.value();
+		long elapsed = now - hostValue->ts_.tv_sec;
 		if (elapsed >= timeoutSec_) {
 			GMac mac = it.key();
 			qDebug() << QString("deleted %1 %2").arg(QString(mac)).arg(QString(it.value()->ip_)); // gilgil temp 2022.03.07
 			for (Managable* manager: managables_)
-				manager->hostDeleted(mac, value);
+				manager->hostDeleted(mac, hostValue);
 			it = hostMap_.erase(it);
 			continue;
 		}
@@ -85,9 +85,9 @@ bool GHostMgr::processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip) {
 
 void GHostMgr::manage(GPacket* packet) {
 	long now = packet->ts_.tv_sec;
-	if (checkIntervalSec_ != 0 && now - lastCheckTick_ >= checkIntervalSec_) {
+	if (checkIntervalSec_ != 0 && now - lastCheckClock_ >= checkIntervalSec_) {
 		deleteOldFlowMaps(now);
-		lastCheckTick_ = now;
+		lastCheckClock_ = now;
 	}
 
 	GMac mac;
@@ -115,17 +115,17 @@ void GHostMgr::manage(GPacket* packet) {
 	HostMap::iterator it = hostMap_.find(currentMac_);
 	if (it == hostMap_.end()) {
 		qDebug() << QString("detected %1 %2").arg(QString(mac)).arg(QString(ip)); // gilgil temp 2022.03.07
-		currentVal_ = reinterpret_cast<Value*>(GHostMgr::Value::allocate(requestItems_.totalMemSize_ + sizeof(GIp)));
-		currentVal_->ip_ = ip;
-		it = hostMap_.insert(currentMac_, currentVal_);
+		currentHostVal_ = HostValue::allocate(requestItems_.totalMemSize_);
+		currentHostVal_->ip_ = ip;
+		it = hostMap_.insert(currentMac_, currentHostVal_);
 		for (Managable* manager: managables_)
-			manager->hostDetected(currentMac_, currentVal_);
+			manager->hostCreated(currentMac_, currentHostVal_);
 	}
 	else {
-		currentVal_ = it.value();
+		currentHostVal_ = it.value();
 	}
-	Q_ASSERT(currentVal_ != nullptr);
-	currentVal_->ts_ = packet->ts_;
+	Q_ASSERT(currentHostVal_ != nullptr);
+	currentHostVal_->ts_ = packet->ts_;
 
 	emit managed(packet);
 }

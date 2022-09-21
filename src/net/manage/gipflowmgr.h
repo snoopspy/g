@@ -26,11 +26,35 @@ public:
 
 public:
 	// --------------------------------------------------------------------------
+	// IpFlowValue
+	// --------------------------------------------------------------------------
+	struct IpFlowValue : GPacketMgr::Value {
+		enum State {
+			Half,
+			Full
+		} state_;
+
+		static struct IpFlowValue* allocate(size_t totalMemSize) {
+			IpFlowValue* res = reinterpret_cast<IpFlowValue*>(malloc(sizeof(IpFlowValue) + totalMemSize));
+			new (res) IpFlowValue;
+			return res;
+		}
+
+		static void deallocate(IpFlowValue* ipFlowValue) {
+			ipFlowValue->~IpFlowValue();
+			free(static_cast<void*>(ipFlowValue));
+		}
+
+		void* mem(size_t offset) { return pbyte(this) + sizeof(IpFlowValue) + offset; }
+	};
+
+public:
+	// --------------------------------------------------------------------------
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void ipFlowDetected(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) = 0;
-		virtual void ipFlowDeleted(GFlow::IpFlowKey ipFlowKey, GPacketMgr::Value* value) = 0;
+		virtual void ipFlowCreated(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFlowValue* ipFlowValue) = 0;
+		virtual void ipFlowDeleted(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFlowValue* ipFlowValue) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -40,18 +64,18 @@ protected:
 	// --------------------------------------------------------------------------
 	// FlowMap
 	// --------------------------------------------------------------------------
-	struct FlowMap : QMap<GFlow::IpFlowKey, GPacketMgr::Value*> {
+	struct FlowMap : QMap<GFlow::IpFlowKey, IpFlowValue*> {
 		void clear() {
-			for (GPacketMgr::Value* value: *this) {
-				GPacketMgr::Value::deallocate(value);
+			for (IpFlowValue* ipFlowValue: *this) {
+				IpFlowValue::deallocate(ipFlowValue);
 			}
-			QMap<GFlow::IpFlowKey, GPacketMgr::Value*>::clear();
+			QMap<GFlow::IpFlowKey, IpFlowValue*>::clear();
 		}
 
 		FlowMap::iterator erase(FlowMap::iterator it) {
-			GPacketMgr::Value* value = it.value();
-			GPacketMgr::Value::deallocate(value);
-			return QMap<GFlow::IpFlowKey, GPacketMgr::Value*>::erase(it);
+			IpFlowValue* ipFlowValue = it.value();
+			IpFlowValue::deallocate(ipFlowValue);
+			return QMap<GFlow::IpFlowKey, IpFlowValue*>::erase(it);
 		}
 	};
 	// --------------------------------------------------------------------------
@@ -73,9 +97,9 @@ protected:
 
 public:
 	GFlow::IpFlowKey currentIpFlowKey_;
-	GPacketMgr::Value* currentVal_{nullptr};
+	IpFlowValue* currentIpFlowVal_{nullptr};
 	GFlow::IpFlowKey currentRevIpFlowKey_;
-	GPacketMgr::Value* currentRevVal_{nullptr};
+	IpFlowValue* currentRevIpFlowVal_{nullptr};
 
 public slots:
 	void manage(GPacket* packet);

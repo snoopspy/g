@@ -30,7 +30,7 @@ public:
 
 protected:
 	bool doOpen() override {
-		lastCheckTick_ = 0;
+		lastCheckClock_ = 0;
 		return true;
 	}
 
@@ -39,34 +39,27 @@ protected:
 	}
 
 protected:
-	long lastCheckTick_{0};
+	long lastCheckClock_{0};
 
 public:
 	// --------------------------------------------------------------------------
 	// Value
 	// --------------------------------------------------------------------------
 	struct Value {
-		enum State {
-			Half,
-			Full,
-			Rst,
-			Fin
-		};
 		struct timeval ts_;
-		State state_;
-		u_char totalMem_[0];
 
-		static struct Value* allocate(State state, size_t totalMemSize) {
-			Value* res = reinterpret_cast<Value*>(malloc(sizeof(struct Value) + totalMemSize));
-			res->state_ = state;
+		static struct Value* allocate(size_t totalMemSize) {
+			Value* res = reinterpret_cast<Value*>(malloc(sizeof(Value) + totalMemSize));
+			new (res) Value;
 			return res;
 		}
 
 		static void deallocate(Value* value) {
+			value->~Value();
 			free(static_cast<void*>(value));
 		}
 
-		void* mem(size_t offset) { return totalMem_ + offset; }
+		void* mem(size_t offset) { return pbyte(this) + sizeof(Value) + offset; }
 	};
 
 	// ----------------------------------------------------------------------------
@@ -84,8 +77,7 @@ public:
 	struct RequestItems : QVector<RequestItem> {
 		size_t totalMemSize_{0};
 
-		size_t request(const char* id /* void* */, size_t memSize) {
-			// qDebug() << id << (void*)id; // by gilgil 2022.03.28
+		size_t request(void* id, size_t memSize) {
 			size_t currentOffset = 0;
 			for (RequestItem& item: *this) {
 				if (item.id_ == id) return currentOffset;
@@ -93,7 +85,7 @@ public:
 			}
 
 			RequestItem newItem;
-			newItem.id_ = const_cast<char*>(id);
+			newItem.id_ = id;
 			newItem.offset_ = currentOffset;
 			newItem.memSize_ = memSize;
 

@@ -52,21 +52,21 @@ protected:
 public:
 	// GHostMgr::Managable
 	size_t hostOffset_{0};
-	void hostDetected(GMac mac, GHostMgr::Value* value) override;
-	void hostDeleted(GMac mac, GHostMgr::Value* value) override;
+	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 protected:
 	QElapsedTimer et_;
 	QMutex m_;
 	int threadCount_{0};
 	struct WatchThread : GThread {
-		WatchThread(GHostWatch* hostWatch, GMac mac, GHostMgr::Value* value);
+		WatchThread(GHostWatch* hostWatch, GMac mac, GHostMgr::HostValue* hostValue);
 		~WatchThread() override;
 		void run() override;
 
 		GHostWatch* hw_{nullptr};
 		GMac mac_;
-		GHostMgr::Value* value_;
+		GHostMgr::HostValue* hostValue_;
 		GWaitEvent we_;
 	};
 
@@ -76,8 +76,8 @@ protected:
 	// --------------------------------------------------------------------------
 	struct Item {
 		WatchThread* watchThread_{nullptr};
-		Item(GHostWatch* hostWatch, GMac mac, GHostMgr::Value* value) {
-			watchThread_ = new WatchThread(hostWatch, mac, value);
+		Item(GHostWatch* hostWatch, GMac mac, GHostMgr::HostValue* hostValue) {
+			watchThread_ = new WatchThread(hostWatch, mac, hostValue);
 			watchThread_->start();
 		}
 		~Item() {

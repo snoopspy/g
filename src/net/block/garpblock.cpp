@@ -20,7 +20,7 @@ bool GArpBlock::doOpen() {
 		return false;
 	}
 
-	itemOffset_ = hostMgr_->requestItems_.request("GArpBlock", sizeof(Item));
+	itemOffset_ = hostMgr_->requestItems_.request(this, sizeof(Item));
 	hostMgr_->managables_.insert(this);
 
 	GIntf* intf = pcapDevice_->intf();
@@ -54,14 +54,14 @@ bool GArpBlock::doClose() {
 	return true;
 }
 
-void GArpBlock::hostDetected(GMac mac, GHostMgr::Value* value) {
-	Item* item = PItem(value->mem(itemOffset_));
-	new (item) Item(defaultPolicy_, mac, value->ip_);
+void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
+	Item* item = PItem(hostValue->mem(itemOffset_));
+	new (item) Item(defaultPolicy_, mac, hostValue->ip_);
 }
 
-void GArpBlock::hostDeleted(GMac mac, GHostMgr::Value* value) {
+void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
-	Item* item = PItem(value->mem(itemOffset_));
+	Item* item = PItem(hostValue->mem(itemOffset_));
 	item->~Item();
 }
 

@@ -12,8 +12,8 @@ bool GUdpFlowMgr::doClose() {
 	for (Managable* manager: managables_) {
 		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
 			GFlow::UdpFlowKey udpFlowKey = it.key();
-			GPacketMgr::Value* value = it.value();
-			manager->udpFlowDeleted(udpFlowKey, value);
+			UdpFlowValue* udpFlowValue = it.value();
+			manager->udpFlowDeleted(udpFlowKey, udpFlowValue);
 		}
 	}
 	flowMap_.clear();
@@ -23,19 +23,17 @@ bool GUdpFlowMgr::doClose() {
 void GUdpFlowMgr::deleteOldFlowMaps(long now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
-		GPacketMgr::Value* value = it.value();
-		long elapsed = now - value->ts_.tv_sec;
+		UdpFlowValue* udpFlowValue = it.value();
+		long elapsed = now - udpFlowValue->ts_.tv_sec;
 		long timeout = 0;
-		switch (value->state_) {
-			case GPacketMgr::Value::Half: timeout = halfTimeout_; break;
-			case GPacketMgr::Value::Full: timeout = fullTimeout_; break;
-			case GPacketMgr::Value::Rst: qCritical() << "unrecheable Rst"; timeout = 0; break;
-			case GPacketMgr::Value::Fin: qCritical() << "unrecheable Fin"; timeout = 0; break;
+		switch (udpFlowValue->state_) {
+			case UdpFlowValue::Half: timeout = halfTimeout_; break;
+			case UdpFlowValue::Full: timeout = fullTimeout_; break;
 		}
 		if (elapsed >= timeout) {
 			GFlow::UdpFlowKey udpFlowKey = it.key();
 			for (Managable* manager: managables_)
-				manager->udpFlowDetected(udpFlowKey, value);
+				manager->udpFlowCreated(udpFlowKey, udpFlowValue);
 			it = flowMap_.erase(it);
 			continue;
 		}
@@ -45,9 +43,9 @@ void GUdpFlowMgr::deleteOldFlowMaps(long now) {
 
 void GUdpFlowMgr::manage(GPacket* packet) {
 	long now = packet->ts_.tv_sec;
-	if (checkIntervalSec_ != 0 && now - lastCheckTick_ >= checkIntervalSec_) {
+	if (checkIntervalSec_ != 0 && now - lastCheckClock_ >= checkIntervalSec_) {
 		deleteOldFlowMaps(now);
-		lastCheckTick_ = now;
+		lastCheckClock_ = now;
 	}
 
 	GIpHdr* ipHdr = packet->ipHdr_;
@@ -63,26 +61,27 @@ void GUdpFlowMgr::manage(GPacket* packet) {
 	FlowMap::iterator it = flowMap_.find(currentUdpFlowkey_);
 
 	currentRevUdpFlowKey_ = currentUdpFlowkey_.reverse();
-	currentRevVal_ = nullptr;
+	currentRevUdpFlowVal_ = nullptr;
 	FlowMap::iterator rIt = flowMap_.find(currentRevUdpFlowKey_);
 	if (rIt != flowMap_.end())
-		currentRevVal_ = rIt.value();
+		currentRevUdpFlowVal_ = rIt.value();
 
 	if (it == flowMap_.end()) {
-		currentVal_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
-		it = flowMap_.insert(currentUdpFlowkey_, currentVal_);
+		currentUdpFlowVal_ = UdpFlowValue::allocate(requestItems_.totalMemSize_);
+		currentUdpFlowVal_->state_ = UdpFlowValue::Half;
+		it = flowMap_.insert(currentUdpFlowkey_, currentUdpFlowVal_);
 		for (Managable* manager: managables_)
-			manager->udpFlowDetected(currentUdpFlowkey_, currentVal_);
+			manager->udpFlowCreated(currentUdpFlowkey_, currentUdpFlowVal_);
 
-		if (currentRevVal_ != nullptr) {
-			currentVal_->state_ = GPacketMgr::Value::Full;
-			currentRevVal_->state_ = GPacketMgr::Value::Full;
+		if (currentRevUdpFlowVal_ != nullptr) {
+			currentUdpFlowVal_->state_ = UdpFlowValue::Full;
+			currentRevUdpFlowVal_->state_ = UdpFlowValue::Full;
 		}
 	} else {
-		currentVal_ = it.value();
+		currentUdpFlowVal_ = it.value();
 	}
-	Q_ASSERT(currentVal_ != nullptr);
-	currentVal_->ts_ = packet->ts_;
+	Q_ASSERT(currentUdpFlowVal_ != nullptr);
+	currentUdpFlowVal_->ts_ = packet->ts_;
 
 	emit managed(packet);
 }

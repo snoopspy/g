@@ -8,7 +8,7 @@ bool GClientHelloSplit::doOpen() {
 		SET_ERR(GErr::ObjectIsNull, "tcpFlowMgr must be specified");
 		return false;
 	}
-	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request("GClientHelloSplit-tcpFlow", sizeof(Item));
+	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request(this, sizeof(Item));
 	tcpFlowMgr_->managables_.insert(this);
 
 	Q_ASSERT(splittedTcpDataBuf_ == nullptr);
@@ -25,16 +25,16 @@ bool GClientHelloSplit::doClose() {
 	return true;
 }
 
-void GClientHelloSplit::tcpFlowDetected(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) {
+void GClientHelloSplit::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
 	// qDebug() << QString("_tcpFlowDetected %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
 	(void)tcpFlowKey;
-	Item* item = PItem(value->mem(tcpFlowOffset_));
+	Item* item = PItem(tcpFlowValue->mem(tcpFlowOffset_));
 	new (item) Item;
 }
 
-void GClientHelloSplit::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GPacketMgr::Value* value) {
+void GClientHelloSplit::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
 	(void)tcpFlowKey;
-	Item* item = PItem(value->mem(tcpFlowOffset_));
+	Item* item = PItem(tcpFlowValue->mem(tcpFlowOffset_));
 	item->~Item();
 	// qDebug() << QString("_tcpFlowDeleted %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
 }
@@ -45,8 +45,8 @@ void GClientHelloSplit::split(GPacket* packet) {
 	GTcpHdr* tcpHdr = packet->tcpHdr_;
 	if (tcpHdr == nullptr) return;
 
-	Q_ASSERT(tcpFlowMgr_->currentVal_ != nullptr);
-	Item* item = PItem(tcpFlowMgr_->currentVal_->mem(tcpFlowOffset_));
+	Q_ASSERT(tcpFlowMgr_->currentTcpFlowVal_ != nullptr);
+	Item* item = PItem(tcpFlowMgr_->currentTcpFlowVal_->mem(tcpFlowOffset_));
 	if (item->processed_) return;
 
 	if (tcpHdr->flags() & GTcpHdr::Syn && tcpHdr->flags() & GTcpHdr::Ack) {

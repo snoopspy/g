@@ -26,11 +26,35 @@ public:
 
 public:
 	// --------------------------------------------------------------------------
+	// UdpFlowValue
+	// --------------------------------------------------------------------------
+	struct UdpFlowValue : GPacketMgr::Value {
+		enum State {
+			Half,
+			Full
+		} state_;
+
+		static struct UdpFlowValue* allocate(size_t totalMemSize) {
+			UdpFlowValue* res = reinterpret_cast<UdpFlowValue*>(malloc(sizeof(UdpFlowValue) + totalMemSize));
+			new (res) UdpFlowValue;
+			return res;
+		}
+
+		static void deallocate(UdpFlowValue* udpFlowValue) {
+			udpFlowValue->~UdpFlowValue();
+			free(static_cast<void*>(udpFlowValue));
+		}
+
+		void* mem(size_t offset) { return pbyte(this) + sizeof(UdpFlowValue) + offset; }
+	};
+
+public:
+	// --------------------------------------------------------------------------
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void udpFlowDetected(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) = 0;
-		virtual void udpFlowDeleted(GFlow::UdpFlowKey udpFlowKey, GPacketMgr::Value* value) = 0;
+		virtual void udpFlowCreated(GFlow::UdpFlowKey udpFlowKey, GUdpFlowMgr::UdpFlowValue* udpFlowValue) = 0;
+		virtual void udpFlowDeleted(GFlow::UdpFlowKey udpFlowKey, GUdpFlowMgr::UdpFlowValue* udpFlowValue) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -40,18 +64,18 @@ protected:
 	// --------------------------------------------------------------------------
 	// FlowMap
 	// --------------------------------------------------------------------------
-	struct FlowMap : QMap<GFlow::UdpFlowKey, GPacketMgr::Value*> {
+	struct FlowMap : QMap<GFlow::UdpFlowKey, UdpFlowValue*> {
 		void clear() {
-			for (GPacketMgr::Value* value: *this) {
-				GPacketMgr::Value::deallocate(value);
+			for (UdpFlowValue* udpFlowValue: *this) {
+				UdpFlowValue::deallocate(udpFlowValue);
 			}
-			QMap<GFlow::UdpFlowKey, GPacketMgr::Value*>::clear();
+			QMap<GFlow::UdpFlowKey, UdpFlowValue*>::clear();
 		}
 
 		FlowMap::iterator erase(FlowMap::iterator it) {
-			GPacketMgr::Value* value = it.value();
-			GPacketMgr::Value::deallocate(value);
-			return QMap<GFlow::UdpFlowKey, GPacketMgr::Value*>::erase(it);
+			UdpFlowValue* udpFlowValue = it.value();
+			UdpFlowValue::deallocate(udpFlowValue);
+			return QMap<GFlow::UdpFlowKey, UdpFlowValue*>::erase(it);
 		}
 	};
 	// --------------------------------------------------------------------------
@@ -73,9 +97,9 @@ protected:
 
 public:
 	GFlow::UdpFlowKey currentUdpFlowkey_;
-	GPacketMgr::Value* currentVal_{nullptr};
+	UdpFlowValue* currentUdpFlowVal_{nullptr};
 	GFlow::UdpFlowKey currentRevUdpFlowKey_;
-	GPacketMgr::Value* currentRevVal_{nullptr};
+	UdpFlowValue* currentRevUdpFlowVal_{nullptr};
 
 public slots:
 	void manage(GPacket* packet);

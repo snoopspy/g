@@ -12,8 +12,8 @@ bool GTcpFlowMgr::doClose() {
 	for (Managable* manager: managables_) {
 		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
 			GFlow::TcpFlowKey tcpFlowKey = it.key();
-			GPacketMgr::Value* value = it.value();
-			manager->tcpFlowDeleted(tcpFlowKey, value);
+			TcpFlowValue* tcpFlowValue = it.value();
+			manager->tcpFlowDeleted(tcpFlowKey, tcpFlowValue);
 		}
 	}
 	flowMap_.clear();
@@ -23,19 +23,19 @@ bool GTcpFlowMgr::doClose() {
 void GTcpFlowMgr::deleteOldFlowMaps(long now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
-		GPacketMgr::Value* value = it.value();
-		long elapsed = now - value->ts_.tv_sec;
+		TcpFlowValue* tcpFlowValue = it.value();
+		long elapsed = now - tcpFlowValue->ts_.tv_sec;
 		long timeout = 0;
-		switch (value->state_) {
-			case GPacketMgr::Value::Half: timeout = halfTimeout_; break;
-			case GPacketMgr::Value::Full: timeout = fullTimeout_; break;
-			case GPacketMgr::Value::Rst: timeout = rstTimeout_; break;
-			case GPacketMgr::Value::Fin: timeout = finTimeout_; break;
+		switch (tcpFlowValue->state_) {
+			case TcpFlowValue::Half: timeout = halfTimeout_; break;
+			case TcpFlowValue::Full: timeout = fullTimeout_; break;
+			case TcpFlowValue::Rst: timeout = rstTimeout_; break;
+			case TcpFlowValue::Fin: timeout = finTimeout_; break;
 		}
 		if (elapsed >= timeout) {
 			GFlow::TcpFlowKey tcpFlowKey = it.key();
 			for (Managable* manager: managables_)
-				manager->tcpFlowDeleted(tcpFlowKey, value);
+				manager->tcpFlowDeleted(tcpFlowKey, tcpFlowValue);
 			it = flowMap_.erase(it);
 			continue;
 		}
@@ -45,9 +45,9 @@ void GTcpFlowMgr::deleteOldFlowMaps(long now) {
 
 void GTcpFlowMgr::manage(GPacket* packet) {
 	long now = packet->ts_.tv_sec;
-	if (checkIntervalSec_ != 0 && now - lastCheckTick_ >= checkIntervalSec_) {
+	if (checkIntervalSec_ != 0 && now - lastCheckClock_ >= checkIntervalSec_) {
 		deleteOldFlowMaps(now);
-		lastCheckTick_ = now;
+		lastCheckClock_ = now;
 	}
 
 	GIpHdr* ipHdr = packet->ipHdr_;
@@ -63,32 +63,33 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 	FlowMap::iterator it = flowMap_.find(currentTcpFlowKey_);
 
 	currentRevTcpFlowKey_ = currentTcpFlowKey_.reverse();
-	currentRevVal_ = nullptr;
+	currentRevTcpFlowVal_ = nullptr;
 	FlowMap::iterator rIt = flowMap_.find(currentRevTcpFlowKey_);
 	if (rIt != flowMap_.end())
-		currentRevVal_ = rIt.value();
+		currentRevTcpFlowVal_ = rIt.value();
 
 	if (it == flowMap_.end()) {
-		currentVal_ = GPacketMgr::Value::allocate(GPacketMgr::Value::Half, requestItems_.totalMemSize_);
-		it = flowMap_.insert(currentTcpFlowKey_, currentVal_);
+		currentTcpFlowVal_ = TcpFlowValue::allocate(requestItems_.totalMemSize_);
+		currentTcpFlowVal_->state_ = TcpFlowValue::Half;
+		it = flowMap_.insert(currentTcpFlowKey_, currentTcpFlowVal_);
 		for (Managable* manager: managables_)
-			manager->tcpFlowDetected(currentTcpFlowKey_, currentVal_);
+			manager->tcpFlowCreated(currentTcpFlowKey_, currentTcpFlowVal_);
 
-		if (currentRevVal_ != nullptr) {
-			currentVal_->state_ = GPacketMgr::Value::Full;
-			currentRevVal_->state_ = GPacketMgr::Value::Full;
+		if (currentRevTcpFlowVal_ != nullptr) {
+			currentTcpFlowVal_->state_ = TcpFlowValue::Full;
+			currentRevTcpFlowVal_->state_ = TcpFlowValue::Full;
 		}
 	} else {
-		currentVal_ = it.value();
+		currentTcpFlowVal_ = it.value();
 	}
-	Q_ASSERT(currentVal_ != nullptr);
-	currentVal_->ts_ = packet->ts_;
+	Q_ASSERT(currentTcpFlowVal_ != nullptr);
+	currentTcpFlowVal_->ts_ = packet->ts_;
 
 	if ((tcpHdr->flags() & (GTcpHdr::Rst | GTcpHdr::Fin)) != 0) {
-		GPacketMgr::Value::State state = (tcpHdr->flags() & GTcpHdr::Rst) ? GPacketMgr::Value::Rst : GPacketMgr::Value::Fin;
-		currentVal_->state_ = state;
-		if (currentRevVal_ != nullptr) {
-			currentRevVal_->state_ = state;
+		TcpFlowValue::State state = (tcpHdr->flags() & GTcpHdr::Rst) ? TcpFlowValue::Rst : TcpFlowValue::Fin;
+		currentTcpFlowVal_->state_ = state;
+		if (currentRevTcpFlowVal_ != nullptr) {
+			currentRevTcpFlowVal_->state_ = state;
 		}
 	}
 

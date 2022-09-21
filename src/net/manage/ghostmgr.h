@@ -31,23 +31,24 @@ public:
 
 public:
 	// --------------------------------------------------------------------------
-	// Value
+	// HostValue
 	// --------------------------------------------------------------------------
-	struct Value {
+	struct HostValue : GPacketMgr::Value {
 		struct timeval ts_;
 		GIp ip_;
-		u_char totalMem_[0];
 
-		static struct Value* allocate(size_t totalMemSize) {
-			Value* res = reinterpret_cast<Value*>(malloc(sizeof(struct Value) + totalMemSize));
+		static struct HostValue* allocate(size_t totalMemSize) {
+			HostValue* res = reinterpret_cast<HostValue*>(malloc(sizeof(HostValue) + totalMemSize));
+			new (res) HostValue;
 			return res;
 		}
 
-		static void deallocate(Value* value) {
-			free(static_cast<void*>(value));
+		static void deallocate(HostValue* hostFlowValue) {
+			hostFlowValue->~HostValue();
+			free(static_cast<void*>(hostFlowValue));
 		}
 
-		void* mem(size_t offset) { return totalMem_ + offset; }
+		void* mem(size_t offset) { return pbyte(this) + sizeof(HostValue) + offset; }
 	};
 
 public:
@@ -55,8 +56,8 @@ public:
 	// Managable
 	// --------------------------------------------------------------------------
 	struct Managable {
-		virtual void hostDetected(GMac mac, GHostMgr::Value* value) = 0;
-		virtual void hostDeleted(GMac mac, GHostMgr::Value* value) = 0;
+		virtual void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) = 0;
+		virtual void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -66,18 +67,18 @@ public:
 	// --------------------------------------------------------------------------
 	// HostMap
 	// --------------------------------------------------------------------------
-	struct HostMap : QMap<GMac, GHostMgr::Value*> {
+	struct HostMap : QMap<GMac, HostValue*> {
 		void clear() {
-			for (GHostMgr::Value* value: *this) {
-				GHostMgr::Value::deallocate(value);
+			for (HostValue* hostValue: *this) {
+				HostValue::deallocate(hostValue);
 			}
-			QMap<GMac, GHostMgr::Value*>::clear();
+			QMap<GMac, HostValue*>::clear();
 		}
 
 		HostMap::iterator erase(HostMap::iterator it) {
-			GHostMgr::Value* value = it.value();
-			GHostMgr::Value::deallocate(value);
-			return QMap<GMac, GHostMgr::Value*>::erase(it);
+			HostValue* hostValue = it.value();
+			HostValue::deallocate(hostValue);
+			return QMap<GMac, HostValue*>::erase(it);
 		}
 	} hostMap_;
 	// --------------------------------------------------------------------------
@@ -107,7 +108,7 @@ protected:
 
 public:
 	GMac currentMac_;
-	Value* currentVal_{nullptr};
+	HostValue* currentHostVal_{nullptr};
 
 public slots:
 	void manage(GPacket* packet);

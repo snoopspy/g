@@ -24,7 +24,7 @@ bool GHostWatch::doOpen() {
 		return false;
 	}
 
-	hostOffset_ = hostMgr_->requestItems_.request("GHostWatch-host", sizeof(Item));
+	hostOffset_ = hostMgr_->requestItems_.request(this, sizeof(Item));
 	hostMgr_->managables_.insert(this);
 	et_.start();
 	threadCount_ = 0;
@@ -38,14 +38,14 @@ bool GHostWatch::doClose() {
 	return true;
 }
 
-void GHostWatch::hostDetected(GMac mac, GHostMgr::Value* value) {
-	Item* item = PItem(value->mem(hostOffset_));
-	new (item) Item(this, mac, value);
+void GHostWatch::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
+	Item* item = PItem(hostValue->mem(hostOffset_));
+	new (item) Item(this, mac, hostValue);
 }
 
-void GHostWatch::hostDeleted(GMac mac, GHostMgr::Value* value) {
+void GHostWatch::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
-	Item* item = PItem(value->mem(hostOffset_));
+	Item* item = PItem(hostValue->mem(hostOffset_));
 	item->~Item();
 }
 
@@ -62,11 +62,10 @@ bool GHostWatch::propLoad(QJsonObject jo, QMetaProperty mpro)  {
 // ----------------------------------------------------------------------------
 // GHostWatch::WatchThread
 // ----------------------------------------------------------------------------
-GHostWatch::WatchThread::WatchThread(GHostWatch* hostWatch, GMac mac, GHostMgr::Value* value) : hw_(hostWatch), mac_(mac), value_(value) {
+GHostWatch::WatchThread::WatchThread(GHostWatch* hostWatch, GMac mac, GHostMgr::HostValue* hostValue) : hw_(hostWatch), mac_(mac), hostValue_(hostValue) {
 }
 
 GHostWatch::WatchThread::~WatchThread() {
-
 }
 
 #include "net/pdu/getharppacket.h"
@@ -74,7 +73,7 @@ GHostWatch::WatchThread::~WatchThread() {
 
 void GHostWatch::WatchThread::run() {
 	GMac mac = mac_;
-	GIp ip = value_->ip_;
+	GIp ip = hostValue_->ip_;
 	qDebug() << "beg " << QString(mac) << QString(ip); // by gilgil 2022.03.02
 
 	GPcapDevice* device = hw_->pcapDevice_;
@@ -115,13 +114,13 @@ void GHostWatch::WatchThread::run() {
 
 	QElapsedTimer* et = &hw_->et_;
 	qint64 start = et->elapsed();
-	__time_t startEpoch = value_->ts_.tv_sec;
+	__time_t startEpoch = hostValue_->ts_.tv_sec;
 	while (device->active() && hw_->active()) {
 		if (we_.wait(hw_->checkInterval_))
 			break;
 
 		qint64 now = et->elapsed();
-		if (value_->ts_.tv_sec + hw_->scanStartTimeoutSec_ <= startEpoch + (now - start) / 1000) {
+		if (hostValue_->ts_.tv_sec + hw_->scanStartTimeoutSec_ <= startEpoch + (now - start) / 1000) {
 			if (hw_->randomInterval_ > 0) {
 				GDuration random = QRandomGenerator::global()->generate() % hw_->randomInterval_;
 				if (we_.wait(random))
@@ -140,7 +139,7 @@ void GHostWatch::WatchThread::run() {
 					break;
 				}
 
-				if (value_->ts_.tv_sec + hw_->scanStartTimeoutSec_ > startEpoch + (now - start) / 1000) { // detected
+				if (hostValue_->ts_.tv_sec + hw_->scanStartTimeoutSec_ > startEpoch + (now - start) / 1000) { // detected
 					qDebug() << QString("detected %1 %2").arg(QString(mac), QString(ip));
 					break;
 				}
