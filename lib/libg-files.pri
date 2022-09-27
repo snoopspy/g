@@ -85,13 +85,11 @@ SOURCES += \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.cpp \
 	$${PWD}/../src/net/filter/gbpfilter.cpp \
 	$${PWD}/../src/net/manage/ghostmgr.cpp \
+	$${PWD}/../src/net/manage/ghostscan.cpp \
 	$${PWD}/../src/net/manage/ghostwatch.cpp \
 	$${PWD}/../src/net/manage/gipflowmgr.cpp \
 	$${PWD}/../src/net/manage/gtcpflowmgr.cpp \
 	$${PWD}/../src/net/manage/gudpflowmgr.cpp \
-	$${PWD}/../src/net/host/ghostdelete.cpp \
-	$${PWD}/../src/net/host/ghostdetect.cpp \
-	$${PWD}/../src/net/host/ghostscan.cpp \
 	$${PWD}/../src/net/gatm.cpp \
 	$${PWD}/../src/net/gintf.cpp \
 	$${PWD}/../src/net/gip.cpp \
@@ -230,14 +228,12 @@ HEADERS += \
 	$${PWD}/../src/net/filter/gbpfilter.h \
 	$${PWD}/../src/net/manage/gflowkey.h \
 	$${PWD}/../src/net/manage/ghostmgr.h \
+	$${PWD}/../src/net/manage/ghostscan.h \
 	$${PWD}/../src/net/manage/ghostwatch.h \
 	$${PWD}/../src/net/manage/gipflowmgr.h \
 	$${PWD}/../src/net/manage/gpacketmgr.h \
 	$${PWD}/../src/net/manage/gtcpflowmgr.h \
 	$${PWD}/../src/net/manage/gudpflowmgr.h \
-	$${PWD}/../src/net/host/ghostdelete.h \
-	$${PWD}/../src/net/host/ghostdetect.h \
-	$${PWD}/../src/net/host/ghostscan.h \
 	$${PWD}/../src/net/gatm.h \
 	$${PWD}/../src/net/gintf.h \
 	$${PWD}/../src/net/gip.h \

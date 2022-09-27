@@ -22,7 +22,6 @@ void GPluginFactory::loadDefault() {
 	loadConvert();
 	loadDelay();
 	loadFilter();
-	loadHost();
 	loadManage();
 	loadProcess();
 	loadWrite();
@@ -159,29 +158,10 @@ void GPluginFactory::loadFilter() {
 }
 
 // ----------------------------------------------------------------------------
-// Host
-// ----------------------------------------------------------------------------
-#include <GHostDelete>
-#include <GHostDetect>
-#include <GHostScan>
-
-void GPluginFactory::loadHost() {
-	qRegisterMetaType<GHostDelete*>();
-	qRegisterMetaType<GHostDetect*>();
-	qRegisterMetaType<GHostScan*>();
-
-	ItemCategory* category = new ItemCategory("host");
-	category->items_.push_back(new ItemNode("GHostDelete"));
-	category->items_.push_back(new ItemNode("GHostDetect"));
-	category->items_.push_back(new ItemNode("GHostScan"));
-
-	items_.push_back(category);
-}
-
-// ----------------------------------------------------------------------------
 // Manage
 // ----------------------------------------------------------------------------
 #include <GHostMgr>
+#include <GHostScan>
 #include <GHostWatch>
 #include <GIpFlowMgr>
 #include <GTcpFlowMgr>
@@ -196,6 +176,7 @@ void GPluginFactory::loadManage() {
 
 	ItemCategory* category = new ItemCategory("manage");
 	category->items_.push_back(new ItemNode("GHostMgr"));
+	category->items_.push_back(new ItemNode("GHostScan"));
 	category->items_.push_back(new ItemNode("GHostWatch"));
 	category->items_.push_back(new ItemNode("GIpFlowMgr"));
 	category->items_.push_back(new ItemNode("GTcpFlowMgr"));

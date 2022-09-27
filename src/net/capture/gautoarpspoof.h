@@ -12,7 +12,7 @@
 
 #include "garpspoof.h"
 #include "net/manage/ghostmgr.h"
-#include "net/host/ghostscan.h"
+#include "net/manage/ghostscan.h"
 
 // ----------------------------------------------------------------------------
 // GAutoArpSpoof
