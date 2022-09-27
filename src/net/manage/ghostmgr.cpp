@@ -129,3 +129,13 @@ void GHostMgr::manage(GPacket* packet) {
 
 	emit managed(packet);
 }
+
+bool GHostMgr::propLoad(QJsonObject jo, QMetaProperty mpro) {
+	// qDebug() << mpro.name(); // gilgil temp 2021.11.11
+	if (QString(mpro.name()) == "pcapDevice") {
+		QObject* p = parent();
+		if (p != nullptr && QString(p->metaObject()->className()) == "GAutoArpSpoof")
+			return true;
+	}
+	return GStateObj::propLoad(jo, mpro);
+}

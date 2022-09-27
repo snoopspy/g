@@ -4,12 +4,7 @@
 // GAutoArpSpoof
 // ----------------------------------------------------------------------------
 GAutoArpSpoof::GAutoArpSpoof(QObject* parent) : GArpSpoof(parent) {
-	QObject::connect(this, &GArpSpoof::_preCaptured, &hostDetect_, &GHostDetect::detect, Qt::DirectConnection);
-	QObject::connect(&hostDetect_, &GHostDetect::hostDetected, this, &GAutoArpSpoof::processHostDetected, Qt::DirectConnection);
-
-	hostDelete_.enabled_ = true;
-	hostDelete_.pcapDevice_ = this;
-	hostDelete_.hostDetect_ = &hostDetect_;
+	QObject::connect(this, &GArpSpoof::_preCaptured, &hostMgr_, &GHostMgr::manage, Qt::DirectConnection);
 
 	hostScan_.enabled_ = false;
 	hostScan_.pcapDevice_ = this;
@@ -51,14 +46,10 @@ bool GAutoArpSpoof::doOpen() {
 	}
 	gwMac_ = it.value();
 
-	hostDetect_.pcapDevice_ = this;
-	if (!hostDetect_.open()) {
-		err = hostDetect_.err;
-		return false;
-	}
-
-	if (!hostDelete_.open()) {
-		err = hostDetect_.err;
+	hostMgr_.pcapDevice_ = this;
+	hostMgr_.managables_.insert(this);
+	if (!hostMgr_.open()) {
+		err = hostMgr_.err;
 		return false;
 	}
 
@@ -126,16 +117,16 @@ bool GAutoArpSpoof::doClose() {
 
 	bool res = GArpSpoof::doClose();
 
+	hostMgr_.close();
 	hostScan_.close();
-	hostDelete_.close();
-	hostDetect_.close();
 	qDebug() << "completed"; // gilgil temp 2021.11.13
 	return res;
 }
 
-void GAutoArpSpoof::processHostDetected(GHostDetect::Host* host) {
-	GIp ip = host->ip_;
-	GMac mac = host->mac_;
+
+void GAutoArpSpoof::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
+	qDebug() << ""; // gilgil temp 2022.09.26
+	GIp ip = hostValue->ip_;
 	if (ip == gwIp_) return;
 
 	GFlow::IpFlowKey ipFlowKey(ip, gwIp_);
@@ -184,6 +175,16 @@ void GAutoArpSpoof::processHostDetected(GHostDetect::Host* host) {
 			QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 			thread->start();
 		});
+	}
+}
+
+void GAutoArpSpoof::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
+	qDebug() << ""; // gilgil temp 2022.09.26
+	if (active()) {
+		GIp ip = hostValue->ip_;
+		Flow flow(ip, mac, gwIp_, gwMac_);
+		Flow revFlow(gwIp_, gwMac_, ip, mac);
+		removeFlows(&flow, &revFlow);
 	}
 }
 

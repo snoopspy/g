@@ -11,32 +11,28 @@
 #pragma once
 
 #include "garpspoof.h"
-#include "net/host/ghostdetect.h"
-#include "net/host/ghostdelete.h"
+#include "net/manage/ghostmgr.h"
 #include "net/host/ghostscan.h"
 
 // ----------------------------------------------------------------------------
 // GAutoArpSpoof
 // ----------------------------------------------------------------------------
-struct GAutoArpSpoof : GArpSpoof {
+struct GAutoArpSpoof : GArpSpoof, GHostMgr::Managable {
 	Q_OBJECT
 	Q_PROPERTY(ulong floodingTimeout MEMBER floodingTimeout_)
 	Q_PROPERTY(ulong floodingSendInterval MEMBER floodingSendInterval_)
 	Q_PROPERTY(ulong recoverTimeout MEMBER recoverTimeout_)
-	Q_PROPERTY(GObjRef hostDetect READ getHostDetect)
-	Q_PROPERTY(GObjRef hostDelete READ getHostDelete)
+	Q_PROPERTY(GObjRef hostMgr READ getHostMgr)
 	Q_PROPERTY(GObjRef hostScan READ getHostScan)
 
-	GObjRef getHostDetect() { return hostDetect_; }
-	GObjRef getHostDelete() { return hostDelete_; }
+	GObjRef getHostMgr() { return hostMgr_; }
 	GObjRef getHostScan() { return hostScan_; }
 
 public:
 	GDuration floodingTimeout_{1000}; // 1 sec
 	GDuration floodingSendInterval_{100}; // 100 msec
 	GDuration recoverTimeout_{60000}; // 60 sec
-	GHostDetect hostDetect_{this};
-	GHostDelete hostDelete_{this};
+	GHostMgr hostMgr_{this};
 	GHostScan hostScan_{this};
 
 public:
@@ -47,8 +43,10 @@ protected:
 	bool doOpen() override;
 	bool doClose() override;
 
-public slots:
-	void processHostDetected(GHostDetect::Host* host);
+public:
+	// GHostMgr::Managable
+	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 protected:
 	GIp gwIp_;

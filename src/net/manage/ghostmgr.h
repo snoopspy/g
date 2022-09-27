@@ -115,4 +115,7 @@ public slots:
 
 signals:
 	void managed(GPacket* packet);
+
+public:
+	bool propLoad(QJsonObject jo, QMetaProperty mpro) override;
 };
