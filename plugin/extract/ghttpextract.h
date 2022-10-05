@@ -77,8 +77,8 @@ protected:
 
 public:
 	// GTcpFlowMgr::Managable
-	void tcpFlowCreated(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) override;
-	void tcpFlowDeleted(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) override;
+    void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue);
+    void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue);
 
 public slots:
 	void write(GPacket* packet);

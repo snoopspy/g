@@ -40,7 +40,7 @@ bool GHttpExtract::doOpen() {
 		SET_ERR(GErr::ObjectIsNull, "tcpFlowMgr must be specified");
 		return false;
 	}
-	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request("GFlowMgrTest_tcp", sizeof(FlowItem));
+    tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request(this, sizeof(FlowItem));
 	tcpFlowMgr_->managables_.insert(this);
 
 	currentFolder_ = folder_;
@@ -62,17 +62,17 @@ bool GHttpExtract::doClose() {
 	return true;
 }
 
-void GHttpExtract::tcpFlowCreated(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) {
-	(void)key;
+void GHttpExtract::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
+    (void)tcpFlowKey;
 	if (!enabled_) return;
-	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
+    FlowItem* flowItem = PFlowItem(tcpFlowValue->mem(tcpFlowOffset_));
 	new (flowItem) FlowItem(this);
 }
 
-void GHttpExtract::tcpFlowDeleted(GFlow::TcpFlowKey* key, GPacketMgr::Value* value) {
-	(void)key;
+void GHttpExtract::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
+    (void)tcpFlowKey;
 	if (!enabled_) return;
-	FlowItem* flowItem = PFlowItem(value->mem(tcpFlowOffset_));
+    FlowItem* flowItem = PFlowItem(tcpFlowValue->mem(tcpFlowOffset_));
 	flowItem->~FlowItem();
 }
 
@@ -82,8 +82,8 @@ void GHttpExtract::write(GPacket* packet) {
 	if (!enabled_) return;
 	if (!packet->tcpData_.valid()) return;
 
-	if (tcpFlowMgr_->rVal_ != nullptr) {
-		FlowItem* rFlowItem = PFlowItem(tcpFlowMgr_->rVal_->mem(tcpFlowOffset_));
+    if (tcpFlowMgr_->currentRevTcpFlowVal_ != nullptr) {
+        FlowItem* rFlowItem = PFlowItem(tcpFlowMgr_->currentRevTcpFlowVal_->mem(tcpFlowOffset_));
 		switch (rFlowItem->state_) {
 			case FlowItem::None: break;
 			case FlowItem::HttpRquestParsed: {
@@ -166,8 +166,8 @@ void GHttpExtract::write(GPacket* packet) {
 		}
 	}
 
-	Q_ASSERT(tcpFlowMgr_->val_ != nullptr);
-	FlowItem* flowItem = PFlowItem(tcpFlowMgr_->val_->mem(tcpFlowOffset_));
+    Q_ASSERT(tcpFlowMgr_->currentTcpFlowVal_ != nullptr);
+    FlowItem* flowItem = PFlowItem(tcpFlowMgr_->currentTcpFlowVal_->mem(tcpFlowOffset_));
 	if (flowItem->state_ == FlowItem::None) {
 
 		// check start
