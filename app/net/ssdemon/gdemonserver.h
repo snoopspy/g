@@ -54,7 +54,6 @@ struct GDemonNetwork;
 struct GDemonPcap;
 struct GDemonNetFilter;
 struct GDemonRawIp;
-struct GDemonChannel;
 struct GDemonSession : GDemon {
 	GDemonSession(GDemonServer* server);
 	~GDemonSession() override;
@@ -73,7 +72,6 @@ struct GDemonSession : GDemon {
 	GDemonPcap* pcap_{nullptr};
 	GDemonNetFilter* nf_{nullptr};
 	GDemonRawIp* ri_{nullptr};
-	GDemonChannel* ch_{nullptr};
 };
 
 // ----------------------------------------------------------------------------
