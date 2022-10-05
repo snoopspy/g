@@ -4,7 +4,9 @@
 #include "net/packet/gdot11packet.h"
 
 GMonitorDevice::GMonitorDevice(QObject* parent) : GPcapDevice(parent) {
+#ifdef Q_OS_ANDROID
     port_ = GDemon::NexmonPort;
+#endif // Q_OS_ANDROID
 }
 
 GMonitorDevice::~GMonitorDevice() {
