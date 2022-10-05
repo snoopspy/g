@@ -4,6 +4,7 @@
 #include "net/packet/gdot11packet.h"
 
 GMonitorDevice::GMonitorDevice(QObject* parent) : GPcapDevice(parent) {
+    port_ = GDemon::NexmonPort;
 }
 
 GMonitorDevice::~GMonitorDevice() {
@@ -87,6 +88,9 @@ bool GMonitorDevice::getRadioInfoFromFile() {
 
 bool GMonitorDevice::getRadioInfoFromDevice() {
 	GSyncPcapDevice device;
+#ifdef Q_OS_ANDROID
+    device.port_ = GDemon::NexmonPort;
+#endif // Q_OS_ANDROID
 	device.intfName_ = intfName_;
 	if (!device.open()) {
 		err = device.err;

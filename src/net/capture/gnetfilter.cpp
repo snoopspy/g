@@ -45,7 +45,7 @@ bool GNetFilter::doOpen() {
 		return false;
 	}
 
-	demonClient_ = new GDemonClient(std::string(qPrintable(ip_)), port_);
+    demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
 	GDemon::NfOpenRes res = demonClient_->nfOpen(qPrintable(objectName()), queueNum_, nonBlock_, waitTimeout_);
 	if (!res.result_) {
 		SET_ERR(GErr::Fail, demonClient_->error_.data());

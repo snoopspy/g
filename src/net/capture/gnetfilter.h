@@ -31,10 +31,6 @@ struct G_EXPORT GNetFilter : GCapture {
 	Q_PROPERTY(quint32 mark MEMBER mark_)
 	Q_PROPERTY(int bufSize MEMBER bufSize_)
 	Q_PROPERTY(GObjRef command READ getCommand)
-#ifdef Q_OS_ANDROID
-	Q_PROPERTY(QString ip MEMBER ip_)
-	Q_PROPERTY(quint16 port MEMBER port_)
-#endif
 
 	Q_ENUMS(Verdict)
 
@@ -50,10 +46,6 @@ public:
 	Verdict acceptVerdict_{ACCEPT};
 	uint32_t mark_{0};
 	GObjRef getCommand() { return &command_; }
-#ifdef Q_OS_ANDROID
-	QString ip_{"127.0.0.1"};
-	quint16 port_{GDemon::DefaultPort};
-#endif
 
 public:
 	int bufSize_{GPacket::MaxBufSize};

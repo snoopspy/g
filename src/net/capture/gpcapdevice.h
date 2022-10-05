@@ -65,7 +65,8 @@ public:
 #endif
 
 #ifdef Q_OS_ANDROID
-protected:
+public:
+    int port_{GDemon::DefaultPort};
 	GDemonClient* demonClient_{nullptr};
 #endif
 
