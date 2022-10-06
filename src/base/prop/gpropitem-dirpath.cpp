@@ -9,7 +9,7 @@ GPropItemDirPath::GPropItemDirPath(GPropItemParam* param) : GPropItemWidget(para
 	layout_ = new QHBoxLayout;
 	lineEdit_ = new QLineEdit(param->treeWidget_);
 	toolButton_ = new QToolButton(param->treeWidget_);
-	layout_->setMargin(0);
+    layout_->setContentsMargins(0, 0, 0, 0);
 	lineEdit_->setFrame(false);
 	toolButton_->setText("...");
 	layout_->addWidget(lineEdit_);
@@ -37,7 +37,7 @@ void GPropItemDirPath::myEditingFinished() {
 void GPropItemDirPath::myToolButtonClicked(bool checked) {
 	(void)checked;
 	QFileDialog fd;
-	fd.setFileMode(QFileDialog::DirectoryOnly);
+    fd.setFileMode(QFileDialog::Directory);
 	fd.setOption(QFileDialog::ShowDirsOnly);
 	if (fd.exec()) {
 		bool res = object_->setProperty(mpro_.name(), QVariant::fromValue<QString>(fd.selectedFiles().at(0)));
