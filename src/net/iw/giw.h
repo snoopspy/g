@@ -29,7 +29,6 @@ public:
 
 protected:
 	int skfd_{-1};
-	struct iw_range	range_;
 	QString intfName_;
 
 public:
@@ -43,4 +42,7 @@ public:
 	int channel();
 	bool setChannel(int channel);
 	QList<int> channelList();
+
+protected:
+    int ieee80211_frequency_to_channel(int freq);
 };

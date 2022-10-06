@@ -33,14 +33,6 @@ bool GIw::open(QString intfName) {
 		return false;
 	}
 
-	int res = iw_get_range_info(skfd_, qPrintable(intfName), &range_);
-	if(res < 0) {
-		char buf[256];
-		sprintf(buf, "iw_get_range_info(%s) return %d(%s)\n", qPrintable(intfName), res, strerror(errno));
-		error_ = buf;
-		return false;
-	}
-
 	intfName_ = intfName;
 	return true;
 }
@@ -64,7 +56,7 @@ int GIw::channel() {
 	}
 
 	double freq = iw_freq2float(&(wrq.u.freq));
-	int channel = iw_freq_to_channel(freq, &range_);
+    int channel = ieee80211_frequency_to_channel(freq / 1000000);
 	return channel;
 }
 
@@ -103,10 +95,76 @@ bool GIw::setChannel(int channel) {
 }
 
 QList<int> GIw::channelList() {
-	QList<int> result;
-	for(int i = 0; i < range_.num_frequency; i++)
-		result.push_back(range_.freq[i].i);
+    QList<int> result;
+
+    char buf[BufSize];
+    std::string command = "iw " + std::string(qPrintable(intfName_)) + " info";
+    FILE* p = popen(command.data(), "r");
+    if (p == nullptr) {
+        sprintf(buf, "fail to call %s\n", command.data());
+        error_ = buf;
+        return result;
+    }
+
+    int phyNo = -1;
+    while (true) {
+        if (fgets(buf, 256, p) == nullptr) break;
+        int no;
+        int res = sscanf(buf, "\twiphy %d", &no);
+        if (res == 1) {
+            phyNo = no;
+            break;
+        }
+    }
+    pclose(p);
+
+    if (phyNo == -1) {
+        sprintf(buf, "can not get phyNo\n");
+        error_ = buf;
+        return result;
+    }
+
+    command = "iw phy" + std::to_string(phyNo) + " channels";
+    p = popen(command.data(), "r");
+    if (p == nullptr) {
+        sprintf(buf, "fail to call %s\n", command.data());
+        error_ = buf;
+        return result;
+    }
+
+    while (true) {
+        if (fgets(buf, 256, p) == nullptr) break;
+        int freq, channel;
+        char disabled[BufSize];
+        int res = sscanf(buf, "\t* %d MHz [%d] (%s)", &freq, &channel, disabled);
+        if (res == 2) {
+            result.push_back(channel);
+        }
+    }
+    pclose(p);
 	return result;
+}
+
+int GIw::ieee80211_frequency_to_channel(int freq) {
+    /* see 802.11-2007 17.3.8.3.2 and Annex J */
+    if (freq == 2484)
+        return 14;
+    /* see 802.11ax D6.1 27.3.23.2 and Annex E */
+    else if (freq == 5935)
+        return 2;
+    else if (freq < 2484)
+        return (freq - 2407) / 5;
+    else if (freq >= 4910 && freq <= 4980)
+        return (freq - 4000) / 5;
+    else if (freq < 5950)
+        return (freq - 5000) / 5;
+    else if (freq <= 45000) /* DMG band lower limit */
+        /* see 802.11ax D6.1 27.3.23.2 */
+        return (freq - 5950) / 5;
+    else if (freq >= 58320 && freq <= 70200)
+        return (freq - 56160) / 2160;
+    else
+        return 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -116,20 +174,20 @@ QList<int> GIw::channelList() {
 #include <gtest/gtest.h>
 
 TEST(GIw, channelTest) {
-	GIw iw("mon0");
-	std::cerr << "mon0 channel is " << iw.channel() << std::endl;
+    GIw iw("wlan0");
+    std::cerr << "wlan0 channel is " << iw.channel() << std::endl;
 	int channel = iw.channel();
 	EXPECT_NE(channel, -1);
 }
 
 TEST(GIw, setChannelTest) {
-	GIw iw("mon0");
-	EXPECT_TRUE(iw.setChannel(1));
-	// EXPECT_FALSE(iw.setChannel(999));
+    GIw iw("wlan0");
+    EXPECT_TRUE(iw.setChannel(1));
+    EXPECT_FALSE(iw.setChannel(999));
 }
 
 TEST(GIw, channelListTest) {
-	GIw iw("mon0");
+    GIw iw("wlan0");
 	QList<int> channelList = iw.channelList();
 	std::cerr << "wlan0 channel list is ";
 	for (int channel: channelList)
