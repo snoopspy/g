@@ -49,6 +49,9 @@ void GChannelHop::run() {
 	}
 	if (channelList.count() == 0) {
 		QList<int> cl = iw_.channelList();
+        if (cl.count() == 0) {
+            SET_ERR(GErr::Fail, QString("channel count is zero for %1").arg(intfName_));
+        }
 		if (cl.count() % 5 == 0)
 			cl.push_back(1);
 

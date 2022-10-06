@@ -108,7 +108,7 @@ QList<int> GIw::channelList() {
 
     int phyNo = -1;
     while (true) {
-        if (fgets(buf, 256, p) == nullptr) break;
+        if (std::fgets(buf, 256, p) == nullptr) break;
         int no;
         int res = sscanf(buf, "\twiphy %d", &no);
         if (res == 1) {
@@ -133,7 +133,7 @@ QList<int> GIw::channelList() {
     }
 
     while (true) {
-        if (fgets(buf, 256, p) == nullptr) break;
+        if (std::fgets(buf, 256, p) == nullptr) break;
         int freq, channel;
         char disabled[BufSize];
         int res = sscanf(buf, "\t* %d MHz [%d] (%s)", &freq, &channel, disabled);
