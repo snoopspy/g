@@ -54,14 +54,18 @@ void GPluginFactory::loadBlock() {
 // Capture
 // ----------------------------------------------------------------------------
 #include <GArpSpoof>
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 #include <GAsyncNetFilter>
+#endif
 #include <GAutoArpSpoof>
+#ifdef Q_OS_LINUX
 #include <GMonitorDevice>
+#include <GNetFilter>
+#endif
 #include <GPcapDevice>
 #include <GPcapFile>
 #include <GPcapPipe>
 #include <GPcapPipeNexmon>
-#include <GNetFilter>
 #ifdef Q_OS_WIN
 #include <GWinDivert>
 #endif
@@ -72,9 +76,9 @@ void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GAsyncNetFilter*>();
 #endif
 	qRegisterMetaType<GAutoArpSpoof*>();
-	qRegisterMetaType<GMonitorDevice*>();
 #ifndef Q_OS_WIN
-	qRegisterMetaType<GNetFilter*>();
+    qRegisterMetaType<GMonitorDevice*>();
+    qRegisterMetaType<GNetFilter*>();
 #endif
 	qRegisterMetaType<GPcapDevice*>();
 	qRegisterMetaType<GPcapFile*>();

@@ -196,7 +196,6 @@ HEADERS += \
 	$${PWD}/../src/net/block/gdot11block.h \
 	$${PWD}/../src/net/block/gtcpblock.h \
 	$${PWD}/../src/net/capture/garpspoof.h \
-	$${PWD}/../src/net/capture/gasyncnetfilter.h \
 	$${PWD}/../src/net/capture/gautoarpspoof.h \
 	$${PWD}/../src/net/capture/gcapture.h \
 	$${PWD}/../src/net/capture/gpcapcapture.h \
@@ -275,14 +274,15 @@ HEADERS += \
 
 linux {
 SOURCES += \
-	$${PWD}/../src/net/capture/gmonitordevice.cpp \
+        $${PWD}/../src/net/capture/gasyncnetfilter.cpp \
+        $${PWD}/../src/net/capture/gmonitordevice.cpp \
 	$${PWD}/../src/net/capture/gnetfilter.cpp \
 	$${PWD}/../src/net/capture/gsyncmonitordevice.cpp \
-	$${PWD}/../src/net/capture/gasyncnetfilter.cpp \
 	$${PWD}/../src/net/iw/giw.cpp \
 	$${PWD}/../src/net/iw/iwlib.c
 HEADERS += \
-	$${PWD}/../src/net/capture/gmonitordevice.h \
+        $${PWD}/../src/net/capture/gasyncnetfilter.h \
+        $${PWD}/../src/net/capture/gmonitordevice.h \
 	$${PWD}/../src/net/capture/gnetfilter.h \
 	$${PWD}/../src/net/capture/gsyncmonitordevice.h \
 	$${PWD}/../src/net/iw/giw.h \
@@ -294,14 +294,12 @@ SOURCES += \
 	$${PWD}/../src/net/capture/gsyncwindivert.cpp \
 	$${PWD}/../src/net/capture/gwindivert.cpp \
 	$${PWD}/../src/net/_win/gipadapterinfo.cpp \
-	$${PWD}/../src/net/_win/gipforwardtable.cpp \
-	$${PWD}/../src/net/_win/grtmwin32.cpp
+        $${PWD}/../src/net/_win/gipforwardtable.cpp
 
 HEADERS += \
 	$${PWD}/../src/net/capture/gsyncwindivert.h \
 	$${PWD}/../src/net/capture/gwindivert.h \
 	$${PWD}/../src/net/_win/gipadapterinfo.h \
 	$${PWD}/../src/net/_win/gipforwardtable.h \
-	$${PWD}/../src/net/_win/grtmwin32.h \
 	$${PWD}/../src/net/_win/windivert.h
 }
