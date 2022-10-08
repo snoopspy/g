@@ -114,7 +114,7 @@ void GHostWatch::WatchThread::run() {
 
 	QElapsedTimer* et = &hw_->et_;
 	qint64 start = et->elapsed();
-	__time_t startEpoch = hostValue_->ts_.tv_sec;
+    time_t startEpoch = hostValue_->ts_.tv_sec;
 	while (device->active() && hw_->active()) {
 		if (we_.wait(hw_->checkInterval_))
 			break;
