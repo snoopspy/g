@@ -1,7 +1,5 @@
 #include "gnetfilter.h"
 
-#ifdef Q_OS_LINUX
-
 #include <fcntl.h> // for F_GETFL
 
 // ----------------------------------------------------------------------------
@@ -132,7 +130,7 @@ GPacket::Result GNetFilter::drop(GPacket* packet) {
 	bool res = demonClient_->nfVerdict(verdict);
 	return res ? GPacket::Ok : GPacket::Fail;
 }
-#else
+#else // Q_OS_ANDROID
 bool GNetFilter::doOpen() {
 	if (!enabled_) return true;
 
@@ -353,6 +351,4 @@ int GNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struc
 
 	return 0;
 }
-#endif
-
-#endif
+#endif // Q_OS_ANDROID

@@ -1,5 +1,4 @@
 #include "gwindivert.h"
-#ifdef Q_OS_WIN
 
 // ----------------------------------------------------------------------------
 // GWinDivertLib
@@ -214,5 +213,3 @@ GPacket::Result GWinDivert::write(GPacket* packet) {
 GPacket::Result GWinDivert::relay(GPacket* packet) {
 	return write(packet);
 }
-
-#endif

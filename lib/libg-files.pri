@@ -60,23 +60,17 @@ SOURCES += \
 	$${PWD}/../src/net/block/gdot11block.cpp \
 	$${PWD}/../src/net/block/gtcpblock.cpp \
 	$${PWD}/../src/net/capture/garpspoof.cpp \
-	$${PWD}/../src/net/capture/gasyncnetfilter.cpp \
 	$${PWD}/../src/net/capture/gautoarpspoof.cpp \
 	$${PWD}/../src/net/capture/gcapture.cpp \
-	$${PWD}/../src/net/capture/gmonitordevice.cpp \
-	$${PWD}/../src/net/capture/gnetfilter.cpp \
 	$${PWD}/../src/net/capture/gpcapcapture.cpp \
 	$${PWD}/../src/net/capture/gpcapdevice.cpp \
 	$${PWD}/../src/net/capture/gpcapfile.cpp \
 	$${PWD}/../src/net/capture/gpcappipe.cpp \
 	$${PWD}/../src/net/capture/gpcappipenexmon.cpp \
-	$${PWD}/../src/net/capture/gsyncmonitordevice.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.cpp \
 	$${PWD}/../src/net/capture/gsyncpcapfile.cpp \
 	$${PWD}/../src/net/capture/gsyncpcappipe.cpp \
 	$${PWD}/../src/net/capture/gsyncpcappipenexmon.cpp \
-	$${PWD}/../src/net/capture/gsyncwindivert.cpp \
-	$${PWD}/../src/net/capture/gwindivert.cpp \
 	$${PWD}/../src/net/convert/gconverteth.cpp \
 	$${PWD}/../src/net/convert/gconvertethautomac.cpp \
 	$${PWD}/../src/net/convert/gconvertip.cpp \
@@ -205,20 +199,15 @@ HEADERS += \
 	$${PWD}/../src/net/capture/gasyncnetfilter.h \
 	$${PWD}/../src/net/capture/gautoarpspoof.h \
 	$${PWD}/../src/net/capture/gcapture.h \
-	$${PWD}/../src/net/capture/gmonitordevice.h \
-	$${PWD}/../src/net/capture/gnetfilter.h \
 	$${PWD}/../src/net/capture/gpcapcapture.h \
 	$${PWD}/../src/net/capture/gpcapdevice.h \
 	$${PWD}/../src/net/capture/gpcapfile.h \
 	$${PWD}/../src/net/capture/gpcappipe.h \
 	$${PWD}/../src/net/capture/gpcappipenexmon.h \
-	$${PWD}/../src/net/capture/gsyncmonitordevice.h \
 	$${PWD}/../src/net/capture/gsyncpcapdevice.h \
 	$${PWD}/../src/net/capture/gsyncpcapfile.h \
 	$${PWD}/../src/net/capture/gsyncpcappipe.h \
 	$${PWD}/../src/net/capture/gsyncpcappipenexmon.h \
-	$${PWD}/../src/net/capture/gsyncwindivert.h \
-	$${PWD}/../src/net/capture/gwindivert.h \
 	$${PWD}/../src/net/convert/gconverteth.h \
 	$${PWD}/../src/net/convert/gconvertethautomac.h \
 	$${PWD}/../src/net/convert/gconvertip.h \
@@ -285,20 +274,34 @@ HEADERS += \
 	$${PWD}/../src/net/write/gwrite.h
 
 linux {
+SOURCES += \
+	$${PWD}/../src/net/capture/gmonitordevice.cpp \
+	$${PWD}/../src/net/capture/gnetfilter.cpp \
+	$${PWD}/../src/net/capture/gsyncmonitordevice.cpp \
+	$${PWD}/../src/net/capture/gasyncnetfilter.cpp \
+	$${PWD}/../src/net/iw/giw.cpp \
+	$${PWD}/../src/net/iw/iwlib.c
 HEADERS += \
+	$${PWD}/../src/net/capture/gmonitordevice.h \
+	$${PWD}/../src/net/capture/gnetfilter.h \
+	$${PWD}/../src/net/capture/gsyncmonitordevice.h \
 	$${PWD}/../src/net/iw/giw.h \
 	$${PWD}/../src/net/iw/iwlib.h \
 	$${PWD}/../src/net/iw/wireless.h
-SOURCES += \
-	$${PWD}/../src/net/iw/giw.cpp \
-	$${PWD}/../src/net/iw/iwlib.c \
 }
 win32 {
-	SOURCES += $${PWD}/../src/net/_win/gipadapterinfo.cpp
-	SOURCES += $${PWD}/../src/net/_win/gipforwardtable.cpp
-	SOURCES += $${PWD}/../src/net/_win/grtmwin32.cpp
-	HEADERS += $${PWD}/../src/net/_win/gipadapterinfo.h
-	HEADERS += $${PWD}/../src/net/_win/gipforwardtable.h
-	HEADERS += $${PWD}/../src/net/_win/grtmwin32.h
-	HEADERS += $${PWD}/../src/net/_win/windivert.h
+SOURCES += \
+	$${PWD}/../src/net/capture/gsyncwindivert.cpp \
+	$${PWD}/../src/net/capture/gwindivert.cpp \
+	$${PWD}/../src/net/_win/gipadapterinfo.cpp \
+	$${PWD}/../src/net/_win/gipforwardtable.cpp \
+	$${PWD}/../src/net/_win/grtmwin32.cpp
+
+HEADERS += \
+	$${PWD}/../src/net/capture/gsyncwindivert.h \
+	$${PWD}/../src/net/capture/gwindivert.h \
+	$${PWD}/../src/net/_win/gipadapterinfo.h \
+	$${PWD}/../src/net/_win/gipforwardtable.h \
+	$${PWD}/../src/net/_win/grtmwin32.h \
+	$${PWD}/../src/net/_win/windivert.h
 }

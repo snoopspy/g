@@ -14,8 +14,6 @@
 #include "net/packet/gippacket.h"
 #include "net/process/gcommand.h"
 
-#ifdef Q_OS_LINUX
-
 #include <linux/netfilter.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
 
@@ -91,5 +89,3 @@ private:
 	static int _callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struct nfq_data* nfad, void* data);
 #endif
 };
-
-#endif // Q_OS_LINUX

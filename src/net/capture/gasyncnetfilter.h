@@ -12,7 +12,7 @@
 
 #include "gnetfilter.h"
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+#ifndef Q_OS_ANDROID
 
 // ----------------------------------------------------------------------------
 // GAsyncNetFilter
@@ -42,4 +42,4 @@ private:
 	static int _asyncCallback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struct nfq_data* nfad, void* data);
 };
 
-#endif
+#endif // Q_OS_ANDROID

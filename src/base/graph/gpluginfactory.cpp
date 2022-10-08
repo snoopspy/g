@@ -62,7 +62,9 @@ void GPluginFactory::loadBlock() {
 #include <GPcapPipe>
 #include <GPcapPipeNexmon>
 #include <GNetFilter>
+#ifdef Q_OS_WIN
 #include <GWinDivert>
+#endif
 
 void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GArpSpoof*>();
