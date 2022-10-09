@@ -73,7 +73,7 @@ bool GIw::setChannel(int channel) {
 	// qDebug() << program << arguments << res; // gilgil temp 2022.01.26
 	if (res != 0) {
 		char buf[BufSize];
-		sprintf(buf, "QProcess::execute(%s) return %d\n", qPrintable(command), res);
+		sprintf(buf, "QProcess::execute(%s) return %d for channel %d", qPrintable(command), res, channel);
 		error_ = buf;
 		return false;
 	}
@@ -86,7 +86,7 @@ bool GIw::setChannel(int channel) {
 	int res = iw_set_ext(skfd_, qPrintable(intfName_), SIOCSIWFREQ, &wrq);
 	if (res < 0) {
 		char buf[BufSize];
-		sprintf(buf, "iw_set_ext(%s) return %d(%s)\n", qPrintable(intfName_), res, strerror(errno));
+		sprintf(buf, "iw_set_ext(%s) return %d(%s) for channel %d", qPrintable(intfName_), res, strerror(errno), channel);
 		error_ = buf;
 		return false;
 	}
@@ -95,20 +95,25 @@ bool GIw::setChannel(int channel) {
 }
 
 QList<int> GIw::channelList() {
+	if (internalChannelList_.count() != 0)
+		return internalChannelList_;
+
     QList<int> result;
 
     char buf[BufSize];
-    std::string command = "iw " + std::string(qPrintable(intfName_)) + " info";
-    FILE* p = popen(command.data(), "r");
+	QString command = "iw " + intfName_ + " info";
+#ifdef Q_OS_ANDROID
+	command = QString("su -c '%1'").arg(command);
+#endif // Q_OS_ANDROID
+	FILE* p = popen(qPrintable(command), "r");
     if (p == nullptr) {
-        sprintf(buf, "fail to call %s\n", command.data());
-        error_ = buf;
+		error_ = QString("fail to call %1").arg(command);
         return result;
     }
 
     int phyNo = -1;
     while (true) {
-        if (std::fgets(buf, 256, p) == nullptr) break;
+		if (std::fgets(buf, BufSize, p) == nullptr) break;
         int no;
         int res = sscanf(buf, "\twiphy %d", &no);
         if (res == 1) {
@@ -119,29 +124,35 @@ QList<int> GIw::channelList() {
     pclose(p);
 
     if (phyNo == -1) {
-        sprintf(buf, "can not get phyNo\n");
-        error_ = buf;
+		error_ = "can not get phyNo";
         return result;
     }
 
-    command = "iw phy" + std::to_string(phyNo) + " channels";
-    p = popen(command.data(), "r");
+	command = "iw phy" + QString::number(phyNo)+ " info";
+#ifdef Q_OS_ANDROID
+	command = QString("su -c '%1'").arg(command);
+#endif // Q_OS_ANDROID
+	p = popen(qPrintable(command), "r");
     if (p == nullptr) {
-        sprintf(buf, "fail to call %s\n", command.data());
-        error_ = buf;
+		error_ = QString("fail to call %1").arg(command);
         return result;
     }
 
     while (true) {
         if (std::fgets(buf, 256, p) == nullptr) break;
         int freq, channel;
-        char disabled[BufSize];
-        int res = sscanf(buf, "\t* %d MHz [%d] (%s)", &freq, &channel, disabled);
-        if (res == 2) {
-            result.push_back(channel);
+		char additional[BufSize];
+		int res = sscanf(buf, "\t\t* %d MHz [%d] (%s)", &freq, &channel, additional);
+		if (res >= 2) {
+			if (res >= 3 && strncmp(additional, "disabled", strlen("disabled")) == 0)
+				continue;
+			result.push_back(channel);
         }
     }
     pclose(p);
+
+	internalChannelList_ = result;
+	qDebug() << result;
 	return result;
 }
 
