@@ -1,6 +1,8 @@
 export QTBINDIR=/opt/Qt/5.15.2/android/bin
 export QMAKE_OPTION="-spec android-clang CONFIG+=release ANDROID_ABIS=armeabi-v7a"
 export MAKEDIR=$ANDROID_NDK_ROOT/prebuilt/linux-x86_64/bin
+export ANDROID_SDK_ROOT=/root/android/sdk
+export DEPLOYQT_OPTION="--android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle"
 
 #
 # arprecover
@@ -59,7 +61,7 @@ if true; then
 	$QTBINDIR/qmake ../snoopspy.pro $QMAKE_OPTION
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./temp-build install
-	export ANDROID_SDK_ROOT=/root/sdk && $QTBINDIR/androiddeployqt --input android-snoopspy-deployment-settings.json --output ./temp-build --android-platform android-30 --jdk /usr/lib/jvm/jdk8u275-b01 --gradle
+	$QTBINDIR/androiddeployqt --input android-snoopspy-deployment-settings.json --output ./temp-build &DEPLOYQT_OPTION
 	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/snoopspy-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
@@ -73,7 +75,7 @@ if true; then
 	$QTBINDIR/qmake ../pa.pro $QMAKE_OPTION
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./temp-build install
-	export ANDROID_SDK_ROOT=/root/sdk && $QTBINDIR/androiddeployqt --input android-pa-deployment-settings.json --output ./temp-build --android-platform android-30 --jdk /usr/lib/jvm/jdk8u275-b01 --gradle
+	$QTBINDIR/androiddeployqt --input android-pa-deployment-settings.json --output ./temp-build &DEPLOYQT_OPTION
 	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/pa-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
@@ -87,7 +89,7 @@ if true; then
 	$QTBINDIR/qmake ../wa.pro $QMAKE_OPTION
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./temp-build install
-	export ANDROID_SDK_ROOT=/root/sdk && $QTBINDIR/androiddeployqt --input android-wa-deployment-settings.json --output ./temp-build --android-platform android-30 --jdk /usr/lib/jvm/jdk8u275-b01 --gradle
+	QTBINDIR/androiddeployqt --input android-wa-deployment-settings.json --output ./temp-build &DEPLOYQT_OPTION
 	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/wa-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
