@@ -5,7 +5,6 @@ SUBDIRS += \
 	netclient \
 	netinfo \
 	netserver \
-	pa \
 	pcap-exam \
 	pcap-findalldevs-test \
 	snoopspy \
@@ -14,6 +13,7 @@ SUBDIRS += \
 linux {
 SUBDIRS += \
 	corepcap \
+	pa \
 	ssdemon \
 	wa
 }
