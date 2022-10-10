@@ -194,7 +194,8 @@ TEST(GIw, channelTest) {
 TEST(GIw, setChannelTest) {
     GIw iw("wlan0");
     EXPECT_TRUE(iw.setChannel(1));
-    EXPECT_FALSE(iw.setChannel(999));
+	EXPECT_TRUE(iw.setChannel(2));
+	EXPECT_TRUE(iw.setChannel(3));
 }
 
 TEST(GIw, channelListTest) {
