@@ -84,7 +84,7 @@ bool GHostMgr::processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip) {
 }
 
 void GHostMgr::manage(GPacket* packet) {
-	long now = packet->ts_.tv_sec;
+	time_t now = packet->ts_.tv_sec;
 	if (checkIntervalSec_ != 0 && now - lastCheckClock_ >= checkIntervalSec_) {
 		deleteOldFlowMaps(now);
 		lastCheckClock_ = now;

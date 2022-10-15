@@ -24,7 +24,34 @@ bool GArpBlock::doOpen() {
 	hostMgr_->managables_.insert(this);
 
 	GIntf* intf = pcapDevice_->intf();
-	Q_ASSERT(intf != nullptr);
+	if (intf == nullptr) {
+		SET_ERR(GErr::ObjectIsNull, "intf is null");
+		return false;
+	}
+	GIp ip = intf->ip();
+	if (ip == 0) {
+		SET_ERR(GErr::ValueIsZero, "ip is zero");
+		return false;
+	}
+	GIp gateway = intf->gateway();
+	if (gateway == 0) {
+		SET_ERR(GErr::ValueIsZero, "gateway is zero");
+		return false;
+	}
+
+	atm_.intfName_ = pcapDevice_->intfName_;
+	if (!atm_.open()) {
+		err = atm_.err;
+		return false;
+	}
+	atm_.insert(gateway, GMac::nullMac());
+	if (!atm_.wait()) {
+		err = atm_.err;
+		return false;
+	}
+	GMac gatewayMac = atm_.find(gateway).value();
+	atm_.close();
+
 	// infectPacket_.ethHdr_.dmac_ // set later
 	infectPacket_.ethHdr_.smac_ = intf->mac();
 	infectPacket_.ethHdr_.type_ = htons(GEthHdr::Arp);
@@ -34,10 +61,16 @@ bool GArpBlock::doOpen() {
 	infectPacket_.arpHdr_.hln_ = GMac::Size;
 	infectPacket_.arpHdr_.pln_ = GIp::Size;
 	infectPacket_.arpHdr_.op_ = htons(GArpHdr::Reply);
-	infectPacket_.arpHdr_.smac_ = intf->mac();
-	infectPacket_.arpHdr_.sip_ = htonl(intf->ip());
+	infectPacket_.arpHdr_.smac_ = fakeMac_;
+	infectPacket_.arpHdr_.sip_ = htonl(gateway);
 	// infectPacket_.arpHdr_.tmac_ // set later
 	// infectPacket_.arpHdr_.tip_ // set later
+
+	recoverPacket_.arpHdr_.op_ = htons(GArpHdr::Request);
+	recoverPacket_ = infectPacket_;
+	recoverPacket_.arpHdr_.smac_ = gatewayMac;
+
+	itemList_.clear();
 
 	infectThread_.start();
 
@@ -55,21 +88,62 @@ bool GArpBlock::doClose() {
 }
 
 void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
+	qDebug() << ""; // gilgil temp 2022.10.15
 	Item* item = PItem(hostValue->mem(itemOffset_));
 	new (item) Item(defaultPolicy_, mac, hostValue->ip_);
+	if (item->policy_ == Block)
+		infect(item);
+
+	{
+		QMutexLocker ml(&itemList_.m_);
+		itemList_.push_back(item);
+	}
 }
 
 void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
+	qDebug() << ""; // gilgil temp 2022.10.15
 	(void)mac;
+
 	Item* item = PItem(hostValue->mem(itemOffset_));
+	recover(item);
 	item->~Item();
+	{
+		QMutexLocker ml(&itemList_.m_);
+		itemList_.removeOne(item);
+	}
+}
+
+void GArpBlock::infect(Item* item) {
+	infectPacket_.ethHdr_.dmac_ = item->mac_;
+	infectPacket_.arpHdr_.tmac_ = item->mac_;
+	infectPacket_.arpHdr_.tip_ = htonl(item->ip_);
+	if (pcapDevice_->active())
+		pcapDevice_->write(GBuf(pbyte(&infectPacket_),sizeof(GEthArpPacket)));
+}
+
+void GArpBlock::recover(Item* item) {
+	qDebug() << QString(item->ip_) << QString(item->mac_); // gilgil temp 2022.10.15
+	recoverPacket_.ethHdr_.dmac_ = item->mac_;
+	recoverPacket_.arpHdr_.tmac_ = item->mac_;
+	recoverPacket_.arpHdr_.tip_ = htonl(item->ip_);
+	if (pcapDevice_->active())
+		pcapDevice_->write(GBuf(pbyte(&recoverPacket_),sizeof(GEthArpPacket)));
 }
 
 void GArpBlock::InfectThread::run() {
-	qDebug() << ""; // gilgil temp 2022.04.08
-}
+	ItemList* itemList = &arpBlock_->itemList_;
 
-void GArpBlock::block(GPacket* packet) {
-	qDebug() << ""; // gilgil temp 2022.04.08
-	if (packet->arpHdr_ == nullptr) return;
+	while (arpBlock_->active()) {
+		{
+			QMutexLocker ml(&itemList->m_);
+			for (Item* item: *itemList) {
+				if (item->policy_ != Block) continue;
+				arpBlock_->infect(item);
+				if (we_.wait(arpBlock_->sendInterval_)) break;
+				if (!arpBlock_->active()) break;
+			}
+		}
+		if (!arpBlock_->active()) break;
+		if (we_.wait(arpBlock_->infectInterval_)) break;
+	}
 }
