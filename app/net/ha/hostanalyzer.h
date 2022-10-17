@@ -5,6 +5,7 @@
 #include <GHostMgr>
 #include <GHostWatch>
 #include <GHostScan>
+#include <GArpBlock>
 #include <GTreeWidget>
 
 struct G_EXPORT HostAnalyzer : GStateObj, GHostMgr::Managable {
@@ -13,6 +14,7 @@ struct G_EXPORT HostAnalyzer : GStateObj, GHostMgr::Managable {
 	Q_PROPERTY(GObjRef hostMgr READ getHostMgr)
 	Q_PROPERTY(GObjRef hostWatch READ getHostWatch)
 	Q_PROPERTY(GObjRef hostScan READ getHostScan)
+	Q_PROPERTY(GObjRef arpBlock READ getArpBlock)
 	Q_PROPERTY(GObjRef command READ getCommand)
 
 public:
@@ -24,6 +26,7 @@ public:
 	GObjRef getHostMgr() { return &hostMgr_; }
 	GObjRef getHostWatch() { return &hostWatch_; }
 	GObjRef getHostScan() { return &hostScan_; }
+	GObjRef getArpBlock() { return &arpBlock_; }
 	GObjRef getCommand() { return &command_; }
 
 protected:
@@ -35,6 +38,7 @@ public:
 	GHostMgr hostMgr_{this};
 	GHostWatch hostWatch_{this};
 	GHostScan hostScan_{this};
+	GHostScan arpBlock_{this};
 	GCommand command_{this};
 
 protected:
