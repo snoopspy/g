@@ -47,7 +47,9 @@ struct G_EXPORT GBeaconHdr : GDot11Hdr {
 		TagTrafficIndicationMap = 5,
 		TagCountryInformation = 7,
 		TagQbssLoadElement = 11,
+		TagHtCapabilities = 45,
 		TagRsnInformation = 48,
+		TagHtInformation = 61,
 		TagVendorSpecific = 221
 	};
 
@@ -58,6 +60,25 @@ struct G_EXPORT GBeaconHdr : GDot11Hdr {
 		le8_t bitmap_;
 	};
 	typedef TrafficIndicationMap *PTrafficIndicationMap;
+
+	struct HtCapabilities : Tag {
+		le16_t capabilitiesInfo_;
+		le8_t mpduParameters_;
+		le8_t mcsSet_[16];
+		le16_t extCapabilities_;
+		le32_t txbfCapabilities_;
+		le8_t aselCapabilities_;
+	};
+	typedef HtCapabilities *PHtCapabilities;
+
+	struct HtInformation : Tag {
+		le8_t primaryChannel_;
+		le8_t htInformationSubset1_;
+		le16_t htInformationSubset2_;
+		le16_t htInformationSubset3_;
+		le8_t basicMcsSet_[16];
+	};
+	typedef HtInformation *PHtInformation;
 
 	static GBeaconHdr* check(GDot11* dot11Hdr, uint32_t size);
 	void* findFirstTag(le8_t num, uint32_t size);
