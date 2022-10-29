@@ -194,6 +194,7 @@ void GPluginFactory::loadManage() {
 // ----------------------------------------------------------------------------
 // Process
 // ----------------------------------------------------------------------------
+#include <GBeaconFlood>
 #include <GChannelHop>
 #include <GClientHelloSplit>
 #include <GCommand>
@@ -204,6 +205,7 @@ void GPluginFactory::loadManage() {
 
 void GPluginFactory::loadProcess() {
 #ifndef Q_OS_WIN
+	qRegisterMetaType<GBeaconFlood*>();
 	qRegisterMetaType<GChannelHop*>();
 #endif
 	qRegisterMetaType<GClientHelloSplit*>();
@@ -214,6 +216,7 @@ void GPluginFactory::loadProcess() {
 	qRegisterMetaType<GPacketMgrDebug*>();
 
 	ItemCategory* category = new ItemCategory("process");
+	category->items_.push_back(new ItemNode("GBeaconFlood"));
 	category->items_.push_back(new ItemNode("GChannelHop"));
 	category->items_.push_back(new ItemNode("GClientHelloSplit"));
 	category->items_.push_back(new ItemNode("GCommand"));
