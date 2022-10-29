@@ -16,6 +16,9 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 
 	mainLayout_->addWidget(treeWidget_);
+	int left, top, right, bottom;
+	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
+	mainLayout_->setContentsMargins(0, top, 0, 0);
 
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &HaWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &HaWidget::tbStop_clicked);
