@@ -6,16 +6,16 @@
 GBeaconFlood::GBeaconFlood(QObject* parent) : GSyncMonitorDevice(parent) {
 	mtu_ = 0;
 	messages_ = QStringList{
-		"0bf",
-		"1bf",
-		"2bf",
-		"3bf",
-		"4bf",
-		"5bf",
-		"6bf",
-		"7bf",
-		"8bf",
-		"9bf"
+		"beaconflood0",
+		"beaconflood1",
+		"beaconflood2",
+		"beaconflood3",
+		"beaconflood4",
+		"beaconflood5",
+		"beaconflood6",
+		"beaconflood7",
+		"beaconflood8",
+		"beaconflood9",
 	};
 }
 
