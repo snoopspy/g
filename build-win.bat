@@ -44,6 +44,7 @@ rem
 rem g files
 rem
 copy ..\..\bin\arprecover.exe . & strip arprecover.exe
+copy ..\..\bin\ha.exe . & strip ha.exe
 copy ..\..\bin\netclient.exe . & strip netclient.exe
 copy ..\..\bin\netserver.exe . & strip netserver.exe
 copy ..\..\bin\pa.exe . & strip pa.exe

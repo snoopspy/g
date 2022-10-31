@@ -12,13 +12,14 @@ cd linux
 # g files 
 #
 cp ../../bin/arprecover .; strip arprecover
+cp ../../bin/bf .; strip bf
 cp ../../bin/corepcap .; strip corepcap
+cp ../../bin/ha .; strip ha
 cp ../../bin/netclient .; strip netclient
 cp ../../bin/netserver .; strip netserver
 cp ../../bin/pa .; strip pa
 cp ../../bin/snoopspy .; strip snoopspy
 cp ../../bin/sscon .; strip sscon
-#cp ../../bin/ssdemon .; strip ssdemon
 cp ../../bin/sslog .; strip sslog
 cp ../../bin/wa .; strip wa
 cp ../../setup/setup-linux.sh .
