@@ -10,12 +10,11 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("Host Analyzer");
 
 	treeWidget_ = new GTreeWidget(this);
-
 	treeWidget_->setHeaderLabels(QStringList{"IP", "Mac", "HostName"});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
-
 	mainLayout_->addWidget(treeWidget_);
+
 	int left, top, right, bottom;
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
 	mainLayout_->setContentsMargins(0, top, 0, 0);

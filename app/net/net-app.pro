@@ -12,6 +12,7 @@ SUBDIRS += \
 
 linux {
 SUBDIRS += \
+	bf \
 	corepcap \
 	pa \
 	ssdemon \

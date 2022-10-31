@@ -1,6 +1,6 @@
 #include "hostanalyzer.h"
 
-Q_INVOKABLE HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
+HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
 	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));

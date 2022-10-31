@@ -20,8 +20,8 @@ WaWidget::WaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tableWidget_->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
 	tableWidget_->verticalHeader()->hide();
     tableWidget_->setSortingEnabled(true);
-
 	mainLayout_->addWidget(tableWidget_);
+
 	int left, top, right, bottom;
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
 	mainLayout_->setContentsMargins(0, top, 0, 0);
