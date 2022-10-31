@@ -120,8 +120,6 @@ SOURCES += \
 	$${PWD}/../src/net/pdu/gradiohdr.cpp \
 	$${PWD}/../src/net/pdu/gtcphdr.cpp \
 	$${PWD}/../src/net/pdu/gudphdr.cpp \
-	$${PWD}/../src/net/process/gbeaconflood.cpp \
-	$${PWD}/../src/net/process/gchannelhop.cpp \
 	$${PWD}/../src/net/process/gclienthellosplit.cpp \
 	$${PWD}/../src/net/process/gcommand.cpp \
 	$${PWD}/../src/net/process/gcorrectchecksum.cpp \
@@ -260,8 +258,6 @@ HEADERS += \
 	$${PWD}/../src/net/pdu/gradiohdr.h \
 	$${PWD}/../src/net/pdu/gtcphdr.h \
 	$${PWD}/../src/net/pdu/gudphdr.h \
-	$${PWD}/../src/net/process/gbeaconflood.h \
-	$${PWD}/../src/net/process/gchannelhop.h \
 	$${PWD}/../src/net/process/gclienthellosplit.h \
 	$${PWD}/../src/net/process/gcommand.h \
 	$${PWD}/../src/net/process/gcorrectchecksum.h \
@@ -276,17 +272,21 @@ HEADERS += \
 
 linux {
 SOURCES += \
-        $${PWD}/../src/net/capture/gasyncnetfilter.cpp \
-        $${PWD}/../src/net/capture/gmonitordevice.cpp \
+	$${PWD}/../src/net/capture/gasyncnetfilter.cpp \
+	$${PWD}/../src/net/capture/gmonitordevice.cpp \
 	$${PWD}/../src/net/capture/gnetfilter.cpp \
 	$${PWD}/../src/net/capture/gsyncmonitordevice.cpp \
+	$${PWD}/../src/net/process/gbeaconflood.cpp \
+	$${PWD}/../src/net/process/gchannelhop.cpp \
 	$${PWD}/../src/net/iw/giw.cpp \
 	$${PWD}/../src/net/iw/iwlib.c
 HEADERS += \
-        $${PWD}/../src/net/capture/gasyncnetfilter.h \
-        $${PWD}/../src/net/capture/gmonitordevice.h \
+	$${PWD}/../src/net/capture/gasyncnetfilter.h \
+	$${PWD}/../src/net/capture/gmonitordevice.h \
 	$${PWD}/../src/net/capture/gnetfilter.h \
 	$${PWD}/../src/net/capture/gsyncmonitordevice.h \
+	$${PWD}/../src/net/process/gbeaconflood.h \
+	$${PWD}/../src/net/process/gchannelhop.h \
 	$${PWD}/../src/net/iw/giw.h \
 	$${PWD}/../src/net/iw/iwlib.h \
 	$${PWD}/../src/net/iw/wireless.h
