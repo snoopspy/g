@@ -13,7 +13,7 @@ GBeaconFlood::GBeaconFlood(QObject* parent) : GSyncMonitorDevice(parent) {
 		"4bf",
 		"5bf",
 		"6bf",
-		"7f",
+		"7bf",
 		"8bf",
 		"9bf"
 	};
