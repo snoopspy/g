@@ -65,6 +65,20 @@ if true; then
 fi
 
 #
+# bf
+#
+if true; then
+	mkdir -p app/net/bf/temp-build
+	cd app/net/bf/temp-build
+	$QTBINDIR/qmake ../bf.pro -spec android-clang CONFIG+=release ANDROID_ABIS=armeabi-v7a
+	$MAKEDIR/make -j$(nproc)
+	$MAKEDIR/make INSTALL_ROOT=./temp-build install
+	$QTBINDIR/androiddeployqt --input android-bf-deployment-settings.json --output ./temp-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
+	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/bf-$(sed 's/"//g' ../../../../version.txt).apk
+	cd ../../../..
+fi
+
+#
 # pa
 #
 if true; then
