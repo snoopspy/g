@@ -3,19 +3,19 @@
 // ----------------------------------------------------------------------------
 // GBeaconFlood
 // ----------------------------------------------------------------------------
-GBeaconFlood::GBeaconFlood(QObject* parent) : GPcapDeviceWrite(parent) {
+GBeaconFlood::GBeaconFlood(QObject* parent) : GSyncMonitorDevice(parent) {
 	mtu_ = 0;
 	messages_ = QStringList{
-		"beaconflood0",
-		"beaconflood1",
-		"beaconflood2",
-		"beaconflood3",
-		"beaconflood4",
-		"beaconflood5",
-		"beaconflood6",
-		"beaconflood7",
-		"beaconflood8",
-		"beaconflood9"
+		"0bf",
+		"1bf",
+		"2bf",
+		"3bf",
+		"4bf",
+		"5bf",
+		"6bf",
+		"7f",
+		"8bf",
+		"9bf"
 	};
 }
 
@@ -24,7 +24,7 @@ GBeaconFlood::~GBeaconFlood() {
 }
 
 bool GBeaconFlood::doOpen() {
-	if (!GPcapDeviceWrite::doOpen()) return false;
+	if (!GSyncMonitorDevice::doOpen()) return false;
 
 	GPacket::Dlt _dlt = dlt();
 	if (_dlt != GPacket::Dot11) {
@@ -38,7 +38,7 @@ bool GBeaconFlood::doOpen() {
 }
 
 bool GBeaconFlood::doClose() {
-	if (!GPcapDeviceWrite::doClose()) return false;
+	if (!GSyncMonitorDevice::doClose()) return false;
 
 	floodingThread_.we_.wakeAll();
 	floodingThread_.quit();

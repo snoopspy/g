@@ -10,14 +10,14 @@
 
 #pragma once
 
-#include "net/write/gpcapdevicewrite.h"
+#include "net/capture/gsyncmonitordevice.h"
 #include "base/sys/gthread.h"
 #include "base/sys/gwaitevent.h"
 
 // ----------------------------------------------------------------------------
 // GBeaconFlood
 // ----------------------------------------------------------------------------
-struct G_EXPORT GBeaconFlood : GPcapDeviceWrite {
+struct G_EXPORT GBeaconFlood : GSyncMonitorDevice {
 	Q_OBJECT
 	Q_PROPERTY(QStringList messages MEMBER messages_)
 	Q_PROPERTY(ulong interval MEMBER interval_)
