@@ -134,10 +134,11 @@ void GBeaconFlood::FloodingThread::run() {
 		mac = nextMac(mac);
 	}
 
-	while (beaconFlood->active()) {
+	while (true) {
 		bool ok = true;
 		for (BeaconFrame& bf: bfl) {
 			GBuf buf(pbyte(&bf), bf.size_);
+			if (!beaconFlood->active()) break;
 			GPacket::Result res = beaconFlood->write(buf);
 			if (res != GPacket::Ok) {
 				qWarning() << beaconFlood->err->msg();
@@ -146,7 +147,7 @@ void GBeaconFlood::FloodingThread::run() {
 			}
 			if (we_.wait(beaconFlood->sendInterval_)) break;
 		}
-		if (!ok) break;
+		if (!ok || !beaconFlood->active()) break;
 		if (we_.wait(beaconFlood->interval_)) break;
 	}
 }
