@@ -29,7 +29,7 @@ struct G_EXPORT GBeaconFlood : GSyncMonitorDevice {
 
 public:
 	QStringList messages_;
-	GDuration interval_{50};
+	GDuration interval_{10};
 	GDuration sendInterval_{1};
 	GMac startMac_{GMac("00:11:22:33:44:01")};
 
