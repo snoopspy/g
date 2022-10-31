@@ -123,8 +123,13 @@ void GBeaconFlood::FloodingThread::run() {
 		tim->bitmap_ = 0;
 		tag = tag->next();
 
-		bf.size_ = pchar(tag) - pchar(&bf);
+		// TagVendorSpecific(Microsoft Corp : WAP Information Element)
+		char vendor[] = "\xdd\x18\x00\x50\xf2\x01\x01\x00\x00\x50\xf2\x04\x01\x00\x00\x50\xf2\x04\x01\x00\x00\x50\xf2\x02\x00\x00";
+		memcpy(tag, vendor, sizeof(vendor) - 1);
+		tag = tag->next();
 
+		// last
+		bf.size_ = pchar(tag) - pchar(&bf);
 		bfl.push_back(bf);
 		mac = nextMac(mac);
 	}
