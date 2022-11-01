@@ -15,11 +15,11 @@ PaWidget::PaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("Signal"));
 	tableWidget_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	tableWidget_->verticalHeader()->hide();
-
 	mainLayout_->addWidget(tableWidget_);
+
 	int left, top, right, bottom;
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
-	mainLayout_->setContentsMargins(0, 0, right, bottom);
+	mainLayout_->setContentsMargins(0, top, 0, 0);
 
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &PaWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &PaWidget::tbStop_clicked);
