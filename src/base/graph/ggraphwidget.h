@@ -76,7 +76,7 @@ public:
 	void propLoad(QJsonObject jo) override;
 	void propSave(QJsonObject& jo) override;
 
-protected:
+public:
 	QAction* actionNewFile_;
 	QAction* actionOpenFile_;
 	QAction* actionSaveFile_;

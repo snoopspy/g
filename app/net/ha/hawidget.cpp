@@ -81,6 +81,7 @@ void HaWidget::tbOption_clicked(bool checked) {
 	propDialog.widget_.setObject(&hostAnalyzer_);
 
 	QJsonObject& jo = GJson::instance();
+	bool isFirst = jo.find("propDialog") == jo.end();
 	jo["propDialog"] >> propDialog;
 
 #ifndef Q_OS_ANDROID
@@ -88,6 +89,11 @@ void HaWidget::tbOption_clicked(bool checked) {
 #else
 	propDialog.showMaximized();
 #endif
+	if (isFirst) {
+		int width = propDialog.width();
+		propDialog.widget_.treeWidget_->setColumnWidth(0, width / 2);
+	}
+
 	propDialog.exec();
 
 	jo["propDialog"] << propDialog;

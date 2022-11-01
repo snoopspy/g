@@ -29,9 +29,18 @@ protected:
 		graphWidget_.setGraph(&graph_);
 
 		QJsonObject& jo = GJson::instance();
+		bool isFirst = jo.find("graphWidget") == jo.end();
 		jo["graphWidget"] >> graphWidget_;
 
 		graphWidget_.show();
+		if (isFirst) {
+			int width = graphWidget_.tabWidget_->width();
+			int height = graphWidget_.tabWidget_->height() - graphWidget_.tabWidget_->tabBar()->height();
+			graphWidget_.midSplitter_->setSizes(QList<int>{width / 2, width / 2});
+			graphWidget_.midLeftSplitter_->setSizes(QList<int>{height / 2, height/ 2});
+			graphWidget_.factoryWidget_->setColumnWidth(0, width / 2);
+			graphWidget_.propWidget_->treeWidget_->setColumnWidth(0, width / 4);
+		}
 
 		return true;
 	}

@@ -9,9 +9,16 @@ int main(int argc, char *argv[])
 	WaWidget wa;
 
 	QJsonObject& jo = GJson::instance();
+	bool isFirst = jo.find("wa") == jo.end();
 	jo["wa"] >> wa;
 
 	wa.show();
+	if (isFirst) {
+		int width = wa.width();
+		wa.tableWidget_->setColumnWidth(0, width / 4);
+		wa.tableWidget_->setColumnWidth(1, width / 4);
+		wa.tableWidget_->setColumnWidth(2, width / 12);
+	}
 
 	GCommand* command = &wa.wifiAnalyzer_.command_;
 	if (!command->open()) {

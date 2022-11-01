@@ -9,9 +9,14 @@ int main(int argc, char *argv[])
 	PaWidget pw;
 
 	QJsonObject& jo = GJson::instance();
+	bool isFirst = jo.find("pw") == jo.end();
 	jo["pw"] >> pw;
 
 	pw.show();
+	if (isFirst) {
+		int width = pw.width();
+		pw.tableWidget_->setColumnWidth(0, width / 2);
+	}
 
 	GCommand* command = &pw.probeAnalyzer_.command_;
 	if (!command->open()) {

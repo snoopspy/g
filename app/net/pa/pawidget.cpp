@@ -13,7 +13,7 @@ PaWidget::PaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tableWidget_->setColumnCount(2);
 	tableWidget_->setHorizontalHeaderItem(0, new QTableWidgetItem("Mac"));
 	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("Signal"));
-	tableWidget_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	tableWidget_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 	tableWidget_->verticalHeader()->hide();
 	mainLayout_->addWidget(tableWidget_);
 
@@ -39,11 +39,13 @@ PaWidget::~PaWidget() {
 void PaWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	jo["pa"] >> probeAnalyzer_;
+	jo["sizes"] >> GJson::columnSizes(tableWidget_);
 }
 
 void PaWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["pa"] << probeAnalyzer_;
+	jo["sizes"] << GJson::columnSizes(tableWidget_);
 }
 
 void PaWidget::setControl() {
@@ -82,6 +84,7 @@ void PaWidget::tbOption_clicked(bool checked) {
 	propDialog.widget_.setObject(&probeAnalyzer_);
 
 	QJsonObject& jo = GJson::instance();
+	bool isFirst = jo.find("propDialog") == jo.end();
 	jo["propDialog"] >> propDialog;
 
 #ifndef Q_OS_ANDROID
@@ -89,6 +92,11 @@ void PaWidget::tbOption_clicked(bool checked) {
 #else
 	propDialog.showMaximized();
 #endif
+	if (isFirst) {
+		int width = propDialog.width();
+		propDialog.widget_.treeWidget_->setColumnWidth(0, width / 2);
+	}
+
 	propDialog.exec();
 
 	jo["propDialog"] << propDialog;

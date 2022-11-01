@@ -9,9 +9,15 @@ int main(int argc, char *argv[])
 	HaWidget hw;
 
 	QJsonObject& jo = GJson::instance();
+	bool isFirst = jo.find("hw") == jo.end();
 	jo["hw"] >> hw;
 
 	hw.show();
+	if (isFirst) {
+		int width = hw.width();
+		hw.treeWidget_->setColumnWidth(0, width / 3);
+		hw.treeWidget_->setColumnWidth(1, width / 3);
+	}
 
 	GCommand* command = &hw.hostAnalyzer_.command_;
 	if (!command->open()) {
