@@ -77,7 +77,8 @@ GPacket::Result GPcapCapture::write(GBuf buf) {
 	if (i == 0) return GPacket::Ok;
 	char* e = pcap_geterr(pcap_);
 	if (e == nullptr) e = pchar("unknown");
-	qWarning() << QString("pcap_sendpacket return %1(%2) length=%3").arg(i).arg(e).arg(buf.size_);
+	QString msg = QString("pcap_sendpacket return %1(%2) length=%3").arg(i).arg(e).arg(buf.size_);
+	SET_ERR(GErr::Fail, msg);
 	return GPacket::Fail;
 }
 
