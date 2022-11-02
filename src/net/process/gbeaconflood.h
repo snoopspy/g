@@ -34,7 +34,7 @@ public:
 	GDuration sendInterval_{5};
 #else //
 	GDuration interval_{10};
-	GDuration sendInterval_{1};
+	GDuration sendInterval_{0};
 #endif // Q_OS_ANDROID
 	GMac startMac_{GMac("00:11:22:33:44:01")};
 
