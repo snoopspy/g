@@ -4,12 +4,16 @@
 // GPcapDevice
 // ----------------------------------------------------------------------------
 GPcapDevice::GPcapDevice(QObject* parent) : GPcapCapture(parent) {
+#ifndef Q_OS_ANDROID
 	GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
 	if (entry != nullptr) {
 		GIntf* intf = entry->intf();
 		if (intf != nullptr)
 			intfName_ = intf->name();
 	}
+#else
+	intfName_ = "wlan0";
+#endif // Q_OS_ANDROID
 }
 
 GPcapDevice::~GPcapDevice() {
