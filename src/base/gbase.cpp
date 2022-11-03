@@ -15,7 +15,7 @@ const char* G::version() {
 #endif // _DEBUG
 }
 
-const char* G::pcap_lib_version() {
+const char* G::pcapLibVersion() {
 	return pchar(::pcap_lib_version());
 }
 

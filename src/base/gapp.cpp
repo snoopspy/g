@@ -47,7 +47,7 @@ GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon) : QCoreApplicat
 	qInfo() << "====================================================================";
 	qInfo() << appName << "G Libary" << G::version();
 	qInfo() << "Copyright (c) Gilbert Lee All rights reserved";
-	qInfo() << G::pcap_lib_version();
+	qInfo() << G::pcapLibVersion();
 
 #ifdef Q_OS_ANDROID
 	copyFileFromAssets("arprecover", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);

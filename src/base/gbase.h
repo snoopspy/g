@@ -37,7 +37,7 @@ typedef unsigned long GDuration;
 struct G_EXPORT G {
 	static constexpr GDuration Timeout = 5000;
 	static const char* version();
-	static const char* pcap_lib_version();
+	static const char* pcapLibVersion();
 };
 
 #define GDEBUG_CTOR { qDebug() << "constructor  " << pvoid(this); }
