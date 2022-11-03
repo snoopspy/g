@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 // GBeaconFlood
 // ----------------------------------------------------------------------------
-GBeaconFlood::GBeaconFlood(QObject* parent) : GSyncMonitorDevice(parent) {
+GBeaconFlood::GBeaconFlood(QObject* parent) : GMonitorDeviceWrite(parent) {
 	mtu_ = 0;
 	messages_ = QStringList{
 		"beaconflood0",
@@ -24,21 +24,14 @@ GBeaconFlood::~GBeaconFlood() {
 }
 
 bool GBeaconFlood::doOpen() {
-	if (!GSyncMonitorDevice::doOpen()) return false;
-
-	GPacket::Dlt _dlt = dlt();
-	if (_dlt != GPacket::Dot11) {
-		QString msg = QString("Data link type(%1 - %2) must be GPacket::Dot11").arg(intfName_, GPacket::dltToString(_dlt));
-		SET_ERR(GErr::Fail, msg);
-		return false;
-	}
+	if (!GMonitorDeviceWrite::doOpen()) return false;
 
 	floodingThread_.start();
 	return true;
 }
 
 bool GBeaconFlood::doClose() {
-	if (!GSyncMonitorDevice::doClose()) return false;
+	if (!GMonitorDeviceWrite::doClose()) return false;
 
 	floodingThread_.we_.wakeAll();
 	floodingThread_.quit();
