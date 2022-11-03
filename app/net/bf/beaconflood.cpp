@@ -2,7 +2,7 @@
 
 BeaconFlood::BeaconFlood(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
-	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -c1\"", "su -c \"nexutil -d\"", "su -c \"nexutil -m2\"", "su -c \"nexutil -k1\""}));
+	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -c1\"", "su -c \"nexutil -d\"", "su -c \"nexutil -m2\"", "su -c \"nexutil -k36\""}));
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\"", "su -c \"ifconfig wlan0 down\""}));
 #endif
 }
