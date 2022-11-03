@@ -123,13 +123,9 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 	//
 	// signal
 	//
-	QList<GBuf> signalList = radioHdr->getPresentFlags(GRadioHdr::AntennaSignal);
-	if (signalList.count() > 0) {
-		signal = *pchar(signalList[0].data_);
-		if (signal < minSignal_) return;
-		if (signal == 0) return; // invalid signal
-	} else
-		return;
+	signal = radioHdr->getSignal();
+	if (signal == 0) return;
+	if (signal < minSignal_) return;
 
 	emit detected(mac, ssid, channel, signal);
 }

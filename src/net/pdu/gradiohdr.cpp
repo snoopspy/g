@@ -98,6 +98,32 @@ QList<GBuf> GRadioHdr::getPresentFlags(PresentFlag presentFlag) {
 	return res;
 }
 
+int8_t GRadioHdr::getSignal() {
+	int8_t signal = 0; // invalid signal
+	QList<GBuf> signalList = getPresentFlags(GRadioHdr::AntennaSignal);
+	if (signalList.count() > 0) {
+		signal = *pchar(signalList[0].data_);
+		if (signal == 0) {
+			qWarning() << "signal is zero";
+		}
+	}
+	return signal;
+}
+
+size_t GRadioHdr::getFcsSize() {
+	size_t fcsSize = 0;
+	QList<GBuf> bufList = getPresentFlags(GRadioHdr::Flags);
+	for (GBuf& buf: bufList) {
+		uint8_t flag = buf.data_[0];
+		if (flag & GRadioHdr::FcsAtEnd) {
+			fcsSize += sizeof(uint32_t);
+			if (fcsSize > sizeof(uint32_t))
+				qWarning() << "fcsSize=" << fcsSize;
+		}
+	}
+	return fcsSize;
+}
+
 int GRadioHdr::freqToChannel(int freq) {
 	if (freq >= 2412 && freq <= 2484) {
 		if (freq % 5 != 2) {

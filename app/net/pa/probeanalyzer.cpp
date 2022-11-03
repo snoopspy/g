@@ -39,9 +39,8 @@ void ProbeAnalyzer::processCaptured(GPacket* packet) {
 	GRadioHdr* radioHdr = packet->radioHdr_;
 	if (radioHdr == nullptr) return;
 
-	QList<GBuf> signalList = radioHdr->getPresentFlags(GRadioHdr::AntennaSignal);
-	if (signalList.count() == 0) return;
-	qint8 signal = *pchar(signalList[0].data_);
+	int8_t signal = radioHdr->getSignal();
+	if (signal != 0) return;
 	if (signal < minSignal_) return;
 
 	GMac mac = dot11Hdr->ta();

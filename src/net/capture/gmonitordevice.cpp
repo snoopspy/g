@@ -143,16 +143,7 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 		}
 		len = radioHdr->len_;
 
-		uint32_t fcsSize = 0;
-		QList<GBuf> bufList = radioHdr->getPresentFlags(GRadioHdr::Flags);
-		for (GBuf& buf: bufList) {
-			uint8_t flag = buf.data_[0];
-			if (flag & GRadioHdr::FcsAtEnd) {
-				fcsSize += sizeof(uint32_t);
-				if (fcsSize > sizeof(uint32_t))
-					qWarning() << "fcsSize=" << fcsSize;
-			}
-		}
+		uint32_t fcsSize = radioHdr->getFcsSize();
 
 		qDebug() << QString("device radioInfo len=%1 fcsSize=%2").arg(len).arg(fcsSize);
 		radioInfo_.len_ = len;
