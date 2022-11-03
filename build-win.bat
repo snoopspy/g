@@ -71,6 +71,7 @@ rem
 set QT_DIR=C:\Qt\5.15.2\mingw81_64
 copy %QT_DIR%\bin\Qt5Core.dll .
 copy %QT_DIR%\bin\Qt5Gui.dll .
+copy %QT_DIR%\bin\libQt5Network.dll .
 copy %QT_DIR%\bin\Qt5Widgets.dll .
 mkdir platforms
 copy %QT_DIR%\plugins\platforms\*.dll platforms\
