@@ -103,7 +103,7 @@ void GBeaconFlood::FloodingThread::run() {
 		// TagDsParameterSet
 		tag->num_ = GBeaconHdr::TagDsParameterSet;
 		tag->len_ = 1;
-		*pchar(tag->value()) = 0x01; // channel 1
+		*pchar(tag->value()) = 36; // channel 36
 		tag = tag->next();
 
 		// TagTrafficIndicationMap
