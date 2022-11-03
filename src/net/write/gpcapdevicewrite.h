@@ -50,6 +50,7 @@ public slots:
 
 #ifdef Q_OS_ANDROID
 protected:
+	int port_{GDemon::DefaultPort};
 	GDemonClient* demonClient_{nullptr};
 #endif
 

@@ -1,6 +1,9 @@
 #include "gmonitordevicewrite.h"
 
 GMonitorDeviceWrite::GMonitorDeviceWrite(QObject* parent) : GPcapDeviceWrite(parent) {
+#ifdef Q_OS_ANDROID
+	port_ = GDemon::NexmonPort;
+#endif // Q_OS_ANDROID
 	mtu_ = 0; // ignored
 }
 
