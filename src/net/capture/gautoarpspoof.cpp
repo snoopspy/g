@@ -20,9 +20,14 @@ bool GAutoArpSpoof::doOpen() {
 	if (!GArpSpoof::doOpen()) return false;
 
 	Q_ASSERT(intf() != nullptr);
+	if (intf()->ip() == 0) {
+		SET_ERR(GErr::ValueIsZero, "ip is zero");
+		return false;
+	}
+
 	gwIp_ = intf()->gateway();
 	if (gwIp_ == 0) {
-		SET_ERR(GErr::ValueIsNotZero, "gateway is zero");
+		SET_ERR(GErr::ValueIsZero, "gateway is zero");
 		return false;
 	}
 
