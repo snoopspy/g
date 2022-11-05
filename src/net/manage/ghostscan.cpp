@@ -58,7 +58,7 @@ void GHostScan::run() {
 	GMac myMac = intf->mac();
 
 	GIp begIp = intf->getBeginIp();
-	GIp endIp = intf->getEndIp();
+	GIp endIp = intf->getEndIp(); endIp = endIp - 1;
 	qDebug() << QString("begIp=%1 endIp=%2").arg(QString(begIp), QString(endIp));
 
 	GEthArpPacket packet;
