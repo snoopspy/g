@@ -90,7 +90,7 @@ bool GArpBlock::doClose() {
 void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	qDebug() << ""; // gilgil temp 2022.10.15
 	Item* item = PItem(hostValue->mem(itemOffset_));
-	new (item) Item(defaultPolicy_, mac, hostValue->ip_);
+	new (item) Item(mac, hostValue->ip_, defaultPolicy_);
 	if (item->policy_ == Block)
 		infect(item);
 
@@ -145,5 +145,13 @@ void GArpBlock::InfectThread::run() {
 		}
 		if (!arpBlock_->active()) break;
 		if (we_.wait(arpBlock_->infectInterval_)) break;
+	}
+
+	{
+		QMutexLocker ml(&itemList->m_);
+		for (Item* item: *itemList) {
+			if (item->policy_ == Block)
+				arpBlock_->recover(item);
+		}
 	}
 }

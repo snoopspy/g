@@ -67,10 +67,10 @@ public:
 	// Item
 	// --------------------------------------------------------------------------
 	struct Item {
-		Item(Policy policy, GMac mac, GIp ip) : policy_(policy), mac_(mac), ip_(ip) {}
-		Policy policy_;
+		Item(GMac mac, GIp ip, Policy policy) : mac_(mac), ip_(ip), policy_(policy)  {}
 		GMac mac_;
 		GIp ip_;
+		Policy policy_;
 	};
 	typedef Item *PItem;
 	// --------------------------------------------------------------------------
