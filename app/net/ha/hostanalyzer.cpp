@@ -7,9 +7,14 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 #endif
 
 	hostMgr_.pcapDevice_ = &pcapDevice_;
+
 	hostWatch_.pcapDevice_ = &pcapDevice_;
 	hostWatch_.hostMgr_ = &hostMgr_;
+
 	hostScan_.pcapDevice_ = &pcapDevice_;
+
+	arpBlock_.pcapDevice_ = &pcapDevice_;
+	arpBlock_.hostMgr_ = &hostMgr_;
 
 	// for probeDetected signal
 	qRegisterMetaType<GMac>("GMac");
@@ -49,8 +54,16 @@ bool HostAnalyzer::doOpen() {
 			break;
 		}
 
-		hostOffset_ = hostMgr_.requestItems_.request(this, sizeof(QTreeWidgetItem));
+		if (!arpBlock_.open()) {
+			err = arpBlock_.err;
+			ok = false;
+			break;
+		}
+
+		treeWidgetItemOffset_ = hostMgr_.requestItems_.request(&hostMgr_, sizeof(QTreeWidgetItem));
+		arpBlockItemOffset_ = hostMgr_.requestItems_.request(&arpBlock_, sizeof(GArpBlock::Item));
 		hostMgr_.managables_.insert(this);
+
 		break;
 	}
 
@@ -59,6 +72,7 @@ bool HostAnalyzer::doOpen() {
 }
 
 bool HostAnalyzer::doClose() {
+	arpBlock_.close();
 	pcapDevice_.close();
 	hostMgr_.close();
 	hostWatch_.close();
@@ -68,18 +82,22 @@ bool HostAnalyzer::doClose() {
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	QMetaObject::invokeMethod(this, [=]() {
-		QTreeWidgetItem* item = reinterpret_cast<QTreeWidgetItem*>(hostValue->mem(hostOffset_));
-		qDebug() << "hostOffset_=" << hostOffset_ << "item=" << (void*)item; // gilgil temp 2022.03.28
-		new (item) QTreeWidgetItem(QStringList{QString(hostValue->ip_), QString(mac)});
-		treeWidget_->addTopLevelItem(item);
+		QTreeWidgetItem* treeWidgetItem = reinterpret_cast<QTreeWidgetItem*>(hostValue->mem(treeWidgetItemOffset_));
+		qDebug() << "hostOffset_=" << treeWidgetItemOffset_ << "item=" << (void*)treeWidgetItem; // gilgil temp 2022.03.28
+		new (treeWidgetItem) QTreeWidgetItem(QStringList{QString(hostValue->ip_), QString(mac)});
+
+		GArpBlock::Item* arpBlockItem = reinterpret_cast<GArpBlock::Item*>(hostValue->mem(arpBlockItemOffset_));
+		new (arpBlockItem) GArpBlock::Item(mac, hostValue->ip_, arpBlock_.defaultPolicy_);
+
+		treeWidget_->addTopLevelItem(treeWidgetItem);
 	});
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
 	QMetaObject::invokeMethod(this, [=]() {
-		QTreeWidgetItem* item = reinterpret_cast<QTreeWidgetItem*>(hostValue->mem(hostOffset_));
-		qDebug() << "hostOffset_=" << hostOffset_ << "item=" << (void*)item; // gilgil temp 2022.03.28
+		QTreeWidgetItem* item = reinterpret_cast<QTreeWidgetItem*>(hostValue->mem(treeWidgetItemOffset_));
+		qDebug() << "hostOffset_=" << treeWidgetItemOffset_ << "item=" << (void*)item; // gilgil temp 2022.03.28
 		item->~QTreeWidgetItem();
 	});
 }

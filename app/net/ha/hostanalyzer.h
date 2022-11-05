@@ -38,12 +38,13 @@ public:
 	GHostMgr hostMgr_{this};
 	GHostWatch hostWatch_{this};
 	GHostScan hostScan_{this};
-	GHostScan arpBlock_{this};
+	GArpBlock arpBlock_{this};
 	GCommand command_{this};
 
 protected:
 	// GHostMgr::Managable
-	size_t hostOffset_{0};
+	size_t treeWidgetItemOffset_{0};
+	size_t arpBlockItemOffset_{0};
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 
