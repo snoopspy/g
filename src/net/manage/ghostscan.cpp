@@ -25,7 +25,7 @@ bool GHostScan::doOpen() {
 	}
 
 	if (intf->ip() == 0) {
-		SET_ERR(GErr::Fail, "Internet is not connected");
+		SET_ERR(GErr::ValueIsNotNull, "ip is zero");
 		return false;
 	}
 

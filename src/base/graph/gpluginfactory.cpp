@@ -175,6 +175,7 @@ void GPluginFactory::loadFilter() {
 
 void GPluginFactory::loadManage() {
 	qRegisterMetaType<GHostMgr*>();
+	qRegisterMetaType<GHostScan*>();
 	qRegisterMetaType<GHostWatch*>();
 	qRegisterMetaType<GIpFlowMgr*>();
 	qRegisterMetaType<GTcpFlowMgr*>();
