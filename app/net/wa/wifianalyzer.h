@@ -4,7 +4,7 @@
 #include <GChannelHop>
 #include <GCommand>
 #include <GDot11Block>
-#include <GPcapDeviceWrite>
+#include <GMonitorDeviceWrite>
 
 struct G_EXPORT WifiAnalyzer : GStateObj {
 	Q_OBJECT
@@ -15,7 +15,7 @@ struct G_EXPORT WifiAnalyzer : GStateObj {
 	Q_PROPERTY(GObjRef monitorDevice READ getMonitorDevice)
 	Q_PROPERTY(GObjRef channelHop READ getChannelHop)
 	Q_PROPERTY(GObjRef dot11Block READ getDot11Block)
-	Q_PROPERTY(GObjRef pcapDeviceWrite READ getPcapDeviceWrite)
+	Q_PROPERTY(GObjRef monitorDeviceWrite READ getMonitorDeviceWrite)
 	Q_PROPERTY(GObjRef command READ getCommand)
 	Q_ENUMS(ShowType)
 
@@ -34,7 +34,7 @@ public:
 	GObjRef getMonitorDevice() { return &monitorDevice_; }
 	GObjRef getChannelHop() { return &channelHop_; }
 	GObjRef getDot11Block() { return &dot11Block_; }
-	GObjRef getPcapDeviceWrite() { return &pcapDeviceWrite_; }
+	GObjRef getMonitorDeviceWrite() { return &monitorDeviceWrite_; }
 	GObjRef getCommand() { return &command_; }
 
 protected:
@@ -52,7 +52,7 @@ public:
 	GMonitorDevice monitorDevice_{this};
 	GChannelHop channelHop_{this};
 	GDot11Block dot11Block_{this};
-	GPcapDeviceWrite pcapDeviceWrite_{this};
+	GMonitorDeviceWrite monitorDeviceWrite_{this};
 	GCommand command_{this};
 
 public slots:

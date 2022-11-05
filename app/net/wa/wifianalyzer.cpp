@@ -8,8 +8,7 @@ WifiAnalyzer::WifiAnalyzer(QObject* parent) : GStateObj(parent) {
 #endif
 
     dot11Block_.enabled_ = false;
-	dot11Block_.writer_ = &pcapDeviceWrite_;
-	pcapDeviceWrite_.mtu_ = 0;
+	dot11Block_.writer_ = &monitorDeviceWrite_;
 
 	// for probeDetected signal
 	qRegisterMetaType<GMac>("GMac");
@@ -43,9 +42,9 @@ bool WifiAnalyzer::doOpen() {
 		return false;
 	}
 
-	pcapDeviceWrite_.intfName_ = monitorDevice_.intfName_;
-	if (!pcapDeviceWrite_.open()) {
-		err = pcapDeviceWrite_.err;
+	monitorDeviceWrite_.intfName_ = monitorDevice_.intfName_;
+	if (!monitorDeviceWrite_.open()) {
+		err = monitorDeviceWrite_.err;
 		return false;
 	}
 
@@ -58,7 +57,7 @@ bool WifiAnalyzer::doClose() {
 	monitorDevice_.close();
 	channelHop_.close();
 	dot11Block_.close();
-	pcapDeviceWrite_.close();
+	monitorDeviceWrite_.close();
 	return true;
 }
 
