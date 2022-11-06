@@ -10,7 +10,7 @@ struct G_EXPORT HaWidget : GDefaultWidget, GProp {
 
 public:
 #ifdef Q_OS_ANDROID
-	static const int ItemHeight = 60;
+	static const int ItemHeight = 140;
 #else
 	static const int ItemHeight = 32;
 #endif // Q_OS_ANDROID
