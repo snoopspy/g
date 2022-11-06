@@ -22,6 +22,7 @@ struct G_EXPORT GBeaconFlood : GMonitorDeviceWrite {
 	Q_PROPERTY(QStringList messages MEMBER messages_)
 	Q_PROPERTY(ulong interval MEMBER interval_)
 	Q_PROPERTY(ulong sendInterval MEMBER sendInterval_)
+	Q_PROPERTY(int channel MEMBER channel_)
 	Q_PROPERTY(QString startMac READ getStartMac WRITE setStartMac)
 
 	QString getStartMac() { return QString(startMac_); }
@@ -31,6 +32,7 @@ public:
 	QStringList messages_;
 	GDuration interval_{10};
 	GDuration sendInterval_{1};
+	uint8_t channel_{36};
 	GMac startMac_{GMac("00:11:22:33:44:01")};
 
 public:

@@ -25,32 +25,34 @@ bool WifiAnalyzer::doOpen() {
     GThreadMgr::suspendStart();
 
 	currentChannel_ = 0;
+	bool isOk = false;
+	while (true) {
+		if (!monitorDevice_.open()) {
+			err = monitorDevice_.err;
+			break;
+		}
 
-	if (!monitorDevice_.open()) {
-		err = monitorDevice_.err;
-		return false;
-	}
+		channelHop_.intfName_ = monitorDevice_.intfName_;
+		if (!channelHop_.open()) {
+			err = channelHop_.err;
+			break;
+		}
 
-	channelHop_.intfName_ = monitorDevice_.intfName_;
-	if (!channelHop_.open()) {
-		err = channelHop_.err;
-		return false;
-	}
+		if (!dot11Block_.open()) {
+			err = dot11Block_.err;
+			break;
+		}
 
-	if (!dot11Block_.open()) {
-		err = dot11Block_.err;
-		return false;
-	}
-
-	monitorDeviceWrite_.intfName_ = monitorDevice_.intfName_;
-	if (!monitorDeviceWrite_.open()) {
-		err = monitorDeviceWrite_.err;
-		return false;
+		monitorDeviceWrite_.intfName_ = monitorDevice_.intfName_;
+		if (!monitorDeviceWrite_.open()) {
+			err = monitorDeviceWrite_.err;
+			break;
+		}
+		isOk = true;
 	}
 
     GThreadMgr::resumeStart();
-
-	return true;
+	return isOk;
 }
 
 bool WifiAnalyzer::doClose() {

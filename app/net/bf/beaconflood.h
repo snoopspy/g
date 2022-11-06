@@ -2,11 +2,13 @@
 
 #include <GCommand>
 #include <GBeaconFlood>
+#include <GChannelHop>
 #include <GPlainTextEdit>
 
 struct G_EXPORT BeaconFlood : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(GObjRef beaconFlood READ getBeaconFlood)
+	Q_PROPERTY(GObjRef channelHop READ getChannelHop)
 	Q_PROPERTY(GObjRef command READ getCommand)
 
 public:
@@ -15,6 +17,7 @@ public:
 
 public:
 	GObjRef getBeaconFlood() { return &beaconFlood_; }
+	GObjRef getChannelHop() { return &channelHop_; }
 	GObjRef getCommand() { return &command_; }
 
 protected:
@@ -23,6 +26,7 @@ protected:
 
 public:
 	GBeaconFlood beaconFlood_{this};
+	GChannelHop channelHop_{this};
 	GCommand command_{this};
 
 public:
