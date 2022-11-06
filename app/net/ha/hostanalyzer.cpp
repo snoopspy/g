@@ -119,7 +119,6 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 	(void)checked;
 	QToolButton* toolButton = dynamic_cast<QToolButton*>(sender());
 	GMac mac = toolButton->property("mac").toString();
-	qDebug() << QString(mac); // gilgil temp
 	{
 		QMutexLocker ml(&arpBlock_.itemList_.m_);
 		for (GArpBlock::Item* item: arpBlock_.itemList_) {
