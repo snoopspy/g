@@ -16,7 +16,7 @@ GCheckBox::GCheckBox(const QString &text, QWidget *parent) : QCheckBox(text, par
 }
 
 void GCheckBox::init() {
-	setStyleSheet("QCheckBox { color : #AAAAAA; }\nQCheckBox::indicator { width : 65px; height : 65px; border : }");
+	setStyleSheet("QCheckBox { color : #AAAAAA; }\nQCheckBox::indicator { width : 95px; height : 95px; border : }");
 }
 
 #endif
