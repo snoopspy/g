@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
 		int width = hw.width();
 		hw.treeWidget_->setColumnWidth(0, width / 3);
 		hw.treeWidget_->setColumnWidth(1, width / 3);
-		hw.treeWidget_->setColumnWidth(2, width / 3 - HaWidget::ItemHeight);
 	}
 
 	GCommand* command = &hw.hostAnalyzer_.command_;

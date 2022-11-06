@@ -32,11 +32,16 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	itemDelegate_->setHeight(ItemHeight);
 
 	treeWidget_ = new GTreeWidget(this);
-	treeWidget_->setHeaderLabels(QStringList{"IP", "Mac", "HostName", "..."});
+	treeWidget_->setHeaderLabels(QStringList{"IP", "Mac", "HostName", ""});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 	treeWidget_->setItemDelegate(itemDelegate_);
-	treeWidget_->header()->setSectionResizeMode(3, QHeaderView::Fixed);
+
+	QHeaderView* hv = treeWidget_->header();
+	hv->setSectionResizeMode(2, QHeaderView::Stretch);
+	hv->setSectionResizeMode(3, QHeaderView::Fixed);
+	hv->setStretchLastSection(false);
+	treeWidget_->setColumnWidth(3, ItemHeight);
 
 	mainLayout_->addWidget(treeWidget_);
 

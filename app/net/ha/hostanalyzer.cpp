@@ -14,9 +14,9 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 
 	hostScan_.pcapDevice_ = &pcapDevice_;
 
-	arpBlock_.enabled_ = false;
 	arpBlock_.pcapDevice_ = &pcapDevice_;
 	arpBlock_.hostMgr_ = &hostMgr_;
+	arpBlock_.defaultPolicy_ = GArpBlock::Allow;
 
 	QObject::connect(&pcapDevice_, &GPcapDevice::captured, &hostMgr_, &GHostMgr::manage, Qt::DirectConnection);
 }
@@ -86,15 +86,14 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		new (treeWidgetItem) QTreeWidgetItem(QStringList{QString(hostValue->ip_), QString(mac)});
 		treeWidget_->addTopLevelItem(treeWidgetItem);
 
-		bool block = arpBlock_.defaultPolicy_ == GArpBlock::Block;
-
 		QToolButton* toolButton = new QToolButton(treeWidget_);
+		bool block = arpBlock_.defaultPolicy_ == GArpBlock::Block;
 		if (block) {
 			toolButton->setText("1");
-			//toolButton->setIcon(QIcon(":/img/pause.png"));
+			toolButton->setIcon(QIcon(":/img/pause.png"));
 		} else {
 			toolButton->setText("2");
-			//toolButton->setIcon(QIcon(":/img/play.png"));
+			toolButton->setIcon(QIcon(":/img/play.png"));
 		}
 		toolButton->setAutoRaise(true);
 		treeWidget_->setItemWidget(treeWidgetItem, 3, toolButton);
