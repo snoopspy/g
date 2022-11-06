@@ -60,7 +60,7 @@ bool GArpBlock::doOpen() {
 	infectPacket_.arpHdr_.pro_ = htons(GEthHdr::Ip4);
 	infectPacket_.arpHdr_.hln_ = GMac::Size;
 	infectPacket_.arpHdr_.pln_ = GIp::Size;
-	infectPacket_.arpHdr_.op_ = htons(GArpHdr::Reply);
+	// infectPacket_.arpHdr_.op_ // set later
 	infectPacket_.arpHdr_.smac_ = fakeMac_;
 	infectPacket_.arpHdr_.sip_ = htonl(gateway);
 	// infectPacket_.arpHdr_.tmac_ // set later
@@ -92,7 +92,7 @@ void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	Item* item = PItem(hostValue->mem(itemOffset_));
 	new (item) Item(mac, hostValue->ip_, defaultPolicy_);
 	if (item->policy_ == Block)
-		infect(item);
+		infect(item, GArpHdr::Request);
 
 	{
 		QMutexLocker ml(&itemList_.m_);
@@ -105,7 +105,7 @@ void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
 
 	Item* item = PItem(hostValue->mem(itemOffset_));
-	recover(item);
+	recover(item, GArpHdr::Request);
 	item->~Item();
 	{
 		QMutexLocker ml(&itemList_.m_);
@@ -113,17 +113,19 @@ void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	}
 }
 
-void GArpBlock::infect(Item* item) {
+void GArpBlock::infect(Item* item, uint16_t operation) {
 	infectPacket_.ethHdr_.dmac_ = item->mac_;
+	infectPacket_.arpHdr_.op_ = htons(operation);
 	infectPacket_.arpHdr_.tmac_ = item->mac_;
 	infectPacket_.arpHdr_.tip_ = htonl(item->ip_);
 	if (pcapDevice_->active())
 		pcapDevice_->write(GBuf(pbyte(&infectPacket_),sizeof(GEthArpPacket)));
 }
 
-void GArpBlock::recover(Item* item) {
+void GArpBlock::recover(Item* item, uint16_t operation) {
 	qDebug() << QString(item->ip_) << QString(item->mac_); // gilgil temp 2022.10.15
 	recoverPacket_.ethHdr_.dmac_ = item->mac_;
+	recoverPacket_.arpHdr_.op_ = htons(operation);
 	recoverPacket_.arpHdr_.tmac_ = item->mac_;
 	recoverPacket_.arpHdr_.tip_ = htonl(item->ip_);
 	if (pcapDevice_->active())
@@ -138,7 +140,7 @@ void GArpBlock::InfectThread::run() {
 			QMutexLocker ml(&itemList->m_);
 			for (Item* item: *itemList) {
 				if (item->policy_ != Block) continue;
-				arpBlock_->infect(item);
+				arpBlock_->infect(item, GArpHdr::Reply);
 				if (we_.wait(arpBlock_->sendInterval_)) break;
 				if (!arpBlock_->active()) break;
 			}
@@ -151,7 +153,7 @@ void GArpBlock::InfectThread::run() {
 		QMutexLocker ml(&itemList->m_);
 		for (Item* item: *itemList) {
 			if (item->policy_ == Block)
-				arpBlock_->recover(item);
+				arpBlock_->recover(item, GArpHdr::Request);
 		}
 	}
 }

@@ -59,7 +59,7 @@ protected:
 
 public:
 	// GHostMgr::Managable
-	size_t itemOffset_{0};
+	size_t itemOffset_;
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 
@@ -82,8 +82,10 @@ protected:
 	GAtm atm_;
 	GEthArpPacket infectPacket_;
 	GEthArpPacket recoverPacket_;
-	void infect(Item* item);
-	void recover(Item* item);
+
+public:
+	void infect(Item* item, uint16_t operation);
+	void recover(Item* item, uint16_t operation);
 
 protected:
 	struct InfectThread : GThread {

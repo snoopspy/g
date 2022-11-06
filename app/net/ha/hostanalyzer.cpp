@@ -60,7 +60,7 @@ bool HostAnalyzer::doOpen() {
 			break;
 		}
 
-		treeWidgetItemOffset_ = hostMgr_.requestItems_.request(&hostMgr_, sizeof(QTreeWidgetItem));
+		itemOffset_ = hostMgr_.requestItems_.request(this, sizeof(QTreeWidgetItem**));
 		hostMgr_.managables_.insert(this);
 
 		break;
@@ -81,31 +81,67 @@ bool HostAnalyzer::doClose() {
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	QMetaObject::invokeMethod(this, [=]() {
-		QTreeWidgetItem* treeWidgetItem = reinterpret_cast<QTreeWidgetItem*>(hostValue->mem(treeWidgetItemOffset_));
-		qDebug() << "hostOffset_=" << treeWidgetItemOffset_ << "item=" << (void*)treeWidgetItem; // gilgil temp 2022.03.28
-		new (treeWidgetItem) QTreeWidgetItem(QStringList{QString(hostValue->ip_), QString(mac)});
+		QTreeWidgetItem* treeWidgetItem = new QTreeWidgetItem(QStringList{QString(hostValue->ip_), QString(mac)});
 		treeWidget_->addTopLevelItem(treeWidgetItem);
 
 		QToolButton* toolButton = new QToolButton(treeWidget_);
 		bool block = arpBlock_.defaultPolicy_ == GArpBlock::Block;
+		toolButton->setAutoRaise(true);
+		toolButton->setCheckable(true);
+		toolButton->setProperty("mac", QString(mac));
 		if (block) {
 			toolButton->setText("1");
 			toolButton->setIcon(QIcon(":/img/pause.png"));
 		} else {
-			toolButton->setText("2");
+			toolButton->setText("0");
 			toolButton->setIcon(QIcon(":/img/play.png"));
 		}
-		toolButton->setAutoRaise(true);
 		treeWidget_->setItemWidget(treeWidgetItem, 3, toolButton);
+
+
+		QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
+
+		QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
+		*item = treeWidgetItem;
 	});
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
 	QMetaObject::invokeMethod(this, [=]() {
-		QTreeWidgetItem* treeWidgetItem = reinterpret_cast<QTreeWidgetItem*>(hostValue->mem(treeWidgetItemOffset_));
-		qDebug() << "hostOffset_=" << treeWidgetItemOffset_ << "item=" << (void*)treeWidgetItem; // gilgil temp 2022.03.28
+		QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
 		if (active())
-			treeWidgetItem->~QTreeWidgetItem();
+			(*item)->~QTreeWidgetItem();
 	});
+}
+
+void HostAnalyzer::toolButton_toggled(bool checked) {
+	(void)checked;
+	QToolButton* toolButton = dynamic_cast<QToolButton*>(sender());
+	GMac mac = toolButton->property("mac").toString();
+	qDebug() << QString(mac); // gilgil temp
+	{
+		QMutexLocker ml(&arpBlock_.itemList_.m_);
+		for (GArpBlock::Item* item: arpBlock_.itemList_) {
+			if (mac == item->mac_) {
+				qDebug() << "matched"; // gilgil temp
+				bool block = item->policy_ == GArpBlock::Block;
+				bool nextBlock = !block;
+				if (nextBlock) {
+					arpBlock_.infect(item, GArpHdr::Request);
+					item->policy_ = GArpBlock::Block;
+
+					toolButton->setText("1");
+					toolButton->setIcon(QIcon(":/img/pause.png"));
+				} else {
+					arpBlock_.recover(item, GArpHdr::Request);
+					item->policy_ = GArpBlock::Allow;
+
+					toolButton->setText("1");
+					toolButton->setIcon(QIcon(":/img/play.png"));
+				}
+				break;
+			}
+		}
+	}
 }
