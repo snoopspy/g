@@ -4,8 +4,12 @@
 #include <GTreeWidget>
 #include "hostanalyzer.h"
 
+struct ItemDelegate;
 struct G_EXPORT HaWidget : GDefaultWidget, GProp {
 	Q_OBJECT
+
+public:
+	static const int ItemHeight = 50;
 
 public:
 	HaWidget(QWidget* parent = nullptr);
@@ -19,7 +23,8 @@ public:
 	void setControl();
 
 public:
-	GTreeWidget* treeWidget_{nullptr};
+	ItemDelegate* itemDelegate_;
+	GTreeWidget* treeWidget_;
 	HostAnalyzer hostAnalyzer_;
 
 private slots:

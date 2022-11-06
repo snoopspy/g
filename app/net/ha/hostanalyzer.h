@@ -44,7 +44,6 @@ public:
 protected:
 	// GHostMgr::Managable
 	size_t treeWidgetItemOffset_{0};
-	size_t arpBlockItemOffset_{0};
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 

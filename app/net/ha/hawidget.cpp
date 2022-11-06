@@ -1,18 +1,43 @@
 #include "hawidget.h"
 
+#include <QItemDelegate>
+#include <QHeaderView>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QProgressBar>
 
 #include <GJson>
 
+struct ItemDelegate : public QItemDelegate {
+private:
+	int height_;
+
+public:
+	ItemDelegate(QObject *parent = nullptr, int height = -1) : QItemDelegate(parent), height_(height) {}
+
+	void setHeight(int height) { height_ = height; }
+
+	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
+		QSize size = QItemDelegate::sizeHint(option, index);
+		if (height_ != -1)
+			size.setHeight(height_);
+		return size;
+	}
+};
+
 HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("Host Analyzer");
 
+	itemDelegate_ = new ItemDelegate;
+	itemDelegate_->setHeight(ItemHeight);
+
 	treeWidget_ = new GTreeWidget(this);
-	treeWidget_->setHeaderLabels(QStringList{"IP", "Mac", "HostName"});
+	treeWidget_->setHeaderLabels(QStringList{"IP", "Mac", "HostName", "..."});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
+	treeWidget_->setItemDelegate(itemDelegate_);
+	treeWidget_->header()->setSectionResizeMode(3, QHeaderView::Fixed);
+
 	mainLayout_->addWidget(treeWidget_);
 
 	int left, top, right, bottom;
