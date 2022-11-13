@@ -41,10 +41,14 @@ GPacket::Result GMonitorDeviceWrite::write(GPacket* packet) {
 				GBuf backupBuf = packet->buf_;
 				packet->buf_.size_ += fcsSize;
 				GPacket::Result res = GPcapDeviceWrite::write(packet->buf_);
+				if (res == GPacket::Ok)
+					emit written(packet);
 				packet->buf_ = backupBuf;
 				return res;
 			}
 		}
 	}
-	return GPcapDeviceWrite::write(packet->buf_);
+	GPacket::Result res = GPcapDeviceWrite::write(packet->buf_);
+	if (res == GPacket::Ok)
+		emit written(packet);
 }

@@ -19,6 +19,7 @@ bool GPcapFile::doOpen() {
 		return false;
 	}
 
+	loopIndex_ = 0;
 	return GPcapCapture::doOpen();
 }
 
@@ -26,6 +27,24 @@ bool GPcapFile::doClose() {
 	if (!enabled_) return true;
 
 	return GPcapCapture::doClose();
+}
+
+GPacket::Result GPcapFile::read(GPacket* packet) {
+	GPacket::Result res = GPcapCapture::read(packet);
+	if (res == GPacket::Eof) {
+		if (loopCount_ == -1 || ++loopIndex_ < loopCount_) {
+			pcap_close(pcap_);
+
+			char errBuf[PCAP_ERRBUF_SIZE];
+			pcap_ = pcap_open_offline(qPrintable(fileName_), errBuf);
+			if (pcap_ == nullptr) {
+				SET_ERR(GErr::ReturnNull, errBuf);
+				return GPacket::Fail;
+			}
+			res = GPcapCapture::read(packet);
+		}
+	}
+	return res;
 }
 
 #ifdef QT_GUI_LIB
