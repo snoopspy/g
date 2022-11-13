@@ -103,6 +103,7 @@ SOURCES += \
 	$${PWD}/../src/net/packet/gnullpacket.cpp \
 	$${PWD}/../src/net/packet/gpacket.cpp \
 	$${PWD}/../src/net/pdu/garphdr.cpp \
+	$${PWD}/../src/net/pdu/gauthhdr.cpp \
 	$${PWD}/../src/net/pdu/gbeaconhdr.cpp \
 	$${PWD}/../src/net/pdu/gdeauthhdr.cpp \
 	$${PWD}/../src/net/pdu/gdhcphdr.cpp \
@@ -241,6 +242,7 @@ HEADERS += \
 	$${PWD}/../src/net/packet/gnullpacket.h \
 	$${PWD}/../src/net/packet/gpacket.h \
 	$${PWD}/../src/net/pdu/garphdr.h \
+	$${PWD}/../src/net/pdu/gauthhdr.h \
 	$${PWD}/../src/net/pdu/gbeaconhdr.h \
 	$${PWD}/../src/net/pdu/gdeauthhdr.h \
 	$${PWD}/../src/net/pdu/gdhcphdr.h \
