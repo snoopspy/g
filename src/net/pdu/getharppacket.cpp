@@ -11,7 +11,7 @@ void GEthArpPacket::init(GMac dmac, GMac smac, uint16_t operation, GMac senderMa
 	arpHdr_.pln_ = GIp::Size;
 	arpHdr_.op_ = htons(operation);
 	arpHdr_.smac_ = senderMac;
-	arpHdr_.sip_ = htonl(targetIp);
+	arpHdr_.sip_ = htonl(senderIp);
 	arpHdr_.tmac_ = targetMac;
-	arpHdr_.tip_ = htonl(senderIp);
+	arpHdr_.tip_ = htonl(targetIp);
 }
