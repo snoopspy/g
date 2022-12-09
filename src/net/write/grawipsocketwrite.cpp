@@ -46,18 +46,26 @@ bool GRawIpSocketWrite::doOpen() {
 	if (sd_ == -1) {
 		QString msg = QString("socket return -1 %1").arg(strerror(errno));
 		SET_ERR(GErr::Fail, msg);
-		sd_ = 0;
 		return false;
 	}
 
 	int one = 1;
 	int res = ::setsockopt(sd_, IPPROTO_IP, IP_HDRINCL, pchar(&one), sizeof(one));
 	if (res < 0) {
-		QString msg = QString("setsockopt return %1 %2").arg(res).arg(strerror(errno));
+		QString msg = QString("setsockopt(IP_HDRINCL) return %1 %2").arg(res).arg(strerror(errno));
 		SET_ERR(GErr::Fail, msg);
-		sd_ = 0;
 		return false;
 	}
+
+	if (intfName_ != "") {
+		res = ::setsockopt(sd_, SOL_SOCKET, SO_BINDTODEVICE, qPrintable(intfName_), intfName_.size());
+		if (res < 0) {
+			QString msg = QString("setsockopt(SO_BINDTODEVICE) return %1 %2").arg(res).arg(strerror(errno));
+			SET_ERR(GErr::Fail, msg);
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -102,3 +110,15 @@ GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
 		emit written(packet);
 	return res;
 }
+
+#ifdef QT_GUI_LIB
+
+#include "base/prop/gpropitem-interface.h"
+GPropItem* GPcapDevice::propCreateItem(GPropItemParam* param) {
+	if (QString(param->mpro_.name()) == "intfName") {
+		return new GPropItemInterface(param);
+	}
+	return GObj::propCreateItem(param);
+}
+
+#endif // QT_GUI_LIB

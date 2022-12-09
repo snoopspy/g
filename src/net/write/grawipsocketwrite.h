@@ -20,9 +20,11 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GRawIpSocketWrite : GWrite {
 	Q_OBJECT
+	Q_PROPERTY(QString intfName MEMBER intfName_)
 	Q_PROPERTY(int mtu MEMBER mtu_)
 
 public:
+	QString intfName_;
 	int mtu_{GPacket::MtuSize};
 
 public:
@@ -33,7 +35,7 @@ protected:
 	bool doOpen() override;
 	bool doClose() override;
 
-protected:
+public:
 	int sd_{0};
 
 public:
