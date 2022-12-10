@@ -61,6 +61,9 @@ bool GAtm::wait(GDuration timeout) {
 
 		GEthPacket packet;
 		GPacket::Result res = read(&packet);
+		if (res == GPacket::None) {
+			continue;
+		} else
 		if (res == GPacket::Eof) {
 			qWarning() << "pcapDevice->read return GPacket::Eof";
 			break;
@@ -68,9 +71,6 @@ bool GAtm::wait(GDuration timeout) {
 		if (res == GPacket::Fail) {
 			qWarning() << "pcapDevice->read return GPacket::Eof";
 			break;
-		} else
-		if (res == GPacket::None) {
-			continue;
 		}
 
 		GArpHdr* arpHdr = packet.arpHdr_;

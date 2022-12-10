@@ -179,8 +179,8 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 			return GPacket::Fail;
 
 		GPacket::Result res = GPcapDevice::read(packet);
-		if (res == GPacket::Eof || res == GPacket::Fail) return res;
 		if (res == GPacket::None) continue;
+		if (res == GPacket::Eof || res == GPacket::Fail) return res;
 
 		emit _preCaptured(packet);
 
