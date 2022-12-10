@@ -65,7 +65,7 @@ GPacket::Result GCapture::drop(GPacket* packet) {
 }
 
 void GCapture::run() {
-	qDebug() << "GCapture::run() beg"; // gilgil temp 2017.11.25
+	qDebug() << "beg";
 
 	GEthPacket ethPacket;
 	GIpPacket ipPacket;
@@ -96,6 +96,6 @@ void GCapture::run() {
 			}
 		}
 	}
-	qDebug() << "GCapture::run() end"; // gilgil temp 2017.11.25
+	qDebug() << "end";
 	emit closed();
 }
