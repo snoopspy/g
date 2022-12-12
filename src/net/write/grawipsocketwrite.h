@@ -48,4 +48,9 @@ public slots:
 protected:
 	GDemonClient* demonClient_{nullptr};
 #endif
+
+#ifdef QT_GUI_LIB
+public:
+	GPropItem* propCreateItem(GPropItemParam* param) override;
+#endif // QT_GUI_LIB
 };

@@ -114,7 +114,7 @@ GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
 #ifdef QT_GUI_LIB
 
 #include "base/prop/gpropitem-interface.h"
-GPropItem* GPcapDevice::propCreateItem(GPropItemParam* param) {
+GPropItem* GRawIpSocketWrite::propCreateItem(GPropItemParam* param) {
 	if (QString(param->mpro_.name()) == "intfName") {
 		return new GPropItemInterface(param);
 	}

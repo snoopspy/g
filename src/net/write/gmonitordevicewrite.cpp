@@ -51,4 +51,5 @@ GPacket::Result GMonitorDeviceWrite::write(GPacket* packet) {
 	GPacket::Result res = GPcapDeviceWrite::write(packet->buf_);
 	if (res == GPacket::Ok)
 		emit written(packet);
+	return res;
 }
