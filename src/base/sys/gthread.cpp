@@ -12,8 +12,12 @@ void GThread::start() {
 		return;
 	}
 	GStateObj* stateObj = dynamic_cast<GStateObj*>(parent());
-	if (stateObj == nullptr)
+	if (stateObj == nullptr) {
 		QThread::start(priority_);
+		startRequired_ = false;
+	} else {
+		startRequired_ = true;
+	}
 }
 
 bool GThread::wait(GDuration timeout) {
@@ -26,6 +30,7 @@ bool GThread::wait(GDuration timeout) {
 		qCritical() << msg;
 		QThread::terminate();
 	}
+	startRequired_ = false;
 	return res;
 }
 

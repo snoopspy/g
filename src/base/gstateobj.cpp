@@ -33,11 +33,12 @@ bool GStateObj::open() {
 	state_ = Opened;
 
 	for (QObject* obj: children()) {
-		GThreadMgr& threadMgr = GThreadMgr::instance();
-		if (!threadMgr.suspended_) {
-			GThread* thread = reinterpret_cast<GThread*>(obj);
-			if (thread != nullptr)
+		GThread* thread = dynamic_cast<GThread*>(obj);
+		if (thread != nullptr) {
+			if (thread->startRequired_) {
 				thread->QThread::start(thread->priority_);
+				thread->startRequired_ = false;
+			}
 		}
 	}
 

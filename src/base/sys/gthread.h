@@ -21,6 +21,7 @@ struct G_EXPORT GThread : QThread {
 	~GThread() override {}
 
 	Priority priority_{InheritPriority};
+	bool startRequired_{false};
 
 	void start();
 	bool wait(GDuration timeout = G::Timeout);
