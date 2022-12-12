@@ -17,8 +17,12 @@
 // GThread
 // ----------------------------------------------------------------------------
 struct G_EXPORT GThread : QThread {
-	GThread(QObject *parent = nullptr) : QThread(parent) {}
-	void start(Priority priority = InheritPriority);
+	GThread(QObject* parent = nullptr) : QThread(parent) {}
+	~GThread() override {}
+
+	Priority priority_{InheritPriority};
+
+	void start();
 	bool wait(GDuration timeout = G::Timeout);
 };
 
@@ -27,21 +31,20 @@ struct G_EXPORT GThread : QThread {
 // ----------------------------------------------------------------------------
 struct G_EXPORT GThreadMgr {
 	friend struct GThread;
+	friend struct GStateObj;
 
 	static void suspendStart();
 	static void resumeStart();
 
 private: // singleton
-	GThreadMgr();
-	virtual ~GThreadMgr();
+	GThreadMgr() {}
+	virtual ~GThreadMgr() {}
 
 	bool suspended_{false};
 
-	struct ThreadInfo {
-		QThread* thread_;
-		QThread::Priority priority_;
-	};
-	QList<ThreadInfo> threadInfos_;
+	QList<GThread*> threads_;
+
+public:
 	static GThreadMgr& instance() {
 		static GThreadMgr threadMgr;
 		return threadMgr;

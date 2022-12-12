@@ -1,15 +1,19 @@
 #include "gthread.h"
+#include "base/gstateobj.h"
 #include <QDebug>
 
-void GThread::start(Priority priority) {
+// ----------------------------------------------------------------------------
+// GThread
+// ----------------------------------------------------------------------------
+void GThread::start() {
 	GThreadMgr& threadMgr = GThreadMgr::instance();
 	if (threadMgr.suspended_) {
-		GThreadMgr::ThreadInfo threadInfo;
-		threadInfo.thread_ = this;
-		threadInfo.priority_ = priority;
-		threadMgr.threadInfos_.push_back(threadInfo);
-	} else
-		QThread::start(priority);
+		threadMgr.threads_.push_back(this);
+		return;
+	}
+	GStateObj* stateObj = dynamic_cast<GStateObj*>(parent());
+	if (stateObj == nullptr)
+		QThread::start(priority_);
 }
 
 bool GThread::wait(GDuration timeout) {
@@ -28,12 +32,6 @@ bool GThread::wait(GDuration timeout) {
 // ----------------------------------------------------------------------------
 // GThreadMgr
 // ----------------------------------------------------------------------------
-GThreadMgr::GThreadMgr() {
-}
-
-GThreadMgr::~GThreadMgr() {
-}
-
 void GThreadMgr::suspendStart() {
 	GThreadMgr& threadMgr = instance();
 	threadMgr.suspended_ = true;
@@ -41,9 +39,9 @@ void GThreadMgr::suspendStart() {
 
 void GThreadMgr::resumeStart() {
 	GThreadMgr& threadMgr = instance();
-	for (ThreadInfo& threadInfo: threadMgr.threadInfos_) {
-		threadInfo.thread_->start(threadInfo.priority_);
+	for (GThread* thread: threadMgr.threads_) {
+		thread->QThread::start(thread->priority_);
 	}
-	threadMgr.threadInfos_.clear();
+	threadMgr.threads_.clear();
 	threadMgr.suspended_ = false;
 }

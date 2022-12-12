@@ -1,4 +1,5 @@
 #include "gstateobj.h"
+#include "base/sys/gthread.h"
 
 // ----------------------------------------------------------------------------
 // GStageObj
@@ -30,6 +31,16 @@ bool GStateObj::open() {
 	}
 
 	state_ = Opened;
+
+	for (QObject* obj: children()) {
+		GThreadMgr& threadMgr = GThreadMgr::instance();
+		if (!threadMgr.suspended_) {
+			GThread* thread = reinterpret_cast<GThread*>(obj);
+			if (thread != nullptr)
+				thread->QThread::start(thread->priority_);
+		}
+	}
+
 	emit opened();
 	return true;
 }
