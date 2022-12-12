@@ -11,15 +11,7 @@ bool GCapture::doOpen() {
 	if (!enabled_) return true;
 
 	if (autoRead_) {
-		// ----- by gilgil 2009.08.31 -----
-		//
-		// There can be a case that even if thread starts,
-		// state remains not not Opened(still Opening) state.
-		// So set state_ into Opened before open thread.
-		//
-		state_ = Opened;
 		thread_.start();
-		// --------------------------------
 	}
 	return true;
 }
