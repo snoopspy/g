@@ -17,10 +17,10 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GMonitorDevice : GPcapDevice {
 	Q_OBJECT
-	Q_PROPERTY(bool checkRadioLen MEMBER checkRadioLen_)
+	Q_PROPERTY(bool checkRadioInfo MEMBER checkRadioInfo_)
 
 public:
-	bool checkRadioLen_{true};
+	bool checkRadioInfo_{true};
 
 public:
 	Q_INVOKABLE GMonitorDevice(QObject* parent = nullptr);

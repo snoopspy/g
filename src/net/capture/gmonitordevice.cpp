@@ -18,14 +18,14 @@ bool GMonitorDevice::doOpen() {
 
 	bool res = false;
 
-	if (!getRadioInfoFromFile()) {
-		if (!getRadioInfoFromDevice()) {
-			SET_ERR(GErr::Fail, "cat not get radio info");
-			return false;
+	if (checkRadioInfo_) {
+		if (!getRadioInfoFromFile()) {
+			if (!getRadioInfoFromDevice()) {
+				SET_ERR(GErr::Fail, "cat not get radio info");
+				return false;
+			}
 		}
-	}
 
-	if (checkRadioLen_) {
 		QString backupFilter = filter_;
 		uint16_t radioLen = htons(radioInfo_.len_);
 		QString lengthFilter = QString("radio[2:2]==%1").arg(radioLen);
