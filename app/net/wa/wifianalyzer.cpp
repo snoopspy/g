@@ -49,6 +49,7 @@ bool WifiAnalyzer::doOpen() {
 			break;
 		}
 		isOk = true;
+		break;
 	}
 
     GThreadMgr::resumeStart();
