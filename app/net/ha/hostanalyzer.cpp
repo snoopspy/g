@@ -80,8 +80,10 @@ bool HostAnalyzer::doClose() {
 }
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	QMetaObject::invokeMethod(this, [=]() {
-		QTreeWidgetItem* treeWidgetItem = new QTreeWidgetItem(QStringList{QString(hostValue->ip_), QString(mac)});
+	GIp ip = hostValue->ip_;
+	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
+	QMetaObject::invokeMethod(this, [this, mac, ip, item]() {
+		QTreeWidgetItem* treeWidgetItem = new QTreeWidgetItem(QStringList{QString(ip), QString(mac)});
 		treeWidget_->addTopLevelItem(treeWidgetItem);
 
 		QToolButton* toolButton = new QToolButton(treeWidget_);
@@ -92,24 +94,24 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		if (block) {
 			toolButton->setText("1");
 			toolButton->setIcon(QIcon(":/img/pause.png"));
+			toolButton->setChecked(true);
 		} else {
 			toolButton->setText("0");
 			toolButton->setIcon(QIcon(":/img/play.png"));
+			toolButton->setChecked(false);
 		}
 		treeWidget_->setItemWidget(treeWidgetItem, 3, toolButton);
 
-
 		QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 
-		QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
 		*item = treeWidgetItem;
 	});
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
-	QMetaObject::invokeMethod(this, [=]() {
-		QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
+	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
+	QMetaObject::invokeMethod(this, [this, item]() {
 		if (active())
 			(*item)->~QTreeWidgetItem();
 	});
