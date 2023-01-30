@@ -111,10 +111,13 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
 	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
-	QMetaObject::invokeMethod(this, [this, item]() {
+	GWaitEvent we;
+	QMetaObject::invokeMethod(this, [this, item, &we]() {
 		if (active())
 			(*item)->~QTreeWidgetItem();
+		if (active()) we.wakeAll();
 	});
+	if (active()) we.wait();
 }
 
 void HostAnalyzer::toolButton_toggled(bool checked) {
