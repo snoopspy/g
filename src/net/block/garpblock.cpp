@@ -105,8 +105,10 @@ void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
 
 	Item* item = PItem(hostValue->mem(itemOffset_));
-	recover(item, GArpHdr::Request);
+	if (item->policy_ == Block)
+		recover(item, GArpHdr::Request);
 	item->~Item();
+
 	{
 		QMutexLocker ml(&itemList_.m_);
 		itemList_.removeOne(item);
