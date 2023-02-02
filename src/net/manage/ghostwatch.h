@@ -84,7 +84,9 @@ protected:
 			if (watchThread_ != nullptr) {
 				watchThread_->we_.wakeAll();
 				watchThread_->quit();
-				watchThread_->wait();
+				if (!watchThread_->wait()) {
+					qCritical() << "watchThread wait return false" << QString(watchThread_->mac_);
+				}
 				delete watchThread_;
 				watchThread_ = nullptr;
 			}
