@@ -27,23 +27,30 @@ bool GHostMgr::doOpen() {
 	}
 	gwIp_ = intf_->gateway();
 
-	hostMap_.clear();
+	{
+		QMutexLocker ml(&hostMap_.m_);
+		hostMap_.clear();
+	}
 	return GPacketMgr::doOpen();
 }
 
 bool GHostMgr::doClose() {
-	for (Managable* manager: managables_) {
-		for (HostMap::iterator it = hostMap_.begin(); it != hostMap_.end(); it++) {
-			GMac mac = it.key();
-			HostValue* hostValue = it.value();
-			manager->hostDeleted(mac, hostValue);
+	{
+		QMutexLocker ml(&hostMap_.m_);
+		for (Managable* manager: managables_) {
+			for (HostMap::iterator it = hostMap_.begin(); it != hostMap_.end(); it++) {
+				GMac mac = it.key();
+				HostValue* hostValue = it.value();
+				manager->hostDeleted(mac, hostValue);
+			}
 		}
+		hostMap_.clear();
 	}
-	hostMap_.clear();
 	return GPacketMgr::doClose();
 }
 
-void GHostMgr::deleteOldFlowMaps(long now) {
+void GHostMgr::deleteOldHosts(long now) {
+	QMutexLocker ml(&hostMap_.m_);
 	HostMap::iterator it = hostMap_.begin();
 	while (it != hostMap_.end()) {
 		HostValue* hostValue = it.value();
@@ -86,7 +93,7 @@ bool GHostMgr::processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip) {
 void GHostMgr::manage(GPacket* packet) {
 	time_t now = packet->ts_.tv_sec;
 	if (checkIntervalSec_ != 0 && now - lastCheckClock_ >= checkIntervalSec_) {
-		deleteOldFlowMaps(now);
+		deleteOldHosts(now);
 		lastCheckClock_ = now;
 	}
 
@@ -112,17 +119,20 @@ void GHostMgr::manage(GPacket* packet) {
 	if (ip == myIp_ || ip == gwIp_) return;
 
 	currentMac_ = mac;
-	HostMap::iterator it = hostMap_.find(currentMac_);
-	if (it == hostMap_.end()) {
-		qDebug() << QString("detected %1 %2").arg(QString(mac)).arg(QString(ip)); // gilgil temp 2022.03.07
-		currentHostVal_ = HostValue::allocate(requestItems_.totalMemSize_);
-		currentHostVal_->ip_ = ip;
-		it = hostMap_.insert(currentMac_, currentHostVal_);
-		for (Managable* manager: managables_)
-			manager->hostCreated(currentMac_, currentHostVal_);
-	}
-	else {
-		currentHostVal_ = it.value();
+	{
+		QMutexLocker ml(&hostMap_.m_);
+		HostMap::iterator it = hostMap_.find(currentMac_);
+		if (it == hostMap_.end()) {
+			qDebug() << QString("detected %1 %2").arg(QString(mac)).arg(QString(ip)); // gilgil temp 2022.03.07
+			currentHostVal_ = HostValue::allocate(requestItems_.totalMemSize_);
+			currentHostVal_->ip_ = ip;
+			it = hostMap_.insert(currentMac_, currentHostVal_);
+			for (Managable* manager: managables_)
+				manager->hostCreated(currentMac_, currentHostVal_);
+		}
+		else {
+			currentHostVal_ = it.value();
+		}
 	}
 	Q_ASSERT(currentHostVal_ != nullptr);
 	currentHostVal_->ts_ = packet->ts_;

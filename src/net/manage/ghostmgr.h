@@ -68,6 +68,8 @@ public:
 	// HostMap
 	// --------------------------------------------------------------------------
 	struct HostMap : QMap<GMac, HostValue*> {
+		QMutex m_;
+
 		void clear() {
 			for (HostValue* hostValue: *this) {
 				HostValue::deallocate(hostValue);
@@ -100,7 +102,7 @@ protected:
 	GMac myMac_{GMac::nullMac()};
 	GIp gwIp_{0};
 
-	void deleteOldFlowMaps(long now);
+	void deleteOldHosts(long now);
 
 protected:
 	bool processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip);

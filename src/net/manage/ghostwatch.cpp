@@ -24,29 +24,15 @@ bool GHostWatch::doOpen() {
 		return false;
 	}
 
-	hostOffset_ = hostMgr_->requestItems_.request(this, sizeof(Item));
-	hostMgr_->managables_.insert(this);
-	et_.start();
-	threadCount_ = 0;
+	watchThread_.start();
 	return true;
 }
 
 bool GHostWatch::doClose() {
-	if (threadCount_ != 0) {
-		qWarning() << "threadCount is " << threadCount_;
-	}
-	return true;
-}
-
-void GHostWatch::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = PItem(hostValue->mem(hostOffset_));
-	new (item) Item(this, mac, hostValue);
-}
-
-void GHostWatch::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
-	(void)mac;
-	Item* item = PItem(hostValue->mem(hostOffset_));
-	item->~Item();
+	watchThread_.we_.wakeAll();
+	watchThread_.quit();
+	bool res = watchThread_.wait();
+	return res;
 }
 
 bool GHostWatch::propLoad(QJsonObject jo, QMetaProperty mpro)  {
@@ -59,93 +45,88 @@ bool GHostWatch::propLoad(QJsonObject jo, QMetaProperty mpro)  {
 	return GStateObj::propLoad(jo, mpro);
 }
 
+#include "net/write/gpcapdevicewrite.h"
+
 // ----------------------------------------------------------------------------
 // GHostWatch::WatchThread
 // ----------------------------------------------------------------------------
-GHostWatch::WatchThread::WatchThread(GHostWatch* hostWatch, GMac mac, GHostMgr::HostValue* hostValue) : hw_(hostWatch), mac_(mac), hostValue_(hostValue) {
-}
-
-GHostWatch::WatchThread::~WatchThread() {
-}
-
-#include "net/pdu/getharppacket.h"
-#include "net/write/gpcapdevicewrite.h"
-
 void GHostWatch::WatchThread::run() {
-	GMac mac = mac_;
-	GIp ip = hostValue_->ip_;
-	qDebug() << "beg " << QString(mac) << QString(ip); // by gilgil 2022.03.02
-
-	GPcapDevice* device = hw_->pcapDevice_;
-	if (!device->active()) {
-		qDebug() << "device->active() is false";
-		return;
-	}
-	GIntf* intf = device->intf();
-	Q_ASSERT(intf != nullptr);
-
-	GIp myIp = intf->ip();
-	GMac myMac = intf->mac();
+	qDebug() << "";
+	GHostWatch* hw = dynamic_cast<GHostWatch*>(parent());
+	Q_ASSERT(hw != nullptr);
 
 	GPcapDeviceWrite deviceWrite;
-	deviceWrite.intfName_ = device->intfName_;
-	if (!deviceWrite.open()) {
-		qDebug() << QString("deviceWrite.open(%1) return false").arg(deviceWrite.intfName_);
-		return;
-	}
-
-	GEthArpPacket packet;
-
-	GEthHdr* ethHdr = &packet.ethHdr_;
-	ethHdr->dmac_ = mac; // Unicast
-	ethHdr->smac_ = myMac;
-	ethHdr->type_ = htons(GEthHdr::Arp);
-
-	GArpHdr* arpHdr = &packet.arpHdr_;
-	arpHdr->hrd_ = htons(GArpHdr::ETHER);
-	arpHdr->pro_ = htons(GEthHdr::Ip4);
-	arpHdr->hln_ = GMac::Size;
-	arpHdr->pln_ = GIp::Size;
-	arpHdr->op_ = htons(GArpHdr::Request);
-	arpHdr->smac_ = myMac;
-	arpHdr->sip_ = htonl(myIp);
-	arpHdr->tmac_ = GMac::nullMac();
-	arpHdr->tip_ = htonl(ip);
-
-	QElapsedTimer* et = &hw_->et_;
-	qint64 start = et->elapsed();
-    time_t startEpoch = hostValue_->ts_.tv_sec;
-	while (device->active() && hw_->active()) {
-		if (we_.wait(hw_->checkInterval_))
-			break;
-
-		qint64 now = et->elapsed();
-		if (hostValue_->ts_.tv_sec + hw_->scanStartTimeoutSec_ <= startEpoch + (now - start) / 1000) {
-			if (hw_->randomInterval_ > 0) {
-				GDuration random = QRandomGenerator::global()->generate() % hw_->randomInterval_;
-				if (we_.wait(random))
-					break;
-			}
-
-			bool exit = false;
-			while (true) {
-				qDebug() << "arp request" << QString(mac) << QString(ip); // gilgil temp 2022.02.03
-				GPacket::Result res = deviceWrite.write(GBuf(pbyte(&packet), sizeof(packet)));
-				if (res != GPacket::Ok) {
-					qWarning() << QString("deviceWrite.write return %1").arg(int(res));
-				}
-				if (we_.wait(hw_->sendInterval_)) {
-					exit = true;
-					break;
-				}
-
-				if (hostValue_->ts_.tv_sec + hw_->scanStartTimeoutSec_ > startEpoch + (now - start) / 1000) { // detected
-					qDebug() << QString("detected %1 %2").arg(QString(mac), QString(ip));
-					break;
-				}
-			}
-			if (exit) break;
+	GEthArpPacket sendPacket;
+	GEthHdr* ethHdr = &sendPacket.ethHdr_;
+	GArpHdr* arpHdr = &sendPacket.arpHdr_;
+	{
+		GPcapDevice* device = hw->pcapDevice_;
+		if (!device->active()) {
+			qDebug() << "device->active() is false";
+			return;
 		}
+		deviceWrite.intfName_ = device->intfName_;
+		if (!deviceWrite.open()) {
+			qDebug() << QString("deviceWrite.open(%1) return false").arg(deviceWrite.intfName_);
+			return;
+		}
+
+		GIntf* intf = device->intf();
+		Q_ASSERT(intf != nullptr);
+		GIp myIp = intf->ip();
+		GMac myMac = intf->mac();
+
+		// ethHdr->dmac_ // set later
+		ethHdr->smac_ = myMac;
+		ethHdr->type_ = htons(GEthHdr::Arp);
+
+		arpHdr->hrd_ = htons(GArpHdr::ETHER);
+		arpHdr->pro_ = htons(GEthHdr::Ip4);
+		arpHdr->hln_ = GMac::Size;
+		arpHdr->pln_ = GIp::Size;
+		arpHdr->op_ = htons(GArpHdr::Request);
+		arpHdr->smac_ = myMac;
+		arpHdr->sip_ = htonl(myIp);
+		arpHdr->tmac_ = GMac::nullMac();
+		// arpHdr->tip_ // set later
 	}
-	qDebug() << "end " << QString(mac) << QString(ip); // by gilgil 2022.03.02
+
+	GHostMgr::HostMap* hm = &hw->hostMgr_->hostMap_;
+	class QVector<SendInfo> sendInfos;
+	struct timeval start;
+	gettimeofday(&start, nullptr);
+	while (true) {
+		if (we_.wait(hw->checkInterval_)) break;
+
+		struct timeval now;
+		gettimeofday(&now, nullptr);
+
+		sendInfos.clear();
+		{
+			QMutexLocker ml(&hm->m_);
+			for (GHostMgr::HostMap::iterator it = hm->begin(); it != hm->end(); it++) {
+				GHostMgr::HostValue* hostValue = it.value();
+				if (now.tv_sec - hostValue->ts_.tv_sec <= hw->scanTimeoutSec_)
+					continue;
+				sendInfos.push_back(SendInfo(it.key(), it.value()->ip_));
+			}
+		}
+
+		bool exit = false;
+		GBuf buf(pbyte(&sendPacket), sizeof(sendPacket));
+		for (SendInfo& sendInfo: sendInfos) {
+			ethHdr->dmac_ = sendInfo.mac_;
+			arpHdr->tip_ = htonl(sendInfo.ip_);
+			GPacket::Result res = deviceWrite.write(buf);
+			if (res != GPacket::Ok) {
+				qWarning() << QString("deviceWrite.write return %1").arg(int(res));
+			}
+			if (we_.wait(hw->sendInterval_)) {
+				exit = true;
+				break;
+			}
+		}
+		if (exit) break;
+	}
+	qDebug() << "";
 }
