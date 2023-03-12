@@ -80,7 +80,7 @@ bool GArpBlock::doOpen() {
 bool GArpBlock::doClose() {
 	if (!enabled_) return true;
 
-	infectThread_.we_.wakeAll();
+	infectThread_.swe_.wakeAll();
 	infectThread_.quit();
 	infectThread_.wait();
 
@@ -143,12 +143,12 @@ void GArpBlock::InfectThread::run() {
 			for (Item* item: *itemList) {
 				if (item->policy_ != Block) continue;
 				arpBlock_->infect(item, GArpHdr::Reply);
-				if (we_.wait(arpBlock_->sendInterval_)) break;
+				if (swe_.wait(arpBlock_->sendInterval_)) break;
 				if (!arpBlock_->active()) break;
 			}
 		}
 		if (!arpBlock_->active()) break;
-		if (we_.wait(arpBlock_->infectInterval_)) break;
+		if (swe_.wait(arpBlock_->infectInterval_)) break;
 	}
 
 	{

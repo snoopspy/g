@@ -157,7 +157,7 @@ bool GArpSpoof::doOpen() {
 bool GArpSpoof::doClose() {
 	if (!enabled_) return true;
 
-	infectThread_.we_.wakeAll();
+	infectThread_.swe_.wakeAll();
 	infectThread_.quit();
 	infectThread_.wait();
 
@@ -332,7 +332,7 @@ int GArpSpoof::FlowList::findIndex(GFlow::IpFlowKey ipFlowKey) {
 
 void GArpSpoof::InfectThread::run() {
 	while (true) {
-		if (we_.wait(arpSpoof_->infectInterval_)) break;
+		if (swe_.wait(arpSpoof_->infectInterval_)) break;
 		arpSpoof_->sendArpInfectAll(GArpHdr::Reply);
 	}
 }

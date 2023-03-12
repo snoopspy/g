@@ -37,7 +37,7 @@ protected:
 		SendThread(GAtm* atm, GDuration timeout) : atm_(atm), timeout_(timeout) {}
 		GAtm* atm_;
 		GDuration timeout_;
-		GWaitEvent we_;
+		GStateWaitEvent swe_;
 	protected:
 		void run() override;
 	};

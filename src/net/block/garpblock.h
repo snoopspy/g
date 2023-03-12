@@ -92,6 +92,6 @@ protected:
 		InfectThread(GArpBlock* arpBlock) : GThread(arpBlock), arpBlock_(arpBlock) {}
 		void run() override;
 		GArpBlock* arpBlock_;
-		GWaitEvent we_;
+		GStateWaitEvent swe_;
 	} infectThread_{this};
 };

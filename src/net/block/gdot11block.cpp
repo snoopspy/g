@@ -32,11 +32,11 @@ bool GDot11Block::doClose() {
 	if (!enabled_) return true;
 
 	if (attackInterval_ != 0) {
-		attackThread_.we_.wakeAll();
+		attackThread_.swe_.wakeAll();
 		attackThread_.quit();
 		attackThread_.wait();
 
-		deleteThread_.we_.wakeAll();
+		deleteThread_.swe_.wakeAll();
 		deleteThread_.quit();
 		deleteThread_.wait();
 	}
@@ -155,7 +155,7 @@ void GDot11Block::attackRun() {
 	qDebug() << "beg"; // gilgil temp 2022.02.01
 
 	while (active()) {
-		if (attackThread_.we_.wait(attackInterval_)) break;
+		if (attackThread_.swe_.wait(attackInterval_)) break;
 		{
 			QMutexLocker ml(&apMap_.m_);
 			ApMap::iterator it = apMap_.find(currentChannel_);
@@ -164,7 +164,7 @@ void GDot11Block::attackRun() {
 
 			for (Ap& ap: aps) {
 				attack(ap);
-				if (attackThread_.we_.wait(sendInterval_)) break;
+				if (attackThread_.swe_.wait(sendInterval_)) break;
 			}
 		}
 	}
@@ -176,7 +176,7 @@ void GDot11Block::deleteRun() {
 	qDebug() << "beg"; // gilgil temp 2022.02.01
 
 	while (active()) {
-		deleteThread_.we_.wait(attackInterval_);
+		deleteThread_.swe_.wait(attackInterval_);
 	}
 
 	qDebug() << "end"; // gilgil temp 2022.02.01

@@ -50,13 +50,13 @@ void GLogFile::changeFileName(){
 }
 
 void GLogFile::ChangeFileNameThread::quit(){
-	we_.wakeAll();
+	swe_.wakeAll();
 	QThread::quit();
 }
 
 void GLogFile::ChangeFileNameThread::run() {
 	while (true) {
-		if (we_.wait(1000)) break; // signaled
+		if (swe_.wait(1000)) break; // signaled
 		logFile_->changeFileName();
 	}
 }

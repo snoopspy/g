@@ -106,7 +106,7 @@ struct G_EXPORT GStateWaitEvent : GWaitEvent {
 // GCountWaitEvent
 // ----------------------------------------------------------------------------
 struct G_EXPORT GCountWaitEvent : GWaitEvent {
-	int count_{0};
+	int count_;
 
 	GCountWaitEvent(int count = 0) : count_(count) {}
 

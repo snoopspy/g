@@ -29,7 +29,7 @@ bool GHostWatch::doOpen() {
 }
 
 bool GHostWatch::doClose() {
-	watchThread_.we_.wakeAll();
+	watchThread_.swe_.wakeAll();
 	watchThread_.quit();
 	bool res = watchThread_.wait();
 	return res;
@@ -96,7 +96,7 @@ void GHostWatch::WatchThread::run() {
 	struct timeval start;
 	gettimeofday(&start, nullptr);
 	while (true) {
-		if (we_.wait(hw->checkInterval_)) break;
+		if (swe_.wait(hw->checkInterval_)) break;
 
 		struct timeval now;
 		gettimeofday(&now, nullptr);
@@ -121,7 +121,7 @@ void GHostWatch::WatchThread::run() {
 			if (res != GPacket::Ok) {
 				qWarning() << QString("deviceWrite.write return %1").arg(int(res));
 			}
-			if (we_.wait(hw->sendInterval_)) {
+			if (swe_.wait(hw->sendInterval_)) {
 				exit = true;
 				break;
 			}

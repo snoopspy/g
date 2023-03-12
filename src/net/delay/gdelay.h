@@ -25,7 +25,7 @@ public:
 	GDuration timeout_{1000};
 
 protected:
-	GWaitEvent we_;
+	GStateWaitEvent swe_;
 
 public:
 	Q_INVOKABLE GDelay(QObject* parent = nullptr) : GStateObj(parent) {}

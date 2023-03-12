@@ -33,7 +33,7 @@ bool GBeaconFlood::doOpen() {
 bool GBeaconFlood::doClose() {
 	if (!GMonitorDeviceWrite::doClose()) return false;
 
-	floodingThread_.we_.wakeAll();
+	floodingThread_.swe_.wakeAll();
 	floodingThread_.quit();
 	bool res = floodingThread_.wait();
 
@@ -138,10 +138,10 @@ void GBeaconFlood::FloodingThread::run() {
 				ok = false;
 				break;
 			}
-			if (we_.wait(beaconFlood->sendInterval_)) break;
+			if (swe_.wait(beaconFlood->sendInterval_)) break;
 		}
 		if (!ok || !beaconFlood->active()) break;
-		if (we_.wait(beaconFlood->interval_)) break;
+		if (swe_.wait(beaconFlood->interval_)) break;
 	}
 }
 

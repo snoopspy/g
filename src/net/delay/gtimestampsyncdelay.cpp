@@ -13,7 +13,7 @@ bool GTimeStampSyncDelay::doOpen() {
 }
 
 bool GTimeStampSyncDelay::doClose() {
-	we_.wakeAll();
+	swe_.wakeAll();
 	return true;
 }
 
@@ -39,7 +39,7 @@ bool GTimeStampSyncDelay::delay(GPacket* packet) {
 	//qDebug() << "remainTs=" << remainTs; // gilgil temp 2019.05.21
 
 	QDeadlineTimer dt(remainTs);
-	bool res = we_.wait(dt);
+	bool res = swe_.wait(dt);
 	lastClock_ = et_.elapsed();
 	if (res == false) // timeout elapsed
 		emit delayed(packet);

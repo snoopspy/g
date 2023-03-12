@@ -48,7 +48,7 @@ protected:
 		FloodingThread(GBeaconFlood* parent) : GThread(parent) {}
 		void run() override;
 
-		GWaitEvent we_;
+		GStateWaitEvent swe_;
 	} floodingThread_{this};
 
 protected:

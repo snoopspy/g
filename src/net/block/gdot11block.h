@@ -94,7 +94,7 @@ protected:
 	struct AttackThread : GThread {
 		AttackThread(QObject *parent) : GThread(parent) {}
 		~AttackThread() override {}
-		GWaitEvent we_;
+		GStateWaitEvent swe_;
 		void run() override {
 			GDot11Block* d11b = dynamic_cast<GDot11Block*>(parent());
 			Q_ASSERT(d11b != nullptr);
@@ -105,7 +105,7 @@ protected:
 	struct DeleteThread : GThread {
 		DeleteThread(QObject *parent) : GThread(parent) {}
 		~DeleteThread() override {}
-		GWaitEvent we_;
+		GStateWaitEvent swe_;
 		void run() override {
 			GDot11Block* d11b = dynamic_cast<GDot11Block*>(parent());
 			Q_ASSERT(d11b != nullptr);

@@ -43,7 +43,7 @@ public:
 
 protected:
 	GIw iw_;
-	GWaitEvent we_;
+	GStateWaitEvent swe_;
 
 protected:
 	bool doOpen() override;

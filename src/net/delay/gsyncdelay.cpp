@@ -12,7 +12,7 @@ bool GSyncDelay::doOpen() {
 }
 
 bool GSyncDelay::doClose() {
-	we_.wakeAll();
+	swe_.wakeAll();
 	return true;
 }
 
@@ -29,7 +29,7 @@ bool GSyncDelay::delay(GPacket* packet) {
 	}
 
 	QDeadlineTimer dt(remain);
-	bool res = we_.wait(dt);
+	bool res = swe_.wait(dt);
 	lastClock_ = et_.elapsed();
 	if (res == false) // timeout elapsed
 		emit delayed(packet);

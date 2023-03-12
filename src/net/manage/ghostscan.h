@@ -39,7 +39,7 @@ public:
 	~GHostScan() override;
 
 protected:
-	GWaitEvent we_;
+	GStateWaitEvent swe_;
 
 protected:
 	bool doOpen() override;

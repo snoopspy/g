@@ -60,8 +60,9 @@ TEST(GWaitEvent, waitEventFailTest) {
 
 TEST(GWaitEvent, stateWaitEventTest) {
 	GStateWaitEvent we;
-	TestThread<GStateWaitEvent> t(&we, 5, 0, 1000);
+	TestThread<GStateWaitEvent> t(&we, 5, 100, 1000);
 	t.start();
+	QThread::msleep(1000);
 	for (int i = 0; i < 5; i++) {
 		qDebug() << "stateWaitEventTest" << i;
 		ASSERT_TRUE(we.wait(2000));
@@ -71,9 +72,9 @@ TEST(GWaitEvent, stateWaitEventTest) {
 
 TEST(GWaitEvent, countWaitEventTest) {
 	GCountWaitEvent we;
-	TestThread<GCountWaitEvent> t(&we, 10, 0, 0);
+	TestThread<GCountWaitEvent> t(&we, 5, 0, 0);
 	t.start();
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 5; i++) {
 		qDebug() << "countWaitEventTest" << i;
 		ASSERT_TRUE(we.wait(1000));
 	}

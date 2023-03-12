@@ -59,7 +59,7 @@ protected:
 		void run() override;
 
 		GAutoArpSpoof* parent_;
-		GWaitEvent we_;
+		GStateWaitEvent swe_;
 		TwoFlowKey twoFlowKey_;
 		GEthArpPacket infectPacket_[2];
 	};
@@ -73,7 +73,7 @@ protected:
 		void run() override;
 
 		GAutoArpSpoof* parent_;
-		GWaitEvent we_;
+		GStateWaitEvent swe_;
 		TwoFlowKey twoFlowKey_;
 		Flow flow1_, flow2_;
 	};

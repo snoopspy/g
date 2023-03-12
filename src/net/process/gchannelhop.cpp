@@ -36,7 +36,7 @@ bool GChannelHop::doOpen() {
 bool GChannelHop::doClose() {
 	if (!enabled_) return true;
 
-	we_.wakeAll();
+	swe_.wakeAll();
 	thread_.quit();
 	bool res = thread_.wait();
 	iw_.close();
@@ -78,7 +78,7 @@ void GChannelHop::run() {
 			if (debugLog_)
 				qDebug() << "channel " << channel;
 			emit channelChanged(channel);
-			if (we_.wait(hopInterval_)) break;
+			if (swe_.wait(hopInterval_)) break;
 		}
 	}
 	qDebug() << "end"; // gilgil temp 2022.01.24

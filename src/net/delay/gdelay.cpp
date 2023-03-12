@@ -9,12 +9,12 @@ bool GDelay::doOpen() {
 }
 
 bool GDelay::doClose() {
-	we_.wakeAll();
+	swe_.wakeAll();
 	return true;
 }
 
 bool GDelay::delay(GPacket* packet) {
-	bool res = we_.wait(timeout_);
+	bool res = swe_.wait(timeout_);
 	if (res == false) // timeout elapsed
 		emit delayed(packet);
 	return res;

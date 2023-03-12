@@ -37,7 +37,7 @@ bool GHostScan::doOpen() {
 bool GHostScan::doClose() {
 	if (!enabled_) return true;
 
-	we_.wakeAll();
+	swe_.wakeAll();
 	scanThread_.quit();
 	bool res = scanThread_.wait();
 	return res;
@@ -78,7 +78,6 @@ void GHostScan::run() {
 	arpHdr->sip_ = htonl(myIp);
 	arpHdr->tmac_ = GMac::nullMac();
 
-	GWaitEvent we;
 	while (active()) {
 		for (GIp ip = begIp; ip <= endIp; ip = ip + 1) {
 			arpHdr->tip_ = htonl(ip);
@@ -88,10 +87,10 @@ void GHostScan::run() {
 				qWarning() << QString("device_->write return %1").arg(int(res));
 				break;
 			}
-			if (we_.wait(sendInterval_)) break;
+			if (swe_.wait(sendInterval_)) break;
 		}
 		if (!active() || !pcapDevice_->active()) break;
-		if (we_.wait(rescanInterval_)) break;
+		if (swe_.wait(rescanInterval_)) break;
 	}
 
 	qDebug() << "end";

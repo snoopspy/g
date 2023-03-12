@@ -43,7 +43,7 @@ protected:
 	struct ChangeFileNameThread : QThread {
 		ChangeFileNameThread(GLogFile* logFile) : logFile_(logFile) {}
 		GLogFile* logFile_;
-		GWaitEvent we_;
+		GStateWaitEvent swe_;
 		void quit();
 		void run() override;
 	} thread_{this};

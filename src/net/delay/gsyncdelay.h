@@ -27,7 +27,7 @@ public:
 	double speed_{1.};
 
 protected:
-	GWaitEvent we_;
+	GStateWaitEvent swe_;
 	QElapsedTimer et_;
 	qint64 lastClock_;
 

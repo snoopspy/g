@@ -89,7 +89,7 @@ bool GAtm::wait(GDuration timeout) {
 			}
 		}
 	}
-	thread.we_.wakeAll();
+	thread.swe_.wakeAll();
 	thread.wait();
 	return succeed;
 }
@@ -134,7 +134,7 @@ void GAtm::SendThread::run() {
 	while (true) {
 		if (!atm_->sendQueries())
 			break;
-		bool res = we_.wait(1000);
+		bool res = swe_.wait(1000);
 		if (res) break;
 		qint64 now = timer.elapsed();
 		if (now - first >= qint64(timeout_)) {

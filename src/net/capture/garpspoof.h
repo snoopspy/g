@@ -121,7 +121,7 @@ protected:
 		InfectThread(GArpSpoof* arpSpoof) : GThread(arpSpoof), arpSpoof_(arpSpoof) {}
 		void run() override;
 		GArpSpoof* arpSpoof_;
-		GWaitEvent we_;
+		GStateWaitEvent swe_;
 	} infectThread_{this};
 
 	bool sendArpInfectAll(uint16_t operation);

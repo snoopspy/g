@@ -56,7 +56,7 @@ protected:
 	struct WatchThread : GThread {
 		WatchThread(GHostWatch* hostWatch) : GThread(hostWatch) {}
 		void run() override;
-		GWaitEvent we_;
+		GStateWaitEvent swe_;
 
 		struct SendInfo {
 			GMac mac_;
