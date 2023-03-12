@@ -28,7 +28,7 @@ const char* G::pcapLibVersion() {
 #include <iostream>
 TEST(GBase, versionTest) {
 	std::cout << G::version() << std::endl;
-	std::cout << G::pcap_lib_version() << std::endl;
+	std::cout << G::pcapLibVersion() << std::endl;
 }
 
 #endif // GTEST
