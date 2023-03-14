@@ -1,6 +1,8 @@
 export QTBINDIR=/opt/Qt/5.15.2/android/bin
 export MAKEDIR=$ANDROID_NDK_ROOT/prebuilt/linux-x86_64/bin
 export ANDROID_SDK_ROOT=/root/android/sdk
+export ANDROID_HOME=/root/sdk
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
 #
 # arprecover
