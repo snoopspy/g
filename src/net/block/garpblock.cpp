@@ -88,7 +88,6 @@ bool GArpBlock::doClose() {
 }
 
 void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	qDebug() << ""; // gilgil temp 2022.10.15
 	Item* item = PItem(hostValue->mem(itemOffset_));
 	new (item) Item(mac, hostValue->ip_, defaultPolicy_);
 	if (item->policy_ == Block)
@@ -101,7 +100,6 @@ void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
-	qDebug() << ""; // gilgil temp 2022.10.15
 	(void)mac;
 
 	Item* item = PItem(hostValue->mem(itemOffset_));
