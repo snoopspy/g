@@ -93,20 +93,26 @@ void GHostWatch::WatchThread::run() {
 
 	GHostMgr::HostMap* hm = &hw->hostMgr_->hostMap_;
 	class QVector<SendInfo> sendInfos;
-	struct timeval start;
-	gettimeofday(&start, nullptr);
+
 	while (true) {
 		if (swe_.wait(hw->checkInterval_)) break;
 
-		struct timeval now;
-		gettimeofday(&now, nullptr);
+		long now;
+#ifdef Q_OS_WIN
+		QDateTime dt = QDateTime::currentDateTime();
+		now = long(dt.toTime_t());
+#else
+		struct timeval tv;
+		gettimeofday(&tv, nullptr);
+		now = tv.tv_sec;
+#endif // Q_OS_WIN
 
 		sendInfos.clear();
 		{
 			QMutexLocker ml(&hm->m_);
 			for (GHostMgr::HostMap::iterator it = hm->begin(); it != hm->end(); it++) {
 				GHostMgr::HostValue* hostValue = it.value();
-				if (now.tv_sec - hostValue->ts_.tv_sec <= hw->scanTimeoutSec_)
+				if (now - hostValue->ts_.tv_sec <= hw->scanTimeoutSec_)
 					continue;
 				sendInfos.push_back(SendInfo(it.key(), it.value()->ip_));
 			}

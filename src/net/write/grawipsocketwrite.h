@@ -37,6 +37,7 @@ protected:
 
 public:
 	int sd_{0};
+	struct sockaddr_in sockaddr_in_;
 
 public:
 	GPacket::Result write(GBuf buf) override;
