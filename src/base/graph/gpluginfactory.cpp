@@ -94,8 +94,8 @@ void GPluginFactory::loadCapture() {
 	category->items_.push_back(new ItemNode("GAsyncNetFilter"));
 #endif
 	category->items_.push_back(new ItemNode("GAutoArpSpoof"));
-	category->items_.push_back(new ItemNode("GMonitorDevice"));
 #ifdef Q_OS_LINUX
+	category->items_.push_back(new ItemNode("GMonitorDevice"));
 	category->items_.push_back(new ItemNode("GNetFilter"));
 #endif
 	category->items_.push_back(new ItemNode("GPcapDevice"));
@@ -232,19 +232,25 @@ void GPluginFactory::loadProcess() {
 // ----------------------------------------------------------------------------
 // Write
 // ----------------------------------------------------------------------------
+#ifdef Q_OS_LINUX
 #include <GMonitorDeviceWrite>
+#endif
 #include <GPcapDeviceWrite>
 #include <GPcapFileWrite>
 #include <GRawIpSocketWrite>
 
 void GPluginFactory::loadWrite() {
+#ifdef Q_OS_LINUX
 	qRegisterMetaType<GMonitorDeviceWrite*>();
+#endif
 	qRegisterMetaType<GPcapDeviceWrite*>();
 	qRegisterMetaType<GPcapFileWrite*>();
 	qRegisterMetaType<GRawIpSocketWrite*>();
 
 	ItemCategory* category = new ItemCategory("write");
+#ifdef Q_OS_LINUX
 	category->items_.push_back(new ItemNode("GMonitorDeviceWrite"));
+#endif
 	category->items_.push_back(new ItemNode("GPcapDeviceWrite"));
 	category->items_.push_back(new ItemNode("GPcapFileWrite"));
 	category->items_.push_back(new ItemNode("GRawIpSocketWrite"));
