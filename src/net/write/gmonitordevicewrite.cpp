@@ -33,22 +33,42 @@ GPacket::Result GMonitorDeviceWrite::write(GBuf buf) {
 }
 
 GPacket::Result GMonitorDeviceWrite::write(GPacket* packet) {
+	GRadioHdr* radioHdr = packet->radioHdr_;
+	GDot11* dot11 = packet->dot11_;
+	if (radioHdr == nullptr || dot11 == nullptr) {
+		GPacket::Result res = GPcapDeviceWrite::write(packet->buf_);
+		if (res == GPacket::Ok)
+			emit written(packet);
+		return res;
+	}
+
+	GRadioHdr* sendRadioHdr = PRadioHdr(sendBuffer_);
+	uint32_t sendRadioHdrSize;
+
+	if (clearRadioHdr_) {
+		sendRadioHdr->init();
+		sendRadioHdrSize = sizeof(GRadioHdr);
+	} else {
+		memcpy(sendRadioHdr, radioHdr, radioHdr->len_);
+		sendRadioHdrSize = radioHdr->len_;
+	}
+
+	gbyte* sendDot11 = sendBuffer_ + sendRadioHdrSize;
+	uint32_t sendDot11Size = packet->buf_.size_ - radioHdr->len_;
+
 	if (checkFcsSize_) {
-		GRadioHdr* radioHdr = packet->radioHdr_;
-		if (radioHdr != nullptr) {
-			size_t fcsSize = radioHdr->getFcsSize();
-			if (fcsSize != 0) {
-				GBuf backupBuf = packet->buf_;
-				packet->buf_.size_ += fcsSize;
-				GPacket::Result res = GPcapDeviceWrite::write(packet->buf_);
-				if (res == GPacket::Ok)
-					emit written(packet);
-				packet->buf_ = backupBuf;
-				return res;
-			}
+		size_t fcsSize = radioHdr->getFcsSize();
+		if (fcsSize != 0) {
+			if (clearRadioHdr_)
+				sendDot11Size -= fcsSize;
+			else
+				sendDot11Size += fcsSize;
 		}
 	}
-	GPacket::Result res = GPcapDeviceWrite::write(packet->buf_);
+	memcpy(sendDot11, dot11, sendDot11Size);
+
+	GBuf sendBuf(sendBuffer_, sendRadioHdrSize + sendDot11Size);
+	GPacket::Result res = GPcapDeviceWrite::write(sendBuf);
 	if (res == GPacket::Ok)
 		emit written(packet);
 	return res;

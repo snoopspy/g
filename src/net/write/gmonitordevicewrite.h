@@ -17,9 +17,11 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GMonitorDeviceWrite : GPcapDeviceWrite {
 	Q_OBJECT
+	Q_PROPERTY(bool clearRadioHdr MEMBER clearRadioHdr_)
 	Q_PROPERTY(bool checkFcsSize MEMBER checkFcsSize_)
 
 public:
+	bool clearRadioHdr_{true};
 	bool checkFcsSize_{true};
 
 public:
@@ -29,6 +31,10 @@ public:
 protected:
 	bool doOpen() override;
 	bool doClose() override;
+
+protected:
+	// for checkRadioHdr
+	gbyte sendBuffer_[GPacket::MaxBufSize];
 
 public:
 	GPacket::Result write(GBuf buf) override;
