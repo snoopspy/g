@@ -84,6 +84,7 @@ bool GRawIpSocketWrite::doClose() {
 
 GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 	GIpHdr* ipHdr = PIpHdr(buf.data_);
+    sockaddr_in_.sin_addr.s_addr = ipHdr->dip_; // network byte order
 
 	int res = ::sendto(sd_, pchar(ipHdr), ipHdr->len(), 0, (sockaddr*)&sockaddr_in_, sizeof(sockaddr_in_));
 	if (res < 0) {
