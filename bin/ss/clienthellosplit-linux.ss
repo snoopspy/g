@@ -24,7 +24,7 @@
             "_class": "GTcpFlowMgr",
             "_x": -47,
             "_y": -156,
-            "checkInterval": "1",
+            "checkIntervalSec": "1",
             "finTimeout": "20",
             "fullTimeout": "180",
             "halfTimeout": "60",
@@ -43,6 +43,8 @@
             "_class": "GRawIpSocketWrite",
             "_x": -67,
             "_y": -53,
+            "intfName": "",
+            "mtu": "1500",
             "objectName": "rawIpSocketWrite1"
         },
         {
@@ -82,7 +84,7 @@
             },
             "enabled": true,
             "mark": "0",
-            "nonBlock": false,
+            "nonBlock": true,
             "objectName": "netFilter1",
             "queueNum": "0",
             "waitTimeout": "1"
