@@ -34,7 +34,7 @@ typedef struct {
 	struct {
 		bool enabled;
 		int sock;
-		struct sockaddr_in addr;
+        struct sockaddr_in addr_in;
 	} udp;
 
 	//
@@ -193,7 +193,7 @@ void gtrace(const char* fmt, ...) {
 	}
 
 	if (_gtrace.udp.enabled)
-		sendto(_gtrace.udp.sock, buf, len - 1, 0, (struct sockaddr*)&_gtrace.udp.addr, sizeof(struct sockaddr_in));
+        sendto(_gtrace.udp.sock, buf, len - 1, 0, (struct sockaddr*)&_gtrace.udp.addr_in, sizeof(struct sockaddr_in));
 
 	if (_gtrace.se.enabled) {
 		fprintf(stderr, "%s", buf);
@@ -243,10 +243,10 @@ bool gtrace_open(const char* ip, int port, bool se, const char* file) {
 		if (_gtrace.udp.sock == -1) {
 			fprintf(stderr, "socket return null\n");
 		} else {
-			_gtrace.udp.addr.sin_family = AF_INET;
-			_gtrace.udp.addr.sin_port = htons(port);
-			_gtrace.udp.addr.sin_addr.s_addr = inet_addr(ip);
-			memset(&_gtrace.udp.addr.sin_zero, 0, sizeof(_gtrace.udp.addr.sin_zero));
+            _gtrace.udp.addr_in.sin_family = AF_INET;
+            _gtrace.udp.addr_in.sin_port = htons(port);
+            _gtrace.udp.addr_in.sin_addr.s_addr = inet_addr(ip);
+            memset(&_gtrace.udp.addr_in.sin_zero, 0, sizeof(_gtrace.udp.addr_in.sin_zero));
 			_gtrace.udp.enabled = true;
 		}
 	}
