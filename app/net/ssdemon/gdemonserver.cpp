@@ -31,7 +31,7 @@ bool GDemonServer::start(uint16_t port) {
     addr_in.sin_addr.s_addr = INADDR_ANY;
     addr_in.sin_port = htons(port);
 
-    res = ::bind(accept_, (struct sockaddr *)&addr_in, sizeof(struct sockaddr_in));
+    res = ::bind(accept_, (struct sockaddr*)&addr_in, sizeof(struct sockaddr_in));
 	if (res == -1) {
 		GTRACE("%s", strerror(errno));
 		return false;
@@ -50,7 +50,7 @@ void GDemonServer::exec() {
 	while (true) {
         struct sockaddr_in addr_in;
         socklen_t len = sizeof(addr_in);
-        int new_sd = ::accept(accept_, (struct sockaddr *)&addr_in, &len);
+        int new_sd = ::accept(accept_, (struct sockaddr*)&addr_in, &len);
 		if (new_sd == -1) {
 			GTRACE("%s", strerror(errno));
 			break;
