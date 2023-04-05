@@ -5,7 +5,7 @@
 // GIpForwardTable
 // ----------------------------------------------------------------------------
 GIpForwardTable::GIpForwardTable() {
-	ipForwardTable_ = PMIB_IPFORWARDTABLE(malloc(sizeof (MIB_IPFORWARDTABLE)));
+    ipForwardTable_ = PMIB_IPFORWARDTABLE(malloc(sizeof(MIB_IPFORWARDTABLE)));
 	if (ipForwardTable_ == nullptr) {
 		qCritical() << "Error allocating memory";
 		return;

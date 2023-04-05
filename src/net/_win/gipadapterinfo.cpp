@@ -6,7 +6,7 @@
 // ----------------------------------------------------------------------------
 GIpAdapterInfo::GIpAdapterInfo() {
 
-	pAdapterInfo_ = PIP_ADAPTER_INFO(malloc(sizeof (IP_ADAPTER_INFO)));
+    pAdapterInfo_ = PIP_ADAPTER_INFO(malloc(sizeof(IP_ADAPTER_INFO)));
 	if (pAdapterInfo_ == nullptr) {
 		qCritical() << "Error allocating memory needed to call GetAdaptersinfo";
 		return;
@@ -14,7 +14,7 @@ GIpAdapterInfo::GIpAdapterInfo() {
 
 	// Make an initial call to GetAdaptersInfo to get
 	// the necessary size into the ulOutBufLen variable
-	ULONG ulOutBufLen = sizeof (IP_ADAPTER_INFO);
+    ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
 	if (GetAdaptersInfo(pAdapterInfo_, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) {
 		free(pAdapterInfo_);
 		pAdapterInfo_ = PIP_ADAPTER_INFO(malloc(ulOutBufLen));

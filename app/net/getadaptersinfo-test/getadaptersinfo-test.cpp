@@ -31,8 +31,8 @@ int __cdecl main()
 	char buffer[32];
 	errno_t error;
 
-	ULONG ulOutBufLen = sizeof (IP_ADAPTER_INFO);
-	pAdapterInfo = (IP_ADAPTER_INFO *) MALLOC(sizeof (IP_ADAPTER_INFO));
+    ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
+    pAdapterInfo = (IP_ADAPTER_INFO*)MALLOC(sizeof(IP_ADAPTER_INFO));
 	if (pAdapterInfo == NULL) {
 		printf("Error allocating memory needed to call GetAdaptersinfo\n");
 		return 1;
@@ -41,7 +41,7 @@ int __cdecl main()
 	// the necessary size into the ulOutBufLen variable
 	if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) {
 		FREE(pAdapterInfo);
-		pAdapterInfo = (IP_ADAPTER_INFO *) MALLOC(ulOutBufLen);
+        pAdapterInfo = (IP_ADAPTER_INFO*)MALLOC(ulOutBufLen);
 		if (pAdapterInfo == NULL) {
 			printf("Error allocating memory needed to call GetAdaptersinfo\n");
 			return 1;

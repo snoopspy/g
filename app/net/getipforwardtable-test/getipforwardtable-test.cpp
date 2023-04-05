@@ -11,7 +11,6 @@
 
 int main()
 {
-
 	// Declare and initialize variables.
 
 	/* variables used for GetIfForwardTable */
@@ -27,17 +26,15 @@ int main()
 
 	int i;
 
-	pIpForwardTable =
-			(MIB_IPFORWARDTABLE *) MALLOC(sizeof (MIB_IPFORWARDTABLE));
+    pIpForwardTable = (MIB_IPFORWARDTABLE*)MALLOC(sizeof(MIB_IPFORWARDTABLE));
 	if (pIpForwardTable == NULL) {
 		printf("Error allocating memory\n");
 		return 1;
 	}
 
-	if (GetIpForwardTable(pIpForwardTable, &dwSize, 0) ==
-			ERROR_INSUFFICIENT_BUFFER) {
+    if (GetIpForwardTable(pIpForwardTable, &dwSize, 0) == ERROR_INSUFFICIENT_BUFFER) {
 		FREE(pIpForwardTable);
-		pIpForwardTable = (MIB_IPFORWARDTABLE *) MALLOC(dwSize);
+        pIpForwardTable = (MIB_IPFORWARDTABLE*) MALLOC(dwSize);
 		if (pIpForwardTable == NULL) {
 			printf("Error allocating memory\n");
 			return 1;
@@ -48,27 +45,21 @@ int main()
 		 * GetIpForwardTable entries are in network byte order
 		 */
 	if ((dwRetVal = GetIpForwardTable(pIpForwardTable, &dwSize, 0)) == NO_ERROR) {
-		printf("\tNumber of entries: %d\n",
-					 (int) pIpForwardTable->dwNumEntries);
+        printf("\tNumber of entries: %d\n", (int)pIpForwardTable->dwNumEntries);
 		for (i = 0; i < (int) pIpForwardTable->dwNumEntries; i++) {
 			/* Convert IPv4 addresses to strings */
-			IpAddr.S_un.S_addr =
-					(u_long) pIpForwardTable->table[i].dwForwardDest;
-			strcpy_s(szDestIp, sizeof (szDestIp), inet_ntoa(IpAddr));
-			IpAddr.S_un.S_addr =
-					(u_long) pIpForwardTable->table[i].dwForwardMask;
-			strcpy_s(szMaskIp, sizeof (szMaskIp), inet_ntoa(IpAddr));
-			IpAddr.S_un.S_addr =
-					(u_long) pIpForwardTable->table[i].dwForwardNextHop;
-			strcpy_s(szGatewayIp, sizeof (szGatewayIp), inet_ntoa(IpAddr));
+            IpAddr.S_un.S_addr = (u_long) pIpForwardTable->table[i].dwForwardDest;
+            strcpy_s(szDestIp, sizeof(szDestIp), inet_ntoa(IpAddr));
+            IpAddr.S_un.S_addr = (u_long) pIpForwardTable->table[i].dwForwardMask;
+            strcpy_s(szMaskIp, sizeof(szMaskIp), inet_ntoa(IpAddr));
+            IpAddr.S_un.S_addr = (u_long) pIpForwardTable->table[i].dwForwardNextHop;
+            strcpy_s(szGatewayIp, sizeof(szGatewayIp), inet_ntoa(IpAddr));
 
 			printf("\n\tRoute[%d] Dest IP: %s\n", i, szDestIp);
 			printf("\tRoute[%d] Subnet Mask: %s\n", i, szMaskIp);
 			printf("\tRoute[%d] Next Hop: %s\n", i, szGatewayIp);
-			printf("\tRoute[%d] If Index: %ld\n", i,
-						 pIpForwardTable->table[i].dwForwardIfIndex);
-			printf("\tRoute[%d] Type: %ld - ", i,
-						 pIpForwardTable->table[i].dwForwardType);
+            printf("\tRoute[%d] If Index: %ld\n", i, pIpForwardTable->table[i].dwForwardIfIndex);
+            printf("\tRoute[%d] Type: %ld - ", i, pIpForwardTable->table[i].dwForwardType);
 			switch (pIpForwardTable->table[i].dwForwardType) {
 				case MIB_IPROUTE_TYPE_OTHER:
 					printf("other\n");
@@ -87,8 +78,7 @@ int main()
 					printf("UNKNOWN Type value\n");
 					break;
 			}
-			printf("\tRoute[%d] Proto: %ld - ", i,
-						 pIpForwardTable->table[i].dwForwardProto);
+            printf("\tRoute[%d] Proto: %ld - ", i, pIpForwardTable->table[i].dwForwardProto);
 			switch (pIpForwardTable->table[i].dwForwardProto) {
 				case MIB_IPPROTO_OTHER:
 					printf("other\n");
@@ -148,10 +138,8 @@ int main()
 					break;
 			}
 
-			printf("\tRoute[%d] Age: %ld\n", i,
-						 pIpForwardTable->table[i].dwForwardAge);
-			printf("\tRoute[%d] Metric1: %ld\n", i,
-						 pIpForwardTable->table[i].dwForwardMetric1);
+            printf("\tRoute[%d] Age: %ld\n", i, pIpForwardTable->table[i].dwForwardAge);
+            printf("\tRoute[%d] Metric1: %ld\n", i, pIpForwardTable->table[i].dwForwardMetric1);
 		}
 		FREE(pIpForwardTable);
 		return 0;
