@@ -83,15 +83,15 @@ bool GDemonClient::connect() {
 #endif // WIN32
 	ip_addr = inet_addr(ip_.data());
 
-	struct sockaddr_in addr;
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port_);
-	addr.sin_addr.s_addr = ip_addr;
-	memset(&addr.sin_zero, 0, sizeof(addr.sin_zero));
+    struct sockaddr_in addr_in;
+    addr_in.sin_family = AF_INET;
+    addr_in.sin_port = htons(port_);
+    addr_in.sin_addr.s_addr = ip_addr;
+    memset(&addr_in.sin_zero, 0, sizeof(addr_in.sin_zero));
 
 	bool connected = false;
 	for (int i = 0; i < 10 ; i++) { // 5 seconds
-		int res = ::connect(sd_, (struct sockaddr *)&addr, sizeof(addr));
+        int res = ::connect(sd_, (struct sockaddr*)&addr_in, sizeof(struct sockaddr_in));
 		if (res != -1) {
 			connected = true;
 			break;

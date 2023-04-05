@@ -68,8 +68,8 @@ bool GRawIpSocketWrite::doOpen() {
 	}
 #endif // Q_OS_WIN
 
-	memset(&sockaddr_in_, 0, sizeof(sockaddr_in_));
-	sockaddr_in_.sin_family = AF_INET;
+    memset(&addr_in_, 0, sizeof(addr_in_));
+    addr_in_.sin_family = AF_INET;
 
 	return true;
 }
@@ -84,9 +84,9 @@ bool GRawIpSocketWrite::doClose() {
 
 GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 	GIpHdr* ipHdr = PIpHdr(buf.data_);
-    sockaddr_in_.sin_addr.s_addr = ipHdr->dip_; // network byte order
+    addr_in_.sin_addr.s_addr = ipHdr->dip_; // network byte order
 
-	int res = ::sendto(sd_, pchar(ipHdr), ipHdr->len(), 0, (sockaddr*)&sockaddr_in_, sizeof(sockaddr_in_));
+    int res = ::sendto(sd_, pchar(ipHdr), ipHdr->len(), 0, (struct sockaddr*)&addr_in_, sizeof(struct sockaddr_in));
 	if (res < 0) {
 		QString msg = QString("sendto return %1(%2) buf len=%3").arg(res).arg(strerror(errno)).arg(ipHdr->len());
 		SET_ERR(GErr::Fail, msg);

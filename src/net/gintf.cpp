@@ -78,13 +78,13 @@ GIntfList::GIntfList() {
 #ifdef Q_OS_LINUX
 		intf.mac_ = getMac(dev->name);
 		for(pcap_addr_t* pa = dev->addresses; pa != nullptr; pa = pa->next) {
-			sockaddr* addr = pa->addr;
-			sockaddr_in* addr_in = reinterpret_cast<sockaddr_in*>(addr);
+            struct sockaddr* addr = pa->addr;
+            struct sockaddr_in* addr_in = reinterpret_cast<struct sockaddr_in*>(addr);
 			if(addr != nullptr && addr->sa_family == AF_INET)
 				intf.ip_ = ntohl(addr_in->sin_addr.s_addr);
 
 			addr = pa->netmask;
-			addr_in = reinterpret_cast<sockaddr_in*>(addr);
+            addr_in = reinterpret_cast<struct sockaddr_in*>(addr);
 			if(addr != nullptr && addr->sa_family == AF_INET) {
 				intf.mask_ = ntohl(addr_in->sin_addr.s_addr);
 			}

@@ -26,12 +26,12 @@ bool GDemonServer::start(uint16_t port) {
 		return false;
 	}
 
-	struct sockaddr_in addr;
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port = htons(port);
+    struct sockaddr_in addr_in;
+    addr_in.sin_family = AF_INET;
+    addr_in.sin_addr.s_addr = INADDR_ANY;
+    addr_in.sin_port = htons(port);
 
-	res = ::bind(accept_, (struct sockaddr *)&addr, sizeof(addr));
+    res = ::bind(accept_, (struct sockaddr *)&addr_in, sizeof(struct sockaddr_in));
 	if (res == -1) {
 		GTRACE("%s", strerror(errno));
 		return false;
@@ -48,9 +48,9 @@ bool GDemonServer::start(uint16_t port) {
 
 void GDemonServer::exec() {
 	while (true) {
-		struct sockaddr_in cli_addr;
-		socklen_t len = sizeof(cli_addr);
-		int new_sd = ::accept(accept_, (struct sockaddr *)&cli_addr, &len);
+        struct sockaddr_in addr_in;
+        socklen_t len = sizeof(addr_in);
+        int new_sd = ::accept(accept_, (struct sockaddr *)&addr_in, &len);
 		if (new_sd == -1) {
 			GTRACE("%s", strerror(errno));
 			break;
@@ -1180,12 +1180,12 @@ bool GDemonRawIp::processRiWrite(pchar buf, int32_t size) {
 		return false;
 	}
 
-	struct sockaddr_in sin;
-	sin.sin_family = AF_INET;
+    struct sockaddr_in addr_in;
+    addr_in.sin_family = AF_INET;
 	uint32_t dip = *reinterpret_cast<uint32_t*>(write.data_ + 16); // dip index
-	sin.sin_addr.s_addr = dip; // network byte order
+    addr_in.sin_addr.s_addr = dip; // network byte order
 
-	int res = ::sendto(sd_, write.data_, write.size_, 0, (sockaddr*)&sin, sizeof(sin));
+    int res = ::sendto(sd_, write.data_, write.size_, 0, (struct sockaddr*)&addr_in, sizeof(struct sockaddr_in));
 	if (res < 0) {
 		GTRACE("sendto return %d(%s) buf len=%d", res, strerror(errno), write.len_);
 		return false;
