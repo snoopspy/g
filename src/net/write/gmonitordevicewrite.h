@@ -38,7 +38,5 @@ protected:
 
 public:
 	GPacket::Result write(GBuf buf) override;
-
-public slots:
 	GPacket::Result write(GPacket* packet) override;
 };
