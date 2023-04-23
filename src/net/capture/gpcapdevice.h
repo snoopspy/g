@@ -66,7 +66,7 @@ public:
 
 #ifdef Q_OS_ANDROID
 public:
-    int port_{GDemon::DefaultPort};
+	int port_{GDemon::DefaultPort};
 	GDemonClient* demonClient_{nullptr};
 #endif
 
