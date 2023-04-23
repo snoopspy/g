@@ -77,8 +77,8 @@ void GPluginFactory::loadCapture() {
 #endif
 	qRegisterMetaType<GAutoArpSpoof*>();
 #ifndef Q_OS_WIN
-    qRegisterMetaType<GMonitorDevice*>();
-    qRegisterMetaType<GNetFilter*>();
+	qRegisterMetaType<GMonitorDevice*>();
+	qRegisterMetaType<GNetFilter*>();
 #endif
 	qRegisterMetaType<GPcapDevice*>();
 	qRegisterMetaType<GPcapFile*>();

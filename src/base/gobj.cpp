@@ -98,12 +98,12 @@ bool GObj::disconnect(QObject *sender, const QMetaMethod &signal, QObject *recei
 GObj* GObj::createInstance(QString className, QObject* parent) {
 	if (!className.endsWith('*'))
 		className += "*";
-    int id = QMetaType::type(qPrintable(className));
+	int id = QMetaType::type(qPrintable(className));
 	if (id == QMetaType::UnknownType) {
 		qWarning() << QString("can not find class type for (%1)").arg(className);
 		return nullptr;
 	}
-    const QMetaObject* mobj = QMetaType(id).metaObject();
+	const QMetaObject* mobj = QMetaType(id).metaObject();
 	Q_ASSERT(mobj != nullptr);
 	QObject* object = mobj->newInstance();
 	if (object == nullptr) {

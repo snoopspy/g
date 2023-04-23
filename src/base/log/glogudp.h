@@ -42,6 +42,6 @@ public:
 protected:
 	bool configured_{false};
 	int sock_{0};
-    struct sockaddr_in addr_in_;
+	struct sockaddr_in addr_in_;
 	void configure();
 };

@@ -18,7 +18,7 @@ void GLogUdp::write(QString& msg) {
 		configure();
 		configured_ = true;
 	}
-    ::sendto(sock_, qPrintable(msg), msg.size(), 0, (struct sockaddr*)&addr_in_, sizeof(struct sockaddr_in ));
+	::sendto(sock_, qPrintable(msg), msg.size(), 0, (struct sockaddr*)&addr_in_, sizeof(struct sockaddr_in ));
 }
 
 void GLogUdp::configure() {
@@ -36,9 +36,9 @@ void GLogUdp::configure() {
 		fprintf(stderr, "socket return null\n");
 		return;
 	} else {
-        addr_in_.sin_family = AF_INET;
-        addr_in_.sin_port = htons(port_);
-        addr_in_.sin_addr.s_addr = inet_addr(qPrintable(ip_));
-        memset(addr_in_.sin_zero, 0, sizeof(addr_in_.sin_zero));
+		addr_in_.sin_family = AF_INET;
+		addr_in_.sin_port = htons(port_);
+		addr_in_.sin_addr.s_addr = inet_addr(qPrintable(ip_));
+		memset(addr_in_.sin_zero, 0, sizeof(addr_in_.sin_zero));
 	}
 }

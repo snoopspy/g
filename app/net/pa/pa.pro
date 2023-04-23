@@ -3,7 +3,7 @@ include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
 
 SOURCES += \
-    pa.cpp \
+	pa.cpp \
 	pawidget.cpp \
 	probeanalyzer.cpp
 

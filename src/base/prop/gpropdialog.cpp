@@ -11,7 +11,7 @@
 GPropDialog::GPropDialog(QWidget *parent) : QDialog(parent) {
 	resize(QSize(640, 480));
 	QLayout* layout = new QVBoxLayout;
-    layout->setContentsMargins(0, 0, 0, 0);
+	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(0);
 	layout->addWidget(&widget_);
 	setLayout(layout);

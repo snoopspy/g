@@ -10,7 +10,7 @@ GPropItemFilePath::GPropItemFilePath(GPropItemParam* param) : GPropItemWidget(pa
 	lineEdit_ = new QLineEdit(param->treeWidget_);
 	toolButton_ = new QToolButton(param->treeWidget_);
 	fd_ = new QFileDialog(param->treeWidget_);
-    layout_->setContentsMargins(0, 0, 0, 0);
+	layout_->setContentsMargins(0, 0, 0, 0);
 	lineEdit_->setFrame(false);
 	toolButton_->setText("...");
 	layout_->addWidget(lineEdit_);
@@ -41,7 +41,7 @@ void GPropItemFilePath::myToolButtonClicked(bool checked) {
 	if (_absolutePath != "")
 		fd_->setDirectory(_absolutePath);
 	if (fd_->exec()) {
-        QFileInfo filePath = QFileInfo(fd_->selectedFiles().at(0));
+		QFileInfo filePath = QFileInfo(fd_->selectedFiles().at(0));
 		_absolutePath = filePath.absolutePath();
 		bool res = object_->setProperty(mpro_.name(), filePath.filePath());
 		if (!res) {

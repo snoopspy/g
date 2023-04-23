@@ -300,7 +300,7 @@ SOURCES += \
 	$${PWD}/../src/net/capture/gsyncwindivert.cpp \
 	$${PWD}/../src/net/capture/gwindivert.cpp \
 	$${PWD}/../src/net/_win/gipadapterinfo.cpp \
-        $${PWD}/../src/net/_win/gipforwardtable.cpp
+	$${PWD}/../src/net/_win/gipforwardtable.cpp
 
 HEADERS += \
 	$${PWD}/../src/net/capture/gsyncwindivert.h \

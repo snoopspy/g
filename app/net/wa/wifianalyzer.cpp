@@ -4,10 +4,10 @@
 WifiAnalyzer::WifiAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
 	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -c1\"", "su -c \"nexutil -d\"", "su -c \"nexutil -m2\""}));
-    command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\"", "su -c \"ifconfig wlan0 down\""}));
+	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\"", "su -c \"ifconfig wlan0 down\""}));
 #endif
 
-    dot11Block_.enabled_ = false;
+	dot11Block_.enabled_ = false;
 	dot11Block_.writer_ = &monitorDeviceWrite_;
 
 	// for probeDetected signal
@@ -22,7 +22,7 @@ WifiAnalyzer::~WifiAnalyzer() {
 }
 
 bool WifiAnalyzer::doOpen() {
-    GThreadMgr::suspendStart();
+	GThreadMgr::suspendStart();
 
 	currentChannel_ = 0;
 	bool isOk = false;
@@ -52,7 +52,7 @@ bool WifiAnalyzer::doOpen() {
 		break;
 	}
 
-    GThreadMgr::resumeStart();
+	GThreadMgr::resumeStart();
 	return isOk;
 }
 

@@ -58,7 +58,7 @@ void GGraphWidget::init() {
 	actionAbout_->setIcon(QIcon(":/img/about.png"));
 
 	mainLayout_ = new QVBoxLayout(this);
-    mainLayout_->setContentsMargins(0, 0, 0, 0);
+	mainLayout_->setContentsMargins(0, 0, 0, 0);
 	mainLayout_->setSpacing(0);
 
 	toolBar_ = new QToolBar(this);

@@ -11,7 +11,7 @@ struct TextItem: QTableWidgetItem
 {
 	explicit TextItem(QString text) : QTableWidgetItem(text) {}
 
-    bool operator< (const QTableWidgetItem &r) const {
+	bool operator< (const QTableWidgetItem &r) const {
 		int col = column();
 		switch (col) {
 			case 0: // mac
@@ -26,7 +26,7 @@ struct TextItem: QTableWidgetItem
 				qWarning() << "unreachable code";
 				return text() < r.text();
 		}
-    }
+	}
 };
 
 struct Device {
@@ -35,7 +35,7 @@ struct Device {
 	int channel_;
 
 	QProgressBar* progressBar_{nullptr};
-    TextItem* textItem_{nullptr};
+	TextItem* textItem_{nullptr};
 	QVector<int> signals_;
 };
 

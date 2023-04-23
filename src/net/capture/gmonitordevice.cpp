@@ -5,7 +5,7 @@
 
 GMonitorDevice::GMonitorDevice(QObject* parent) : GPcapDevice(parent) {
 #ifdef Q_OS_ANDROID
-    port_ = GDemon::NexmonPort;
+	port_ = GDemon::NexmonPort;
 #endif // Q_OS_ANDROID
 }
 
@@ -91,7 +91,7 @@ bool GMonitorDevice::getRadioInfoFromFile() {
 bool GMonitorDevice::getRadioInfoFromDevice() {
 	GSyncPcapDevice device;
 #ifdef Q_OS_ANDROID
-    device.port_ = GDemon::NexmonPort;
+	device.port_ = GDemon::NexmonPort;
 #endif // Q_OS_ANDROID
 	device.intfName_ = intfName_;
 	if (!device.open()) {

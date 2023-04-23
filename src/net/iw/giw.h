@@ -47,5 +47,5 @@ protected:
 	QList<int> internalChannelList_;
 
 protected:
-    int ieee80211_frequency_to_channel(int freq);
+	int ieee80211_frequency_to_channel(int freq);
 };
