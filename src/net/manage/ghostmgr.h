@@ -102,7 +102,7 @@ protected:
 	GMac myMac_{GMac::nullMac()};
 	GIp gwIp_{0};
 
-	void deleteOldHosts(long now);
+	void deleteOldHosts(__time_t now);
 
 protected:
 	bool processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip);
