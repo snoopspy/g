@@ -121,7 +121,6 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 		*item = nullptr;
 		swe.wakeAll();
 	});
-	QThread::sleep(1);
 	swe.wait();
 }
 
