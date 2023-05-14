@@ -80,6 +80,7 @@ public:
 	// GHostMgr::Managable
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 	// GIpFlowMgr::Managable
 	void ipFlowCreated(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFlowValue* ipFlowValue) override;

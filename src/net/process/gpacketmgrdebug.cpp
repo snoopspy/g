@@ -32,16 +32,21 @@ bool GPacketMgrDebug::doClose() {
 
 void GPacketMgrDebug::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	if (!enabled_) return;
-	qDebug() << QString("hostCreated %1 %2").arg(QString(mac), QString(hostValue->ip_));
+	qDebug() << QString("hostCreated %1 %2 %3").arg(QString(mac), QString(hostValue->ip_), hostValue->hostName_);
 	Item* item = PItem(hostValue->mem(hostOffset_));
 	new (item) Item;
 }
 
 void GPacketMgrDebug::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	if (!enabled_) return;
-	qDebug() << QString("hostDeleted %1 %2").arg(QString(mac), QString(hostValue->ip_));
+	qDebug() << QString("hostDeleted %1 %2").arg(QString(mac), QString(hostValue->ip_), hostValue->hostName_);
 	Item* item = PItem(hostValue->mem(hostOffset_));
 	item->~Item();
+}
+
+void GPacketMgrDebug::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
+	if (!enabled_) return;
+	qDebug() << QString("hostDeleted %1 %2").arg(QString(mac), QString(hostValue->ip_), hostValue->hostName_);
 }
 
 void GPacketMgrDebug::ipFlowCreated(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFlowValue* ipFlowValue) {

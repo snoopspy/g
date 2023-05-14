@@ -193,6 +193,12 @@ void GAutoArpSpoof::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	}
 }
 
+void GAutoArpSpoof::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
+	qDebug() << ""; // gilgil temp 2023.05.10
+	(void)mac;
+	(void)hostValue;
+}
+
 GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GAutoArpSpoof::TwoFlowKey twoFlowKey, GEthArpPacket infectPacket1, GEthArpPacket infectPacket2) : QThread(parent) {
 	// GDEBUG_CTOR
 	parent_ = parent;

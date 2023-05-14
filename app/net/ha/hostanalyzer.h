@@ -46,6 +46,7 @@ protected:
 	size_t itemOffset_{0};
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 public:
 	GTreeWidget* treeWidget_{nullptr};

@@ -62,6 +62,7 @@ public:
 	size_t itemOffset_;
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 	// --------------------------------------------------------------------------
 	// Item

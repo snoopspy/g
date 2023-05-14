@@ -81,9 +81,11 @@ bool HostAnalyzer::doClose() {
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
+	QString hostName = hostValue->hostName_;
 	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
-	QMetaObject::invokeMethod(this, [this, mac, ip, item]() {
-		QTreeWidgetItem* treeWidgetItem = new QTreeWidgetItem(QStringList{QString(ip), QString(mac)});
+
+	QMetaObject::invokeMethod(this, [this, mac, ip, hostName, item]() {
+		QTreeWidgetItem* treeWidgetItem = new QTreeWidgetItem(QStringList{QString(ip), QString(mac), hostName});
 		treeWidget_->addTopLevelItem(treeWidgetItem);
 
 		QToolButton* toolButton = new QToolButton(treeWidget_);
@@ -112,6 +114,7 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
 	if (!active()) return;
 	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
+
 	GStateWaitEvent swe;
 	QMetaObject::invokeMethod(this, [item, &swe]() {
 		delete *item;
@@ -120,6 +123,18 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	});
 	QThread::sleep(1);
 	swe.wait();
+}
+
+void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
+	GIp ip = hostValue->ip_;
+	QString hostName = hostValue->hostName_;
+	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
+
+	QMetaObject::invokeMethod(this, [item, ip, mac, hostName]() {
+		(*item)->setText(0, QString(ip));
+		(*item)->setText(1, QString(mac));
+		(*item)->setText(2, QString(hostName));
+	});
 }
 
 void HostAnalyzer::toolButton_toggled(bool checked) {

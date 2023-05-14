@@ -105,6 +105,7 @@ protected:
 		Flow(GIp senderIp, GMac senderMac, GIp targetIp, GMac targetMac);
 		void makePacket(GEthArpPacket* packet, GMac attackMac, bool infect);
 	};
+
 	struct FlowList : QList<Flow> { // for arp infect and recover
 		QMutex m_;
 		int findIndex(GFlow::IpFlowKey);

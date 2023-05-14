@@ -47,6 +47,7 @@ public:
 	// GHostMgr::Managable
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 protected:
 	GIp gwIp_;

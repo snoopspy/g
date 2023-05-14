@@ -1,4 +1,5 @@
 #include "ghostmgr.h"
+#include "net/pdu/gdhcphdr.h"
 
 // ----------------------------------------------------------------------------
 // GHostMgr
@@ -67,6 +68,44 @@ void GHostMgr::deleteOldHosts(__time_t /*__time_t*/ now) {
 	}
 }
 
+bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* hostName) {
+	GUdpHdr* udpHdr = packet->udpHdr_;
+	if (udpHdr == nullptr) return false;
+
+	if (!(udpHdr->sport() == 67 || udpHdr->dport() == 67)) return false;
+
+	GBuf dhcp = packet->udpData_;
+	if (dhcp.data_ == nullptr) return false;
+	if (dhcp.size_ < sizeof(GDhcpHdr)) return false;
+	GDhcpHdr* dhcpHdr = PDhcpHdr(dhcp.data_);
+
+	bool ok = false;
+	if (!dhcpHdr->clientMac().isNull()) { // Discover, Offer, Request, ACK
+		*mac = dhcpHdr->clientMac();
+		ok = true;
+	}
+	if (dhcpHdr->yourIp() != 0) { // Offer, ACK sent from server
+		*ip = dhcpHdr->yourIp();
+	}
+
+	GEthHdr* ethHdr = packet->ethHdr_;
+	if (ethHdr == nullptr) return false;
+	gbyte* end = packet->buf_.data_ + packet->buf_.size_;
+	GDhcpHdr::Option* option = dhcpHdr->firstOption();
+	while (true) {
+		if (option->type_ == GDhcpHdr::RequestedIpAddress) { // Request
+			*ip = ntohl(*PIp(option->value()));
+		} else if (option->type_ == GDhcpHdr::HostName) { // Discover, Request sent from client
+			for (int i = 0; i < option->len_; i++)
+				*hostName += *(pchar(option->value()) + i);
+		}
+		option = option->next();
+		if (option == nullptr) break;
+		if (pbyte(option) >= end) break;
+	}
+	return ok;
+}
+
 bool GHostMgr::processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip) {
 	if (ethHdr->smac() != arpHdr->smac()) {
 		qDebug() << QString("ARP spoofing detected %1 %2 %3").arg(
@@ -97,8 +136,9 @@ void GHostMgr::manage(GPacket* packet) {
 		lastCheckClock_ = now;
 	}
 
-	GMac mac;
-	GIp ip;
+	GMac mac(GMac::nullMac());
+	GIp ip(0);
+	QString hostName;
 
 	GEthHdr* ethHdr = packet->ethHdr_;
 	if (ethHdr == nullptr) return;
@@ -108,12 +148,16 @@ void GHostMgr::manage(GPacket* packet) {
 
 	bool detected = false;
 	GIpHdr* ipHdr = packet->ipHdr_;
-	if (ipHdr != nullptr && ipHdr->sip() != myIp_ && processIp(ethHdr, ipHdr, &mac, &ip))
+	if (ipHdr != nullptr && ipHdr->sip() != myIp_) {
+		if (processDhcp(packet, &mac, &ip, &hostName) || processIp(ethHdr, ipHdr, &mac, &ip))
 		detected = true;
+	}
 
 	GArpHdr* arpHdr = packet->arpHdr_;
-	if (arpHdr != nullptr && arpHdr->sip() != myIp_ && processArp(ethHdr, arpHdr, &mac, &ip))
-		detected = true;
+	if (arpHdr != nullptr && arpHdr->sip() != myIp_) {
+		if (processArp(ethHdr, arpHdr, &mac, &ip))
+			detected = true;
+	}
 
 	if (!detected) return;
 	if (ip == myIp_ || ip == gwIp_) return;
@@ -123,15 +167,30 @@ void GHostMgr::manage(GPacket* packet) {
 		QMutexLocker ml(&hostMap_.m_);
 		HostMap::iterator it = hostMap_.find(currentMac_);
 		if (it == hostMap_.end()) {
-			qDebug() << QString("detected %1 %2").arg(QString(mac)).arg(QString(ip)); // gilgil temp 2022.03.07
+			qDebug() << QString("detected %1 %2 %3").arg(QString(mac)).arg(QString(ip)).arg(hostName); // gilgil temp 2022.03.07
 			currentHostVal_ = HostValue::allocate(requestItems_.totalMemSize_);
 			currentHostVal_->ip_ = ip;
+			currentHostVal_->hostName_ = hostName;
 			it = hostMap_.insert(currentMac_, currentHostVal_);
 			for (Managable* manager: managables_)
 				manager->hostCreated(currentMac_, currentHostVal_);
-		}
-		else {
+		} else {
+			bool changed = false;
+			HostValue* hv = it.value();
+			if (ip != 0 && ip != hv->ip_) {
+				hv->ip_ = ip;
+				changed = true;
+			}
+			if (hostName != "" && hostName != hv->hostName_) {
+				hv->hostName_ = hostName;
+				changed = true;
+			}
 			currentHostVal_ = it.value();
+			if (changed) {
+				qDebug() << QString("changed %1 %2 %3").arg(QString(it.key())).arg(QString(hv->ip_)).arg(hv->hostName_); // gilgil temp 2022.03.07
+				for (Managable* manager: managables_)
+					manager->hostChanged(currentMac_, currentHostVal_);
+			}
 		}
 	}
 	Q_ASSERT(currentHostVal_ != nullptr);

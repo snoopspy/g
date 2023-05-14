@@ -36,6 +36,7 @@ public:
 	struct HostValue : GPacketMgr::Value {
 		struct timeval ts_;
 		GIp ip_;
+		QString hostName_;
 
 		static struct HostValue* allocate(size_t totalMemSize) {
 			HostValue* res = reinterpret_cast<HostValue*>(malloc(sizeof(HostValue) + totalMemSize));
@@ -58,6 +59,7 @@ public:
 	struct Managable {
 		virtual void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) = 0;
 		virtual void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) = 0;
+		virtual void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) = 0;
 	};
 	typedef QSet<Managable*> Managables;
 	Managables managables_;
@@ -102,9 +104,10 @@ protected:
 	GMac myMac_{GMac::nullMac()};
 	GIp gwIp_{0};
 
-	void deleteOldHosts(__time_t now);
+	void deleteOldHosts(__time_t /*__time_t*/ now);
 
 protected:
+	bool processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* hostName);
 	bool processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip);
 	bool processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip);
 

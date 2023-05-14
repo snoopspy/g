@@ -113,6 +113,13 @@ void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	}
 }
 
+void GArpBlock::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
+	(void)mac;
+
+	Item* item = PItem(hostValue->mem(itemOffset_));
+	item->ip_ = hostValue->ip_;
+}
+
 void GArpBlock::infect(Item* item, uint16_t operation) {
 	infectPacket_.ethHdr_.dmac_ = item->mac_;
 	infectPacket_.arpHdr_.op_ = htons(operation);
