@@ -73,6 +73,7 @@ struct G_EXPORT GDhcpHdr final {
 	enum: uint8_t {
 		HostName = 12,
 		RequestedIpAddress = 50,
+		VendorClassIdentitier = 60,
 		End = 255
 	};
 };

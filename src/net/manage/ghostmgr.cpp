@@ -95,7 +95,7 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* hostNam
 	while (true) {
 		if (option->type_ == GDhcpHdr::RequestedIpAddress) { // Request
 			*ip = ntohl(*PIp(option->value()));
-		} else if (option->type_ == GDhcpHdr::HostName) { // Discover, Request sent from client
+		} else if (option->type_ == GDhcpHdr::HostName || option->type_ == GDhcpHdr::VendorClassIdentitier) { // Discover, Request sent from client
 			for (int i = 0; i < option->len_; i++)
 				*hostName += *(pchar(option->value()) + i);
 		}
