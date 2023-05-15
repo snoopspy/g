@@ -132,7 +132,7 @@ bool GAutoArpSpoof::doClose() {
 void GAutoArpSpoof::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	qDebug() << ""; // gilgil temp 2022.09.26
 	GIp ip = hostValue->ip_;
-	if (ip == gwIp_) return;
+	if (ip == 0 || ip == gwIp_) return;
 
 	GFlow::IpFlowKey ipFlowKey(ip, gwIp_);
 	{
@@ -194,9 +194,7 @@ void GAutoArpSpoof::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void GAutoArpSpoof::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
-	qDebug() << ""; // gilgil temp 2023.05.10
-	(void)mac;
-	(void)hostValue;
+	hostCreated(mac, hostValue);
 }
 
 GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GAutoArpSpoof::TwoFlowKey twoFlowKey, GEthArpPacket infectPacket1, GEthArpPacket infectPacket2) : QThread(parent) {
