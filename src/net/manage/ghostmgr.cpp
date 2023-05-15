@@ -58,7 +58,7 @@ void GHostMgr::deleteOldHosts(__time_t /*__time_t*/ now) {
 		long elapsed = now - hostValue->ts_.tv_sec;
 		if (elapsed >= timeoutSec_) {
 			GMac mac = it.key();
-			qDebug() << QString("deleted %1 %2").arg(QString(mac)).arg(QString(it.value()->ip_)); // gilgil temp 2022.03.07
+			qDebug() << QString("%1 %2").arg(QString(mac)).arg(QString(it.value()->ip_));
 			for (Managable* manager: managables_)
 				manager->hostDeleted(mac, hostValue);
 			it = hostMap_.erase(it);
@@ -99,7 +99,7 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* hostNam
 			*hostName = "";
 			for (int i = 0; i < option->len_; i++)
 				*hostName += *(pchar(option->value()) + i);
-		} else if (option->type_ == GDhcpHdr::VendorClassIdentitier) {
+		} else if (option->type_ == GDhcpHdr::VendorClassIdentitier && *hostName == "") {
 			*hostName = "";
 			for (int i = 0; i < option->len_; i++)
 				*hostName += *(pchar(option->value()) + i);
