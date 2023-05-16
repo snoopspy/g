@@ -84,8 +84,7 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	QString hostName = hostValue->hostName_;
 	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
 
-	GStateWaitEvent swe;
-	QMetaObject::invokeMethod(this, [this, mac, ip, hostName, item, &swe]() {
+	QMetaObject::invokeMethod(this, [this, mac, ip, hostName, item]() {
 		QTreeWidgetItem* treeWidgetItem = new QTreeWidgetItem(QStringList{QString(ip), QString(mac), hostName});
 		treeWidget_->addTopLevelItem(treeWidgetItem);
 
@@ -108,10 +107,8 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 
 		*item = treeWidgetItem;
-
-		swe.wakeAll();
 	});
-	swe.wait();
+
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
@@ -119,13 +116,14 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	if (!active()) return;
 	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
 
-	GStateWaitEvent swe;
-	QMetaObject::invokeMethod(this, [item, &swe]() {
+	QMetaObject::invokeMethod(this, [item]() {
 		delete *item;
-		*item = nullptr;
-		swe.wakeAll();
+		// ----- by gilgil 2023.05.16 -----
+		// Do not initialize this pointer value(located in hostValue memory)
+		// because it's memory can be already freed in GHostMgr::deleteOldHosts().
+		// *item = nullptr;
+		// --------------------------------
 	});
-	swe.wait();
 }
 
 void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
@@ -133,14 +131,11 @@ void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	QString hostName = hostValue->hostName_;
 	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
 
-	GStateWaitEvent swe;
-	QMetaObject::invokeMethod(this, [item, ip, mac, hostName, &swe]() {
+	QMetaObject::invokeMethod(this, [item, ip, mac, hostName]() {
 		(*item)->setText(0, QString(ip));
 		(*item)->setText(1, QString(mac));
 		(*item)->setText(2, QString(hostName));
-		swe.wakeAll();
 	});
-	swe.wait();
 }
 
 void HostAnalyzer::toolButton_toggled(bool checked) {
