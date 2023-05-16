@@ -5,12 +5,12 @@ cd lib
 	mkdir libg
 	cd libg
 	qmake ../libg.pro "CONFIG+=release"
-	mingw32-make -j4
+	mingw32-make -j%NUMBER_OF_PROCESSORS%
 	cd ..
 	mkdir libg-gui
 	cd libg-gui
 	qmake ../libg-gui.pro "CONFIG+=release"
-	mingw32-make -j4
+	mingw32-make -j%NUMBER_OF_PROCESSORS%
 	cd ..
 cd ..
 
@@ -20,7 +20,7 @@ rem
 move app\net\arprecover\makefile app\net\arprecover\makefile.gilgil
 cd app
 	qmake "CONFIG+=release" 
-	mingw32-make -j4
+	mingw32-make -j%NUMBER_OF_PROCESSORS%
 	cd ..
 del app\net\arprecover\Makefile	
 move app\net\arprecover\makefile.gilgil app\net\arprecover\makefile
@@ -30,7 +30,7 @@ rem plugin
 rem
 cd plugin
 	qmake "CONFIG+=release"
-	mingw32-make -j4
+	mingw32-make -j%NUMBER_OF_PROCESSORS%
 	cd ..
 
 rem
