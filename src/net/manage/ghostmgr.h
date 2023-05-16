@@ -26,7 +26,7 @@ struct G_EXPORT GHostMgr : GPacketMgr {
 
 public:
 	bool enabled_{true};
-	long timeoutSec_{60}; // 1 minutes
+	long timeoutSec_{70}; // 1 minute + 10 seconds
 	GPcapDevice* pcapDevice_{nullptr};
 
 public:
@@ -104,7 +104,7 @@ protected:
 	GMac myMac_{GMac::nullMac()};
 	GIp gwIp_{0};
 
-	void deleteOldHosts(__time_t /*__time_t*/ now);
+	void deleteOldHosts(time_t now);
 
 protected:
 	bool processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* hostName);

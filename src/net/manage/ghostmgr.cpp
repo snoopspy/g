@@ -50,7 +50,7 @@ bool GHostMgr::doClose() {
 	return GPacketMgr::doClose();
 }
 
-void GHostMgr::deleteOldHosts(__time_t /*__time_t*/ now) {
+void GHostMgr::deleteOldHosts(time_t now) {
 	QMutexLocker ml(&hostMap_.m_);
 	HostMap::iterator it = hostMap_.begin();
 	while (it != hostMap_.end()) {
