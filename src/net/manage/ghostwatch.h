@@ -21,7 +21,7 @@ struct G_EXPORT GHostWatch : GStateObj {
 	Q_OBJECT
 	Q_PROPERTY(bool enabled MEMBER enabled_)
 	Q_PROPERTY(ulong checkInterval MEMBER checkInterval_)
-	Q_PROPERTY(long scanTimeoutSec MEMBER scanStartSec_)
+	Q_PROPERTY(long scanStartSec MEMBER scanStartSec_)
 	Q_PROPERTY(int sendPercentage MEMBER sendPercentage_)
 	Q_PROPERTY(ulong sendInterval MEMBER sendInterval_)
 	Q_PROPERTY(GObjPtr pcapDevice READ getPcapDevice WRITE setPcapDevice)
