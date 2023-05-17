@@ -18,8 +18,9 @@ void GLogFile::write(QString& msg) {
 		configure();
 		configured_ = true;
 	}
+	QString fileMsg = msg.mid(7);
 	QMutexLocker ml(&m_);
-	file_.write(qPrintable(msg));
+	file_.write(qPrintable(fileMsg));
 	file_.flush();
 }
 
