@@ -37,16 +37,26 @@ public:
 		struct timeval ts_;
 		GIp ip_;
 		QString hostName_;
+#ifdef _DEBUG
+		size_t totalMemSize_;
+#endif // _DEBUG
 
 		static struct HostValue* allocate(size_t totalMemSize) {
-			HostValue* res = reinterpret_cast<HostValue*>(malloc(sizeof(HostValue) + totalMemSize));
-			new (res) HostValue;
-			return res;
+			HostValue* hostValue = reinterpret_cast<HostValue*>(malloc(sizeof(HostValue) + totalMemSize));
+#ifdef _DEBUG
+			hostValue->totalMemSize_= totalMemSize;
+			memset(pbyte(hostValue) + sizeof(HostValue), 'A', totalMemSize);
+#endif // _DEBUG
+			new (hostValue) HostValue;
+			return hostValue;
 		}
 
-		static void deallocate(HostValue* hostFlowValue) {
-			hostFlowValue->~HostValue();
-			free(static_cast<void*>(hostFlowValue));
+		static void deallocate(HostValue* hostValue) {
+			hostValue->~HostValue();
+#ifdef _DEBUG
+			memset(pbyte(hostValue) + sizeof(HostValue), 'B', hostValue->totalMemSize_);
+#endif // _DEBUG
+			free(static_cast<void*>(hostValue));
 		}
 
 		void* mem(size_t offset) { return pbyte(this) + sizeof(HostValue) + offset; }
