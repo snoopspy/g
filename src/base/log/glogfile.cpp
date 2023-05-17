@@ -18,7 +18,7 @@ void GLogFile::write(QString& msg) {
 		configure();
 		configured_ = true;
 	}
-	QString fileMsg = msg.mid(7);
+	QString fileMsg = msg.mid(7); // Omit year and date
 	QMutexLocker ml(&m_);
 	file_.write(qPrintable(fileMsg));
 	file_.flush();
