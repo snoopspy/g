@@ -82,9 +82,9 @@ bool HostAnalyzer::doClose() {
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
 	QString hostName = hostValue->hostName_;
-	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
+	QTreeWidgetItem** pitem = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
 
-	QMetaObject::invokeMethod(this, [this, mac, ip, hostName, item]() {
+	QMetaObject::invokeMethod(this, [this, mac, ip, hostName, pitem]() {
 		QTreeWidgetItem* treeWidgetItem = new QTreeWidgetItem(QStringList{QString(ip), QString(mac), hostName});
 		treeWidget_->addTopLevelItem(treeWidgetItem);
 
@@ -106,36 +106,36 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 
 		QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 
-		*item = treeWidgetItem;
-	});
-
+		*pitem = treeWidgetItem;
+	}, Qt::QueuedConnection);
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
 	if (!active()) return;
-	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
+	QTreeWidgetItem** pitem = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
+	QTreeWidgetItem* item = *pitem;
 
-	QMetaObject::invokeMethod(this, [item]() {
-		delete *item;
+	QMetaObject::invokeMethod(this, [mac, item]() {
+		delete item;
 		// ----- by gilgil 2023.05.16 -----
 		// Do not initialize this pointer value(located in hostValue memory)
 		// because it's memory can be already freed in GHostMgr::deleteOldHosts().
 		// *item = nullptr;
 		// --------------------------------
-	});
+	}, Qt::QueuedConnection);
 }
 
 void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
 	QString hostName = hostValue->hostName_;
-	QTreeWidgetItem** item = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
+	QTreeWidgetItem** pitem = reinterpret_cast<QTreeWidgetItem**>(hostValue->mem(itemOffset_));
 
-	QMetaObject::invokeMethod(this, [item, ip, mac, hostName]() {
-		(*item)->setText(0, QString(ip));
-		(*item)->setText(1, QString(mac));
-		(*item)->setText(2, QString(hostName));
-	});
+	QMetaObject::invokeMethod(this, [mac, ip, hostName, pitem]() {
+		(*pitem)->setText(0, QString(ip));
+		(*pitem)->setText(1, QString(mac));
+		(*pitem)->setText(2, QString(hostName));
+	}, Qt::QueuedConnection);
 }
 
 void HostAnalyzer::toolButton_toggled(bool checked) {
@@ -146,7 +146,6 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 		QMutexLocker ml(&arpBlock_.itemList_.m_);
 		for (GArpBlock::Item* item: arpBlock_.itemList_) {
 			if (mac == item->mac_) {
-				qDebug() << "matched"; // gilgil temp
 				bool block = item->policy_ == GArpBlock::Block;
 				bool nextBlock = !block;
 				if (nextBlock) {
