@@ -92,18 +92,29 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* hostNam
 	if (ethHdr == nullptr) return false;
 	gbyte* end = packet->buf_.data_ + packet->buf_.size_;
 	GDhcpHdr::Option* option = dhcpHdr->firstOption();
-	while (true) {
-		if (option->type_ == GDhcpHdr::RequestedIpAddress) { // Request
-			*ip = ntohl(*PIp(option->value()));
-		} else if (option->type_ == GDhcpHdr::HostName) { // Discover, Request sent from client
-			*hostName = "";
-			for (int i = 0; i < option->len_; i++)
-				*hostName += *(pchar(option->value()) + i);
-		} else if (option->type_ == GDhcpHdr::VendorClassIdentitier && *hostName == "") {
-			*hostName = "";
-			for (int i = 0; i < option->len_; i++)
-				*hostName += *(pchar(option->value()) + i);
+	bool exit = false;
+	while (!exit) {
+		switch (option->type_) {
+			case GDhcpHdr::RequestedIpAddress: // Request
+				*ip = ntohl(*PIp(option->value()));
+				break;
+			case GDhcpHdr::HostName: // Discover, Request sent from client
+				*hostName = "";
+				for (int i = 0; i < option->len_; i++)
+					*hostName += *(pchar(option->value()) + i);
+				break;
+			case GDhcpHdr::VendorClassIdentitier:
+				if (*hostName == "")
+					for (int i = 0; i < option->len_; i++)
+						*hostName += *(pchar(option->value()) + i);
+				break;
+			case GDhcpHdr::End:
+				exit = true;
+				break;
+			default:
+				break;
 		}
+		if (exit) break;
 		option = option->next();
 		if (option == nullptr) break;
 		if (pbyte(option) >= end) break;
