@@ -24,6 +24,8 @@ struct G_EXPORT GWaitEvent {
 	QMutex m_;
 	QWaitCondition wc_;
 
+	virtual void init() {}
+
 	bool wait(GDuration timeout = ULONG_MAX) {
 		m_.lock();
 		bool res = wc_.wait(&m_, timeout);
@@ -58,6 +60,8 @@ struct G_EXPORT GStateWaitEvent : GWaitEvent {
 	bool state_;
 
 	GStateWaitEvent(bool state = false) : state_(state) {}
+
+	void init() override { state_ = false; }
 
 	bool wait(GDuration timeout = ULONG_MAX) {
 		m_.lock();
@@ -109,6 +113,8 @@ struct G_EXPORT GCountWaitEvent : GWaitEvent {
 	int count_;
 
 	GCountWaitEvent(int count = 0) : count_(count) {}
+
+	void init() override { count_ = 0; }
 
 	bool wait(GDuration timeout = ULONG_MAX) {
 		m_.lock();
