@@ -27,6 +27,7 @@ bool GThread::wait(GDuration timeout) {
 		QObject* _parent = parent();
 		if (_parent != nullptr)
 			msg += QString(" for (%1)").arg(_parent->metaObject()->className());
+		msg += QString(" _debug_gilgil=%1 _thread+gilgil=%2").arg(_debug_gilgil).arg(_thread_gilgil);
 		qCritical() << msg;
 		QThread::terminate();
 	}
