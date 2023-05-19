@@ -94,7 +94,9 @@ protected:
     GIp ip_;
     GMac gwMac_;
     GIp gwIp_;
-    GEthArpPacket arpPacket_;
+
+    QMutex sendMutex_;
+    GEthArpPacket sendPacket_;
 
 public:
 	void infect(Item* item, uint16_t operation);

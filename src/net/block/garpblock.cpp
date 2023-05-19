@@ -54,19 +54,19 @@ bool GArpBlock::doOpen() {
     gwMac_ = atm_.find(gwIp_).value();
 	atm_.close();
 
-    // arpPacket_.ethHdr_.dmac_ // set later
-    arpPacket_.ethHdr_.smac_ = mac_;
-    arpPacket_.ethHdr_.type_ = htons(GEthHdr::Arp);
+    // sendPacket_.ethHdr_.dmac_ // set later
+    sendPacket_.ethHdr_.smac_ = mac_;
+    sendPacket_.ethHdr_.type_ = htons(GEthHdr::Arp);
 
-    arpPacket_.arpHdr_.hrd_ = htons(GArpHdr::ETHER);
-    arpPacket_.arpHdr_.pro_ = htons(GEthHdr::Ip4);
-    arpPacket_.arpHdr_.hln_ = GMac::Size;
-    arpPacket_.arpHdr_.pln_ = GIp::Size;
-    // arpPacket_.arpHdr_.op_ // set later
-    // arpPacket_.arpHdr_.smac_ // set later
-    // arpPacket_.arpHdr_.sip_ = // set later
-    // arpPacket_.arpHdr_.tmac_ // set later
-    // arpPacket_.arpHdr_.tip_ // set later
+    sendPacket_.arpHdr_.hrd_ = htons(GArpHdr::ETHER);
+    sendPacket_.arpHdr_.pro_ = htons(GEthHdr::Ip4);
+    sendPacket_.arpHdr_.hln_ = GMac::Size;
+    sendPacket_.arpHdr_.pln_ = GIp::Size;
+    // sendPacket_.arpHdr_.op_ // set later
+    // sendPacket_.arpHdr_.smac_ // set later
+    // sendPacket_.arpHdr_.sip_ = // set later
+    // sendPacket_.arpHdr_.tmac_ // set later
+    // sendPacket_.arpHdr_.tip_ // set later
 
 	itemList_.clear();
 
@@ -119,57 +119,60 @@ void GArpBlock::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void GArpBlock::infect(Item* item, uint16_t operation) {
+    QMutexLocker ml(&sendMutex_);
+
     if (attackDirection_ == Host || attackDirection_ == Both) { // To Host
-        arpPacket_.ethHdr_.dmac_ = item->mac_;
-        arpPacket_.arpHdr_.op_ = htons(operation);
-        arpPacket_.arpHdr_.smac_ = fakeMac_;
-        arpPacket_.arpHdr_.sip_ = htonl(gwIp_);
-        arpPacket_.arpHdr_.tmac_ = item->mac_;
-        arpPacket_.arpHdr_.tip_ = htonl(item->ip_);
+        sendPacket_.ethHdr_.dmac_ = item->mac_;
+        sendPacket_.arpHdr_.op_ = htons(operation);
+        sendPacket_.arpHdr_.smac_ = fakeMac_;
+        sendPacket_.arpHdr_.sip_ = htonl(gwIp_);
+        sendPacket_.arpHdr_.tmac_ = item->mac_;
+        sendPacket_.arpHdr_.tip_ = htonl(item->ip_);
 
         if (pcapDevice_->active())
-            pcapDevice_->write(GBuf(pbyte(&arpPacket_),sizeof(GEthArpPacket)));
+            pcapDevice_->write(GBuf(pbyte(&sendPacket_),sizeof(GEthArpPacket)));
     }
 
     if (attackDirection_ == Gateway || attackDirection_ == Both) { // To Gateway
-        arpPacket_.ethHdr_.dmac_ = gwMac_;
+        sendPacket_.ethHdr_.dmac_ = gwMac_;
 
-        arpPacket_.arpHdr_.op_ = htons(operation);
-        arpPacket_.arpHdr_.smac_ = fakeMac_;
-        arpPacket_.arpHdr_.sip_ = htonl(item->ip_);
-        arpPacket_.arpHdr_.tmac_ = gwMac_;
-        arpPacket_.arpHdr_.tip_ = htonl(gwIp_);
+        sendPacket_.arpHdr_.op_ = htons(operation);
+        sendPacket_.arpHdr_.smac_ = fakeMac_;
+        sendPacket_.arpHdr_.sip_ = htonl(item->ip_);
+        sendPacket_.arpHdr_.tmac_ = gwMac_;
+        sendPacket_.arpHdr_.tip_ = htonl(gwIp_);
 
         if (pcapDevice_->active())
-            pcapDevice_->write(GBuf(pbyte(&arpPacket_),sizeof(GEthArpPacket)));
+            pcapDevice_->write(GBuf(pbyte(&sendPacket_),sizeof(GEthArpPacket)));
     }
 }
 
 void GArpBlock::recover(Item* item, uint16_t operation) {
 	qDebug() << QString(item->ip_) << QString(item->mac_); // gilgil temp 2022.10.15
+    QMutexLocker ml(&sendMutex_);
 
     if (attackDirection_ == Host || attackDirection_ == Both) { // To Host
-        arpPacket_.ethHdr_.dmac_ = item->mac_;
-        arpPacket_.arpHdr_.op_ = htons(operation);
-        arpPacket_.arpHdr_.smac_ = gwMac_;
-        arpPacket_.arpHdr_.sip_ = htonl(gwIp_);
-        arpPacket_.arpHdr_.tmac_ = item->mac_;
-        arpPacket_.arpHdr_.tip_ = htonl(item->ip_);
+        sendPacket_.ethHdr_.dmac_ = item->mac_;
+        sendPacket_.arpHdr_.op_ = htons(operation);
+        sendPacket_.arpHdr_.smac_ = gwMac_;
+        sendPacket_.arpHdr_.sip_ = htonl(gwIp_);
+        sendPacket_.arpHdr_.tmac_ = item->mac_;
+        sendPacket_.arpHdr_.tip_ = htonl(item->ip_);
 
         if (pcapDevice_->active())
-            pcapDevice_->write(GBuf(pbyte(&arpPacket_),sizeof(GEthArpPacket)));
+            pcapDevice_->write(GBuf(pbyte(&sendPacket_),sizeof(GEthArpPacket)));
     }
 
     if (attackDirection_ == Gateway || attackDirection_ == Both) { // To Gateway
-        arpPacket_.ethHdr_.dmac_ = gwMac_;
-        arpPacket_.arpHdr_.op_ = htons(operation);
-        arpPacket_.arpHdr_.smac_ = item->mac_;
-        arpPacket_.arpHdr_.sip_ = htonl(item->ip_);
-        arpPacket_.arpHdr_.tmac_ = gwMac_;
-        arpPacket_.arpHdr_.tip_ = htonl(gwIp_);
+        sendPacket_.ethHdr_.dmac_ = gwMac_;
+        sendPacket_.arpHdr_.op_ = htons(operation);
+        sendPacket_.arpHdr_.smac_ = item->mac_;
+        sendPacket_.arpHdr_.sip_ = htonl(item->ip_);
+        sendPacket_.arpHdr_.tmac_ = gwMac_;
+        sendPacket_.arpHdr_.tip_ = htonl(gwIp_);
 
         if (pcapDevice_->active())
-            pcapDevice_->write(GBuf(pbyte(&arpPacket_),sizeof(GEthArpPacket)));
+            pcapDevice_->write(GBuf(pbyte(&sendPacket_),sizeof(GEthArpPacket)));
     }
 }
 
