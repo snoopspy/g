@@ -25,9 +25,11 @@ struct G_EXPORT GArpBlock : GStateObj, GHostMgr::Managable {
 	Q_PROPERTY(ulong sendInterval MEMBER sendInterval_)
 	Q_PROPERTY(QString fakeMac READ getFakeMac WRITE setFakeMac)
 	Q_PROPERTY(Policy defaultPolicy MEMBER defaultPolicy_)
+    Q_PROPERTY(AttackDirection attackDirection MEMBER attackDirection_)
 	Q_PROPERTY(GObjPtr pcapDevice READ getPcapDevice WRITE setPcapDevice)
 	Q_PROPERTY(GObjPtr hostMgr READ getHostMgr WRITE setHostMgr)
 	Q_ENUMS(Policy)
+    Q_ENUMS(AttackDirection)
 
 	QString getFakeMac() { return QString(fakeMac_); }
 	void setFakeMac(QString value) { fakeMac_ = GMac(value); }
@@ -42,11 +44,18 @@ public:
 		Block
 	};
 
+    enum AttackDirection {
+        Host,
+        Gateway,
+        Both
+    };
+
 	bool enabled_{true};
 	GDuration infectInterval_{1000};
 	GDuration sendInterval_{10};
 	GMac fakeMac_{"00:11:22:33:44:55"};
 	Policy defaultPolicy_{Block};
+    AttackDirection attackDirection_{Both};
 	GPcapDevice* pcapDevice_{nullptr};
 	GHostMgr* hostMgr_{nullptr};
 
@@ -81,8 +90,11 @@ public:
 
 protected:
 	GAtm atm_;
-	GEthArpPacket infectPacket_;
-	GEthArpPacket recoverPacket_;
+    GMac mac_;
+    GIp ip_;
+    GMac gwMac_;
+    GIp gwIp_;
+    GEthArpPacket arpPacket_;
 
 public:
 	void infect(Item* item, uint16_t operation);

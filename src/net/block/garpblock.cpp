@@ -28,13 +28,15 @@ bool GArpBlock::doOpen() {
 		SET_ERR(GErr::ObjectIsNull, "intf is null");
 		return false;
 	}
-	GIp ip = intf->ip();
-	if (ip == 0) {
+
+    mac_ = intf->mac();
+    ip_ = intf->ip();
+    if (ip_ == 0) {
 		SET_ERR(GErr::ValueIsZero, "ip is zero");
 		return false;
 	}
-	GIp gateway = intf->gateway();
-	if (gateway == 0) {
+    gwIp_ = intf->gateway();
+    if (gwIp_ == 0) {
 		SET_ERR(GErr::ValueIsZero, "gateway is zero");
 		return false;
 	}
@@ -44,31 +46,27 @@ bool GArpBlock::doOpen() {
 		err = atm_.err;
 		return false;
 	}
-	atm_.insert(gateway, GMac::nullMac());
+    atm_.insert(gwIp_, GMac::nullMac());
 	if (!atm_.wait()) {
 		err = atm_.err;
 		return false;
 	}
-	GMac gatewayMac = atm_.find(gateway).value();
+    gwMac_ = atm_.find(gwIp_).value();
 	atm_.close();
 
-	// infectPacket_.ethHdr_.dmac_ // set later
-	infectPacket_.ethHdr_.smac_ = intf->mac();
-	infectPacket_.ethHdr_.type_ = htons(GEthHdr::Arp);
+    // arpPacket_.ethHdr_.dmac_ // set later
+    arpPacket_.ethHdr_.smac_ = mac_;
+    arpPacket_.ethHdr_.type_ = htons(GEthHdr::Arp);
 
-	infectPacket_.arpHdr_.hrd_ = htons(GArpHdr::ETHER);
-	infectPacket_.arpHdr_.pro_ = htons(GEthHdr::Ip4);
-	infectPacket_.arpHdr_.hln_ = GMac::Size;
-	infectPacket_.arpHdr_.pln_ = GIp::Size;
-	// infectPacket_.arpHdr_.op_ // set later
-	infectPacket_.arpHdr_.smac_ = fakeMac_;
-	infectPacket_.arpHdr_.sip_ = htonl(gateway);
-	// infectPacket_.arpHdr_.tmac_ // set later
-	// infectPacket_.arpHdr_.tip_ // set later
-
-	recoverPacket_.arpHdr_.op_ = htons(GArpHdr::Request);
-	recoverPacket_ = infectPacket_;
-	recoverPacket_.arpHdr_.smac_ = gatewayMac;
+    arpPacket_.arpHdr_.hrd_ = htons(GArpHdr::ETHER);
+    arpPacket_.arpHdr_.pro_ = htons(GEthHdr::Ip4);
+    arpPacket_.arpHdr_.hln_ = GMac::Size;
+    arpPacket_.arpHdr_.pln_ = GIp::Size;
+    // arpPacket_.arpHdr_.op_ // set later
+    // arpPacket_.arpHdr_.smac_ // set later
+    // arpPacket_.arpHdr_.sip_ = // set later
+    // arpPacket_.arpHdr_.tmac_ // set later
+    // arpPacket_.arpHdr_.tip_ // set later
 
 	itemList_.clear();
 
@@ -121,22 +119,58 @@ void GArpBlock::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void GArpBlock::infect(Item* item, uint16_t operation) {
-	infectPacket_.ethHdr_.dmac_ = item->mac_;
-	infectPacket_.arpHdr_.op_ = htons(operation);
-	infectPacket_.arpHdr_.tmac_ = item->mac_;
-	infectPacket_.arpHdr_.tip_ = htonl(item->ip_);
-	if (pcapDevice_->active())
-		pcapDevice_->write(GBuf(pbyte(&infectPacket_),sizeof(GEthArpPacket)));
+    if (attackDirection_ == Host || attackDirection_ == Both) { // To Host
+        arpPacket_.ethHdr_.dmac_ = item->mac_;
+        arpPacket_.arpHdr_.op_ = htons(operation);
+        arpPacket_.arpHdr_.smac_ = fakeMac_;
+        arpPacket_.arpHdr_.sip_ = htonl(gwIp_);
+        arpPacket_.arpHdr_.tmac_ = item->mac_;
+        arpPacket_.arpHdr_.tip_ = htonl(item->ip_);
+
+        if (pcapDevice_->active())
+            pcapDevice_->write(GBuf(pbyte(&arpPacket_),sizeof(GEthArpPacket)));
+    }
+
+    if (attackDirection_ == Gateway || attackDirection_ == Both) { // To Gateway
+        arpPacket_.ethHdr_.dmac_ = gwMac_;
+
+        arpPacket_.arpHdr_.op_ = htons(operation);
+        arpPacket_.arpHdr_.smac_ = fakeMac_;
+        arpPacket_.arpHdr_.sip_ = htonl(item->ip_);
+        arpPacket_.arpHdr_.tmac_ = gwMac_;
+        arpPacket_.arpHdr_.tip_ = htonl(gwIp_);
+
+        if (pcapDevice_->active())
+            pcapDevice_->write(GBuf(pbyte(&arpPacket_),sizeof(GEthArpPacket)));
+    }
 }
 
 void GArpBlock::recover(Item* item, uint16_t operation) {
 	qDebug() << QString(item->ip_) << QString(item->mac_); // gilgil temp 2022.10.15
-	recoverPacket_.ethHdr_.dmac_ = item->mac_;
-	recoverPacket_.arpHdr_.op_ = htons(operation);
-	recoverPacket_.arpHdr_.tmac_ = item->mac_;
-	recoverPacket_.arpHdr_.tip_ = htonl(item->ip_);
-	if (pcapDevice_->active())
-		pcapDevice_->write(GBuf(pbyte(&recoverPacket_),sizeof(GEthArpPacket)));
+
+    if (attackDirection_ == Host || attackDirection_ == Both) { // To Host
+        arpPacket_.ethHdr_.dmac_ = item->mac_;
+        arpPacket_.arpHdr_.op_ = htons(operation);
+        arpPacket_.arpHdr_.smac_ = gwMac_;
+        arpPacket_.arpHdr_.sip_ = htonl(gwIp_);
+        arpPacket_.arpHdr_.tmac_ = item->mac_;
+        arpPacket_.arpHdr_.tip_ = htonl(item->ip_);
+
+        if (pcapDevice_->active())
+            pcapDevice_->write(GBuf(pbyte(&arpPacket_),sizeof(GEthArpPacket)));
+    }
+
+    if (attackDirection_ == Gateway || attackDirection_ == Both) { // To Gateway
+        arpPacket_.ethHdr_.dmac_ = gwMac_;
+        arpPacket_.arpHdr_.op_ = htons(operation);
+        arpPacket_.arpHdr_.smac_ = item->mac_;
+        arpPacket_.arpHdr_.sip_ = htonl(item->ip_);
+        arpPacket_.arpHdr_.tmac_ = gwMac_;
+        arpPacket_.arpHdr_.tip_ = htonl(gwIp_);
+
+        if (pcapDevice_->active())
+            pcapDevice_->write(GBuf(pbyte(&arpPacket_),sizeof(GEthArpPacket)));
+    }
 }
 
 void GArpBlock::InfectThread::run() {
