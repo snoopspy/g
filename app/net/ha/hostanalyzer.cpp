@@ -8,7 +8,14 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 #endif
 
 	hostMgr_.pcapDevice_ = &pcapDevice_;
-	hostMgr_.pcapDevice_->readTimeout_ = 1000; // 1 sec
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+	pcapDevice_.readTimeout_ = -1;
+	pcapDevice_.waitTimeout_ = 1000;
+#endif // Q_OS_LINUX
+#if defined(Q_OS_WIN) || defined(Q_OS_ANDROID)
+	pcapDevice_.readTimeout_ = 1000;
+	pcapDevice_.waitTimeout_ = 1;
+#endif
 
 	hostWatch_.pcapDevice_ = &pcapDevice_;
 	hostWatch_.hostMgr_ = &hostMgr_;
