@@ -22,7 +22,6 @@ struct G_EXPORT GHostWatch : GStateObj {
 	Q_PROPERTY(bool enabled MEMBER enabled_)
 	Q_PROPERTY(ulong checkInterval MEMBER checkInterval_)
 	Q_PROPERTY(long scanStartSec MEMBER scanStartSec_)
-	Q_PROPERTY(int sendPercentage MEMBER sendPercentage_)
 	Q_PROPERTY(ulong sendInterval MEMBER sendInterval_)
 	Q_PROPERTY(GObjPtr pcapDevice READ getPcapDevice WRITE setPcapDevice)
 	Q_PROPERTY(GObjPtr hostMgr READ getHostMgr WRITE setHostMgr)
@@ -35,9 +34,8 @@ struct G_EXPORT GHostWatch : GStateObj {
 public:
 	bool enabled_{true};
 	GDuration checkInterval_{1000}; // 1 sec
-	long  scanStartSec_{60}; // 1 minute
+	long scanStartSec_{60}; // 1 minute
 	int sendPercentage_{90}; // 90 %
-	GDuration sendInterval_{100}; // 100 msec
 	GPcapDevice* pcapDevice_{nullptr};
 	GHostMgr* hostMgr_{nullptr};
 
