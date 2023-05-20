@@ -35,7 +35,7 @@ public:
 	bool enabled_{true};
 	GDuration checkInterval_{1000}; // 1 sec
 	long scanStartSec_{60}; // 1 minute
-	int sendPercentage_{90}; // 90 %
+	GDuration sendInterval_{100}; // 100 msec
 	GPcapDevice* pcapDevice_{nullptr};
 	GHostMgr* hostMgr_{nullptr};
 
