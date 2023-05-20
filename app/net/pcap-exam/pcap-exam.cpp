@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 
 	Obj obj;
 	QObject::connect(&device, &GPcapDevice::captured, &obj, &Obj::captured, Qt::DirectConnection);
-	QObject::connect(&device, &GPcapDevice::closed,  &obj, &Obj::processClose);
+	QObject::connect(&device, &GPcapDevice::closed, &obj, &Obj::processClose);
 
 	if (!device.open()) {
 		cout << device.err;

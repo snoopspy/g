@@ -35,8 +35,7 @@ bool GHostWatch::doClose() {
 	return res;
 }
 
-bool GHostWatch::propLoad(QJsonObject jo, QMetaProperty mpro)  {
-	// qDebug() << mpro.name(); // gilgil temp 2021.11.11
+bool GHostWatch::propLoad(QJsonObject jo, QMetaProperty mpro) {
 	if (QString(mpro.name()) == "pcapDevice" || QString(mpro.name()) == "hostMgr") {
 		QObject* p = parent();
 		if (p != nullptr && QString(p->metaObject()->className()) == "GAutoArpSpoof")

@@ -79,7 +79,7 @@ bool GMonitorDevice::getRadioInfoFromFile() {
 			if (mac == GMac(macBuf)) {
 				qDebug() << QString("file radioInfo len=%1 fcsSize=%2").arg(len).arg(fcsSize);
 				radioInfo_.len_ = len;
-				radioInfo_.fcsSize_  = fcsSize;
+				radioInfo_.fcsSize_ = fcsSize;
 				return true;
 			}
 		}
@@ -147,7 +147,7 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 
 		qDebug() << QString("device radioInfo len=%1 fcsSize=%2").arg(len).arg(fcsSize);
 		radioInfo_.len_ = len;
-		radioInfo_.fcsSize_  = fcsSize;
+		radioInfo_.fcsSize_ = fcsSize;
 
 		GIntf* intf = GNetInfo::instance().intfList().findByName(intfName_);
 		if (intf == nullptr) {
