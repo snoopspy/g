@@ -43,7 +43,8 @@ public:
 
 protected:
 	// GHostMgr::Managable
-	size_t itemOffset_{0};
+	struct TreeWidgetItemMap : QMap<GMac, QTreeWidgetItem*> {
+	} treeWidgetItemMap_;
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
@@ -51,6 +52,6 @@ protected:
 public:
 	GTreeWidget* treeWidget_{nullptr};
 
-public slots:
+public:
 	void toolButton_toggled(bool checked);
 };
