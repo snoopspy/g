@@ -35,6 +35,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	treeWidget_->setHeaderLabels(QStringList{"IP", "Mac", "HostName", ""});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
+	treeWidget_->setIndentation(0);
 	treeWidget_->setItemDelegate(itemDelegate_);
 
 	QHeaderView* hv = treeWidget_->header();
