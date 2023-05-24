@@ -147,7 +147,6 @@ void GArpBlock::infect(Item* item, uint16_t operation) {
 
 void GArpBlock::recover(Item *item, uint16_t operation)
 {
-	qDebug() << QString(item->ip_) << QString(item->mac_); // gilgil temp 2022.10.15
 	QMutexLocker ml(&sendMutex_);
 
 	if (attackDirection_ == Host || attackDirection_ == Both) { // To Host
