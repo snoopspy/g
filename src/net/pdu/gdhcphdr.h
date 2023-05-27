@@ -26,7 +26,7 @@ struct G_EXPORT GDhcpHdr final {
 	uint16_t bootp_; // Bootp flags
 	GIp clientIp_; // Client IP address
 	GIp yourIp_; // Your (client) IP address
-	GIp serverIp_; // Next srever IP address
+	GIp serverIp_; // Next server IP address
 	GIp relayIp_; // Relay agent IP address
 	GMac clientMac_; // Client MAC address
 	uint8_t padding_[10]; // Client hardware address padding
@@ -73,7 +73,9 @@ struct G_EXPORT GDhcpHdr final {
 	enum: uint8_t {
 		HostName = 12,
 		RequestedIpAddress = 50,
+		DhcpMessageType = 53,
 		VendorClassIdentitier = 60,
+		ClientIdentifier = 61,
 		End = 255
 	};
 };
