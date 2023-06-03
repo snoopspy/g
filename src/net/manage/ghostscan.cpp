@@ -59,7 +59,11 @@ void GHostScan::run() {
 	GMac myMac = intf->mac();
 
 	GIp begIp = intf->getBeginIp();
-	GIp endIp = intf->getEndIp(); endIp = endIp - 1;
+	GIp endIp = intf->getEndIp();
+	if (intf->mask() < 0xFFFF00) { // not C class
+		begIp = (myIp & 0xFFFF00) + 1;
+		endIp = myIp | ~0xFFFF00;
+	}
 	qDebug() << QString("begIp=%1 endIp=%2").arg(QString(begIp), QString(endIp));
 
 	GEthArpPacket packet;
@@ -82,7 +86,7 @@ void GHostScan::run() {
 	bool exit = false;
 	while (true) {
 		for (int cnt = 0; cnt < scanCount_; cnt++) {
-			for (GIp ip = begIp; ip <= endIp; ip = ip + 1) {
+			for (GIp ip = begIp; ip < endIp; ip = ip + 1) {
 				arpHdr->tip_ = htonl(ip);
 				if (!active() || !pcapDevice_->active()) {
 					exit = true;
