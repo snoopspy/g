@@ -1,13 +1,15 @@
-QT += widgets
+QT += widgets sql
 include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
 
 SOURCES += \
+	db.cpp \
 	ha.cpp \
 	hawidget.cpp \
 	hostanalyzer.cpp
 
 HEADERS += \
+	db.h \
 	hawidget.h \
 	hostanalyzer.h
 

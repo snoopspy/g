@@ -68,6 +68,12 @@ bool HostAnalyzer::doOpen() {
 			break;
 		}
 
+		if (!db_.open()) {
+			err = db_.err;
+			ok = false;
+			break;
+		}
+
 		hostMgr_.managables_.insert(this);
 
 		break;
@@ -83,6 +89,7 @@ bool HostAnalyzer::doClose() {
 	hostMgr_.close();
 	hostWatch_.close();
 	hostScan_.close();
+	db_.close();
 	treeWidgetItemMap_.clear();
 	return true;
 }
