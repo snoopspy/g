@@ -23,6 +23,7 @@ struct G_EXPORT GMac final {
 	GMac(const GMac& r) { memcpy(this->mac_, r.mac_, Size); }
 	GMac(const gbyte* r) { memcpy(this->mac_, r, Size); }
 	GMac(const QString& r);
+	GMac(const qint64& r);
 
 	// assign operator
 	GMac& operator = (const GMac& r) { memcpy(this->mac_, r.mac_, Size); return *this; }
@@ -30,6 +31,7 @@ struct G_EXPORT GMac final {
 	// casting operator
 	explicit operator gbyte*() const { return const_cast<gbyte*>(mac_); }
 	explicit operator QString() const;
+	explicit operator qint64() const;
 
 	// comparison operator
 	bool operator == (const GMac& r) const { return memcmp(mac_, r.mac_, Size) == 0; }

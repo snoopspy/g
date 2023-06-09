@@ -16,10 +16,26 @@ GMac::GMac(const QString& r) {
 	}
 }
 
+GMac::GMac(const qint64& r) {
+	quint64 mask = 0x0000FF0000000000;
+	for (int i = 0; i < Size; i++) {
+		mac_[i] = r & mask;
+		mask >>= 8;
+	}
+}
+
 GMac::operator QString() const {
 	char s[20]; // enough size
 	sprintf(s, "%02X:%02X:%02X:%02X:%02X:%02X", mac_[0], mac_[1], mac_[2], mac_[3], mac_[4], mac_[5]);
 	return QString(s);
+}
+
+GMac::operator qint64() const {
+	qint64 res = 0;
+	for (int i = 0; i < Size; i++) {
+		res = (res << 8) | mac_[i];
+	}
+	return res;
 }
 
 GMac GMac::randomMac() {
