@@ -68,7 +68,7 @@ void GHostMgr::deleteOldHosts(time_t now) {
 	}
 }
 
-bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* hostName) {
+bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, QString* alias) {
 	GUdpHdr* udpHdr = packet->udpHdr_;
 	if (udpHdr == nullptr) return false;
 
@@ -99,14 +99,10 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* hostNam
 				*ip = ntohl(*PIp(option->value()));
 				break;
 			case GDhcpHdr::HostName: // Discover, Request sent from client
-				*hostName = "";
-				for (int i = 0; i < option->len_; i++)
-					*hostName += *(pchar(option->value()) + i);
+				*host = QString(reinterpret_cast<const QChar*>(option->value()), option->len_);
 				break;
 			case GDhcpHdr::VendorClassIdentitier:
-				if (*hostName == "")
-					for (int i = 0; i < option->len_; i++)
-						*hostName += *(pchar(option->value()) + i);
+				*alias = QString(reinterpret_cast<const QChar*>(option->value()), option->len_);
 				break;
 			case GDhcpHdr::End:
 				exit = true;
@@ -154,7 +150,8 @@ void GHostMgr::manage(GPacket* packet) {
 
 	GMac mac(GMac::nullMac());
 	GIp ip(0);
-	QString hostName;
+	QString host;
+	QString vendor;
 
 	GEthHdr* ethHdr = packet->ethHdr_;
 	if (ethHdr == nullptr) return;
@@ -165,7 +162,7 @@ void GHostMgr::manage(GPacket* packet) {
 	bool detected = false;
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr != nullptr && ipHdr->sip() != myIp_) {
-		if (processDhcp(packet, &mac, &ip, &hostName) || processIp(ethHdr, ipHdr, &mac, &ip))
+		if (processDhcp(packet, &mac, &ip, &host, &vendor) || processIp(ethHdr, ipHdr, &mac, &ip))
 		detected = true;
 	}
 
@@ -183,10 +180,11 @@ void GHostMgr::manage(GPacket* packet) {
 		QMutexLocker ml(&hostMap_.m_);
 		HostMap::iterator it = hostMap_.find(currentMac_);
 		if (it == hostMap_.end()) {
-			qDebug() << QString("detected %1 %2 %3").arg(QString(mac)).arg(QString(ip)).arg(hostName); // gilgil temp 2022.03.07
+			qDebug() << QString("detected %1 %2 %3").arg(QString(mac)).arg(QString(ip)).arg(host); // gilgil temp 2022.03.07
 			currentHostVal_ = HostValue::allocate(requestItems_.totalMemSize_);
 			currentHostVal_->ip_ = ip;
-			currentHostVal_->hostName_ = hostName;
+			currentHostVal_->host_ = host;
+			currentHostVal_->vendor_ = vendor;
 			it = hostMap_.insert(currentMac_, currentHostVal_);
 			for (Managable* manager: managables_)
 				manager->hostCreated(currentMac_, currentHostVal_);
@@ -197,13 +195,13 @@ void GHostMgr::manage(GPacket* packet) {
 				hv->ip_ = ip;
 				changed = true;
 			}
-			if (hostName != "" && hostName != hv->hostName_) {
-				hv->hostName_ = hostName;
+			if (host != "" && host != hv->host_) {
+				hv->host_ = host;
 				changed = true;
 			}
 			currentHostVal_ = it.value();
 			if (changed) {
-				qDebug() << QString("changed %1 %2 %3").arg(QString(it.key())).arg(QString(hv->ip_)).arg(hv->hostName_); // gilgil temp 2022.03.07
+				qDebug() << QString("changed %1 %2 %3 %4").arg(QString(it.key())).arg(QString(hv->ip_)).arg(hv->host_).arg(hv->vendor_); // gilgil temp 2022.03.07
 				for (Managable* manager: managables_)
 					manager->hostChanged(currentMac_, currentHostVal_);
 			}

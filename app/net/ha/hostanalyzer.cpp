@@ -79,7 +79,8 @@ bool HostAnalyzer::doOpen() {
 		break;
 	}
 
-	GThreadMgr::resumeStart();
+	if (ok)
+		GThreadMgr::resumeStart();
 	return ok;
 }
 
@@ -96,11 +97,11 @@ bool HostAnalyzer::doClose() {
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
-	QString hostName = hostValue->hostName_;
+	QString host = hostValue->host_;
 
 	QMetaObject::invokeMethod(
 		this,
-		[this, mac, ip, hostName]() {
+		[this, mac, ip, host]() {
 			qDebug() << QString(mac); // gilgil temp 2023.05.21
 			TreeWidgetItemMap *map = &treeWidgetItemMap_;
 			TreeWidgetItemMap::iterator it = map->find(mac);
@@ -109,7 +110,7 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 				return;
 			}
 			QTreeWidgetItem *treeWidgetItem = new QTreeWidgetItem(
-				QStringList{QString(ip), QString(mac), hostName});
+				QStringList{QString(ip), QString(mac), host});
 			treeWidget_->addTopLevelItem(treeWidgetItem);
 
 			QToolButton *toolButton = new QToolButton(treeWidget_);
@@ -160,10 +161,10 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 
 void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
-	QString hostName = hostValue->hostName_;
+	QString host = hostValue->host_;
 	QMetaObject::invokeMethod(
 		this,
-		[this, mac, ip, hostName]() {
+		[this, mac, ip, host]() {
 			qDebug() << QString(mac); // gilgil temp 2023.05.21
 			TreeWidgetItemMap *map = &treeWidgetItemMap_;
 			TreeWidgetItemMap::iterator it = map->find(mac);
@@ -174,7 +175,7 @@ void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 			QTreeWidgetItem *item = it.value();
 			item->setText(0, QString(ip));
 			item->setText(1, QString(mac));
-			item->setText(2, QString(hostName));
+			item->setText(2, QString(host));
 		},
 		Qt::QueuedConnection);
 }

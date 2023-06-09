@@ -36,7 +36,8 @@ public:
 	struct HostValue : GPacketMgr::Value {
 		struct timeval ts_;
 		GIp ip_;
-		QString hostName_;
+		QString host_;
+		QString vendor_;
 #ifdef _DEBUG
 		size_t totalMemSize_;
 #endif // _DEBUG
@@ -117,7 +118,7 @@ protected:
 	void deleteOldHosts(time_t now);
 
 protected:
-	bool processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* hostName);
+	bool processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, QString* alias);
 	bool processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip);
 	bool processIp(GEthHdr* ethHdr, GIpHdr* ipHdr, GMac* mac, GIp* ip);
 

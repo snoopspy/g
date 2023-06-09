@@ -50,7 +50,7 @@ bool GHostWatch::propLoad(QJsonObject jo, QMetaProperty mpro) {
 // GHostWatch::WatchThread
 // ----------------------------------------------------------------------------
 void GHostWatch::WatchThread::run() {
-	qDebug() << "";
+	qDebug() << "beg";
 	GHostWatch* hw = dynamic_cast<GHostWatch*>(parent());
 	Q_ASSERT(hw != nullptr);
 
@@ -133,5 +133,5 @@ void GHostWatch::WatchThread::run() {
 		}
 		if (exit) break;
 	}
-	qDebug() << "";
+	qDebug() << "end";
 }

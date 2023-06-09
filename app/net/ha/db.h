@@ -1,7 +1,8 @@
-#include <GStateObj>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <GStateObj>
+#include <GMac>
 
 // ----------------------------------------------------------------------------
 // Db
@@ -23,4 +24,20 @@ protected:
 
 protected:
 	QSqlDatabase db_;
+
+public:
+	struct Device {
+		qint64 mac_{0};
+		QString alias_;
+		QString host_;
+		QString vendor_;
+		bool isNull() { return mac_ == 0; };
+	};
+protected:
+	QSqlQuery* selectDeviceQuery_;
+	QSqlQuery* insertDeviceQuery_;
+
+public:
+	Device selectDevice(GMac mac);
+	bool insertDevice(Device device);
 };
