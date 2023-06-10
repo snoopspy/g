@@ -137,7 +137,7 @@ bool Db::insertOrUpdateDevice(Device device) {
 	newDevice.host_ = device.host_ == "" ? dbDevice.host_ : device.host_;
 	newDevice.vendor_ = device.vendor_ == "" ? dbDevice.vendor_ : device.vendor_;
 	newDevice.alias_ = device.alias_ == "" ? dbDevice.alias_ : device.alias_;
-	return updateDevice(device);
+	return updateDevice(newDevice);
 }
 
 bool Db::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
