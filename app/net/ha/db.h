@@ -3,6 +3,7 @@
 #include <QSqlQuery>
 #include <GStateObj>
 #include <GMac>
+#include <GIp>
 
 // ----------------------------------------------------------------------------
 // Db
@@ -27,17 +28,26 @@ protected:
 
 public:
 	struct Device {
-		qint64 mac_{0};
-		QString alias_;
+		uint64_t mac_{0};
+		uint32_t ip_{0};
 		QString host_;
 		QString vendor_;
+		QString alias_;
 		bool isNull() { return mac_ == 0; };
 	};
+
 protected:
 	QSqlQuery* selectDeviceQuery_;
 	QSqlQuery* insertDeviceQuery_;
+	QSqlQuery* updateDeviceQuery_;
+	QSqlQuery* insertLogQuery_;
 
-public:
+protected:
 	Device selectDevice(GMac mac);
 	bool insertDevice(Device device);
+	bool updateDevice(Device device);
+
+public:
+	bool insertOrUpdateDevice(Device device);
+	bool insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime);
 };

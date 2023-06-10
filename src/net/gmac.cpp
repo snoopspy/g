@@ -16,11 +16,13 @@ GMac::GMac(const QString& r) {
 	}
 }
 
-GMac::GMac(const qint64& r) {
-	quint64 mask = 0x0000FF0000000000;
+GMac::GMac(const uint64_t& r) {
+	uint64_t mask = 0x0000FF0000000000;
+	uint64_t shift = 40;
 	for (int i = 0; i < Size; i++) {
-		mac_[i] = r & mask;
+		mac_[i] = (r & mask) >> shift;
 		mask >>= 8;
+		shift -= 8;
 	}
 }
 
@@ -30,8 +32,8 @@ GMac::operator QString() const {
 	return QString(s);
 }
 
-GMac::operator qint64() const {
-	qint64 res = 0;
+GMac::operator uint64_t() const {
+	uint64_t res = 0;
 	for (int i = 0; i < Size; i++) {
 		res = (res << 8) | mac_[i];
 	}

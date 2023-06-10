@@ -19,9 +19,10 @@ bool Db::doOpen() {
 	if (!query.exec(
 		"CREATE TABLE IF NOT EXISTS device ("
 		"	mac INTEGER PRIMARY KEY,"
-		"	alias TEXT,"
+		"	ip INTEGER,"
 		"	host TEXT,"
-		"	vendor TEXT"
+		"	vendor TEXT,"
+		"	alias TEXT"
 		");"
 	)) {
 		SET_ERR(GErr::Fail, query.lastError().text());
@@ -31,6 +32,7 @@ bool Db::doOpen() {
 	if (!query.exec(
 		"CREATE TABLE IF NOT EXISTS log ("\
 		"	mac INTEGER,"\
+		"	ip INTEGER,"\
 		"	beg_time INTEGER,"\
 		"	end_time INTEGER"\
 		");"
@@ -44,10 +46,19 @@ bool Db::doOpen() {
 		SET_ERR(GErr::Fail, selectDeviceQuery_->lastError().text());
 		return false;
 	}
-
 	insertDeviceQuery_ = new QSqlQuery(db_);
-	if (!insertDeviceQuery_->prepare("INSERT INTO device(mac, alias, host, vendor) VALUES(:mac, :alias, :host, :vendor)")) {
+	if (!insertDeviceQuery_->prepare("INSERT INTO device (mac, ip, host, vendor, alias) VALUES (:mac, :ip, :host, :vendor, :alias)")) {
 		SET_ERR(GErr::Fail, insertDeviceQuery_->lastError().text());
+		return false;
+	}
+	updateDeviceQuery_ = new QSqlQuery(db_);
+	if (!updateDeviceQuery_->prepare("UPDATE device SET ip = :ip, host = :host, vendor = :vendor, alias = :alias WHERE mac = :mac")) {
+		SET_ERR(GErr::Fail, updateDeviceQuery_->lastError().text());
+		return false;
+	}
+	insertLogQuery_ = new QSqlQuery(db_);
+	if (!insertLogQuery_->prepare("INSERT INTO log (mac, ip, beg_time, end_time) VALUES (:mac, :ip, :beg_time, :end_time)")) {
+		SET_ERR(GErr::Fail, insertLogQuery_->lastError().text());
 		return false;
 	}
 
@@ -65,33 +76,78 @@ bool Db::doClose() {
 		delete insertDeviceQuery_ ;
 		insertDeviceQuery_  = nullptr;
 	}
+	if (updateDeviceQuery_ != nullptr) {
+		delete updateDeviceQuery_ ;
+		updateDeviceQuery_  = nullptr;
+	}
 
 	return true;
 }
 
 Db::Device Db::selectDevice(GMac mac) {
 	Device res;
-	selectDeviceQuery_->bindValue(0, qint64(mac));
+	selectDeviceQuery_->bindValue(":mac", quint64(uint64_t(mac)));
 	if (!selectDeviceQuery_->exec()) {
 		qDebug() << selectDeviceQuery_->lastError().text();
 	}
 	if (selectDeviceQuery_->next()) {
-		res.mac_ = selectDeviceQuery_->value("mac").toLongLong();
-		res.alias_ = selectDeviceQuery_->value("alias").toString();
+		res.mac_ = selectDeviceQuery_->value("mac").toULongLong();
+		res.ip_ = selectDeviceQuery_->value("ip").toUInt();
 		res.host_ = selectDeviceQuery_->value("host").toString();
 		res.vendor_ = selectDeviceQuery_->value("vendor").toString();
+		res.alias_ = selectDeviceQuery_->value("alias").toString();
 	}
 	return res;
 }
 
 bool Db::insertDevice(Db::Device device) {
-	insertDeviceQuery_->bindValue("mac", device.mac_);
-	insertDeviceQuery_->bindValue("alias", device.alias_);
-	insertDeviceQuery_->bindValue("host", device.host_);
-	insertDeviceQuery_->bindValue("vendor", device.vendor_);
+	insertDeviceQuery_->bindValue(":mac", quint64(device.mac_));
+	insertDeviceQuery_->bindValue(":ip", device.ip_);
+	insertDeviceQuery_->bindValue(":host", device.host_);
+	insertDeviceQuery_->bindValue(":vendor", device.vendor_);
+	insertDeviceQuery_->bindValue(":alias", device.alias_);
 	bool res = insertDeviceQuery_->exec();
 	if (!res) {
-		qDebug() << selectDeviceQuery_->lastError().text();
+		qDebug() << insertDeviceQuery_->lastError().text();
+	}
+	return res;
+}
+
+bool Db::updateDevice(Db::Device device) {
+	updateDeviceQuery_->bindValue(":ip", device.ip_);
+	updateDeviceQuery_->bindValue(":host", device.host_);
+	updateDeviceQuery_->bindValue(":vendor", device.vendor_);
+	updateDeviceQuery_->bindValue(":alias", device.alias_);
+	updateDeviceQuery_->bindValue(":mac", quint64(device.mac_));
+	bool res = updateDeviceQuery_->exec();
+	if (!res) {
+		qDebug() << updateDeviceQuery_->lastError().text();
+	}
+	return res;
+}
+
+bool Db::insertOrUpdateDevice(Device device) {
+	Device dbDevice = selectDevice(device.mac_);
+	if (dbDevice.isNull())
+		return insertDevice(device);
+
+	Device newDevice;
+	newDevice.mac_ = device.mac_ == 0 ? dbDevice.mac_ : device.mac_;
+	newDevice.ip_ = device.ip_ == 0 ? dbDevice.ip_ : device.ip_;
+	newDevice.host_ = device.host_ == "" ? dbDevice.host_ : device.host_;
+	newDevice.vendor_ = device.vendor_ == "" ? dbDevice.vendor_ : device.vendor_;
+	newDevice.alias_ = device.alias_ == "" ? dbDevice.alias_ : device.alias_;
+	return updateDevice(device);
+}
+
+bool Db::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
+	insertLogQuery_->bindValue(":mac", quint64(uint64_t(mac)));
+	insertLogQuery_->bindValue(":ip", uint32_t(ip));
+	insertLogQuery_->bindValue(":beg_time", quint64(begTime));
+	insertLogQuery_->bindValue(":end_time", quint64(endTime));
+	bool res = insertLogQuery_->exec();
+	if (!res) {
+		qDebug() << insertLogQuery_->lastError().text();
 	}
 	return res;
 }

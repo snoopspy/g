@@ -98,6 +98,16 @@ bool HostAnalyzer::doClose() {
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
 	QString host = hostValue->host_;
+	QString vendor = hostValue->vendor_;
+
+	if (host != "" || vendor != "") {
+		Db::Device device;
+		device.mac_ = uint64_t(mac);
+		device.ip_ = uint32_t(ip);
+		device.host_ = hostValue->host_;
+		device.vendor_ = hostValue->vendor_;
+		db_.insertOrUpdateDevice(device);
+	}
 
 	QMetaObject::invokeMethod(
 		this,
@@ -143,6 +153,8 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)hostValue;
 	if (!active()) return;
 
+	db_.insertLog(mac, hostValue->ip_, hostValue->firstTime_.tv_sec, hostValue->lastTime_.tv_sec);
+
 	QMetaObject::invokeMethod(
 		this,
 		[this, mac]() {
@@ -162,6 +174,17 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
 	QString host = hostValue->host_;
+	QString vendor = hostValue->vendor_;
+
+	if (host != "" || vendor != "") {
+		Db::Device device;
+		device.mac_ = uint64_t(mac);
+		device.ip_ = uint32_t(ip);
+		device.host_ = hostValue->host_;
+		device.vendor_ = hostValue->vendor_;
+		db_.insertOrUpdateDevice(device);
+	}
+
 	QMetaObject::invokeMethod(
 		this,
 		[this, mac, ip, host]() {

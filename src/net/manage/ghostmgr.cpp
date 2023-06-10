@@ -55,7 +55,7 @@ void GHostMgr::deleteOldHosts(time_t now) {
 	HostMap::iterator it = hostMap_.begin();
 	while (it != hostMap_.end()) {
 		HostValue* hostValue = it.value();
-		long elapsed = now - hostValue->ts_.tv_sec;
+		long elapsed = now - hostValue->lastTime_.tv_sec;
 		if (elapsed >= timeoutSec_) {
 			GMac mac = it.key();
 			qDebug() << QString("%1 %2").arg(QString(mac)).arg(QString(it.value()->ip_));
@@ -99,10 +99,10 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, Q
 				*ip = ntohl(*PIp(option->value()));
 				break;
 			case GDhcpHdr::HostName: // Discover, Request sent from client
-				*host = QString(reinterpret_cast<const QChar*>(option->value()), option->len_);
+				*host = std::string(reinterpret_cast<const char*>(option->value()), option->len_).data();
 				break;
 			case GDhcpHdr::VendorClassIdentitier:
-				*alias = QString(reinterpret_cast<const QChar*>(option->value()), option->len_);
+				*alias = std::string(reinterpret_cast<const char*>(option->value()), option->len_).data();
 				break;
 			case GDhcpHdr::End:
 				exit = true;
@@ -182,6 +182,7 @@ void GHostMgr::manage(GPacket* packet) {
 		if (it == hostMap_.end()) {
 			qDebug() << QString("detected %1 %2 %3").arg(QString(mac)).arg(QString(ip)).arg(host); // gilgil temp 2022.03.07
 			currentHostVal_ = HostValue::allocate(requestItems_.totalMemSize_);
+			currentHostVal_->firstTime_ = packet->ts_;
 			currentHostVal_->ip_ = ip;
 			currentHostVal_->host_ = host;
 			currentHostVal_->vendor_ = vendor;
@@ -208,7 +209,7 @@ void GHostMgr::manage(GPacket* packet) {
 		}
 	}
 	Q_ASSERT(currentHostVal_ != nullptr);
-	currentHostVal_->ts_ = packet->ts_;
+	currentHostVal_->lastTime_ = packet->ts_;
 
 	emit managed(packet);
 }
