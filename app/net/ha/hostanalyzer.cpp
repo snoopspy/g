@@ -91,6 +91,16 @@ bool HostAnalyzer::doClose() {
 	hostWatch_.close();
 	hostScan_.close();
 	db_.close();
+	for (TreeWidgetItemMap::iterator it = treeWidgetItemMap_.begin(); it != treeWidgetItemMap_.end(); it++) {
+		QTreeWidgetItem* item = it.value();
+		QToolButton* toolButton = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(item, 3));
+		if (toolButton != nullptr) {
+			toolButton->setText("0");
+			toolButton->setIcon(QIcon(":/img/play.png"));
+			toolButton->setChecked(false);
+			toolButton->setEnabled(false);
+		}
+	}
 	treeWidgetItemMap_.clear();
 	return true;
 }
@@ -109,98 +119,63 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		db_.insertOrUpdateDevice(device);
 	}
 
-	QMetaObject::invokeMethod(
-		this,
-		[this, mac, ip, host]() {
-			qDebug() << QString(mac); // gilgil temp 2023.05.21
-			TreeWidgetItemMap *map = &treeWidgetItemMap_;
-			TreeWidgetItemMap::iterator it = map->find(mac);
-			if (it != map->end()) {
-				qWarning() << QString("Already exist item(%1)").arg(QString(mac));
-				return;
-			}
-			QTreeWidgetItem *treeWidgetItem = new QTreeWidgetItem(
-				QStringList{QString(ip), QString(mac), host});
-			treeWidget_->addTopLevelItem(treeWidgetItem);
-
-			QToolButton *toolButton = new QToolButton(treeWidget_);
-			bool block = arpBlock_.defaultPolicy_ == GArpBlock::Block;
-			toolButton->setAutoRaise(true);
-			toolButton->setCheckable(true);
-			toolButton->setProperty("mac", QString(mac));
-			if (block) {
-				toolButton->setText("1");
-				toolButton->setIcon(QIcon(":/img/pause.png"));
-				toolButton->setChecked(true);
-			} else {
-				toolButton->setText("0");
-				toolButton->setIcon(QIcon(":/img/play.png"));
-				toolButton->setChecked(false);
-			}
-			treeWidget_->setItemWidget(treeWidgetItem, 3, toolButton);
-
-			QObject::connect(toolButton,
-				 &QToolButton::toggled,
-				 this,
-				 &HostAnalyzer::toolButton_toggled);
-
-			map->insert(mac, treeWidgetItem);
-		},
-		Qt::QueuedConnection);
-}
-
-void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
-	(void)hostValue;
-	if (!active()) return;
-
-	db_.insertLog(mac, hostValue->ip_, hostValue->firstTime_.tv_sec, hostValue->lastTime_.tv_sec);
-
-	QMetaObject::invokeMethod(
-		this,
-		[this, mac]() {
-			qDebug() << QString(mac); // gilgil temp 2023.05.21
-			TreeWidgetItemMap *map = &treeWidgetItemMap_;
-			TreeWidgetItemMap::iterator it = map->find(mac);
-			if (it == map->end()) {
-				qWarning() << QString("can not find item(%1").arg(QString(mac));
-				return;
-			}
-			delete it.value();
-			map->erase(it);
-		},
-		Qt::QueuedConnection);
-}
-
-void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
-	GIp ip = hostValue->ip_;
-	QString host = hostValue->host_;
-	QString vendor = hostValue->vendor_;
-
-	if (host != "" || vendor != "") {
-		Db::Device device;
-		device.mac_ = uint64_t(mac);
-		device.ip_ = uint32_t(ip);
-		device.host_ = hostValue->host_;
-		device.vendor_ = hostValue->vendor_;
-		db_.insertOrUpdateDevice(device);
-	}
-
-	QMetaObject::invokeMethod(
-		this,
-		[this, mac, ip, host]() {
-			qDebug() << QString(mac); // gilgil temp 2023.05.21
-			TreeWidgetItemMap *map = &treeWidgetItemMap_;
-			TreeWidgetItemMap::iterator it = map->find(mac);
-			if (it == map->end()) {
-				qWarning() << QString("can not find item(%1)").arg(QString(mac));
-				return;
-			}
+	QMetaObject::invokeMethod(this, [this, mac, ip, host]() {
+		qDebug() << QString(mac); // gilgil temp 2023.05.21
+		TreeWidgetItemMap *map = &treeWidgetItemMap_;
+		TreeWidgetItemMap::iterator it = map->find(mac);
+		if (it != map->end()) {
 			QTreeWidgetItem *item = it.value();
 			item->setText(0, QString(ip));
 			item->setText(1, QString(mac));
 			item->setText(2, QString(host));
-		},
-		Qt::QueuedConnection);
+			return;
+		}
+
+		QTreeWidgetItem *treeWidgetItem = new QTreeWidgetItem(
+			treeWidget_, QStringList{QString(ip), QString(mac), host});
+		treeWidget_->addTopLevelItem(treeWidgetItem);
+
+		QToolButton *toolButton = new QToolButton(treeWidget_);
+		bool block = arpBlock_.defaultPolicy_ == GArpBlock::Block;
+		toolButton->setAutoRaise(true);
+		toolButton->setCheckable(true);
+		toolButton->setProperty("mac", QString(mac));
+		if (block) {
+			toolButton->setText("1");
+			toolButton->setIcon(QIcon(":/img/pause.png"));
+			toolButton->setChecked(true);
+		} else {
+			toolButton->setText("0");
+			toolButton->setIcon(QIcon(":/img/play.png"));
+			toolButton->setChecked(false);
+		}
+		treeWidget_->setItemWidget(treeWidgetItem, 3, toolButton);
+
+		QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
+
+		map->insert(mac, treeWidgetItem);
+	}, Qt::QueuedConnection);
+}
+
+void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
+	db_.insertLog(mac, hostValue->ip_, hostValue->firstTime_.tv_sec, hostValue->lastTime_.tv_sec);
+
+	if (!active()) return;
+	QMetaObject::invokeMethod(this, [this, mac]() {
+		qDebug() << QString(mac); // gilgil temp 2023.05.21
+		TreeWidgetItemMap *map = &treeWidgetItemMap_;
+		TreeWidgetItemMap::iterator it = map->find(mac);
+		if (it == map->end()) {
+			qWarning() << QString("can not find item(%1").arg(QString(mac));
+			return;
+		}
+		delete it.value();
+		map->erase(it);
+	}, Qt::QueuedConnection);
+}
+
+void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
+	hostCreated(mac, hostValue);
 }
 
 void HostAnalyzer::toolButton_toggled(bool checked) {
