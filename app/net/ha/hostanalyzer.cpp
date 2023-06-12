@@ -110,50 +110,47 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	QString host = hostValue->host_;
 	QString vendor = hostValue->vendor_;
 
-	if (host != "" || vendor != "") {
-		Db::Device device;
-		device.mac_ = uint64_t(mac);
-		device.ip_ = uint32_t(ip);
-		device.host_ = hostValue->host_;
-		device.vendor_ = hostValue->vendor_;
-		db_.insertOrUpdateDevice(device);
-	}
+	Db::Device device;
+	device.mac_ = uint64_t(mac);
+	device.ip_ = uint32_t(ip);
+	device.host_ = host;
+	device.vendor_ = vendor;
+	db_.insertOrUpdateDevice(device);
+	QString defaultName = device.defaultName();
 
-	QMetaObject::invokeMethod(this, [this, mac, ip, host]() {
+	time_t duration = hostValue->lastTime_.tv_sec - hostValue->firstTime_.tv_sec;
+	QMetaObject::invokeMethod(this, [this, mac, ip, defaultName, duration]() {
 		qDebug() << QString(mac); // gilgil temp 2023.05.21
 		TreeWidgetItemMap *map = &treeWidgetItemMap_;
 		TreeWidgetItemMap::iterator it = map->find(mac);
-		if (it != map->end()) {
-			QTreeWidgetItem *item = it.value();
-			item->setText(0, QString(ip));
-			item->setText(1, QString(mac));
-			item->setText(2, QString(host));
-			return;
+		if (it == map->end()) {
+			QTreeWidgetItem *treeWidgetItem = new QTreeWidgetItem(treeWidget_);
+			treeWidget_->addTopLevelItem(treeWidgetItem);
+
+			QToolButton *toolButton = new QToolButton(treeWidget_);
+			bool block = arpBlock_.defaultPolicy_ == GArpBlock::Block;
+			toolButton->setAutoRaise(true);
+			toolButton->setCheckable(true);
+			toolButton->setProperty("mac", QString(mac));
+			if (block) {
+				toolButton->setText("1");
+				toolButton->setIcon(QIcon(":/img/pause.png"));
+				toolButton->setChecked(true);
+			} else {
+				toolButton->setText("0");
+				toolButton->setIcon(QIcon(":/img/play.png"));
+				toolButton->setChecked(false);
+			}
+			treeWidget_->setItemWidget(treeWidgetItem, 3, toolButton);
+
+			QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
+
+			it = map->insert(mac, treeWidgetItem);
 		}
-
-		QTreeWidgetItem *treeWidgetItem = new QTreeWidgetItem(
-			treeWidget_, QStringList{QString(ip), QString(mac), host});
-		treeWidget_->addTopLevelItem(treeWidgetItem);
-
-		QToolButton *toolButton = new QToolButton(treeWidget_);
-		bool block = arpBlock_.defaultPolicy_ == GArpBlock::Block;
-		toolButton->setAutoRaise(true);
-		toolButton->setCheckable(true);
-		toolButton->setProperty("mac", QString(mac));
-		if (block) {
-			toolButton->setText("1");
-			toolButton->setIcon(QIcon(":/img/pause.png"));
-			toolButton->setChecked(true);
-		} else {
-			toolButton->setText("0");
-			toolButton->setIcon(QIcon(":/img/play.png"));
-			toolButton->setChecked(false);
-		}
-		treeWidget_->setItemWidget(treeWidgetItem, 3, toolButton);
-
-		QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
-
-		map->insert(mac, treeWidgetItem);
+		QTreeWidgetItem *item = it.value();
+		item->setText(0, QString(ip));
+		item->setText(1, QString(defaultName));
+		//item->setText(2, QString(duration));
 	}, Qt::QueuedConnection);
 }
 

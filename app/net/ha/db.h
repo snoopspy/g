@@ -34,6 +34,12 @@ public:
 		QString vendor_;
 		QString alias_;
 		bool isNull() { return mac_ == 0; };
+		QString defaultName() {
+			if (alias_ != "") return alias_;
+			if (host_ != "") return host_;
+			if (vendor_ != "") return vendor_;
+			return QString(GMac(mac_));
+		}
 	};
 
 protected:

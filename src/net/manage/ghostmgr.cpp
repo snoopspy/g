@@ -180,7 +180,7 @@ void GHostMgr::manage(GPacket* packet) {
 		QMutexLocker ml(&hostMap_.m_);
 		HostMap::iterator it = hostMap_.find(currentMac_);
 		if (it == hostMap_.end()) {
-			qDebug() << QString("detected %1 %2 %3").arg(QString(mac)).arg(QString(ip)).arg(host); // gilgil temp 2022.03.07
+			qDebug() << QString("detected %1 %2 %3 %4").arg(QString(mac)).arg(QString(ip)).arg(host).arg(vendor); // gilgil temp 2022.03.07
 			currentHostVal_ = HostValue::allocate(requestItems_.totalMemSize_);
 			currentHostVal_->firstTime_ = packet->ts_;
 			currentHostVal_->ip_ = ip;
@@ -198,6 +198,10 @@ void GHostMgr::manage(GPacket* packet) {
 			}
 			if (host != "" && host != hv->host_) {
 				hv->host_ = host;
+				changed = true;
+			}
+			if (vendor != "" && vendor != hv->vendor_) {
+				hv->vendor_ = vendor;
 				changed = true;
 			}
 			currentHostVal_ = it.value();

@@ -32,7 +32,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	itemDelegate_->setHeight(ItemHeight);
 
 	treeWidget_ = new GTreeWidget(this);
-	treeWidget_->setHeaderLabels(QStringList{"IP", "Mac", "Host", ""});
+	treeWidget_->setHeaderLabels(QStringList{"IP", "Name", "Duration", ""});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 	treeWidget_->setIndentation(0);
