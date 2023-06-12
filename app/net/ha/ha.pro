@@ -3,15 +3,15 @@ include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
 
 SOURCES += \
-	db.cpp \
 	ha.cpp \
 	hawidget.cpp \
-	hostanalyzer.cpp
+	hostanalyzer.cpp \
+	hostdb.cpp
 
 HEADERS += \
-	db.h \
 	hawidget.h \
-	hostanalyzer.h
+	hostanalyzer.h \
+	hostdb.h
 
 DISTFILES += \
 	android/AndroidManifest.xml \

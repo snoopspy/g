@@ -26,6 +26,8 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 	arpBlock_.hostMgr_ = &hostMgr_;
 	arpBlock_.defaultPolicy_ = GArpBlock::Allow;
 
+	hostDb_.hostMgr_ = &hostMgr_;
+
 	QObject::connect(&pcapDevice_, &GPcapDevice::captured, &hostMgr_, &GHostMgr::manage, Qt::DirectConnection);
 }
 
@@ -68,8 +70,8 @@ bool HostAnalyzer::doOpen() {
 			break;
 		}
 
-		if (!db_.open()) {
-			err = db_.err;
+		if (!hostDb_.open()) {
+			err = hostDb_.err;
 			ok = false;
 			break;
 		}
@@ -90,7 +92,7 @@ bool HostAnalyzer::doClose() {
 	hostMgr_.close();
 	hostWatch_.close();
 	hostScan_.close();
-	db_.close();
+	hostDb_.close();
 	for (TreeWidgetItemMap::iterator it = treeWidgetItemMap_.begin(); it != treeWidgetItemMap_.end(); it++) {
 		QTreeWidgetItem* item = it.value();
 		QToolButton* toolButton = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(item, 3));
@@ -107,20 +109,9 @@ bool HostAnalyzer::doClose() {
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
-	QString host = hostValue->host_;
-	QString vendor = hostValue->vendor_;
+	QString defaultName = hostDb_.getDefaultName(mac, hostValue);
 
-	Db::Device device;
-	device.mac_ = uint64_t(mac);
-	device.ip_ = uint32_t(ip);
-	device.host_ = host;
-	device.vendor_ = vendor;
-	db_.insertOrUpdateDevice(device);
-	QString defaultName = device.defaultName();
-
-	time_t duration = hostValue->lastTs_.tv_sec - hostValue->firstTs_.tv_sec;
-	QMetaObject::invokeMethod(this, [this, mac, ip, defaultName, duration]() {
-		qDebug() << QString(mac); // gilgil temp 2023.05.21
+	QMetaObject::invokeMethod(this, [this, mac, ip, defaultName]() {
 		TreeWidgetItemMap *map = &treeWidgetItemMap_;
 		TreeWidgetItemMap::iterator it = map->find(mac);
 		if (it == map->end()) {
@@ -150,16 +141,15 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		QTreeWidgetItem *item = it.value();
 		item->setText(0, QString(ip));
 		item->setText(1, QString(defaultName));
-		//item->setText(2, QString(duration));
+		item->setText(2, QString("0M")); // gilgil temp 2023.06.12
 	}, Qt::QueuedConnection);
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
-	db_.insertLog(mac, hostValue->ip_, hostValue->firstTs_.tv_sec, hostValue->lastTs_.tv_sec);
-
+	(void)hostValue;
 	if (!active()) return;
+
 	QMetaObject::invokeMethod(this, [this, mac]() {
-		qDebug() << QString(mac); // gilgil temp 2023.05.21
 		TreeWidgetItemMap *map = &treeWidgetItemMap_;
 		TreeWidgetItemMap::iterator it = map->find(mac);
 		if (it == map->end()) {
