@@ -186,6 +186,7 @@ void GHostMgr::manage(GPacket* packet) {
 			currentHostVal_->ip_ = ip;
 			currentHostVal_->host_ = host;
 			currentHostVal_->vendor_ = vendor;
+
 			it = hostMap_.insert(currentMac_, currentHostVal_);
 			for (Managable* manager: managables_)
 				manager->hostCreated(currentMac_, currentHostVal_);
