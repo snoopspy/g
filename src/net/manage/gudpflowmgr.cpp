@@ -24,7 +24,7 @@ void GUdpFlowMgr::deleteOldFlowMaps(long now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
 		UdpFlowValue* udpFlowValue = it.value();
-		long elapsed = now - udpFlowValue->ts_.tv_sec;
+		long elapsed = now - udpFlowValue->lastTs_.tv_sec;
 		long timeout = 0;
 		switch (udpFlowValue->state_) {
 			case UdpFlowValue::Half: timeout = halfTimeout_; break;
@@ -68,20 +68,23 @@ void GUdpFlowMgr::manage(GPacket* packet) {
 
 	if (it == flowMap_.end()) {
 		currentUdpFlowVal_ = UdpFlowValue::allocate(requestItems_.totalMemSize_);
-		currentUdpFlowVal_->state_ = UdpFlowValue::Half;
-		it = flowMap_.insert(currentUdpFlowkey_, currentUdpFlowVal_);
-		for (Managable* manager: managables_)
-			manager->udpFlowCreated(currentUdpFlowkey_, currentUdpFlowVal_);
+		currentUdpFlowVal_->firstTs_ = currentUdpFlowVal_->lastTs_ = packet->ts_;
 
-		if (currentRevUdpFlowVal_ != nullptr) {
+		if (currentRevUdpFlowVal_ == nullptr) {
+			currentUdpFlowVal_->state_ = UdpFlowValue::Half;
+		} else {
 			currentUdpFlowVal_->state_ = UdpFlowValue::Full;
 			currentRevUdpFlowVal_->state_ = UdpFlowValue::Full;
 		}
+
+		it = flowMap_.insert(currentUdpFlowkey_, currentUdpFlowVal_);
+		for (Managable* manager: managables_)
+			manager->udpFlowCreated(currentUdpFlowkey_, currentUdpFlowVal_);
 	} else {
 		currentUdpFlowVal_ = it.value();
 	}
 	Q_ASSERT(currentUdpFlowVal_ != nullptr);
-	currentUdpFlowVal_->ts_ = packet->ts_;
+	currentUdpFlowVal_->lastTs_ = packet->ts_;
 
 	emit managed(packet);
 }

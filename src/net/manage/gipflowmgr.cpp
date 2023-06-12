@@ -24,7 +24,7 @@ void GIpFlowMgr::deleteOldFlowMaps(long now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
 		IpFlowValue* ipFlowValue = it.value();
-		long elapsed = now - ipFlowValue->ts_.tv_sec;
+		long elapsed = now - ipFlowValue->lastTs_.tv_sec;
 		long timeout = 0;
 		switch (ipFlowValue->state_) {
 			case IpFlowValue::Half: timeout = halfTimeout_; break;
@@ -63,20 +63,24 @@ void GIpFlowMgr::manage(GPacket* packet) {
 
 	if (it == flowMap_.end()) {
 		currentIpFlowVal_ = IpFlowValue::allocate(requestItems_.totalMemSize_);
-		currentIpFlowVal_->state_ = IpFlowValue::Half;
+		currentIpFlowVal_->firstTs_ = currentIpFlowVal_->lastTs_ = packet->ts_;
+
+		if (currentRevIpFlowVal_  == nullptr) {
+			currentIpFlowVal_->state_ = IpFlowValue::Half;
+		} else {
+			currentIpFlowVal_->state_ = IpFlowValue::Full;
+			currentRevIpFlowVal_->state_ = IpFlowValue::Full;
+		}
+
 		it = flowMap_.insert(currentIpFlowKey_, currentIpFlowVal_);
 		for (Managable* manager: managables_)
 			manager->ipFlowCreated(currentIpFlowKey_, currentIpFlowVal_);
 
-		if (currentRevIpFlowVal_ != nullptr) {
-			currentIpFlowVal_->state_ = IpFlowValue::Full;
-			currentRevIpFlowVal_->state_ = IpFlowValue::Full;
-		}
 	} else {
 		currentIpFlowVal_ = it.value();
 	}
 	Q_ASSERT(currentIpFlowVal_ != nullptr);
-	currentIpFlowVal_->ts_ = packet->ts_;
+	currentIpFlowVal_->lastTs_ = packet->ts_;
 
 	emit managed(packet);
 }

@@ -34,8 +34,6 @@ public:
 	// HostValue
 	// --------------------------------------------------------------------------
 	struct HostValue : GPacketMgr::Value {
-		struct timeval firstTime_;
-		struct timeval lastTime_;
 		GIp ip_;
 		QString host_;
 		QString vendor_;
