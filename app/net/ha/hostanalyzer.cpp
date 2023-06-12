@@ -118,7 +118,7 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	db_.insertOrUpdateDevice(device);
 	QString defaultName = device.defaultName();
 
-	time_t duration = hostValue->lastTime_.tv_sec - hostValue->firstTime_.tv_sec;
+	time_t duration = hostValue->lastTs_.tv_sec - hostValue->firstTs_.tv_sec;
 	QMetaObject::invokeMethod(this, [this, mac, ip, defaultName, duration]() {
 		qDebug() << QString(mac); // gilgil temp 2023.05.21
 		TreeWidgetItemMap *map = &treeWidgetItemMap_;
@@ -155,7 +155,7 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
-	db_.insertLog(mac, hostValue->ip_, hostValue->firstTime_.tv_sec, hostValue->lastTime_.tv_sec);
+	db_.insertLog(mac, hostValue->ip_, hostValue->firstTs_.tv_sec, hostValue->lastTs_.tv_sec);
 
 	if (!active()) return;
 	QMetaObject::invokeMethod(this, [this, mac]() {
