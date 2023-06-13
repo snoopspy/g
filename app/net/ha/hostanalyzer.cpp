@@ -93,8 +93,9 @@ bool HostAnalyzer::doClose() {
 	hostWatch_.close();
 	hostScan_.close();
 	hostDb_.close();
-	for (TreeWidgetItemMap::iterator it = treeWidgetItemMap_.begin(); it != treeWidgetItemMap_.end(); it++) {
-		QTreeWidgetItem* item = it.value();
+	int count = treeWidget_->topLevelItemCount();
+	for (int i = 0; i < count; i++) {
+		QTreeWidgetItem* item = treeWidget_->topLevelItem(i);
 		QToolButton* toolButton = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(item, 3));
 		if (toolButton != nullptr) {
 			toolButton->setText("0");
