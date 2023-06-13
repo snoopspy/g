@@ -2,6 +2,8 @@ QT += widgets sql
 include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
 
+RESOURCES += $$PWD/ha.qrc
+
 SOURCES += \
 	ha.cpp \
 	hawidget.cpp \
