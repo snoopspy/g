@@ -1,6 +1,30 @@
 #include "hostanalyzer.h"
 #include <QToolButton>
 
+struct MyTreeWidgetItem : GTreeWidgetItem {
+	MyTreeWidgetItem(GTreeWidget* parent) : GTreeWidgetItem(parent) {}
+
+	bool operator < (const QTreeWidgetItem &other) const {
+		int column = treeWidget()->sortColumn();
+		switch (column) {
+			case 0:  // IP
+				return uint32_t(GIp(text(0))) < uint32_t(GIp(other.text(0)));
+			case 1:  // Name
+				return text(1) < other.text(1);
+			case 2: { // Elapse
+				const GTreeWidgetItem* myItem = dynamic_cast<const GTreeWidgetItem*>(this);
+				const GTreeWidgetItem* otherItem = dynamic_cast<const GTreeWidgetItem*>(&other);
+				quint64 myFirstTs = myItem->property("firstTs").toLongLong();
+				quint64 otherFirstTs = otherItem->property("firstTs").toLongLong();
+				return myFirstTs < otherFirstTs;
+			}
+			default:
+				qCritical() << "unreachable";
+				return true;
+		}
+	}
+};
+
 HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
 	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
@@ -120,7 +144,7 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		TreeWidgetItemMap *map = &treeWidgetItemMap_;
 		TreeWidgetItemMap::iterator it = map->find(mac);
 		if (it == map->end()) {
-			GTreeWidgetItem *item = new GTreeWidgetItem(treeWidget_);
+			MyTreeWidgetItem *item = new MyTreeWidgetItem(treeWidget_);
 			item->setProperty("mac", QString(mac));
 			item->setProperty("firstTs", qint64(firstTs.tv_sec));
 
