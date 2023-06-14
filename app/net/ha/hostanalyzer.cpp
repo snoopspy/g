@@ -149,7 +149,6 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		QTreeWidgetItem *item = it.value();
 		item->setText(0, QString(ip));
 		item->setText(1, QString(defaultName));
-		item->setText(2, QString("0s"));
 	}, Qt::QueuedConnection);
 }
 
