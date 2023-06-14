@@ -45,6 +45,9 @@ public:
 	GCommand command_{this};
 	HostDb hostDb_{this};
 
+public:
+	QTimer updateElapseTimer_;
+
 protected:
 	// GHostMgr::Managable
 	struct TreeWidgetItemMap : QMap<GMac, QTreeWidgetItem*> {
@@ -56,6 +59,7 @@ protected:
 public:
 	GTreeWidget* treeWidget_{nullptr};
 
-public:
+public slots:
 	void toolButton_toggled(bool checked);
+	void updateElapseTime();
 };

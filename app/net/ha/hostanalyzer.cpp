@@ -51,6 +51,7 @@ bool HostAnalyzer::doOpen() {
 			ok = false;
 			break;
 		}
+		hostMgr_.managables_.insert(this);
 
 		if (!hostWatch_.open()) {
 			err = hostWatch_.err;
@@ -76,7 +77,8 @@ bool HostAnalyzer::doOpen() {
 			break;
 		}
 
-		hostMgr_.managables_.insert(this);
+		qDebug() << QObject::connect(&updateElapseTimer_, &QTimer::timeout, this, &HostAnalyzer::updateElapseTime);
+		updateElapseTimer_.start(10000); // 10 seconds
 
 		break;
 	}
@@ -105,19 +107,24 @@ bool HostAnalyzer::doClose() {
 		}
 	}
 	treeWidgetItemMap_.clear();
+	updateElapseTimer_.stop();
 	return true;
 }
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
 	QString defaultName = hostDb_.getDefaultName(mac, hostValue);
+	struct timeval firstTs = hostValue->firstTs_;
 
-	QMetaObject::invokeMethod(this, [this, mac, ip, defaultName]() {
+	QMetaObject::invokeMethod(this, [this, mac, ip, defaultName, firstTs]() {
 		TreeWidgetItemMap *map = &treeWidgetItemMap_;
 		TreeWidgetItemMap::iterator it = map->find(mac);
 		if (it == map->end()) {
-			QTreeWidgetItem *treeWidgetItem = new QTreeWidgetItem(treeWidget_);
-			treeWidget_->addTopLevelItem(treeWidgetItem);
+			GTreeWidgetItem *item = new GTreeWidgetItem(treeWidget_);
+			item->setProperty("mac", QString(mac));
+			item->setProperty("firstTs", qint64(firstTs.tv_sec));
+
+			treeWidget_->addTopLevelItem(item);
 
 			QToolButton *toolButton = new QToolButton(treeWidget_);
 			bool block = arpBlock_.defaultPolicy_ == GArpBlock::Block;
@@ -133,16 +140,16 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 				toolButton->setIcon(QIcon(":/img/play.png"));
 				toolButton->setChecked(false);
 			}
-			treeWidget_->setItemWidget(treeWidgetItem, 3, toolButton);
+			treeWidget_->setItemWidget(item, 3, toolButton);
 
 			QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 
-			it = map->insert(mac, treeWidgetItem);
+			it = map->insert(mac, item);
 		}
 		QTreeWidgetItem *item = it.value();
 		item->setText(0, QString(ip));
 		item->setText(1, QString(defaultName));
-		item->setText(2, QString("0M")); // gilgil temp 2023.06.12
+		item->setText(2, QString("0s"));
 	}, Qt::QueuedConnection);
 }
 
@@ -192,5 +199,32 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 				break;
 			}
 		}
+	}
+}
+
+void HostAnalyzer::updateElapseTime() {
+	qint64 now = QDateTime::currentDateTime().toSecsSinceEpoch();
+	int count = treeWidget_->topLevelItemCount();
+	for (int i = 0; i < count; i++) {
+		QTreeWidgetItem* temp = treeWidget_->topLevelItem(i);
+		GTreeWidgetItem* item = dynamic_cast<GTreeWidgetItem*>(temp);
+		Q_ASSERT(item != nullptr);
+		QString mac = item->property("mac").toString();
+		qint64 first = item->property("firstTs").toLongLong();
+		qint64 elapsed = now - first;
+
+		qint64 days = elapsed / 86400;
+		elapsed %= 86400;
+		qint64 hours = elapsed / 3600;
+		elapsed %= 3600;
+		qint64 minutes = elapsed / 60;
+		elapsed %= 60;
+		qint64 seconds = elapsed;
+		QString s;
+		if (days != 0) s = QString("%1d ").arg(days);
+		if (hours != 0) s += QString("%1h ").arg(hours);
+		if (minutes != 0) s += QString("%1m ").arg(minutes);
+		s += QString("%1s").arg(seconds);
+		item->setText(2, s);
 	}
 }
