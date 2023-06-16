@@ -44,7 +44,21 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	hv->setStretchLastSection(false);
 	treeWidget_->setColumnWidth(3, ItemHeight);
 
+	tbDb_ = new QToolButton(this);
+	tbDb_->setText("DB");
+	tbDb_->setIcon(QIcon(":/img/db.png"));
+	tbDb_->setAutoRaise(true);
+	toolButtonLayout_->addWidget(tbDb_);
+#ifdef Q_OS_ANDROID
+	QSize size(160, 160);
+#else
+	QSize size(32, 32);
+#endif
+	tbDb_->setIconSize(size);
+
 	mainLayout_->addWidget(treeWidget_);
+
+	dbDialog_ = new DbDialog(this);
 
 	int left, top, right, bottom;
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
@@ -53,6 +67,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &HaWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &HaWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &HaWidget::tbOption_clicked);
+	QObject::connect(tbDb_, &QToolButton::clicked, this, &HaWidget::tbDb_clicked);
 
 	hostAnalyzer_.treeWidget_ = treeWidget_;
 
@@ -62,18 +77,25 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 HaWidget::~HaWidget() {
 	tbStop_->click();
 	setControl();
+
+	if (dbDialog_ != nullptr) {
+		delete dbDialog_;
+		dbDialog_ = nullptr;
+	}
 }
 
 void HaWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	jo["sizes"] >> GJson::columnSizes(treeWidget_);
 	jo["ha"] >> hostAnalyzer_;
+	jo["dbdialog"] >> *dbDialog_;
 }
 
 void HaWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["sizes"] << GJson::columnSizes(treeWidget_);
 	jo["ha"] << hostAnalyzer_;
+	jo["dbdialog"] << *dbDialog_;
 }
 
 void HaWidget::setControl() {
@@ -128,6 +150,10 @@ void HaWidget::tbOption_clicked(bool checked) {
 	propDialog.exec();
 
 	jo["propDialog"] << propDialog;
+}
+
+void HaWidget::tbDb_clicked(bool checked) {
+	dbDialog_->exec();
 }
 
 void HaWidget::processClosed() {

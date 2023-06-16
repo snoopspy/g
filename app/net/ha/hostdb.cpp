@@ -34,9 +34,9 @@ bool HostDb::doOpen() {
 			"CREATE TABLE IF NOT EXISTS host ("
 			"	mac INTEGER PRIMARY KEY,"
 			"	ip INTEGER,"
+			"	alias TEXT,"
 			"	host TEXT,"
-			"	vendor TEXT,"
-			"	alias TEXT"
+			"	vendor TEXT"
 			");"
 	)) {
 		SET_ERR(GErr::Fail, query.lastError().text());

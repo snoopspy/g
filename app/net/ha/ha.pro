@@ -5,12 +5,14 @@ DESTDIR = $$PWD/../../../bin
 RESOURCES += $$PWD/ha.qrc
 
 SOURCES += \
+	dbdialog.cpp \
 	ha.cpp \
 	hawidget.cpp \
 	hostanalyzer.cpp \
 	hostdb.cpp
 
 HEADERS += \
+	dbdialog.h \
 	hawidget.h \
 	hostanalyzer.h \
 	hostdb.h

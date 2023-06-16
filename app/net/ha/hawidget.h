@@ -3,6 +3,7 @@
 #include <GDefaultWidget>
 #include <GTreeWidget>
 #include "hostanalyzer.h"
+#include "dbdialog.h"
 
 struct ItemDelegate;
 struct G_EXPORT HaWidget : GDefaultWidget, GProp {
@@ -31,10 +32,15 @@ public:
 	GTreeWidget* treeWidget_;
 	HostAnalyzer hostAnalyzer_;
 
+public:
+	QToolButton* tbDb_{nullptr};
+	DbDialog* dbDialog_{nullptr};
+
 private slots:
 	void tbStart_clicked(bool checked = false);
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
+	void tbDb_clicked(bool checked = false);
 
 	void processClosed();
 };
