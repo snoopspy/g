@@ -229,8 +229,7 @@ void HostAnalyzer::updateElapseTime() {
 	qint64 now = QDateTime::currentDateTime().toSecsSinceEpoch();
 	int count = treeWidget_->topLevelItemCount();
 	for (int i = 0; i < count; i++) {
-		QTreeWidgetItem* temp = treeWidget_->topLevelItem(i);
-		GTreeWidgetItem* item = dynamic_cast<GTreeWidgetItem*>(temp);
+		GTreeWidgetItem* item = dynamic_cast<GTreeWidgetItem*>(treeWidget_->topLevelItem(i));
 		Q_ASSERT(item != nullptr);
 		QString mac = item->property("mac").toString();
 		qint64 first = item->property("firstTs").toLongLong();

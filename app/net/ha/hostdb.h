@@ -44,8 +44,10 @@ public:
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
 
-protected:
+public:
 	QSqlDatabase db_;
+
+protected:
 	QSqlQuery* selectHostQuery_{nullptr};
 	QSqlQuery* insertHostQuery_{nullptr};
 	QSqlQuery* updateHostQuery_{nullptr};

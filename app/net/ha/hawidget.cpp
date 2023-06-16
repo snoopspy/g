@@ -148,7 +148,19 @@ void HaWidget::tbOption_clicked(bool checked) {
 }
 
 void HaWidget::tbDb_clicked(bool checked) {
+	(void)checked;
+
 	dbDialog_->exec();
+
+	// Change default name because alias can be chaned
+	int count = treeWidget_->topLevelItemCount();
+	for (int i = 0; i < count; i++) {
+		GTreeWidgetItem* item = dynamic_cast<GTreeWidgetItem*>(treeWidget_->topLevelItem(i));
+		Q_ASSERT(item != nullptr);
+		QString mac = item->property("mac").toString();
+		QString defaultName = hostAnalyzer_.hostDb_.getDefaultName(mac, nullptr);
+		item->setText(1, defaultName);
+	}
 }
 
 void HaWidget::processClosed() {

@@ -115,14 +115,14 @@ void HostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 bool HostDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
-	selectHostQuery_->bindValue(":mac", quint64(uint64_t(mac)));
+	selectHostQuery_->bindValue(":mac", quint64(mac));
 	if (!selectHostQuery_->exec()) {
 		qWarning() << selectHostQuery_->lastError().text();
 		return false;
 	}
 
 	if (selectHostQuery_->next()) {
-		Q_ASSERT(uint64_t(mac) == selectHostQuery_->value("mac").toULongLong());
+		Q_ASSERT(quint64(mac) == selectHostQuery_->value("mac").toULongLong());
 		hostValue->ip_ = selectHostQuery_->value("ip").toUInt();
 		hostValue->host_ = selectHostQuery_->value("host").toString();
 		hostValue->vendor_ = selectHostQuery_->value("vendor").toString();
@@ -132,7 +132,7 @@ bool HostDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 bool HostDb::insertHost(GMac mac, GHostMgr::HostValue* hostValue) {
-	insertHostQuery_->bindValue(":mac", quint64(uint64_t(mac)));
+	insertHostQuery_->bindValue(":mac", quint64(mac));
 	insertHostQuery_->bindValue(":ip", uint32_t(hostValue->ip_));
 	insertHostQuery_->bindValue(":host", hostValue->host_);
 	insertHostQuery_->bindValue(":vendor", hostValue->vendor_);
@@ -147,7 +147,7 @@ bool HostDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	updateHostQuery_->bindValue(":ip", uint32_t(hostValue->ip_));
 	updateHostQuery_->bindValue(":host", hostValue->host_);
 	updateHostQuery_->bindValue(":vendor", hostValue->vendor_);
-	updateHostQuery_->bindValue(":mac", quint64(uint64_t(mac)));
+	updateHostQuery_->bindValue(":mac", quint64(mac));
 	bool res = updateHostQuery_->exec();
 	if (!res) {
 		qWarning() << updateHostQuery_->lastError().text();
@@ -168,7 +168,7 @@ bool HostDb::insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 bool HostDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
-	insertLogQuery_->bindValue(":mac", quint64(uint64_t(mac)));
+	insertLogQuery_->bindValue(":mac", quint64(mac));
 	insertLogQuery_->bindValue(":ip", uint32_t(ip));
 	insertLogQuery_->bindValue(":beg_time", quint64(begTime));
 	insertLogQuery_->bindValue(":end_time", quint64(endTime));
@@ -182,10 +182,12 @@ bool HostDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
 QString HostDb::getDefaultName(GMac mac, GHostMgr::HostValue* hostValue) {
 	QString res;
 
-	if (hostValue->host_ != "") res = hostValue->host_;
-	else if (hostValue->vendor_ != "") res = hostValue->vendor_;
+	if (hostValue != nullptr) {
+		if (hostValue->host_ != "") res = hostValue->host_;
+		else if (hostValue->vendor_ != "") res = hostValue->vendor_;
+	}
 
-	selectHostQuery_->bindValue(":mac", quint64(uint64_t(mac)));
+	selectHostQuery_->bindValue(":mac", quint64(mac));
 	if (!selectHostQuery_->exec()) {
 		qWarning() << selectHostQuery_->lastError().text();
 	} else if (selectHostQuery_->next()) {
