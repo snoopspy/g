@@ -48,13 +48,8 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tbDb_->setText("DB");
 	tbDb_->setIcon(QIcon(":/img/db.png"));
 	tbDb_->setAutoRaise(true);
+	tbDb_->setIconSize(tbStart_->iconSize());
 	toolButtonLayout_->addWidget(tbDb_);
-#ifdef Q_OS_ANDROID
-	QSize size(160, 160);
-#else
-	QSize size(32, 32);
-#endif
-	tbDb_->setIconSize(size);
 
 	mainLayout_->addWidget(treeWidget_);
 
