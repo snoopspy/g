@@ -38,7 +38,7 @@ TEST(GIp, ctorTest) {
 
 	GIp ip2{ip1}; // (const GIp& r)
 
-	GIp ip3{0x7F000001}; // (const uint32_t r)
+	GIp ip3{0x7F000001}; // (const quint32 r)
 	EXPECT_EQ(ip3, 0x7F000001);
 
 	GIp ip4{QString("127.0.0.1")}; // (const QString& r)
@@ -51,7 +51,7 @@ TEST(GIp, ctorTest) {
 TEST(GIp, castingTest) {
 	GIp ip{"127.0.0.1"};
 
-	uint32_t ui; ui = ip; // operator uint32_t()
+	quint32 ui; ui = ip; // operator quint32()
 	EXPECT_EQ(ui, 0x7F000001);
 
 	QString s2; s2 = QString(ip); // operator QString()

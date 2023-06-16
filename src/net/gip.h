@@ -21,14 +21,14 @@ struct G_EXPORT GIp final {
 	// constructor
 	GIp() {}
 	GIp(const GIp& r) : ip_(r.ip_) {}
-	GIp(const uint32_t r) : ip_(r) {}
+	GIp(const quint32 r) : ip_(r) {}
 	GIp(const QString& r);
 
 	// assign operator
 	GIp& operator = (const GIp& r) { ip_ = r.ip_; return *this; }
 
 	// casting operator
-	operator uint32_t() const { return ip_; } // default
+	operator quint32() const { return ip_; } // default
 	explicit operator QString() const;
 
 	void clear() {
@@ -54,6 +54,6 @@ struct G_EXPORT GIp final {
 	}
 
 protected:
-	uint32_t ip_;
+	quint32 ip_;
 };
 typedef GIp *PIp;
