@@ -1,15 +1,15 @@
 <RCC>
-    <qresource prefix="/">
-        <file>img/new.png</file>
-        <file>img/open.png</file>
-        <file>img/option.png</file>
-        <file>img/save.png</file>
-        <file>img/saveas.png</file>
-        <file>img/start.png</file>
-        <file>img/stop.png</file>
-        <file>img/edit.png</file>
-        <file>img/link.png</file>
-        <file>img/delete.png</file>
-        <file>img/about.png</file>
-    </qresource>
+	<qresource prefix="/">
+		<file>img/new.png</file>
+		<file>img/open.png</file>
+		<file>img/option.png</file>
+		<file>img/save.png</file>
+		<file>img/saveas.png</file>
+		<file>img/start.png</file>
+		<file>img/stop.png</file>
+		<file>img/edit.png</file>
+		<file>img/link.png</file>
+		<file>img/delete.png</file>
+		<file>img/about.png</file>
+	</qresource>
 </RCC>
