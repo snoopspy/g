@@ -68,7 +68,6 @@ struct LogModel : QSqlTableModel {
 	}
 };
 
-
 DbDialog::DbDialog(QWidget* parent) : QDialog(parent) {
 	resize(QSize(640, 480));
 	setWindowTitle("Database");

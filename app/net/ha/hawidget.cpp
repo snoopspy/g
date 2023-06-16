@@ -150,6 +150,11 @@ void HaWidget::tbOption_clicked(bool checked) {
 void HaWidget::tbDb_clicked(bool checked) {
 	(void)checked;
 
+#ifdef Q_OS_ANDROID
+	dbDialog_->showMaximized();
+#else // Q_OS_ANDROID
+	dbDialog_->show();
+#endif // Q_OS_ANDROID
 	dbDialog_->exec();
 
 	// Change default name because alias can be chaned
