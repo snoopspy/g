@@ -1,5 +1,6 @@
 #include "hostanalyzer.h"
 #include <QToolButton>
+#include <QMessageBox>
 
 struct MyTreeWidgetItem : GTreeWidgetItem {
 	MyTreeWidgetItem(GTreeWidget* parent) : GTreeWidgetItem(parent) {}
@@ -32,6 +33,8 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 #endif
 
 	hostMgr_.pcapDevice_ = &pcapDevice_;
+	QObject::connect(&pcapDevice_, &GPcapDevice::captured, &hostMgr_, &GHostMgr::manage, Qt::DirectConnection);
+
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	pcapDevice_.readTimeout_ = -1;
 	pcapDevice_.waitTimeout_ = 1000;
@@ -51,11 +54,15 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 	arpBlock_.defaultPolicy_ = GArpBlock::Allow;
 
 	hostDb_.hostMgr_ = &hostMgr_;
-
-	QObject::connect(&pcapDevice_, &GPcapDevice::captured, &hostMgr_, &GHostMgr::manage, Qt::DirectConnection);
+	if (!hostDb_.open()) {
+		QMessageBox mb;
+		QString msg = hostDb_.err->msg();
+		mb.critical(nullptr, "Error", msg);
+	}
 }
 
 HostAnalyzer::~HostAnalyzer() {
+	hostDb_.close();
 	close();
 }
 
@@ -95,12 +102,6 @@ bool HostAnalyzer::doOpen() {
 			break;
 		}
 
-		if (!hostDb_.open()) {
-			err = hostDb_.err;
-			ok = false;
-			break;
-		}
-
 		qDebug() << QObject::connect(&updateElapseTimer_, &QTimer::timeout, this, &HostAnalyzer::updateElapseTime);
 		updateElapseTimer_.start(10000); // 10 seconds
 
@@ -118,7 +119,6 @@ bool HostAnalyzer::doClose() {
 	hostMgr_.close();
 	hostWatch_.close();
 	hostScan_.close();
-	hostDb_.close();
 	int count = treeWidget_->topLevelItemCount();
 	for (int i = 0; i < count; i++) {
 		QTreeWidgetItem* item = treeWidget_->topLevelItem(i);

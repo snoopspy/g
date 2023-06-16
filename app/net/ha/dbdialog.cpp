@@ -6,9 +6,9 @@
 #include <GJson>
 
 struct HostModel : QSqlTableModel {
-	explicit HostModel(QObject *parent = nullptr, QSqlDatabase db = QSqlDatabase()) : QSqlTableModel(parent, db) {}
+	explicit HostModel(QObject *parent, QSqlDatabase db) : QSqlTableModel(parent, db) {}
 
-	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
+	QVariant data(const QModelIndex &index, int role) const override {
 		QVariant res = QSqlTableModel::data(index, role);
 		if (role == Qt::DisplayRole) {
 			switch (index.column()) {
@@ -33,25 +33,27 @@ struct HostModel : QSqlTableModel {
 	}
 };
 
+#include "hostdb.h"
 struct LogModel : QSqlTableModel {
-	explicit LogModel(QObject *parent = nullptr, QSqlDatabase db = QSqlDatabase()) : QSqlTableModel(parent, db) {}
+	HostDb* hostDb_;
+	explicit LogModel(QObject *parent, QSqlDatabase db, HostDb* hostDb) : QSqlTableModel(parent, db), hostDb_(hostDb) {}
 
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
 		QVariant res = QSqlTableModel::data(index, role);
 		if (role == Qt::DisplayRole) {
 			switch (index.column()) {
 				case 0: { // mac
-						GMac mac = GMac(res.toULongLong());
-						return QString(mac);
+					GMac mac = GMac(res.toULongLong());
+					return hostDb_->getDefaultName(mac, nullptr);
 				}
 				case 1: { // ip
-						GIp ip = GIp(res.toUInt());
-						return QString(ip);
+					GIp ip = GIp(res.toUInt());
+					return QString(ip);
 				}
 				case 2: // beg_time
 				case 3: { // end_time
-						QDateTime dt = QDateTime::fromSecsSinceEpoch(res.toULongLong());
-						return dt.toString("MMdd hh:mm");
+					QDateTime dt = QDateTime::fromSecsSinceEpoch(res.toULongLong());
+					return dt.toString("MMdd hh:mm");
 				}
 			}
 		}
@@ -108,9 +110,10 @@ int DbDialog::exec() {
 	hostView_->setModel(hostModel);
 	hostView_->resizeColumnsToContents();
 
-	QSqlTableModel* logModel = new LogModel(this, db);
+	QSqlTableModel* logModel = new LogModel(this, db, &widget->hostAnalyzer_.hostDb_);
 	logModel->setTable("log");
 	logModel->select();
+	logModel->setHeaderData(0, Qt::Horizontal, "Name");
 	logView_->setModel(logModel);
 	logView_->resizeColumnsToContents();
 
