@@ -53,6 +53,7 @@ SOURCES += \
 	$${PWD}/../src/base/widget/gdefaultwidget.cpp \
 	$${PWD}/../src/base/widget/gplaintextedit.cpp \
 	$${PWD}/../src/base/widget/gsplitter.cpp \
+	$${PWD}/../src/base/widget/gtableview.cpp \
 	$${PWD}/../src/base/widget/gtablewidget.cpp \
 	$${PWD}/../src/base/widget/gtreewidget.cpp \
 	$${PWD}/../src/net/block/garpblock.cpp \
@@ -189,6 +190,7 @@ HEADERS += \
 	$${PWD}/../src/base/widget/gdefaultwidget.h \
 	$${PWD}/../src/base/widget/gplaintextedit.h \
 	$${PWD}/../src/base/widget/gsplitter.h \
+	$${PWD}/../src/base/widget/gtableview.h \
 	$${PWD}/../src/base/widget/gtablewidget.h \
 	$${PWD}/../src/base/widget/gtreewidget.h \
 	$${PWD}/../src/net/block/garpblock.h \
