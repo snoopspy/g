@@ -101,10 +101,10 @@ void WaWidget::tbOption_clicked(bool checked) {
 	bool isFirst = jo.find("propDialog") == jo.end();
 	jo["propDialog"] >> propDialog;
 
-#ifndef Q_OS_ANDROID
-	propDialog.show();
-#else
+#ifdef Q_OS_ANDROID
 	propDialog.showMaximized();
+#else
+	propDialog.show();
 #endif
 	if (isFirst) {
 		int width = propDialog.width();

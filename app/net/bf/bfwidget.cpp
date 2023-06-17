@@ -79,9 +79,9 @@ void BfWidget::tbOption_clicked(bool checked) {
 	jo["propDialog"] >> propDialog;
 
 #ifndef Q_OS_ANDROID
-	propDialog.show();
-#else
 	propDialog.showMaximized();
+#else
+	propDialog.show();
 #endif
 	if (isFirst) {
 		int width = propDialog.width();

@@ -157,9 +157,9 @@ void GGScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 					signalSlotForm_->lwSlotList_->addItems(_slotList);
 #ifdef Q_OS_ANDROID
 					signalSlotForm_->showMaximized();
-#else // Q_OS_ANDROID
+#else
 					signalSlotForm_->show();
-#endif // Q_OS_ANDROID
+#endif
 					signalSlotForm_->exec();
 					if (signalSlotForm_->result() == QDialog::Accepted) {
 						QString signal = signalSlotForm_->lwSignalList_->selectedItems().first()->text();
