@@ -53,8 +53,6 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 
 	mainLayout_->addWidget(treeWidget_);
 
-	dbDialog_ = new DbDialog(this);
-
 	int left, top, right, bottom;
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
 	mainLayout_->setContentsMargins(0, top, 0, 0);
@@ -72,25 +70,18 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 HaWidget::~HaWidget() {
 	tbStop_->click();
 	setControl();
-
-	if (dbDialog_ != nullptr) {
-		delete dbDialog_;
-		dbDialog_ = nullptr;
-	}
 }
 
 void HaWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	jo["sizes"] >> GJson::columnSizes(treeWidget_);
 	jo["ha"] >> hostAnalyzer_;
-	jo["dbdialog"] >> *dbDialog_;
 }
 
 void HaWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["sizes"] << GJson::columnSizes(treeWidget_);
 	jo["ha"] << hostAnalyzer_;
-	jo["dbdialog"] << *dbDialog_;
 }
 
 void HaWidget::setControl() {
@@ -147,15 +138,23 @@ void HaWidget::tbOption_clicked(bool checked) {
 	jo["propDialog"] << propDialog;
 }
 
+#include "dbdialog.h"
+
 void HaWidget::tbDb_clicked(bool checked) {
 	(void)checked;
+	DbDialog dbDialog(this);
+
+	QJsonObject& jo = GJson::instance();
+	jo["dbDialog"] >> dbDialog;
 
 #ifdef Q_OS_ANDROID
-	dbDialog_->showMaximized();
+	dbDialog.showMaximized();
 #else // Q_OS_ANDROID
-	dbDialog_->show();
+	dbDialog.show();
 #endif // Q_OS_ANDROID
-	dbDialog_->exec();
+	dbDialog.exec();
+
+	jo["dbDialog"] << dbDialog;
 
 	// Change default name because alias can be chaned
 	int count = treeWidget_->topLevelItemCount();

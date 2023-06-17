@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QDialog>
-#include <QTableView>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include <GTableView>
 #include <GProp>
 
 struct DbDialog : QDialog, GProp {

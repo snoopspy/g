@@ -76,8 +76,10 @@ DbDialog::DbDialog(QWidget* parent) : QDialog(parent) {
 	mainLayout_->setContentsMargins(0, 0, 0, 0);
 	tabWidget_ = new QTabWidget(this);
 
-	hostView_ = new QTableView(this);
-	logView_ = new QTableView(this);
+	hostView_ = new GTableView(this);
+	hostView_->verticalHeader()->hide();
+	logView_ = new GTableView(this);
+	logView_->verticalHeader()->hide();
 
 	tabWidget_->addTab(hostView_, "Host");
 	tabWidget_->addTab(logView_, "Log");
