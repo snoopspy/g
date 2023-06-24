@@ -159,7 +159,7 @@ void HaWidget::tbDb_clicked(bool checked) {
 	// Change default name because alias can be chaned
 	int count = treeWidget_->topLevelItemCount();
 	for (int i = 0; i < count; i++) {
-		GTreeWidgetItem* item = dynamic_cast<GTreeWidgetItem*>(treeWidget_->topLevelItem(i));
+		GTreeWidgetItem *item = dynamic_cast<GTreeWidgetItem *>(treeWidget_->topLevelItem(i));
 		Q_ASSERT(item != nullptr);
 		QString mac = item->property("mac").toString();
 		QString defaultName = hostAnalyzer_.hostDb_.getDefaultName(mac, nullptr);

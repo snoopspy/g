@@ -80,6 +80,7 @@ bool HostDb::doOpen() {
 }
 
 bool HostDb::doClose() {
+	QMutexLocker(this);
 	db_.close();
 
 	if (selectHostQuery_ != nullptr) {
@@ -115,6 +116,8 @@ void HostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 bool HostDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
+	QMutexLocker(this);
+
 	selectHostQuery_->bindValue(":mac", quint64(mac));
 	if (!selectHostQuery_->exec()) {
 		qWarning() << selectHostQuery_->lastError().text();
@@ -132,6 +135,8 @@ bool HostDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 bool HostDb::insertHost(GMac mac, GHostMgr::HostValue* hostValue) {
+	QMutexLocker(this);
+
 	insertHostQuery_->bindValue(":mac", quint64(mac));
 	insertHostQuery_->bindValue(":ip", uint32_t(hostValue->ip_));
 	insertHostQuery_->bindValue(":host", hostValue->host_);
@@ -144,6 +149,8 @@ bool HostDb::insertHost(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 bool HostDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
+	QMutexLocker(this);
+
 	updateHostQuery_->bindValue(":ip", uint32_t(hostValue->ip_));
 	updateHostQuery_->bindValue(":host", hostValue->host_);
 	updateHostQuery_->bindValue(":vendor", hostValue->vendor_);
@@ -156,6 +163,8 @@ bool HostDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 bool HostDb::insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue) {
+	QMutexLocker(this);
+
 	GHostMgr::HostValue dbHostValue;
 	if (selectHost(mac, &dbHostValue)) {
 		GHostMgr::HostValue newHostValue;
@@ -168,6 +177,8 @@ bool HostDb::insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 bool HostDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
+	QMutexLocker(this);
+
 	insertLogQuery_->bindValue(":mac", quint64(mac));
 	insertLogQuery_->bindValue(":ip", uint32_t(ip));
 	insertLogQuery_->bindValue(":beg_time", quint64(begTime));
@@ -180,6 +191,8 @@ bool HostDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
 }
 
 QString HostDb::getDefaultName(GMac mac, GHostMgr::HostValue* hostValue) {
+	QMutexLocker(this);
+
 	QString res;
 
 	if (hostValue != nullptr) {
@@ -204,5 +217,3 @@ QString HostDb::getDefaultName(GMac mac, GHostMgr::HostValue* hostValue) {
 	if (res == "") res = QString(mac);
 	return res;
 }
-
-QString defaultName(GMac mac, GHostMgr::HostValue* hostValue);

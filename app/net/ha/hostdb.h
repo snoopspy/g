@@ -18,7 +18,7 @@
 // ----------------------------------------------------------------------------
 // HostDb
 // ----------------------------------------------------------------------------
-struct G_EXPORT HostDb : GStateObj, GHostMgr::Managable {
+struct G_EXPORT HostDb : GStateObj, GHostMgr::Managable, QRecursiveMutex {
 	Q_OBJECT
 	Q_PROPERTY(QString fileName MEMBER fileName_)
 	Q_PROPERTY(GObjPtr hostMgr READ getHostMgr WRITE setHostMgr)

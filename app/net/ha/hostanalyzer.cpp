@@ -137,7 +137,9 @@ bool HostAnalyzer::doClose() {
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
+	hostDb_.lock();
 	QString defaultName = hostDb_.getDefaultName(mac, hostValue);
+	hostDb_.unlock();
 	struct timeval firstTs = hostValue->firstTs_;
 
 	QMetaObject::invokeMethod(this, [this, mac, ip, defaultName, firstTs]() {

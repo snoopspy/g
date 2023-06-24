@@ -103,20 +103,28 @@ void DbDialog::propSave(QJsonObject& jo) {
 int DbDialog::exec() {
 	HaWidget* widget = dynamic_cast<HaWidget*>(parent());
 	Q_ASSERT(widget != nullptr);
-	QSqlDatabase db = widget->hostAnalyzer_.hostDb_.db_;
 
-	QSqlTableModel* hostModel = new HostModel(this, db);
-	hostModel->setTable("host");
-	hostModel->select();
-	hostView_->setModel(hostModel);
-	hostView_->resizeColumnsToContents();
+	HostDb* hostDb  = &widget->hostAnalyzer_.hostDb_;
+	QSqlTableModel* hostModel;
+	QSqlTableModel* logModel;
+	{
+		QMutexLocker ml(hostDb);
 
-	QSqlTableModel* logModel = new LogModel(this, db, &widget->hostAnalyzer_.hostDb_);
-	logModel->setTable("log");
-	logModel->select();
-	logModel->setHeaderData(0, Qt::Horizontal, "Name");
-	logView_->setModel(logModel);
-	logView_->resizeColumnsToContents();
+		QSqlDatabase db = hostDb->db_;
+
+		hostModel = new HostModel(this, db);
+		hostModel->setTable("host");
+		hostModel->select();
+		hostView_->setModel(hostModel);
+		hostView_->resizeColumnsToContents();
+
+		logModel = new LogModel(this, db, &widget->hostAnalyzer_.hostDb_);
+		logModel->setTable("log");
+		logModel->select();
+		logModel->setHeaderData(0, Qt::Horizontal, "Name");
+		logView_->setModel(logModel);
+		logView_->resizeColumnsToContents();
+	}
 
 	int res = QDialog::exec();
 
