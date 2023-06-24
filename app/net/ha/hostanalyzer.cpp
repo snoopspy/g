@@ -53,16 +53,16 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 	arpBlock_.hostMgr_ = &hostMgr_;
 	arpBlock_.defaultPolicy_ = GArpBlock::Allow;
 
-	haDb_.hostMgr_ = &hostMgr_;
-	if (!haDb_.open()) {
+	hostDb_.hostMgr_ = &hostMgr_;
+	if (!hostDb_.open()) {
 		QMessageBox mb;
-		QString msg = haDb_.err->msg();
+		QString msg = hostDb_.err->msg();
 		mb.critical(nullptr, "Error", msg);
 	}
 }
 
 HostAnalyzer::~HostAnalyzer() {
-	haDb_.close();
+	hostDb_.close();
 	close();
 }
 
@@ -137,7 +137,7 @@ bool HostAnalyzer::doClose() {
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	GIp ip = hostValue->ip_;
-	QString defaultName = haDb_.getDefaultName(mac, hostValue);
+	QString defaultName = hostDb_.getDefaultName(mac, hostValue);
 	struct timeval firstTs = hostValue->firstTs_;
 
 	QMetaObject::invokeMethod(this, [this, mac, ip, defaultName, firstTs]() {

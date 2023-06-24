@@ -9,13 +9,13 @@ SOURCES += \
 	ha.cpp \
 	hawidget.cpp \
 	hostanalyzer.cpp \
-	hadb.cpp
+	hostdb.cpp
 
 HEADERS += \
 	dbdialog.h \
 	hawidget.h \
 	hostanalyzer.h \
-	hadb.h
+	hostdb.h
 
 DISTFILES += \
 	android/AndroidManifest.xml \

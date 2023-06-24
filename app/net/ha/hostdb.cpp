@@ -1,16 +1,16 @@
-#include "hadb.h"
+#include "hostdb.h"
 
 // ----------------------------------------------------------------------------
-// HaDb
+// HostDb
 // ----------------------------------------------------------------------------
-HaDb::HaDb(QObject* parent) : GStateObj(parent) {
+HostDb::HostDb(QObject* parent) : GStateObj(parent) {
 }
 
-HaDb::~HaDb() {
+HostDb::~HostDb() {
 	close();
 }
 
-bool HaDb::doOpen() {
+bool HostDb::doOpen() {
 	if (hostMgr_ == nullptr) {
 		SET_ERR(GErr::ObjectIsNull, "hostMgr is null");
 		return false;
@@ -79,7 +79,7 @@ bool HaDb::doOpen() {
 	return true;
 }
 
-bool HaDb::doClose() {
+bool HostDb::doClose() {
 	db_.close();
 
 	if (selectHostQuery_ != nullptr) {
@@ -102,19 +102,19 @@ bool HaDb::doClose() {
 	return true;
 }
 
-void HaDb::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
+void HostDb::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	insertOrUpdateDevice(mac, hostValue);
 }
 
-void HaDb::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
+void HostDb::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	insertLog(mac, hostValue->ip_, hostValue->firstTs_.tv_sec, hostValue->lastTs_.tv_sec);
 }
 
-void HaDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
+void HostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	insertOrUpdateDevice(mac, hostValue);
 }
 
-bool HaDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
+bool HostDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	selectHostQuery_->bindValue(":mac", quint64(mac));
 	if (!selectHostQuery_->exec()) {
 		qWarning() << selectHostQuery_->lastError().text();
@@ -131,7 +131,7 @@ bool HaDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	return false;
 }
 
-bool HaDb::insertHost(GMac mac, GHostMgr::HostValue* hostValue) {
+bool HostDb::insertHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	insertHostQuery_->bindValue(":mac", quint64(mac));
 	insertHostQuery_->bindValue(":ip", uint32_t(hostValue->ip_));
 	insertHostQuery_->bindValue(":host", hostValue->host_);
@@ -143,7 +143,7 @@ bool HaDb::insertHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	return res;
 }
 
-bool HaDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
+bool HostDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	updateHostQuery_->bindValue(":ip", uint32_t(hostValue->ip_));
 	updateHostQuery_->bindValue(":host", hostValue->host_);
 	updateHostQuery_->bindValue(":vendor", hostValue->vendor_);
@@ -155,7 +155,7 @@ bool HaDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	return res;
 }
 
-bool HaDb::insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue) {
+bool HostDb::insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue) {
 	GHostMgr::HostValue dbHostValue;
 	if (selectHost(mac, &dbHostValue)) {
 		GHostMgr::HostValue newHostValue;
@@ -167,7 +167,7 @@ bool HaDb::insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue) {
 	return insertHost(mac, hostValue);
 }
 
-bool HaDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
+bool HostDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
 	insertLogQuery_->bindValue(":mac", quint64(mac));
 	insertLogQuery_->bindValue(":ip", uint32_t(ip));
 	insertLogQuery_->bindValue(":beg_time", quint64(begTime));
@@ -179,7 +179,7 @@ bool HaDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
 	return res;
 }
 
-QString HaDb::getDefaultName(GMac mac, GHostMgr::HostValue* hostValue) {
+QString HostDb::getDefaultName(GMac mac, GHostMgr::HostValue* hostValue) {
 	QString res;
 
 	if (hostValue != nullptr) {

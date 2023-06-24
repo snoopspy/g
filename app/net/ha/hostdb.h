@@ -16,9 +16,9 @@
 #include <GHostMgr>
 
 // ----------------------------------------------------------------------------
-// HaDb
+// HostDb
 // ----------------------------------------------------------------------------
-struct G_EXPORT HaDb : GStateObj, GHostMgr::Managable {
+struct G_EXPORT HostDb : GStateObj, GHostMgr::Managable {
 	Q_OBJECT
 	Q_PROPERTY(QString fileName MEMBER fileName_)
 	Q_PROPERTY(GObjPtr hostMgr READ getHostMgr WRITE setHostMgr)
@@ -31,8 +31,8 @@ public:
 	GHostMgr* hostMgr_{nullptr};
 
 public:
-	Q_INVOKABLE HaDb(QObject* parent = nullptr);
-	~HaDb() override;
+	Q_INVOKABLE HostDb(QObject* parent = nullptr);
+	~HostDb() override;
 
 protected:
 	bool doOpen() override;
