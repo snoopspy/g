@@ -162,7 +162,7 @@ void HaWidget::tbDb_clicked(bool checked) {
 		GTreeWidgetItem* item = dynamic_cast<GTreeWidgetItem*>(treeWidget_->topLevelItem(i));
 		Q_ASSERT(item != nullptr);
 		QString mac = item->property("mac").toString();
-		QString defaultName = hostAnalyzer_.hostDb_.getDefaultName(mac, nullptr);
+		QString defaultName = hostAnalyzer_.haDb_.getDefaultName(mac, nullptr);
 		item->setText(1, defaultName);
 	}
 }

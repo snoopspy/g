@@ -33,10 +33,10 @@ struct HostModel : QSqlTableModel {
 	}
 };
 
-#include "hostdb.h"
+#include "hadb.h"
 struct LogModel : QSqlTableModel {
-	HostDb* hostDb_;
-	explicit LogModel(QObject *parent, QSqlDatabase db, HostDb* hostDb) : QSqlTableModel(parent, db), hostDb_(hostDb) {}
+	HaDb* haDb_;
+	explicit LogModel(QObject *parent, QSqlDatabase db, HaDb* haDb) : QSqlTableModel(parent, db), haDb_(haDb) {}
 
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
 		QVariant res = QSqlTableModel::data(index, role);
@@ -44,7 +44,7 @@ struct LogModel : QSqlTableModel {
 			switch (index.column()) {
 				case 0: { // mac
 					GMac mac = GMac(res.toULongLong());
-					return hostDb_->getDefaultName(mac, nullptr);
+					return haDb_->getDefaultName(mac, nullptr);
 				}
 				case 1: { // ip
 					GIp ip = GIp(res.toUInt());
@@ -103,7 +103,7 @@ void DbDialog::propSave(QJsonObject& jo) {
 int DbDialog::exec() {
 	HaWidget* widget = dynamic_cast<HaWidget*>(parent());
 	Q_ASSERT(widget != nullptr);
-	QSqlDatabase db = widget->hostAnalyzer_.hostDb_.db_;
+	QSqlDatabase db = widget->hostAnalyzer_.haDb_.db_;
 
 	QSqlTableModel* hostModel = new HostModel(this, db);
 	hostModel->setTable("host");
@@ -111,10 +111,10 @@ int DbDialog::exec() {
 	hostView_->setModel(hostModel);
 	hostView_->resizeColumnsToContents();
 
-	QSqlTableModel* logModel = new LogModel(this, db, &widget->hostAnalyzer_.hostDb_);
+	QSqlTableModel* logModel = new LogModel(this, db, &widget->hostAnalyzer_.haDb_);
 	logModel->setTable("log");
 	logModel->select();
-	logModel->setHeaderData(0, Qt::Horizontal, "Name");
+	logModel->setHeaderData(0, Qt::Horizontal, "name");
 	logView_->setModel(logModel);
 	logView_->resizeColumnsToContents();
 

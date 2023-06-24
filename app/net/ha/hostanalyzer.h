@@ -7,7 +7,7 @@
 #include <GHostScan>
 #include <GArpBlock>
 #include <GTreeWidget>
-#include "hostdb.h"
+#include "hadb.h"
 
 struct G_EXPORT HostAnalyzer : GStateObj, GHostMgr::Managable {
 	Q_OBJECT
@@ -17,7 +17,7 @@ struct G_EXPORT HostAnalyzer : GStateObj, GHostMgr::Managable {
 	Q_PROPERTY(GObjRef hostScan READ getHostScan)
 	Q_PROPERTY(GObjRef arpBlock READ getArpBlock)
 	Q_PROPERTY(GObjRef command READ getCommand)
-	Q_PROPERTY(GObjRef hostDb READ getHostDb)
+	Q_PROPERTY(GObjRef haDb READ getHaDb)
 
 public:
 	Q_INVOKABLE HostAnalyzer(QObject* parent = nullptr);
@@ -30,7 +30,7 @@ public:
 	GObjRef getHostScan() { return &hostScan_; }
 	GObjRef getArpBlock() { return &arpBlock_; }
 	GObjRef getCommand() { return &command_; }
-	GObjRef getHostDb() { return &hostDb_; }
+	GObjRef getHaDb() { return &haDb_; }
 
 protected:
 	bool doOpen() override;
@@ -43,7 +43,7 @@ public:
 	GHostScan hostScan_{this};
 	GArpBlock arpBlock_{this};
 	GCommand command_{this};
-	HostDb hostDb_{this};
+	HaDb haDb_{this};
 
 public:
 	QTimer updateElapseTimer_;
