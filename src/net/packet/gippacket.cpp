@@ -29,24 +29,26 @@ void GIpPacket::parse() {
 			break;
 	}
 
-	switch (proto) {
-		case GIpHdr::Tcp: // Tcp
-			tcpHdr_ = PTcpHdr(p);
-			// p += tcpHdr_->off() * 4;
-			tcpData_ = GTcpHdr::parseData(ipHdr_, tcpHdr_);
-			break;
-		case GIpHdr::Udp: // Udp
-			udpHdr_ = PUdpHdr(p);
-			// p += sizeof(GUdpHdr);
-			udpData_ = GUdpHdr::parseData(udpHdr_);
-			break;
-		case GIpHdr::Icmp: // Icmp
-			icmpHdr_ = PIcmpHdr(p);
-			// p += sizeof(GIcmpHdr);
-			break;
-		default:
-			// qDebug() << "unknown protocol" << proto; // gilgil temp 2019.08.19
-			break;
+	if (ipHdr_ != nullptr) {
+		switch (proto) {
+			case GIpHdr::Tcp: // Tcp
+				tcpHdr_ = PTcpHdr(p);
+				// p += tcpHdr_->off() * 4;
+				tcpData_ = GTcpHdr::parseData(ipHdr_, tcpHdr_);
+				break;
+			case GIpHdr::Udp: // Udp
+				udpHdr_ = PUdpHdr(p);
+				// p += sizeof(GUdpHdr);
+				udpData_ = GUdpHdr::parseData(udpHdr_);
+				break;
+			case GIpHdr::Icmp: // Icmp
+				icmpHdr_ = PIcmpHdr(p);
+				// p += sizeof(GIcmpHdr);
+				break;
+			default:
+				// qDebug() << "unknown protocol" << proto; // gilgil temp 2019.08.19
+				break;
+		}
 	}
 #ifdef _DEBUG
 	parsed_ = true;
