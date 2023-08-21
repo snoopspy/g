@@ -57,10 +57,16 @@ protected:
 		GBeaconHdr beaconHdr_;
 		char dummy[256];
 		size_t size_;
+		void build(QString message, int channel, GMac mac);
 	};
 
 	struct BeaconFrameList : QList<BeaconFrame> {
-	};
+	} bfl_;
+	QMutex bflMutex_;
+	GMac nextMac_;
 
+public:
+	void addMessage(QString message);
+	void removeMessage(int index);
 	static GMac nextMac(GMac mac);
 };
