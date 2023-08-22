@@ -119,14 +119,6 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, Q
 }
 
 bool GHostMgr::processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip) {
-	if (ethHdr->smac() != arpHdr->smac()) {
-		qDebug() << QString("ARP spoofing detected %1 %2 %3").arg(
-			QString(ethHdr->smac()),
-			QString(arpHdr->smac()),
-			QString(arpHdr->sip()));
-		return false;
-	}
-
 	*mac = arpHdr->smac();
 	*ip = arpHdr->sip();
 	return true;
