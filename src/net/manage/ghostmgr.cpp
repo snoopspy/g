@@ -119,6 +119,7 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, Q
 }
 
 bool GHostMgr::processArp(GEthHdr* ethHdr, GArpHdr* arpHdr, GMac* mac, GIp* ip) {
+	(void)ethHdr;
 	*mac = arpHdr->smac();
 	*ip = arpHdr->sip();
 	return true;
