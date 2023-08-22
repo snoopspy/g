@@ -156,6 +156,7 @@ void GBeaconFlood::addMessage(QString message) {
 	BeaconFrame bf;
 	bf.build(message, channel_, nextMac_);
 	bfl_.push_back(bf);
+	nextMac_ = nextMac(nextMac_);
 }
 
 void GBeaconFlood::removeMessage(int index) {
