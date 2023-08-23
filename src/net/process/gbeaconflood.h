@@ -33,7 +33,7 @@ public:
 	GDuration interval_{10};
 	GDuration sendInterval_{1};
 	uint8_t channel_{36};
-	GMac startMac_{GMac("00:11:22:33:44:01")};
+	GMac startMac_{GMac("00:11:22:33:44:00")};
 
 public:
 	Q_INVOKABLE GBeaconFlood(QObject* parent = nullptr);
@@ -63,6 +63,8 @@ protected:
 	struct BeaconFrameList : QList<BeaconFrame> {
 	} bfl_;
 	QMutex bflMutex_;
+
+public:
 	GMac nextMac_;
 
 public:
