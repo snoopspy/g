@@ -53,6 +53,7 @@ GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon) : QCoreApplicat
 	copyFileFromAssets("arprecover", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 	copyFileFromAssets("corepcap", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 	copyFileFromAssets("ssdemon", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+	system("su -c '/data/data/com.termux/files/usr/bin/termux-wake-lock'");
 #endif // Q_OS_ANDROID
 
 	if (demon)
@@ -75,6 +76,7 @@ GApp::~GApp() {
 
 #ifdef Q_OS_ANDROID
 	system("su -c 'pkill ssdemon'"); // ssdemon is not terminated properly on android
+	system("su -c '/data/data/com.termux/files/usr/bin/termux-wake-unlock'");
 #endif // Q_OS_ANDROID
 
 	QString appName = QCoreApplication::applicationName();
