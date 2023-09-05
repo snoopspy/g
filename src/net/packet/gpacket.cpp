@@ -51,6 +51,7 @@ GPacket::Dlt GPacket::intToDlt(int dataLink) {
 		case DLT_RAW:
 		case DLT_IPV4:
 		case DLT_IPV6:
+		case 101: /* LINKTYPE_RAW */
 			res = GPacket::Ip;
 			break;
 		case DLT_IEEE802_11_RADIO:
