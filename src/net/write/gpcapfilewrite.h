@@ -33,8 +33,6 @@ public:
 	}
 	~GPcapFileWrite() override { close(); }
 
-	void setDlt(GPacket::Dlt dlt) { dlt_ = dlt; }
-
 protected:
 	bool doOpen() override;
 	bool doClose() override;
