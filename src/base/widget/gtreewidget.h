@@ -36,5 +36,5 @@ struct GTreeWidgetItem : QTreeWidgetItem, QObject {
 	GTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after, int type = Type) : QTreeWidgetItem(parent, after, type) {}
 	GTreeWidgetItem(const QTreeWidgetItem &other) : QTreeWidgetItem(other) {}
 };
-
+typedef GTreeWidgetItem *PTreeWidgetItem;
 #endif // QT_GUI_LIB

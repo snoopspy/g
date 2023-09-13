@@ -13,8 +13,8 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 			case 1:  // Name
 				return text(1) < other.text(1);
 			case 2: { // Elapse
-				const GTreeWidgetItem* myItem = dynamic_cast<const GTreeWidgetItem*>(this);
-				const GTreeWidgetItem* otherItem = dynamic_cast<const GTreeWidgetItem*>(&other);
+				const GTreeWidgetItem* myItem = PTreeWidgetItem(this);
+				const GTreeWidgetItem* otherItem = PTreeWidgetItem(&other);
 				quint64 myFirstTs = myItem->property("firstTs").toLongLong();
 				quint64 otherFirstTs = otherItem->property("firstTs").toLongLong();
 				return myFirstTs < otherFirstTs;
@@ -199,7 +199,7 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 void HostAnalyzer::updateHosts() {
 	int count = treeWidget_->topLevelItemCount();
 	for (int i = 0; i < count; i++) {
-		GTreeWidgetItem* treeWidgetItem = dynamic_cast<GTreeWidgetItem*>(treeWidget_->topLevelItem(i));
+		GTreeWidgetItem* treeWidgetItem = PTreeWidgetItem(treeWidget_->topLevelItem(i));
 		treeWidgetItem->setProperty("shouldBeDeleted", true);
 	}
 
@@ -210,6 +210,9 @@ void HostAnalyzer::updateHosts() {
 		Item* item = PItem(hostValue->mem(hostOffset_));
 
 		MyTreeWidgetItem* treeWidgetItem = PMyTreeWidgetItem(item->treeWidgetItem_);
+		treeWidgetItem->setProperty("shouldBeDeleted", false);
+		if (item->state_ == Item::NotChanged) continue;
+
 		if (treeWidgetItem == nullptr) {
 			Q_ASSERT(item->state_ == Item::Created);
 			treeWidgetItem = new MyTreeWidgetItem(treeWidget_);
@@ -238,25 +241,19 @@ void HostAnalyzer::updateHosts() {
 		}
 
 		Q_ASSERT(treeWidgetItem != nullptr);
-		switch (item->state_) {
-			case Item::Created:
-			case Item::Changed: {
-					treeWidgetItem->setText(0, QString(item->ip_));
-					treeWidgetItem->setText(1, QString(item->defaultName_));
-					item->state_ = Item::NotChanged;
-				}
-				break;
-			case Item::NotChanged:
-				break;
-		}
-		treeWidgetItem->setProperty("shouldBeDeleted", false);
+		treeWidgetItem->setText(0, QString(item->ip_));
+		treeWidgetItem->setText(1, QString(item->defaultName_));
+		item->state_ = Item::NotChanged;
 	}
 
-	for (int i = 0; i < count; i++) {
-		GTreeWidgetItem* treeWidgetItem = dynamic_cast<GTreeWidgetItem*>(treeWidget_->topLevelItem(i));
-		if (treeWidgetItem->property("shouldBeDeleted").toBool() ) {
+	int i = 0;
+	while (i < treeWidget_->topLevelItemCount()) {
+		GTreeWidgetItem* treeWidgetItem = PTreeWidgetItem(treeWidget_->topLevelItem(i));
+		if (treeWidgetItem->property("shouldBeDeleted").toBool()) {
 			delete treeWidgetItem;
+			continue;
 		}
+		i++;
 	}
 }
 
@@ -264,7 +261,7 @@ void HostAnalyzer::updateElapsedTime() {
 	qint64 now = QDateTime::currentDateTime().toSecsSinceEpoch();
 	int count = treeWidget_->topLevelItemCount();
 	for (int i = 0; i < count; i++) {
-		GTreeWidgetItem* item = dynamic_cast<GTreeWidgetItem*>(treeWidget_->topLevelItem(i));
+		GTreeWidgetItem* item = PTreeWidgetItem(treeWidget_->topLevelItem(i));
 		Q_ASSERT(item != nullptr);
 		QString mac = item->property("mac").toString();
 		qint64 first = item->property("firstTs").toLongLong();
