@@ -46,20 +46,39 @@ public:
 	HostDb hostDb_{this};
 
 public:
-	QTimer updateElapseTimer_;
+	QTimer updateHostsTimer_;
+	QTimer updateElapsedTimer_;
 
 protected:
 	// GHostMgr::Managable
-	struct TreeWidgetItemMap : QMap<GMac, QTreeWidgetItem*> {
-	} treeWidgetItemMap_;
+	size_t hostOffset_{0};
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
+
+	// --------------------------------------------------------------------------
+	// Item
+	// --------------------------------------------------------------------------
+	struct Item {
+		enum State {
+			Created,
+			Changed,
+			NotChanged
+		} state_;
+		QTreeWidgetItem* treeWidgetItem_;
+		GMac mac_;
+		GIp ip_;
+		QString defaultName_;
+		struct timeval firstTs_;
+	};
+	typedef Item *PItem;
+	// --------------------------------------------------------------------------
 
 public:
 	GTreeWidget* treeWidget_{nullptr};
 
 public slots:
 	void toolButton_toggled(bool checked);
-	void updateElapseTime();
+	void updateHosts();
+	void updateElapsedTime();
 };
