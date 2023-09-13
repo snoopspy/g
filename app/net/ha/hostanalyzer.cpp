@@ -210,9 +210,6 @@ void HostAnalyzer::updateHosts() {
 		Item* item = PItem(hostValue->mem(hostOffset_));
 
 		MyTreeWidgetItem* treeWidgetItem = PMyTreeWidgetItem(item->treeWidgetItem_);
-		treeWidgetItem->setProperty("shouldBeDeleted", false);
-		if (item->state_ == Item::NotChanged) continue;
-
 		if (treeWidgetItem == nullptr) {
 			Q_ASSERT(item->state_ == Item::Created);
 			treeWidgetItem = new MyTreeWidgetItem(treeWidget_);
@@ -241,9 +238,12 @@ void HostAnalyzer::updateHosts() {
 		}
 
 		Q_ASSERT(treeWidgetItem != nullptr);
-		treeWidgetItem->setText(0, QString(item->ip_));
-		treeWidgetItem->setText(1, QString(item->defaultName_));
-		item->state_ = Item::NotChanged;
+		if (item->state_ != Item::NotChanged) {
+			treeWidgetItem->setText(0, QString(item->ip_));
+			treeWidgetItem->setText(1, QString(item->defaultName_));
+			item->state_ = Item::NotChanged;
+		}
+		treeWidgetItem->setProperty("shouldBeDeleted", false);
 	}
 
 	int i = 0;
