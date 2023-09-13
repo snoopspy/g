@@ -211,7 +211,6 @@ void HostAnalyzer::updateHosts() {
 
 		MyTreeWidgetItem* treeWidgetItem = PMyTreeWidgetItem(item->treeWidgetItem_);
 		if (treeWidgetItem == nullptr) {
-			Q_ASSERT(item->state_ == Item::Created);
 			treeWidgetItem = new MyTreeWidgetItem(treeWidget_);
 			treeWidgetItem->setProperty("mac", QString(mac));
 			treeWidgetItem->setProperty("firstTs", qint64(item->firstTs_.tv_sec));
