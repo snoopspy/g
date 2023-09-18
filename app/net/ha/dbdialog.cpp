@@ -1,5 +1,6 @@
 #include "dbdialog.h"
 
+#include <QMessageBox>
 #include <QSqlTableModel>
 #include <GMac>
 #include <GIp>
@@ -135,9 +136,18 @@ DbDialog::DbDialog(QWidget* parent) : QDialog(parent) {
 	tabWidget_->addTab(logWidget_, "Log");
 	mainLayout_->addWidget(tabWidget_);
 	this->setLayout(mainLayout_);
+
+	QObject::connect(tbSearchHost_, &QToolButton::clicked, this, &DbDialog::tbSearchHost_clicked);
+	QObject::connect(tbSearchLog_, &QToolButton::clicked, this, &DbDialog::tbSearchLog_clicked);
+
+	prepareQuery();
 }
 
 DbDialog::~DbDialog() {
+}
+
+#include "hawidget.h"
+void DbDialog::prepareQuery() {
 }
 
 void DbDialog::propLoad(QJsonObject jo) {
@@ -148,8 +158,9 @@ void DbDialog::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 }
 
-#include "hawidget.h"
 int DbDialog::exec() {
+	return QDialog::exec();
+
 	HaWidget* widget = dynamic_cast<HaWidget*>(parent());
 	Q_ASSERT(widget != nullptr);
 
@@ -181,4 +192,36 @@ int DbDialog::exec() {
 	delete logModel;
 
 	return res;
+}
+
+void DbDialog::tbSearchHost_clicked() {
+	HaWidget* widget = dynamic_cast<HaWidget*>(parent());
+	Q_ASSERT(widget != nullptr);
+	HostDb* hostDb = &widget->hostAnalyzer_.hostDb_;
+
+	QMutexLocker ml(hostDb);
+	QSqlQuery query(hostDb->db_);
+	if (!query.prepare("SELECT * FROM host")) {
+		QMessageBox::warning(this, "Error", query.lastError().text());
+		return;
+	}
+	if (!query.exec()) {
+		QMessageBox::warning(this, "Error", query.lastError().text());
+		return;
+	}
+
+	if (hostModel_ == nullptr)
+		hostModel_ = new QSqlQueryModel(this);
+	hostModel_->setQuery(query);
+	hostView_->selectAll();
+
+	hostModel_->setQuery(query);
+
+	hostView_->setModel(hostModel_);
+	hostView_->resizeColumnsToContents();
+	hostView_->update();
+}
+
+void DbDialog::tbSearchLog_clicked() {
+	qDebug() << "";
 }

@@ -5,6 +5,8 @@
 #include <QDialog>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QSqlQuery>
+#include <QSqlQueryModel>
 #include <QTabWidget>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -15,6 +17,7 @@ struct DbDialog : QDialog, GProp {
 public:
 	explicit DbDialog(QWidget* parent = nullptr);
 	~DbDialog();
+	void prepareQuery();
 
 public:
 	QVBoxLayout* mainLayout_{nullptr};
@@ -39,10 +42,16 @@ public:
 	QToolButton* tbSearchLog_{nullptr};
 	QTableView* logView_{nullptr};
 
+	QSqlQueryModel* hostModel_{nullptr};
+	QSqlQueryModel* logModel_{nullptr};
+
 public:
 	void propLoad(QJsonObject jo) override;
 	void propSave(QJsonObject& jo) override;
 
 public slots:
 	int exec() override;
+	void tbSearchHost_clicked();
+	void tbSearchLog_clicked();
+
 };
