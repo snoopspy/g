@@ -28,7 +28,7 @@ public:
 HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("Host Analyzer");
 
-	itemDelegate_ = new ItemDelegate;
+	itemDelegate_ = new ItemDelegate(this);
 	itemDelegate_->setHeight(ItemHeight);
 
 	treeWidget_ = new GTreeWidget(this);
