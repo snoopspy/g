@@ -72,18 +72,67 @@ DbDialog::DbDialog(QWidget* parent) : QDialog(parent) {
 	resize(QSize(640, 480));
 	setWindowTitle("Database");
 
-	mainLayout_  = new QVBoxLayout(this);
+	mainLayout_ = new QVBoxLayout;
 	mainLayout_->setContentsMargins(0, 0, 0, 0);
+	mainLayout_->setSpacing(0);
 	tabWidget_ = new QTabWidget(this);
 
-	hostView_ = new GTableView(this);
-	hostView_->verticalHeader()->hide();
-	logView_ = new GTableView(this);
-	logView_->verticalHeader()->hide();
+	//
+	// Host
+	//
+	hostWidget_ = new QWidget(this);
+		hostVLayout_ = new QVBoxLayout;
+		hostVLayout_->setContentsMargins(0, 0, 0, 0);
+		hostVLayout_->setSpacing(0);
+		hostWidget_->setLayout(hostVLayout_);
+			hostHLayout_ = new QHBoxLayout;
+			hostHLayout_->setContentsMargins(0, 0, 0, 0);
+			hostVLayout_->setSpacing(0);
+				leSearchHost_ = new QLineEdit(this);
+				hostHLayout_->addWidget(leSearchHost_);
+				tbSearchHost_ = new QToolButton(this);
+				tbSearchHost_->setText("DB");
+				tbSearchHost_->setIcon(QIcon(":/img/search.png"));
+				tbSearchHost_->setAutoRaise(true);
+				hostHLayout_->addWidget(tbSearchHost_);
+			hostView_ = new GTableView(this);
+			hostView_->verticalHeader()->hide();
+		hostVLayout_->addLayout(hostHLayout_);
+		hostVLayout_->addWidget(hostView_);
 
-	tabWidget_->addTab(hostView_, "Host");
-	tabWidget_->addTab(logView_, "Log");
+	//
+	// Log
+	//
+	logWidget_ = new QWidget(this);
+		logVLayout_ = new QVBoxLayout;
+		logVLayout_->setContentsMargins(0, 0, 0, 0);
+		logVLayout_->setSpacing(0);
+		logWidget_->setLayout(logVLayout_);
+			logHLayout_ = new QHBoxLayout;
+			logHLayout_->setContentsMargins(0, 0, 0, 0);
+			logVLayout_->setSpacing(0);
+				dteBegin_ = new QDateTimeEdit(this);
+				dteBegin_->setDisplayFormat("yy/MM/dd hh:mm");
+				logHLayout_->addWidget(dteBegin_);
+				dteEnd_ = new QDateTimeEdit(this);
+				dteEnd_->setDisplayFormat("yy/MM/dd hh:mm");
+				logHLayout_->addWidget(dteEnd_);
+				cbPeriod_ = new QComboBox(this);
+				logHLayout_->addWidget(cbPeriod_);
+				leSearchLog_ = new QLineEdit(this);
+				logHLayout_->addWidget(leSearchLog_);
+				tbSearchLog_ = new QToolButton(this);
+				tbSearchLog_->setText("DB");
+				tbSearchLog_->setIcon(QIcon(":/img/search.png"));
+				tbSearchLog_->setAutoRaise(true);
+				logHLayout_->addWidget(tbSearchLog_);
+			logView_ = new GTableView(this);
+			logView_->verticalHeader()->hide();
+		logVLayout_->addLayout(logHLayout_);
+		logVLayout_->addWidget(logView_);
 
+	tabWidget_->addTab(hostWidget_, "Host");
+	tabWidget_->addTab(logWidget_, "Log");
 	mainLayout_->addWidget(tabWidget_);
 	this->setLayout(mainLayout_);
 }
