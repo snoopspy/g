@@ -13,6 +13,38 @@
 #include <GTableView>
 #include <GProp>
 
+#include <GMac>
+
+struct HostModel : QSqlQueryModel {
+	explicit HostModel(QObject *parent) : QSqlQueryModel(parent) {}
+	Qt::ItemFlags flags(const QModelIndex &index) const override {
+		Qt::ItemFlags res = QSqlQueryModel::flags(index);
+		if (index.column() == 2) // alias
+			res |= Qt::ItemIsEditable;
+		return res;
+	}
+};
+
+struct LogModel : QSqlQueryModel {
+	explicit LogModel(QObject *parent) : QSqlQueryModel(parent) {}
+
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
+		QVariant res = QSqlQueryModel::data(index, role);
+		if (role == Qt::DisplayRole) {
+			switch (index.column()) {
+				case 0: break; // mac
+				case 1: break; // ip
+				case 2: // beg_time
+				case 3: { // end_time
+					QDateTime dt = QDateTime::fromSecsSinceEpoch(res.toULongLong());
+					return dt.toString("yyMMdd hh:mm");
+				}
+			}
+		}
+		return res;
+	}
+};
+
 struct DbDialog : QDialog, GProp {
 	Q_OBJECT
 public:
@@ -42,8 +74,8 @@ public:
 	QToolButton* tbSearchLog_{nullptr};
 	QTableView* logView_{nullptr};
 
-	QSqlQueryModel* hostModel_{nullptr};
-	QSqlQueryModel* logModel_{nullptr};
+	HostModel* hostModel_{nullptr};
+	LogModel* logModel_{nullptr};
 
 public:
 	void propLoad(QJsonObject jo) override;
@@ -51,6 +83,9 @@ public:
 
 public:
 	enum SearchPeriod {
+		Min10,
+		Min20,
+		Min30,
 		Hour1,
 		Hour2,
 		Hour3,
