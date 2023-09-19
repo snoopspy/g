@@ -14,10 +14,10 @@
 #include <GProp>
 
 struct DbDialog : QDialog, GProp {
+	Q_OBJECT
 public:
 	explicit DbDialog(QWidget* parent = nullptr);
 	~DbDialog();
-	void prepareQuery();
 
 public:
 	QVBoxLayout* mainLayout_{nullptr};
@@ -49,9 +49,23 @@ public:
 	void propLoad(QJsonObject jo) override;
 	void propSave(QJsonObject& jo) override;
 
+public:
+	enum SearchPeriod {
+		Hour1,
+		Hour2,
+		Hour3,
+		Today,
+		Yesterday,
+		ThisWeek,
+		LastWeek,
+		ThisMonth,
+		LastMonth,
+		Custom
+	};
+	void setPeriod();
+
 public slots:
-	int exec() override;
 	void tbSearchHost_clicked();
 	void tbSearchLog_clicked();
-
+	void cbPeriod_currentIndexChanged(int index);
 };

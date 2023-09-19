@@ -119,6 +119,7 @@ DbDialog::DbDialog(QWidget* parent) : QDialog(parent) {
 				dteEnd_->setDisplayFormat("yy/MM/dd hh:mm");
 				logHLayout_->addWidget(dteEnd_);
 				cbPeriod_ = new QComboBox(this);
+				cbPeriod_->addItems(QStringList{"1 Hour", "2 Hour", "3 Hour", "Today", "Yesterday", "This Week", "Last Week", "This Month", "Last Month", "Custom"});
 				logHLayout_->addWidget(cbPeriod_);
 				leSearchLog_ = new QLineEdit(this);
 				logHLayout_->addWidget(leSearchLog_);
@@ -139,61 +140,90 @@ DbDialog::DbDialog(QWidget* parent) : QDialog(parent) {
 
 	QObject::connect(tbSearchHost_, &QToolButton::clicked, this, &DbDialog::tbSearchHost_clicked);
 	QObject::connect(tbSearchLog_, &QToolButton::clicked, this, &DbDialog::tbSearchLog_clicked);
-
-	prepareQuery();
+	QObject::connect(cbPeriod_, SIGNAL(currentIndexChanged(int)), this, SLOT(cbPeriod_currentIndexChanged(int)));
 }
 
 DbDialog::~DbDialog() {
 }
 
-#include "hawidget.h"
-void DbDialog::prepareQuery() {
-}
-
 void DbDialog::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
+	tabWidget_->setCurrentIndex(jo["tabIndex"].toInt(0));
+	dteBegin_->setDateTime(QDateTime::fromString(jo["begTime"].toString(), "yy/MM/dd hh:mm"));
+	dteEnd_->setDateTime(QDateTime::fromString(jo["endTime"].toString(), "yy/MM/dd hh:mm"));
+	cbPeriod_->setCurrentIndex(jo["searchPeriod"].toInt(0));
 }
 
 void DbDialog::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
+	jo["tabIndex"] = tabWidget_->currentIndex();
+	jo["begTime"] = dteBegin_->dateTime().toString("yy/MM/dd hh:mm");
+	jo["endTime"] = dteEnd_->dateTime().toString("yy/MM/dd hh:mm");
+	jo["searchPeriod"] = cbPeriod_->currentIndex();
 }
 
-int DbDialog::exec() {
-	return QDialog::exec();
-
-	HaWidget* widget = dynamic_cast<HaWidget*>(parent());
-	Q_ASSERT(widget != nullptr);
-
-	HostDb* hostDb  = &widget->hostAnalyzer_.hostDb_;
-	QSqlTableModel* hostModel;
-	QSqlTableModel* logModel;
-	{
-		QMutexLocker ml(hostDb);
-
-		QSqlDatabase db = hostDb->db_;
-
-		hostModel = new HostModel(this, db);
-		hostModel->setTable("host");
-		hostModel->select();
-		hostView_->setModel(hostModel);
-		hostView_->resizeColumnsToContents();
-
-		logModel = new LogModel(this, db, &widget->hostAnalyzer_.hostDb_);
-		logModel->setTable("log");
-		logModel->select();
-		logModel->setHeaderData(0, Qt::Horizontal, "Name");
-		logView_->setModel(logModel);
-		logView_->resizeColumnsToContents();
+void DbDialog::setPeriod() {
+	SearchPeriod period = SearchPeriod(cbPeriod_->currentIndex());
+	QDateTime begTime = QDateTime::currentDateTime();
+	QDateTime endTime = begTime;
+	switch (period) {
+		case Hour1:
+			begTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 3600); // 1 Hour
+			break;
+		case Hour2:
+			begTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 3600 * 2); // 2 Hour
+			break;
+		case Hour3:
+			begTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 3600 * 3); // 3 Hour
+			break;
+		case Today:
+			begTime.setTime(QTime(0, 0));
+			break;
+		case Yesterday: {
+			begTime.setDate(begTime.addDays(-1).date());
+			begTime.setTime(QTime(0, 0));
+			endTime.setDate(begTime.addDays(-1).date());
+			endTime.setTime(QTime(23, 59));
+			break;
+		}
+		case ThisWeek:
+			while(begTime.date().dayOfWeek() != 7) { // Sunday
+				begTime.setDate(begTime.addDays(-1).date());
+			}
+			begTime.setTime(QTime(0, 0));
+			break;
+		case LastWeek:
+			begTime.setDate(begTime.addDays(-7).date());
+			while(begTime.date().dayOfWeek() != 7) { // Sunday
+				begTime.setDate(begTime.addDays(-1).date());
+			}
+			begTime.setTime(QTime(0, 0));
+			endTime.setDate(endTime.addDays(-7).date());
+			while(endTime.date().dayOfWeek() != 6) { // Saturday
+				endTime.setDate(endTime.addDays(1).date());
+			}
+			endTime.setTime(QTime(23, 59));
+			break;
+		case ThisMonth:
+			begTime.setDate(QDate(begTime.date().year(), begTime.date().month(), 1));
+			begTime.setTime(QTime(0, 0));
+			break;
+		case LastMonth:
+			begTime.setDate(begTime.date().addMonths(-1));
+			begTime.setDate(QDate(begTime.date().year(), begTime.date().month(), 1));
+			begTime.setTime(QTime(0, 0));
+			endTime = begTime;
+			endTime.setDate(endTime.date().addMonths(1).addDays(-1));
+			endTime.setTime(QTime(23, 59));
+			break;
+		case Custom:
+			return;
 	}
-
-	int res = QDialog::exec();
-
-	delete hostModel;
-	delete logModel;
-
-	return res;
+	dteBegin_->setDateTime(begTime);
+	dteEnd_->setDateTime(endTime);
 }
 
+#include "hawidget.h"
 void DbDialog::tbSearchHost_clicked() {
 	HaWidget* widget = dynamic_cast<HaWidget*>(parent());
 	Q_ASSERT(widget != nullptr);
@@ -201,9 +231,18 @@ void DbDialog::tbSearchHost_clicked() {
 
 	QMutexLocker ml(hostDb);
 	QSqlQuery query(hostDb->db_);
-	if (!query.prepare("SELECT * FROM host")) {
+	QString searchStr = leSearchHost_->text();
+	QString queryStr = "SELECT PRINTF('%012X', mac) AS _mac, (ip>>24) ||'.'|| ((ip>>16)&255) ||'.'|| ((ip>>8)&255) ||'.'|| (ip&255) as _ip, alias, host, vendor FROM host";
+	if (searchStr != "") {
+		queryStr += " WHERE _mac LIKE :search OR _ip LIKE :search OR alias LIKE :search OR host LIKE :search OR vendor LIKE :search";
+	}
+	if (!query.prepare(queryStr)) {
 		QMessageBox::warning(this, "Error", query.lastError().text());
 		return;
+	}
+	if (searchStr != "") {
+		searchStr = "%" + searchStr + "%";
+		query.bindValue(":search", searchStr);
 	}
 	if (!query.exec()) {
 		QMessageBox::warning(this, "Error", query.lastError().text());
@@ -213,10 +252,7 @@ void DbDialog::tbSearchHost_clicked() {
 	if (hostModel_ == nullptr)
 		hostModel_ = new QSqlQueryModel(this);
 	hostModel_->setQuery(query);
-	hostView_->selectAll();
-
 	hostModel_->setQuery(query);
-
 	hostView_->setModel(hostModel_);
 	hostView_->resizeColumnsToContents();
 	hostView_->update();
@@ -224,4 +260,9 @@ void DbDialog::tbSearchHost_clicked() {
 
 void DbDialog::tbSearchLog_clicked() {
 	qDebug() << "";
+}
+
+void DbDialog::cbPeriod_currentIndexChanged(int index) {
+	(void)index;
+	setPeriod();
 }

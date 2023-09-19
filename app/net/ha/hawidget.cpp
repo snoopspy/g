@@ -146,6 +146,7 @@ void HaWidget::tbDb_clicked(bool checked) {
 
 	QJsonObject& jo = GJson::instance();
 	jo["dbDialog"] >> dbDialog;
+	dbDialog.setPeriod();
 
 #ifdef Q_OS_ANDROID
 	dbDialog.showMaximized();
