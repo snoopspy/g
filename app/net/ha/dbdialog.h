@@ -23,21 +23,37 @@ struct HostModel : QSqlQueryModel {
 			res |= Qt::ItemIsEditable;
 		return res;
 	}
+
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
+		QVariant res = QSqlQueryModel::data(index, role);
+		if (role == Qt::DisplayRole) {
+			if (index.column() == 0) { // mac
+				GMac mac = res.toString();
+				return QString(mac);
+			}
+		}
+		return res;
+	}
 };
 
+#include <hostdb.h>
 struct LogModel : QSqlQueryModel {
-	explicit LogModel(QObject *parent) : QSqlQueryModel(parent) {}
+	HostDb* hostDb_;
+	explicit LogModel(QObject *parent, HostDb* hostDb) : QSqlQueryModel(parent), hostDb_(hostDb) {}
 
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
 		QVariant res = QSqlQueryModel::data(index, role);
 		if (role == Qt::DisplayRole) {
 			switch (index.column()) {
-				case 0: break; // mac
+				case 0: { // mac
+					GMac mac = res.toString();
+					return hostDb_->getDefaultName(mac);
+				}
 				case 1: break; // ip
 				case 2: // beg_time
 				case 3: { // end_time
 					QDateTime dt = QDateTime::fromSecsSinceEpoch(res.toULongLong());
-					return dt.toString("yyMMdd hh:mm");
+					return dt.toString("MMdd hh:mm");
 				}
 			}
 		}

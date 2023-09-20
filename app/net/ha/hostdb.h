@@ -60,5 +60,5 @@ protected:
 	bool insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime);
 
 public:
-	QString getDefaultName(GMac mac, GHostMgr::HostValue* hostValue);
+	QString getDefaultName(GMac mac, GHostMgr::HostValue* hostValue = nullptr);
 };
