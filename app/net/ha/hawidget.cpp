@@ -26,13 +26,13 @@ public:
 };
 
 HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
-	setWindowTitle("Host Analyzer");
+	setWindowTitle("HostAnalyzer");
 
 	itemDelegate_ = new ItemDelegate(this);
 	itemDelegate_->setHeight(ItemHeight);
 
 	treeWidget_ = new GTreeWidget(this);
-	treeWidget_->setHeaderLabels(QStringList{"IP", "Name", "Elapse", ""});
+	treeWidget_->setHeaderLabels(QStringList{"ip", "name", "elapsed", ""});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 	treeWidget_->setIndentation(0);
@@ -123,6 +123,7 @@ void HaWidget::tbOption_clicked(bool checked) {
 	bool isFirst = jo.find("propDialog") == jo.end();
 	jo["propDialog"] >> propDialog;
 
+	propDialog.setWindowTitle("Option");
 #ifdef Q_OS_ANDROID
 	propDialog.showMaximized();
 #else

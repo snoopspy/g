@@ -57,7 +57,7 @@ DbDialog::DbDialog(QWidget* parent) : QDialog(parent) {
 				logHLayout_->addWidget(dteEnd_);
 				cbPeriod_ = new QComboBox(this);
 				cbPeriod_->addItems(QStringList{"10 Minutes", "20 Minutes", "30 Minutes", "1 Hour", "2 Hours", "3 Hours", "Today", "Yesterday", "This Week", "Last Week", "This Month", "Last Month", "Custom"});
-				cbPeriod_->setCurrentIndex(int(Hour1));
+				cbPeriod_->setCurrentIndex(int(Today));
 				logHLayout_->addWidget(cbPeriod_);
 				leSearchLog_ = new QLineEdit(this);
 				logHLayout_->addWidget(leSearchLog_);
@@ -89,16 +89,20 @@ DbDialog::~DbDialog() {
 void DbDialog::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	tabWidget_->setCurrentIndex(jo["tabIndex"].toInt(0));
+	leSearchHost_->setText(jo["searchHost"].toString());
 	dteBegin_->setDateTime(QDateTime::fromString(jo["begTime"].toString(), "yy/MM/dd hh:mm"));
 	dteEnd_->setDateTime(QDateTime::fromString(jo["endTime"].toString(), "yy/MM/dd hh:mm"));
-	cbPeriod_->setCurrentIndex(jo["searchPeriod"].toInt(int(Hour1)));
+	leSearchLog_->setText(jo["searchLog"].toString());
+	cbPeriod_->setCurrentIndex(jo["searchPeriod"].toInt(int(Today)));
 }
 
 void DbDialog::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["tabIndex"] = tabWidget_->currentIndex();
+	jo["searchHost"] = leSearchHost_->text();
 	jo["begTime"] = dteBegin_->dateTime().toString("yy/MM/dd hh:mm");
 	jo["endTime"] = dteEnd_->dateTime().toString("yy/MM/dd hh:mm");
+	jo["searchLog"] = leSearchLog_->text();
 	jo["searchPeriod"] = cbPeriod_->currentIndex();
 }
 
