@@ -36,6 +36,7 @@ cp $QTDIR/lib/libQt5Core.so.5 .
 cp $QTDIR/lib/libQt5DBus.so.5 .
 cp $QTDIR/lib/libQt5Gui.so.5 .
 cp $QTDIR/lib/libQt5Network.so.5 .
+cp $QTDIR/lib/libQt5Sql.so.5 .
 cp $QTDIR/lib/libQt5Widgets.so.5 .
 cp $QTDIR/lib/libQt5XcbQpa.so.5 .
 
