@@ -45,6 +45,8 @@ cp $QTDIR/lib/libQt5XcbQpa.so.5 .
 #
 mkdir -p platforms
 cp $QTDIR/plugins/platforms/* platforms/
+mkdir -p sqldrivers
+cp $QTDIR/plugins/sqldrivers/libqsqlite.so sqldrivers/
 
 #
 # compress
