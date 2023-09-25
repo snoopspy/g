@@ -8,11 +8,11 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 	bool operator < (const QTreeWidgetItem &other) const {
 		int column = treeWidget()->sortColumn();
 		switch (column) {
-			case 0:  // IP
-				return uint32_t(GIp(text(0))) < uint32_t(GIp(other.text(0)));
-			case 1:  // Name
-				return text(1) < other.text(1);
-			case 2: { // Elapse
+			case HostAnalyzer::ColumnIp:
+				return uint32_t(GIp(text(HostAnalyzer::ColumnIp))) < uint32_t(GIp(other.text(HostAnalyzer::ColumnIp)));
+			case HostAnalyzer::ColumnName:
+				return text(1) < other.text(HostAnalyzer::ColumnName);
+			case HostAnalyzer::ColumnElapsed: {
 				const GTreeWidgetItem* myItem = PTreeWidgetItem(this);
 				const GTreeWidgetItem* otherItem = PTreeWidgetItem(&other);
 				quint64 myFirstTs = myItem->property("firstTs").toLongLong();
@@ -187,7 +187,7 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 					arpBlock_.recover(item, GArpHdr::Request);
 					item->policy_ = GArpBlock::Allow;
 
-					toolButton->setText("1");
+					toolButton->setText("0");
 					toolButton->setIcon(QIcon(":/img/play.png"));
 				}
 				break;
@@ -211,7 +211,10 @@ void HostAnalyzer::updateHosts() {
 
 		MyTreeWidgetItem* treeWidgetItem = PMyTreeWidgetItem(item->treeWidgetItem_);
 		if (treeWidgetItem == nullptr) {
+			QObject::disconnect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
 			treeWidgetItem = new MyTreeWidgetItem(treeWidget_);
+			QObject::connect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
+			treeWidgetItem->setFlags(treeWidgetItem->flags()  | Qt::ItemIsEditable);
 			treeWidgetItem->setProperty("mac", QString(mac));
 			treeWidgetItem->setProperty("firstTs", qint64(item->firstTs_.tv_sec));
 			treeWidget_->addTopLevelItem(treeWidgetItem);
@@ -238,8 +241,10 @@ void HostAnalyzer::updateHosts() {
 
 		Q_ASSERT(treeWidgetItem != nullptr);
 		if (item->state_ != Item::NotChanged) {
-			treeWidgetItem->setText(0, QString(item->ip_));
-			treeWidgetItem->setText(1, QString(item->defaultName_));
+			QObject::disconnect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
+			treeWidgetItem->setText(ColumnIp, QString(item->ip_));
+			treeWidgetItem->setText(ColumnName, QString(item->defaultName_));
+			QObject::connect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
 			item->state_ = Item::NotChanged;
 		}
 		treeWidgetItem->setProperty("shouldBeDeleted", false);
@@ -262,7 +267,6 @@ void HostAnalyzer::updateElapsedTime() {
 	for (int i = 0; i < count; i++) {
 		GTreeWidgetItem* item = PTreeWidgetItem(treeWidget_->topLevelItem(i));
 		Q_ASSERT(item != nullptr);
-		QString mac = item->property("mac").toString();
 		qint64 first = item->property("firstTs").toLongLong();
 		qint64 elapsed = now - first;
 
@@ -278,6 +282,16 @@ void HostAnalyzer::updateElapsedTime() {
 		if (hours != 0) s += QString("%1h ").arg(hours);
 		if (minutes != 0) s += QString("%1m ").arg(minutes);
 		s += QString("%1s").arg(seconds);
-		item->setText(2, s);
+		QObject::disconnect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
+		item->setText(ColumnElapsed, s);
+		QObject::connect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
 	}
+}
+
+void HostAnalyzer::treeWidget_itemChanged(QTreeWidgetItem *item, int column) {
+	if (column != ColumnName) return;
+	GTreeWidgetItem* twi = PTreeWidgetItem(item);
+	GMac mac = twi->property("mac").toString();
+	QString alias = item->text(column);
+	hostDb_.updateAlias(mac, alias);
 }

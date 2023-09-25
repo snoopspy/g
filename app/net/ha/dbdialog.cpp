@@ -6,6 +6,69 @@
 #include <GIp>
 #include <GJson>
 
+#include <hostdb.h>
+struct HostModel : QSqlQueryModel {
+	HostDb* hostDb_;
+	explicit HostModel(QObject *parent, HostDb* hostDb) : QSqlQueryModel(parent), hostDb_(hostDb) {}
+
+	Qt::ItemFlags flags(const QModelIndex &index) const override {
+		Qt::ItemFlags res = QSqlQueryModel::flags(index);
+		if (index.column() == 2) // alias
+			res |= Qt::ItemIsEditable;
+		return res;
+	}
+
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
+		QVariant res = QSqlQueryModel::data(index, role);
+		if (role == Qt::DisplayRole) {
+			if (index.column() == 0) { // mac
+				GMac mac = res.toString();
+				return QString(mac);
+			}
+		}
+		return res;
+	}
+
+	bool setData(const QModelIndex &index, const QVariant &value, int role) override {
+		if (index.column() == DbDialog::ColumnHostAlias && role == Qt::EditRole) {
+			QModelIndex macIndex = index.siblingAtColumn(DbDialog::ColumnHostMac);
+			GMac mac = macIndex.data().toString();
+			QString alias = value.toString();
+			bool res = hostDb_->updateAlias(mac, alias);
+			DbDialog* dbDialog = dynamic_cast<DbDialog*>(parent());
+			Q_ASSERT(dbDialog != nullptr);
+			dbDialog->tbSearchHost_->click();
+			return res;
+		}
+		return QSqlQueryModel::setData(index, value, role);
+	}
+};
+
+struct LogModel : QSqlQueryModel {
+	HostDb* hostDb_;
+	explicit LogModel(QObject *parent, HostDb* hostDb) : QSqlQueryModel(parent), hostDb_(hostDb) {}
+
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
+		QVariant res = QSqlQueryModel::data(index, role);
+		if (role == Qt::DisplayRole) {
+			switch (index.column()) {
+				case DbDialog::ColumnLogName: {
+					GMac mac = res.toString();
+					return hostDb_->getDefaultName(mac);
+				}
+				case DbDialog::ColumnLogIp: break;
+				case DbDialog::ColumnLogBegTime:
+				case DbDialog::ColumnLogEndTime: {
+					QDateTime dt = QDateTime::fromSecsSinceEpoch(res.toULongLong());
+					return dt.toString("MMdd hh:mm");
+				}
+			}
+		}
+		return res;
+	}
+};
+
+
 DbDialog::DbDialog(QWidget* parent) : QDialog(parent) {
 	resize(QSize(640, 480));
 	setWindowTitle("Database");
@@ -35,6 +98,7 @@ DbDialog::DbDialog(QWidget* parent) : QDialog(parent) {
 				hostHLayout_->addWidget(tbSearchHost_);
 			hostView_ = new GTableView(this);
 			hostView_->verticalHeader()->hide();
+			hostView_->setEditTriggers(QAbstractItemView::AllEditTriggers);
 		hostVLayout_->addLayout(hostHLayout_);
 		hostVLayout_->addWidget(hostView_);
 
@@ -208,13 +272,13 @@ void DbDialog::tbSearchHost_clicked() {
 	}
 
 	if (hostModel_ == nullptr)
-		hostModel_ = new HostModel(this);
+		hostModel_ = new HostModel(this, hostDb);
 	hostModel_->setQuery(query);
-	hostModel_->setHeaderData(0, Qt::Horizontal, "mac");
-	hostModel_->setHeaderData(1, Qt::Horizontal, "ip");
-	hostModel_->setHeaderData(2, Qt::Horizontal, "alias");
-	hostModel_->setHeaderData(3, Qt::Horizontal, "host");
-	hostModel_->setHeaderData(4, Qt::Horizontal, "vendor");
+	hostModel_->setHeaderData(ColumnHostMac, Qt::Horizontal, "mac");
+	hostModel_->setHeaderData(ColumnHostIp, Qt::Horizontal, "ip");
+	hostModel_->setHeaderData(ColumnHostAlias, Qt::Horizontal, "alias");
+	hostModel_->setHeaderData(ColumnHostHost, Qt::Horizontal, "host");
+	hostModel_->setHeaderData(ColumnHostVendor, Qt::Horizontal, "vendor");
 
 	hostView_->setModel(hostModel_);
 	hostView_->resizeColumnsToContents();
@@ -259,15 +323,15 @@ void DbDialog::tbSearchLog_clicked() {
 	if (logModel_ == nullptr)
 		logModel_ = new LogModel(this, hostDb);
 	logModel_->setQuery(query);
-	logModel_->setHeaderData(0, Qt::Horizontal, "name");
-	logModel_->setHeaderData(1, Qt::Horizontal, "ip");
-	logModel_->setHeaderData(2, Qt::Horizontal, "beg_time");
-	logModel_->setHeaderData(3, Qt::Horizontal, "end_time");
+	logModel_->setHeaderData(ColumnLogName, Qt::Horizontal, "name");
+	logModel_->setHeaderData(ColumnLogIp, Qt::Horizontal, "ip");
+	logModel_->setHeaderData(ColumnLogBegTime, Qt::Horizontal, "beg_time");
+	logModel_->setHeaderData(ColumnLogEndTime, Qt::Horizontal, "end_time");
 
 	logView_->setModel(logModel_);
-	logView_->hideColumn(4); // alias
-	logView_->hideColumn(5); // host
-	logView_->hideColumn(6); // vendor
+	logView_->hideColumn(ColumnLogAlias);
+	logView_->hideColumn(ColumnLogHost);
+	logView_->hideColumn(ColumnLogVendor);
 	logView_->resizeColumnsToContents();
 	logView_->update();
 }

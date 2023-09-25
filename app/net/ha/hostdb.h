@@ -51,11 +51,14 @@ protected:
 	QSqlQuery* selectHostQuery_{nullptr};
 	QSqlQuery* insertHostQuery_{nullptr};
 	QSqlQuery* updateHostQuery_{nullptr};
+	QSqlQuery* updateAliasQuery_{nullptr};
 	QSqlQuery* insertLogQuery_{nullptr};
 
+public:
 	bool selectHost(GMac mac, GHostMgr::HostValue* hostValue);
 	bool insertHost(GMac mac, GHostMgr::HostValue* hostValue);
 	bool updateHost(GMac mac, GHostMgr::HostValue* hostValue);
+	bool updateAlias(GMac mac, QString alias);
 	bool insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue);
 	bool insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime);
 

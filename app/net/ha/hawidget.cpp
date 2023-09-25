@@ -8,12 +8,12 @@
 
 #include <GJson>
 
-struct ItemDelegate : public QItemDelegate {
+struct MyItemDelegate : public QItemDelegate {
 private:
 	int height_;
 
 public:
-	ItemDelegate(QObject *parent = nullptr, int height = -1) : QItemDelegate(parent), height_(height) {}
+	MyItemDelegate(QObject *parent = nullptr, int height = -1) : QItemDelegate(parent), height_(height) {}
 
 	void setHeight(int height) { height_ = height; }
 
@@ -23,12 +23,19 @@ public:
 			size.setHeight(height_);
 		return size;
 	}
+
+	QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+		if(index.column() == HostAnalyzer::ColumnName) {
+			return QItemDelegate::createEditor(parent, option, index);
+		}
+		return nullptr;
+	}
 };
 
 HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("HostAnalyzer");
 
-	itemDelegate_ = new ItemDelegate(this);
+	itemDelegate_ = new MyItemDelegate(this);
 	itemDelegate_->setHeight(ItemHeight);
 
 	treeWidget_ = new GTreeWidget(this);
@@ -37,6 +44,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 	treeWidget_->setIndentation(0);
 	treeWidget_->setItemDelegate(itemDelegate_);
+	treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
 	QHeaderView* hv = treeWidget_->header();
 	hv->setSectionResizeMode(2, QHeaderView::Stretch);

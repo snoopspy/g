@@ -46,6 +46,10 @@ public:
 	HostDb hostDb_{this};
 
 public:
+	const static int ColumnIp = 0;
+	const static int ColumnName = 1;
+	const static int ColumnElapsed = 2;
+
 	QTimer updateHostsTimer_;
 	QTimer updateElapsedTimer_;
 
@@ -75,10 +79,11 @@ protected:
 	// --------------------------------------------------------------------------
 
 public:
-	GTreeWidget* treeWidget_{nullptr};
+	GTreeWidget* treeWidget_{nullptr}; // reference
 
 public slots:
 	void toolButton_toggled(bool checked);
 	void updateHosts();
 	void updateElapsedTime();
+	void treeWidget_itemChanged(QTreeWidgetItem *item, int column);
 };

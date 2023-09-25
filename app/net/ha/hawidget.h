@@ -4,7 +4,7 @@
 #include <GTreeWidget>
 #include "hostanalyzer.h"
 
-struct ItemDelegate;
+struct MyItemDelegate;
 struct G_EXPORT HaWidget : GDefaultWidget, GProp {
 	Q_OBJECT
 
@@ -27,7 +27,7 @@ public:
 	void setControl();
 
 public:
-	ItemDelegate* itemDelegate_;
+	MyItemDelegate* itemDelegate_;
 	GTreeWidget* treeWidget_;
 	HostAnalyzer hostAnalyzer_;
 

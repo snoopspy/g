@@ -13,54 +13,8 @@
 #include <GTableView>
 #include <GProp>
 
-#include <GMac>
-
-struct HostModel : QSqlQueryModel {
-	explicit HostModel(QObject *parent) : QSqlQueryModel(parent) {}
-	Qt::ItemFlags flags(const QModelIndex &index) const override {
-		Qt::ItemFlags res = QSqlQueryModel::flags(index);
-		if (index.column() == 2) // alias
-			res |= Qt::ItemIsEditable;
-		return res;
-	}
-
-	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
-		QVariant res = QSqlQueryModel::data(index, role);
-		if (role == Qt::DisplayRole) {
-			if (index.column() == 0) { // mac
-				GMac mac = res.toString();
-				return QString(mac);
-			}
-		}
-		return res;
-	}
-};
-
-#include <hostdb.h>
-struct LogModel : QSqlQueryModel {
-	HostDb* hostDb_;
-	explicit LogModel(QObject *parent, HostDb* hostDb) : QSqlQueryModel(parent), hostDb_(hostDb) {}
-
-	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
-		QVariant res = QSqlQueryModel::data(index, role);
-		if (role == Qt::DisplayRole) {
-			switch (index.column()) {
-				case 0: { // mac
-					GMac mac = res.toString();
-					return hostDb_->getDefaultName(mac);
-				}
-				case 1: break; // ip
-				case 2: // beg_time
-				case 3: { // end_time
-					QDateTime dt = QDateTime::fromSecsSinceEpoch(res.toULongLong());
-					return dt.toString("MMdd hh:mm");
-				}
-			}
-		}
-		return res;
-	}
-};
-
+struct HostModel;
+struct LogModel;
 struct DbDialog : QDialog, GProp {
 	Q_OBJECT
 public:
@@ -98,6 +52,20 @@ public:
 	void propSave(QJsonObject& jo) override;
 
 public:
+	const static int ColumnHostMac = 0;
+	const static int ColumnHostIp = 1;
+	const static int ColumnHostAlias = 2;
+	const static int ColumnHostHost = 3;
+	const static int ColumnHostVendor = 4;
+
+	const static int ColumnLogName = 0;
+	const static int ColumnLogIp = 1;
+	const static int ColumnLogBegTime = 2;
+	const static int ColumnLogEndTime = 3;
+	const static int ColumnLogAlias = 4;
+	const static int ColumnLogHost = 5;
+	const static int ColumnLogVendor = 6;
+
 	enum SearchPeriod {
 		Min10,
 		Min20,

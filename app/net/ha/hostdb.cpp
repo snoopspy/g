@@ -70,6 +70,11 @@ bool HostDb::doOpen() {
 		SET_ERR(GErr::Fail, updateHostQuery_->lastError().text());
 		return false;
 	}
+	updateAliasQuery_ = new QSqlQuery(db_);
+	if (!updateAliasQuery_->prepare("UPDATE host SET alias = :alias WHERE mac = :mac")) {
+		SET_ERR(GErr::Fail, updateAliasQuery_->lastError().text());
+		return false;
+	}
 	insertLogQuery_ = new QSqlQuery(db_);
 	if (!insertLogQuery_->prepare("INSERT INTO log (mac, ip, beg_time, end_time) VALUES (:mac, :ip, :beg_time, :end_time)")) {
 		SET_ERR(GErr::Fail, insertLogQuery_->lastError().text());
@@ -158,6 +163,18 @@ bool HostDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	bool res = updateHostQuery_->exec();
 	if (!res) {
 		qWarning() << updateHostQuery_->lastError().text();
+	}
+	return res;
+}
+
+bool HostDb::updateAlias(GMac mac, QString alias) {
+	QMutexLocker(this);
+
+	updateAliasQuery_->bindValue(":alias", alias);
+	updateAliasQuery_->bindValue(":mac", quint64(mac));
+	bool res = updateAliasQuery_->exec();
+	if (!res) {
+		qWarning() << updateAliasQuery_->lastError().text();
 	}
 	return res;
 }
