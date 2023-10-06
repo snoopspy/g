@@ -20,7 +20,7 @@
 
 #define BUFSIZE 8192
 
-typedef struct {
+struct {
 	struct {
 #ifdef __cplusplus
 		bool configured{false};
@@ -68,12 +68,10 @@ typedef struct {
 		char file[BUFSIZE];
 #endif // __cplusplus
 	} def;
-} gtrace_t;
-
 #ifdef __cplusplus
-gtrace_t _gtrace;
+} _gtrace;
 #else
-gtrace_t _gtrace = {
+} _gtrace = {
 	.status.configured = false,
 	.status.active = false,
 	.def.ip[0] = '1',
@@ -141,7 +139,7 @@ void gtrace(const char* fmt, ...) {
 	struct tm* local;
 	gettimeofday(&now, NULL);
 	local = localtime(&now.tv_sec);
-	res = snprintf(p, remn, "%02d%02d%02d %02d%02d%02d-%03lu ",
+	res = snprintf(p, remn, "%02d%02d%02d %02d:%02d:%02d.%03lu ",
 		(local->tm_year) % 100, local->tm_mon + 1, local->tm_mday,
 		local->tm_hour, local->tm_min, local->tm_sec, now.tv_usec / 1000);
 #endif // __linux__
