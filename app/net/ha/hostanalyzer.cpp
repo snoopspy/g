@@ -75,6 +75,13 @@ bool HostAnalyzer::doOpen() {
 
 	bool ok = true;
 	while (true) {
+		for (QObject* obj: children()) {
+			GStateObj* stateObj = dynamic_cast<GStateObj*>(obj);
+			if (stateObj != nullptr) {
+				qDebug() << QObject::connect(stateObj, &GStateObj::closed, this, &HostAnalyzer::processClosed);
+			}
+		}
+
 		if (!pcapDevice_.open()) {
 			err = pcapDevice_.err;
 			ok = false;
@@ -119,6 +126,13 @@ bool HostAnalyzer::doOpen() {
 }
 
 bool HostAnalyzer::doClose() {
+	for (QObject* obj: children()) {
+		GStateObj* stateObj = dynamic_cast<GStateObj*>(obj);
+		if (stateObj != nullptr) {
+			QObject::disconnect(stateObj, &GStateObj::closed, this, &HostAnalyzer::processClosed);
+		}
+	}
+
 	arpBlock_.close();
 	pcapDevice_.close();
 	hostMgr_.close();
@@ -165,6 +179,12 @@ void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->ip_ = hostValue->ip_;
 	item->defaultName_ = hostDb_.getDefaultName(mac, hostValue);
 	item->firstTs_ = hostValue->firstTs_;
+}
+
+void HostAnalyzer::processClosed() {
+	qDebug() << "bef call close()"; // gilgil temp 2023.10.18
+	close();
+	qDebug() << "aft call close()"; // gilgil temp 2023.10.18
 }
 
 void HostAnalyzer::toolButton_toggled(bool checked) {

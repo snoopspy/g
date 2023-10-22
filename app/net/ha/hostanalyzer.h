@@ -82,6 +82,7 @@ public:
 	GTreeWidget* treeWidget_{nullptr}; // reference
 
 public slots:
+	void processClosed();
 	void toolButton_toggled(bool checked);
 	void updateHosts();
 	void updateElapsedTime();
