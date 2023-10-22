@@ -11,6 +11,8 @@
 #pragma once
 
 #include "net/packet/gpacket.h"
+#include "net/packet/gethpacket.h"
+#include "net/packet/gippacket.h"
 
 // ----------------------------------------------------------------------------
 // GWritable
@@ -20,5 +22,7 @@ struct GWritable {
 	virtual GPacket::Result write(GPacket* packet) = 0;
 	GPacket::Result writeMtuSplit(GPacket* packet, size_t mtu, GPacket::Dlt dlt, GDuration msleepTime = 1);
 
-	QByteArray backupBuffer_;
+	QByteArray sendByteArray_;
+	GEthPacket sendEthPacket_;
+	GIpPacket sendIpPacket_;
 };

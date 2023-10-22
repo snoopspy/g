@@ -138,6 +138,7 @@ void GPacket::parse() {
 }
 
 void GPacket::copyFrom(GPacket* source, GBuf newBuf) {
+	Q_ASSERT(this->dlt_ == source->dlt_);
 	clear();
 	ts_ = source->ts_;
 	buf_ = newBuf;
