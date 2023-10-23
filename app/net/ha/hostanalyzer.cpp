@@ -181,9 +181,12 @@ void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->firstTs_ = hostValue->firstTs_;
 }
 
+#include "hawidget.h"
 void HostAnalyzer::processClosed() {
 	qDebug() << "bef call close()"; // gilgil temp 2023.10.18
-	close();
+	HaWidget* haWidget = dynamic_cast<HaWidget*>(parent());
+	Q_ASSERT(haWidget != nullptr);
+	haWidget->tbStop_->click();
 	qDebug() << "aft call close()"; // gilgil temp 2023.10.18
 }
 

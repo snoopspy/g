@@ -29,7 +29,7 @@ public:
 public:
 	MyItemDelegate* itemDelegate_;
 	GTreeWidget* treeWidget_;
-	HostAnalyzer hostAnalyzer_;
+	HostAnalyzer hostAnalyzer_{this};
 
 public:
 	QToolButton* tbDb_{nullptr};
