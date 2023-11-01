@@ -78,7 +78,7 @@ bool HostAnalyzer::doOpen() {
 		for (QObject* obj: children()) {
 			GStateObj* stateObj = dynamic_cast<GStateObj*>(obj);
 			if (stateObj != nullptr) {
-				qDebug() << QObject::connect(stateObj, &GStateObj::closed, this, &HostAnalyzer::processClosed);
+				QObject::connect(stateObj, &GStateObj::closed, this, &HostAnalyzer::processClosed);
 			}
 		}
 
