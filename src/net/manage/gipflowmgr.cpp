@@ -65,7 +65,7 @@ void GIpFlowMgr::manage(GPacket* packet) {
 		currentIpFlowVal_ = IpFlowValue::allocate(requestItems_.totalMemSize_);
 		currentIpFlowVal_->firstTs_ = currentIpFlowVal_->lastTs_ = packet->ts_;
 
-		if (currentRevIpFlowVal_  == nullptr) {
+		if (currentRevIpFlowVal_ == nullptr) {
 			currentIpFlowVal_->state_ = IpFlowValue::Half;
 		} else {
 			currentIpFlowVal_->state_ = IpFlowValue::Full;
