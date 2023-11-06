@@ -27,8 +27,7 @@ bool GMonitorDevice::doOpen() {
 		}
 
 		QString backupFilter = filter_;
-		uint16_t radioLen = htons(radioInfo_.len_);
-		QString lengthFilter = QString("radio[2:2]==%1").arg(radioLen);
+		QString lengthFilter = QString("radio[0:4]==%1 && radio[4:4]=%2").arg((radioInfo_.radioHdr64_ & 0xFFFFFFFF00000000) >> 32).arg(radioInfo_.radioHdr64_ & 0x00000000FFFFFFFF);
 		if (filter_ == "")
 			filter_ = lengthFilter;
 		else
@@ -64,26 +63,25 @@ bool GMonitorDevice::getRadioInfoFromFile() {
 		SET_ERR(GErr::Fail, msg);
 		return -1;
 	}
-	GMac mac = intf->mac();
-	FILE* fp = fopen("radioinfo.txt", "rt");
-	if (fp != nullptr) {
-		while (true) {
-			char macBuf[256];
-			int len;
-			int fcsSize;
-			int res = fscanf(fp, "%s %d %d", macBuf, &len, &fcsSize);
-			if (res != 3) {
-				qWarning() << "fscanf return" << res;
-				return false;
-			}
-			if (mac == GMac(macBuf)) {
-				qDebug() << QString("file radioInfo len=%1 fcsSize=%2").arg(len).arg(fcsSize);
-				radioInfo_.len_ = len;
-				radioInfo_.fcsSize_ = fcsSize;
-				return true;
-			}
+	GMac myMac = intf->mac();
+	QFile file("radioinfo.txt");
+	if (!file.open(QFile::ReadOnly | QFile::Text)) {
+		return false;
+	}
+	QTextStream ts(&file);
+	QString s;
+	while (ts.readLineInto(&s)) {
+		QStringList sl = s.split(" ");
+		if (sl.count() != 3) continue;
+		GMac mac = GMac(sl.at(0));
+		uint64_t radioHdr64 = sl.at(1).toULongLong(nullptr, 16);
+		uint32_t fcsSize = sl.at(2).toULong();
+		if (mac == myMac) {
+			qDebug() << QString("file radioInfo radioHdr=0x%1 fcsSize=%2").arg(QString::number(radioHdr64, 16)).arg(fcsSize);
+			radioInfo_.radioHdr64_ = radioHdr64;
+			radioInfo_.fcsSize_ = fcsSize;
+			return true;
 		}
-		fclose(fp);
 	}
 	return false;
 }
@@ -118,7 +116,6 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 	}
 	iw.close();
 
-	int len = -1;
 	while (true) {
 		GDot11Packet packet;
 		GPacket::Result res = device.read(&packet);
@@ -141,12 +138,12 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 			SET_ERR(GErr::ObjectIsNull, "radioHdr is null");
 			return false;
 		}
-		len = radioHdr->len_;
 
+		uint64_t radioHdr64 = be64toh(*reinterpret_cast<uint64_t*>(radioHdr));
 		uint32_t fcsSize = radioHdr->getFcsSize();
 
-		qDebug() << QString("device radioInfo len=%1 fcsSize=%2").arg(len).arg(fcsSize);
-		radioInfo_.len_ = len;
+		qDebug() << QString("device radioInfo radioHdr=0x%1 fcsSize=%2").arg(QString::number(radioHdr64, 16)).arg(fcsSize);
+		radioInfo_.radioHdr64_ = radioHdr64;
 		radioInfo_.fcsSize_ = fcsSize;
 
 		GIntf* intf = GNetInfo::instance().intfList().findByName(intfName_);
@@ -156,12 +153,15 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 			device.close();
 			return false;
 		}
-		GMac mac = intf->mac();
-		FILE* fp = fopen("radioinfo.txt", "at");
-		if (fp != nullptr) {
-			fprintf(fp, "%s %d %d\n", qPrintable(QString(mac)), len, fcsSize);
-			fclose(fp);
+		GMac myMac = intf->mac();
+		QFile file("radioinfo.txt");
+		if (!file.open(QFile::WriteOnly | QFile::Text | QFile::Append)) {
+			qDebug() << QString("can not open file %1").arg(file.fileName());
+			return false;
 		}
+		QTextStream ts(&file);
+		ts << QString(myMac) << " " << QString::number(radioHdr64, 16) << " " << fcsSize << "\n";
+		file.close();
 		break;
 	}
 	device.close();

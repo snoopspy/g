@@ -32,7 +32,7 @@ protected:
 
 public:
 	struct {
-		int16_t len_;
+		uint64_t radioHdr64_; // GRadioHdr;
 		uint32_t fcsSize_;
 	} radioInfo_;
 
