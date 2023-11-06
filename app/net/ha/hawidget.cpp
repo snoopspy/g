@@ -11,11 +11,11 @@
 
 struct MyItemDelegate : public GItemDelegate {
 public:
-	MyItemDelegate(QObject *parent, int height) : GItemDelegate(parent, height) {}
+	MyItemDelegate(QObject *parent) : GItemDelegate(parent) {}
 
 	QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 		if(index.column() == HostAnalyzer::ColumnName) {
-			return QStyledItemDelegate::createEditor(parent, option, index);
+			return QItemDelegate::createEditor(parent, option, index);
 		}
 		return nullptr;
 	}
@@ -25,14 +25,22 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("HostAnalyzer");
 
 	treeWidget_ = new GTreeWidget(this);
+#ifdef Q_OS_ANDROID
 	treeWidget_->header()->setFixedHeight(120);
-	treeWidget_->setItemDelegate(new MyItemDelegate(this, 140));
+	MyItemDelegate* itemDelegate = new MyItemDelegate(this);
+	itemDelegate->setHeight(140);
+	treeWidget_->setItemDelegate(itemDelegate);
+#endif // Q_OS_ANDROID
 	treeWidget_->setHeaderLabels(QStringList{"ip", "name", "elapsed", ""});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 	treeWidget_->setIndentation(0);
-	treeWidget_->setColumnWidth(3, 120);
 	treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
+
+#ifdef Q_OS_ANDROID
+	treeWidget_->setColumnWidth(3, 140);
+#else
+#endif // Q_OS_ANDROID
 
 	QHeaderView* hv = treeWidget_->header();
 	hv->setSectionResizeMode(2, QHeaderView::Stretch);

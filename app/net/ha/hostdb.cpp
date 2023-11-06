@@ -25,7 +25,7 @@ bool HostDb::doOpen() {
 
 	db_.setDatabaseName(fileName_);
 	if (!db_.open()) {
-		SET_ERR(GErr::Fail, db_.lastError().text());
+		SET_ERR(GErr::Fail, QString("%1 %2").arg(db_.lastError().text()).arg(fileName_));
 		return false;
 	}
 
