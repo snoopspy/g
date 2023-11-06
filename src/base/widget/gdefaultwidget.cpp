@@ -35,13 +35,12 @@ GDefaultWidget::GDefaultWidget(QWidget* parent) : QWidget(parent) {
 	this->setLayout(mainLayout_);
 
 #ifdef Q_OS_ANDROID
-	QSize size(160, 160);
+	tbStart_->setIconSize(QSize(160, 160));
 #else
-	QSize size(32, 32);
+	tbStart_->setIconSize(QSize(32, 32));
 #endif
-	tbStart_->setIconSize(size);
-	tbStop_->setIconSize(size);
-	tbOption_->setIconSize(size);
+	tbStop_->setIconSize(tbStart_->iconSize());
+	tbOption_->setIconSize(tbStart_->iconSize());
 
 #ifndef Q_OS_WIN
 		GSignal& signal = GSignal::instance();

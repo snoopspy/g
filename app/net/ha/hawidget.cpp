@@ -7,26 +7,15 @@
 #include <QProgressBar>
 
 #include <GJson>
+#include <GItemDelegate>
 
-struct MyItemDelegate : public QItemDelegate {
-private:
-	int height_;
-
+struct MyItemDelegate : public GItemDelegate {
 public:
-	MyItemDelegate(QObject *parent = nullptr, int height = -1) : QItemDelegate(parent), height_(height) {}
-
-	void setHeight(int height) { height_ = height; }
-
-	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
-		QSize size = QItemDelegate::sizeHint(option, index);
-		if (height_ != -1)
-			size.setHeight(height_);
-		return size;
-	}
+	MyItemDelegate(QObject *parent, int height) : GItemDelegate(parent, height) {}
 
 	QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 		if(index.column() == HostAnalyzer::ColumnName) {
-			return QItemDelegate::createEditor(parent, option, index);
+			return QStyledItemDelegate::createEditor(parent, option, index);
 		}
 		return nullptr;
 	}
@@ -35,22 +24,20 @@ public:
 HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("HostAnalyzer");
 
-	itemDelegate_ = new MyItemDelegate(this);
-	itemDelegate_->setHeight(ItemHeight);
-
 	treeWidget_ = new GTreeWidget(this);
+	treeWidget_->header()->setFixedHeight(120);
+	treeWidget_->setItemDelegate(new MyItemDelegate(this, 140));
 	treeWidget_->setHeaderLabels(QStringList{"ip", "name", "elapsed", ""});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 	treeWidget_->setIndentation(0);
-	treeWidget_->setItemDelegate(itemDelegate_);
+	treeWidget_->setColumnWidth(3, 120);
 	treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
 	QHeaderView* hv = treeWidget_->header();
 	hv->setSectionResizeMode(2, QHeaderView::Stretch);
 	hv->setSectionResizeMode(3, QHeaderView::Fixed);
 	hv->setStretchLastSection(false);
-	treeWidget_->setColumnWidth(3, ItemHeight);
 
 	tbDb_ = new QToolButton(this);
 	tbDb_->setText("DB");

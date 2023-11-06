@@ -4,16 +4,8 @@
 #include <GTreeWidget>
 #include "hostanalyzer.h"
 
-struct MyItemDelegate;
 struct G_EXPORT HaWidget : GDefaultWidget, GProp {
 	Q_OBJECT
-
-public:
-#ifdef Q_OS_ANDROID
-	static const int ItemHeight = 140;
-#else
-	static const int ItemHeight = 32;
-#endif // Q_OS_ANDROID
 
 public:
 	HaWidget(QWidget* parent = nullptr);
@@ -27,7 +19,6 @@ public:
 	void setControl();
 
 public:
-	MyItemDelegate* itemDelegate_;
 	GTreeWidget* treeWidget_;
 	HostAnalyzer hostAnalyzer_{this};
 

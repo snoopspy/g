@@ -188,6 +188,7 @@ HEADERS += \
 	$${PWD}/../src/base/sys/gwaitevent.h \
 	$${PWD}/../src/base/widget/gcheckbox.h \
 	$${PWD}/../src/base/widget/gdefaultwidget.h \
+	$${PWD}/../src/base/widget/gitemdelegate.h \
 	$${PWD}/../src/base/widget/gplaintextedit.h \
 	$${PWD}/../src/base/widget/gsplitter.h \
 	$${PWD}/../src/base/widget/gtableview.h \

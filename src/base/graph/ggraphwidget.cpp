@@ -133,7 +133,7 @@ void GGraphWidget::init() {
 	QObject::connect(scene_, &GGScene::selectionChanged, this, &GGraphWidget::setControl);
 
 #ifdef Q_OS_ANDROID
-	toolBar_->setIconSize(QSize(96, 96));
+	toolBar_->setIconSize(QSize(120, 120));
 	QRect rect = getScreenRect();
 	midSplitter_->setSizes(QList<int>{ rect.width() / 2, rect.width() / 2});
 	midLeftSplitter_->setSizes(QList<int>{ rect.height() / 2, rect.height() / 2});

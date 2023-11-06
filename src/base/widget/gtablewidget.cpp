@@ -4,18 +4,8 @@
 
 #include <QHeaderView>
 #include <QScroller>
-#include <QStyledItemDelegate>
 
-struct MyHeightItemDelegate : QStyledItemDelegate
-{
-	MyHeightItemDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
-
-	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override	{
-		QSize res = QStyledItemDelegate::sizeHint(option, index);
-		res.setHeight(res.height() * 3 / 2);
-		return res;
-	}
-};
+#include "base/widget/gitemdelegate.h"
 
 // ----------------------------------------------------------------------------
 // GTableWidget
@@ -29,9 +19,9 @@ GTableWidget::GTableWidget(int rows, int columns, QWidget *parent) : QTableWidge
 }
 
 void GTableWidget::init() {
-	horizontalHeader()->setFixedHeight(80);
+	horizontalHeader()->setFixedHeight(GItemDelegate::DefaultItemHeight);
 	QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
-	setItemDelegate(new MyHeightItemDelegate(this));
+	setItemDelegate(&itemDelegate_);
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }

@@ -14,12 +14,20 @@
 
 #include <QTreeWidget>
 
+#include "base/widget/gitemdelegate.h"
+
 // ----------------------------------------------------------------------------
 // QTreeWidget
 // ----------------------------------------------------------------------------
 #ifdef Q_OS_ANDROID
 struct GTreeWidget : QTreeWidget {
 	explicit GTreeWidget(QWidget *parent = nullptr);
+
+protected:
+	void init();
+
+public:
+	GItemDelegate itemDelegate_{this, GItemDelegate::DefaultItemHeight};
 };
 #else
 typedef QTreeWidget GTreeWidget;

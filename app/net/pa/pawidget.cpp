@@ -10,6 +10,7 @@ PaWidget::PaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("Probe Analyzer");
 
 	tableWidget_ = new GTableWidget(this);
+	tableWidget_->horizontalHeader()->setFixedHeight(120);
 	tableWidget_->setColumnCount(2);
 	tableWidget_->setHorizontalHeaderItem(0, new QTableWidgetItem("Mac"));
 	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("Signal"));

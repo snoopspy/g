@@ -14,6 +14,8 @@
 
 #include <QTableView>
 
+#include "base/widget/gitemdelegate.h"
+
 // ----------------------------------------------------------------------------
 // GTableView
 // ----------------------------------------------------------------------------
@@ -23,6 +25,9 @@ struct GTableView : QTableView {
 
 protected:
 	void init();
+
+public:
+	GItemDelegate itemDelegate_{this};
 };
 #else
 typedef QTableView GTableView;
