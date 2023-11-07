@@ -27,9 +27,11 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	treeWidget_ = new GTreeWidget(this);
 #ifdef Q_OS_ANDROID
 	treeWidget_->header()->setFixedHeight(120);
+#endif // Q_OS_ANDROID
 	MyItemDelegate* itemDelegate = new MyItemDelegate(this);
-	itemDelegate->setHeight(140);
 	treeWidget_->setItemDelegate(itemDelegate);
+#ifdef Q_OS_ANDROID
+	itemDelegate->setHeight(140);
 #endif // Q_OS_ANDROID
 	treeWidget_->setHeaderLabels(QStringList{"ip", "name", "elapsed", ""});
 	treeWidget_->setSortingEnabled(true);
@@ -37,9 +39,11 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	treeWidget_->setIndentation(0);
 	treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
+	qDebug() << treeWidget_->header()->sizeHint().height();
 #ifdef Q_OS_ANDROID
 	treeWidget_->setColumnWidth(3, 140);
 #else
+	treeWidget_->setColumnWidth(3, treeWidget_->header()->sizeHint().height());
 #endif // Q_OS_ANDROID
 
 	QHeaderView* hv = treeWidget_->header();

@@ -17,10 +17,10 @@ bool HostDb::doOpen() {
 	}
 	hostMgr_->managables_.insert(this);
 
-	static bool addedDatabase = true;
-	if (addedDatabase) {
+	static bool first = true;
+	if (first) {
 		db_ = QSqlDatabase::addDatabase("QSQLITE");
-		addedDatabase = false;
+		first = false;
 	}
 
 	db_.setDatabaseName(fileName_);
