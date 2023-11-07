@@ -49,6 +49,7 @@ public:
 	const static int ColumnIp = 0;
 	const static int ColumnName = 1;
 	const static int ColumnElapsed = 2;
+	const static int ColumnAttack = 3;
 
 	QTimer updateHostsTimer_;
 	QTimer updateElapsedTimer_;

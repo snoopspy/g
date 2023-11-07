@@ -3,7 +3,8 @@
 #include <QMessageBox>
 
 struct MyTreeWidgetItem : GTreeWidgetItem {
-	MyTreeWidgetItem(GTreeWidget* parent) : GTreeWidgetItem(parent) {}
+	GTreeWidget* treeWidget_;
+	MyTreeWidgetItem(GTreeWidget* parent) : GTreeWidgetItem(parent) , treeWidget_(parent) {}
 
 	bool operator < (const QTreeWidgetItem &other) const {
 		int column = treeWidget()->sortColumn();
@@ -13,11 +14,23 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 			case HostAnalyzer::ColumnName:
 				return text(1) < other.text(HostAnalyzer::ColumnName);
 			case HostAnalyzer::ColumnElapsed: {
-				const GTreeWidgetItem* myItem = PTreeWidgetItem(this);
-				const GTreeWidgetItem* otherItem = PTreeWidgetItem(&other);
-				quint64 myFirstTs = myItem->property("firstTs").toLongLong();
-				quint64 otherFirstTs = otherItem->property("firstTs").toLongLong();
-				return myFirstTs < otherFirstTs;
+				const GTreeWidgetItem* item1 = PTreeWidgetItem(this);
+				const GTreeWidgetItem* item2 = PTreeWidgetItem(&other);
+				quint64 firstTs1 = item1->property("firstTs").toLongLong();
+				quint64 firstTs2 = item2->property("firstTs").toLongLong();
+				return firstTs1 < firstTs2;
+			}
+			case HostAnalyzer::ColumnAttack: {
+				QTreeWidgetItem* item1 = const_cast<QTreeWidgetItem*>(dynamic_cast<const QTreeWidgetItem*>(this));
+				Q_ASSERT(item1 != nullptr);
+				QToolButton* toolButton1 = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(item1, HostAnalyzer::ColumnAttack));
+
+				QTreeWidgetItem* item2 = const_cast<QTreeWidgetItem*>(dynamic_cast<const QTreeWidgetItem*>(&other));
+				Q_ASSERT(item2 != nullptr);
+				QToolButton* toolButton2 = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(item2, HostAnalyzer::ColumnAttack));
+
+				if (toolButton1 == nullptr || toolButton2 == nullptr) return false;
+				return toolButton1->text() < toolButton2->text();
 			}
 			default:
 				qCritical() << "unreachable";
@@ -193,6 +206,7 @@ void HostAnalyzer::processClosed() {
 void HostAnalyzer::toolButton_toggled(bool checked) {
 	(void)checked;
 	QToolButton* toolButton = dynamic_cast<QToolButton*>(sender());
+	Q_ASSERT(toolButton != nullptr);
 	GMac mac = toolButton->property("mac").toString();
 	{
 		QMutexLocker ml(&arpBlock_.itemList_.m_);
@@ -204,13 +218,13 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 					arpBlock_.infect(item, GArpHdr::Request);
 					item->policy_ = GArpBlock::Block;
 
-					toolButton->setText("1");
+					toolButton->setText("B");
 					toolButton->setIcon(QIcon(":/img/pause.png"));
 				} else {
 					arpBlock_.recover(item, GArpHdr::Request);
 					item->policy_ = GArpBlock::Allow;
 
-					toolButton->setText("0");
+					toolButton->setText("A");
 					toolButton->setIcon(QIcon(":/img/play.png"));
 				}
 				break;
@@ -248,15 +262,15 @@ void HostAnalyzer::updateHosts() {
 			toolButton->setCheckable(true);
 			toolButton->setProperty("mac", QString(mac));
 			if (block) {
-				toolButton->setText("1");
+				toolButton->setText("B");
 				toolButton->setIcon(QIcon(":/img/pause.png"));
 				toolButton->setChecked(true);
 			} else {
-				toolButton->setText("0");
+				toolButton->setText("A");
 				toolButton->setIcon(QIcon(":/img/play.png"));
 				toolButton->setChecked(false);
 			}
-			treeWidget_->setItemWidget(treeWidgetItem, 3, toolButton);
+			treeWidget_->setItemWidget(treeWidgetItem, ColumnAttack, toolButton);
 
 			QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 			item->treeWidgetItem_ = treeWidgetItem;
