@@ -34,7 +34,6 @@ public:
 
 	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override	{
 		QSize res = QItemDelegate::sizeHint(option, index);
-		qDebug() << res << height_; // gilgil temp 2023.11.06
 		if (height_ != 0)
 			res.setHeight(height_);
 		return res;
