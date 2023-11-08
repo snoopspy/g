@@ -100,8 +100,10 @@ public slots:
 int main(int argc, char* argv[]) {
 	GApp a(argc, argv);
 	SsCon* sc = new SsCon;;
-	if (!sc->open())
+	if (!sc->open()) {
+		delete sc;
 		return -1;
+	}
 	int res = a.exec();
 	sc->close();
 	delete sc;
