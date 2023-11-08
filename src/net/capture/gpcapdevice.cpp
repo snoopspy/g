@@ -30,7 +30,7 @@ bool GPcapDevice::doOpen() {
 
 #ifdef Q_OS_ANDROID
 	demonClient_ = new GDemonClient("127.0.0.1", port_);
-	GDemon::PcapOpenRes res = demonClient_->pcapOpen(qPrintable(objectName()), std::string(qPrintable(filter_)), std::string(qPrintable(intfName_)), snapLen_, flags_, readTimeout_, waitTimeout_, true);
+	GDemon::PcapOpenRes res = demonClient_->pcapOpen(qPrintable(objectName()), std::string(qPrintable(filter_)), std::string(qPrintable(intfName_)), snapLen_, flags_, readTimeout_, waitTimeout_, nonBlock_, true);
 	if (!res.result_) {
 		SET_ERR(GErr::Fail, demonClient_->error_.data());
 		delete demonClient_; demonClient_ = nullptr;
@@ -52,6 +52,30 @@ bool GPcapDevice::doOpen() {
 		SET_ERR(GErr::ReturnNull, errBuf);
 		return false;
 	}
+
+	if (nonBlock_) {
+		// ----- gilgil temp 2023.11.18 -----
+		int nonblock = pcap_getnonblock(pcap_, errBuf);
+		if (nonblock == -1)
+			qDebug() << QString("pcap_getnonblock return -1 %s").arg(errBuf);
+		else
+			qDebug("pcap_getnonblock return %d", nonblock);
+		// ----------------------------------
+
+		int res = pcap_setnonblock(pcap_, 1, errBuf);
+		if (res == PCAP_ERROR) {
+			SET_ERR(GErr::Fail, errBuf);
+			return false;
+		}
+
+		// ----- gilgil temp 2023.11.18 -----
+		nonblock = pcap_getnonblock(pcap_, errBuf);
+		if (nonblock == -1)
+			qDebug() << QString("pcap_getnonblock return -1 %s").arg(errBuf);
+		else
+			qDebug("pcap_getnonblock return %d", nonblock);
+		// ----------------------------------
+	}
 #endif
 
 	intf_ = GNetInfo::instance().intfList().findByName(intfName_);
@@ -60,6 +84,8 @@ bool GPcapDevice::doOpen() {
 		SET_ERR(GErr::ValueIsNull, msg);
 		return false;
 	}
+
+	//pcap_setnonblock(pcap_, 1, errBuf);
 
 #ifdef Q_OS_ANDROID
 	return GCapture::doOpen();

@@ -26,6 +26,7 @@ struct G_EXPORT GPcapDevice : GPcapCapture {
 	Q_PROPERTY(int flags MEMBER flags_)
 	Q_PROPERTY(int readTimeout MEMBER readTimeout_)
 	Q_PROPERTY(int waitTimeout MEMBER waitTimeout_)
+	Q_PROPERTY(bool nonBlock MEMBER nonBlock_)
 
 public:
 	QString intfName_{""};
@@ -39,6 +40,7 @@ public:
 	int readTimeout_{1}; // 1 msec
 	int waitTimeout_{0}; // 0 msec
 #endif
+	bool nonBlock_{false};
 
 public:
 	Q_INVOKABLE GPcapDevice(QObject* parent = nullptr);

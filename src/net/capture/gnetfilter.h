@@ -23,8 +23,8 @@
 struct G_EXPORT GNetFilter : GCapture {
 	Q_OBJECT
 	Q_PROPERTY(quint16 queueNum MEMBER queueNum_)
-	Q_PROPERTY(bool nonBlock MEMBER nonBlock_)
 	Q_PROPERTY(int waitTimeout MEMBER waitTimeout_)
+	Q_PROPERTY(bool nonBlock MEMBER nonBlock_)
 	Q_PROPERTY(Verdict acceptVerdict MEMBER acceptVerdict_)
 	Q_PROPERTY(quint32 mark MEMBER mark_)
 	Q_PROPERTY(int bufSize MEMBER bufSize_)
@@ -39,8 +39,8 @@ public:
 	};
 
 	uint16_t queueNum_{0};
-	bool nonBlock_{true};
 	int waitTimeout_{1}; // 1 msec
+	bool nonBlock_{true};
 	Verdict acceptVerdict_{ACCEPT};
 	uint32_t mark_{0};
 	GObjRef getCommand() { return &command_; }

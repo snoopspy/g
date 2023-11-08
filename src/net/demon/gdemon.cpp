@@ -804,6 +804,9 @@ int32_t GDemon::PcapOpenReq::encode(pchar buffer, int32_t size) {
 	// waitTimeout_
 	*pint32_t(buf) = waitTimeout_; buf += sizeof(waitTimeout_); size -= sizeof(waitTimeout_);
 
+	// nonBlock_
+	*pbool(buf) = nonBlock_; buf += sizeof(nonBlock_); size -= sizeof(nonBlock_);
+
 	// captureThread_
 	*pbool(buf) = captureThread_; buf += sizeof(captureThread_); size -= sizeof(captureThread_);
 
@@ -850,6 +853,9 @@ int32_t GDemon::PcapOpenReq::decode(pchar buffer, int32_t size) {
 
 	// waitTimeout_
 	waitTimeout_ = *pint32_t(buf); buf += sizeof(waitTimeout_); size -= sizeof(waitTimeout_);
+
+	// nonBlock_
+	nonBlock_ = *pbool(buf); buf += sizeof(nonBlock_); size -= sizeof(nonBlock_);
 
 	// captureThread_
 	captureThread_ = *pbool(buf); buf += sizeof(captureThread_); size -= sizeof(captureThread_);
@@ -1056,11 +1062,11 @@ int32_t GDemon::NfOpenReq::encode(pchar buffer, int32_t size) {
 	// queueNum_
 	*pint16_t(buf) = queueNum_; buf += sizeof(queueNum_); size -= sizeof(queueNum_);
 
-	// nonBlock_
-	*pbool(buf) = nonBlock_; buf += sizeof(nonBlock_); size -= sizeof(nonBlock_);
-
 	// waitTimeout_
 	*pint32_t(buf) = waitTimeout_; buf += sizeof(waitTimeout_); size -= sizeof(waitTimeout_);
+
+	// nonBlock_
+	*pbool(buf) = nonBlock_; buf += sizeof(nonBlock_); size -= sizeof(nonBlock_);
 
 	len_ = buf - buffer - sizeof(Header);
 	cmd_ = CmdNfOpen;

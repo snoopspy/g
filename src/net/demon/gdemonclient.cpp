@@ -411,7 +411,7 @@ GDemon::GetRtmRes GDemonClient::getRtm() {
 	return res;
 }
 
-GDemon::PcapOpenRes GDemonClient::pcapOpen(std::string client, std::string filter, std::string intfName, int32_t snapLen, int32_t flags, int32_t readTimeout, int32_t waitTimeout, bool captureThread) {
+GDemon::PcapOpenRes GDemonClient::pcapOpen(std::string client, std::string filter, std::string intfName, int32_t snapLen, int32_t flags, int32_t readTimeout, int32_t waitTimeout, bool nonBlock, bool captureThread) {
 	GDemon::PcapOpenRes res;
 
 	if (sd_ == 0) {
@@ -428,6 +428,7 @@ GDemon::PcapOpenRes GDemonClient::pcapOpen(std::string client, std::string filte
 	req.flags_ = flags;
 	req.readTimeout_ = readTimeout;
 	req.waitTimeout_ = waitTimeout;
+	req.nonBlock_ = nonBlock;
 	req.captureThread_ = captureThread;
 	{
 		GSpinLockGuard guard(sendBufLock_);
@@ -534,7 +535,7 @@ bool GDemonClient::pcapWrite(PcapWrite write) {
 	return true;
 }
 
-GDemon::NfOpenRes GDemonClient::nfOpen(std::string client, uint16_t queueNum, bool nonBlock, uint32_t waitTimeout) {
+GDemon::NfOpenRes GDemonClient::nfOpen(std::string client, uint16_t queueNum, uint32_t waitTimeout, bool nonBlock) {
 	GDemon::NfOpenRes res;
 
 	if (sd_ == 0) {
@@ -546,8 +547,8 @@ GDemon::NfOpenRes GDemonClient::nfOpen(std::string client, uint16_t queueNum, bo
 	NfOpenReq req;
 	req.client_ = client;
 	req.queueNum_ = queueNum;
-	req.nonBlock_ = nonBlock;
 	req.waitTimeout_ = waitTimeout;
+	req.nonBlock_ = nonBlock;
 	{
 		GSpinLockGuard guard(sendBufLock_);
 		int32_t encLen = req.encode(sendBuf_, MaxBufSize);

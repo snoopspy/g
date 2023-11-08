@@ -44,7 +44,7 @@ bool GNetFilter::doOpen() {
 	}
 
 	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
-	GDemon::NfOpenRes res = demonClient_->nfOpen(qPrintable(objectName()), queueNum_, nonBlock_, waitTimeout_);
+	GDemon::NfOpenRes res = demonClient_->nfOpen(qPrintable(objectName()), queueNum_, waitTimeout_, nonBlock_);
 	if (!res.result_) {
 		SET_ERR(GErr::Fail, demonClient_->error_.data());
 		delete demonClient_; demonClient_ = nullptr;
@@ -174,7 +174,11 @@ bool GNetFilter::doOpen() {
 	fd_ = nfq_fd(h_);
 	if (nonBlock_) {
 		int flags = fcntl(fd_, F_GETFL);
-		fcntl(fd_, F_SETFL,flags| O_NONBLOCK);
+		int res = fcntl(fd_, F_SETFL, flags | O_NONBLOCK);
+		if (res == -1) {
+			SET_ERR(GErr::Fail, QString("fcntl return -1 %1 %2").arg(errno).arg(strerror(errno)));
+			return false;
+		}
 	}
 
 	Q_ASSERT(recvBuf_ == nullptr);
