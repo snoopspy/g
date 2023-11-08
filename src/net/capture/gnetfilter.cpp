@@ -190,22 +190,15 @@ bool GNetFilter::doClose() {
 	if (!enabled_) return true;
 
 	if (fd_ != 0) {
-		qDebug() << "bef call ::shutdown"; // gilgil temp 2016.09.25
 		::shutdown(fd_, 2/* SHUT_RDWR SD_BOTH*/);
-		qDebug() << "aft call ::shutdown"; // gilgil temp 2016.09.25
-
-		qDebug() << "bef call ::close"; // gilgil temp 2016.09.25
 		::close(fd_);
-		qDebug() << "aft call ::close"; // gilgil temp 2016.09.25
 		fd_ = 0;
 	}
 
 	GCapture::doClose();
 
 	if (qh_ != nullptr) {
-		qDebug() << "bef call nfq_destroy_queue"; // gilgil temp 2016.09.25
 		nfq_destroy_queue(qh_);
-		qDebug() << "aft call nfq_destroy_queue"; // gilgil temp 2016.09.25
 		qh_ = nullptr;
 	}
 
@@ -218,14 +211,12 @@ bool GNetFilter::doClose() {
 #endif // INSANE
 
 		// closing library handle
-		qDebug() << "bef call nfq_close"; // gilgil temp 2016.09.25
 		nfq_close(h_);
-		qDebug() << "aft call nfq_close"; // gilgil temp 2016.09.25
 		h_ = nullptr;
 	}
 
 	if (recvBuf_ != nullptr) {
-		delete recvBuf_;
+		delete[] recvBuf_;
 		recvBuf_ = nullptr;
 	}
 

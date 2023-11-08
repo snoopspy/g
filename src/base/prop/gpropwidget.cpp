@@ -23,7 +23,7 @@ void GPropWidget::init() {
 	// (actionOpen_ = new QAction(this))->setText("Open"); // gilgil temp 2020.05.21
 	// (actionClose_ = new QAction(this))->setText("Close"); // gilgil temp 2020.05.21
 
-	mainLayout_ = new QVBoxLayout;
+	mainLayout_ = new QVBoxLayout(this);
 	mainLayout_->setContentsMargins(0, 0, 0, 0);
 	mainLayout_->setSpacing(0);
 
