@@ -74,9 +74,6 @@ GGraph::Factory::Factory(QObject* parent) : GObj(parent) {
 }
 
 GGraph::Factory::~Factory() {
-	for (Item* item: items_) {
-		delete item;
-	}
 }
 
 // ----------------------------------------------------------------------------
