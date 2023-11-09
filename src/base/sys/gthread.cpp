@@ -43,10 +43,12 @@ void GThreadMgr::suspendStart() {
 	threadMgr.suspended_ = true;
 }
 
-void GThreadMgr::resumeStart() {
+void GThreadMgr::resumeStart(bool resume) {
 	GThreadMgr& threadMgr = instance();
-	for (GThread* thread: threadMgr.threads_) {
-		thread->QThread::start(thread->priority_);
+	if (resume) {
+		for (GThread* thread: threadMgr.threads_) {
+			thread->QThread::start(thread->priority_);
+		}
 	}
 	threadMgr.threads_.clear();
 	threadMgr.suspended_ = false;

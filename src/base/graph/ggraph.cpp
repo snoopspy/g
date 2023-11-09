@@ -97,6 +97,7 @@ bool GGraph::doOpen() {
 					SET_ERR(stateObj->err->code(), msg);
 				}
 				doClose();
+				GThreadMgr::resumeStart(false);
 				return false;
 			}
 		}

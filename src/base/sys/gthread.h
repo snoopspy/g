@@ -35,7 +35,7 @@ struct G_EXPORT GThreadMgr {
 	friend struct GStateObj;
 
 	static void suspendStart();
-	static void resumeStart();
+	static void resumeStart(bool resume = true);
 
 private: // singleton
 	GThreadMgr() {}
