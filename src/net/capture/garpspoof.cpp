@@ -65,6 +65,13 @@ bool GArpSpoof::doOpen() {
 		}
 	}
 
+	GPacket::Dlt _dlt = dlt();
+	if (_dlt != GPacket::Eth) {
+		QString msg = QString("Data link type(%1 - %2) must be GPacket::Eth").arg(intfName_, GPacket::dltToString(_dlt));
+		SET_ERR(GErr::Fail, msg);
+		return false;
+	}
+
 	flowList_.clear();
 	atm_.deleteUnresolved();
 

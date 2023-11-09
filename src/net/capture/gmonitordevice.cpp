@@ -47,6 +47,7 @@ bool GMonitorDevice::doOpen() {
 			return false;
 		}
 	}
+
 	return res;
 }
 
