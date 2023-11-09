@@ -276,11 +276,9 @@ void HostAnalyzer::treeWidget_itemChanged(QTreeWidgetItem *item, int column) {
 }
 
 void HostAnalyzer::propLoad(QJsonObject jo) {
-	qDebug() << ""; // gilgil temp 2023.11.09
 	GProp::propLoad(jo);
 }
 
 void HostAnalyzer::propSave(QJsonObject& jo) {
-	qDebug() << ""; // gilgil temp 2023.11.09
 	GProp::propSave(jo);
 }
