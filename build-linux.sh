@@ -1,9 +1,9 @@
-export QTDIR=/opt/Qt/5.15.2/gcc_64
-
 make
 
+#
+# setup
+#
 cd setup
-
 rm -rf linux
 mkdir -p linux
 cd linux
@@ -23,30 +23,31 @@ cp ../../bin/sscon .; strip sscon
 cp ../../bin/sslog .; strip sslog
 cp ../../bin/wa .; strip wa
 cp ../../setup/setup-linux.sh .
-mkdir ss
+mkdir -p ss
 cp ../../bin/ss/* ss/
 
 #
 # qt files
 #
-cp $QTDIR/lib/libicudata.so.56 .
-cp $QTDIR/lib/libicui18n.so.56 .
-cp $QTDIR/lib/libicuuc.so.56 .
-cp $QTDIR/lib/libQt5Core.so.5 .
-cp $QTDIR/lib/libQt5DBus.so.5 .
-cp $QTDIR/lib/libQt5Gui.so.5 .
-cp $QTDIR/lib/libQt5Network.so.5 .
-cp $QTDIR/lib/libQt5Sql.so.5 .
-cp $QTDIR/lib/libQt5Widgets.so.5 .
-cp $QTDIR/lib/libQt5XcbQpa.so.5 .
+export QT_DIR=/opt/Qt/5.15.2/gcc_64
+cp $QT_DIR/lib/libicudata.so.56 .
+cp $QT_DIR/lib/libicui18n.so.56 .
+cp $QT_DIR/lib/libicuuc.so.56 .
+cp $QT_DIR/lib/libQt5Core.so.5 .
+cp $QT_DIR/lib/libQt5DBus.so.5 .
+cp $QT_DIR/lib/libQt5Gui.so.5 .
+cp $QT_DIR/lib/libQt5Network.so.5 .
+cp $QT_DIR/lib/libQt5Sql.so.5 .
+cp $QT_DIR/lib/libQt5Widgets.so.5 .
+cp $QT_DIR/lib/libQt5XcbQpa.so.5 .
 
 #
 # platforms files
 #
 mkdir -p platforms
-cp $QTDIR/plugins/platforms/* platforms/
-mkdir -p sqldrivers
-cp $QTDIR/plugins/sqldrivers/libqsqlite.so sqldrivers/
+cp $QT_DIR/plugins/platforms/* platforms/
+mkdir -p plugins/sqldrivers
+cp $QT_DIR/plugins/sqldrivers/libqsqlite.so plugins/sqldrivers/
 
 #
 # compress
