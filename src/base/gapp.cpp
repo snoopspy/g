@@ -124,20 +124,29 @@ void GApp::launchDemon(QProcess* demon, int port, QString soFileName) {
 }
 
 bool GApp::copyFileFromAssets(QString fileName, QFile::Permissions permissions) {
-	QString sourceFileName = QString("assets:/") + fileName;
-	QFile sFile(sourceFileName);
-	QFile dFile(fileName);
-	if (!dFile.exists()) {
-		if (!sFile.exists()) {
-			qWarning() << QString("src file(%1) not exists").arg(sourceFileName);
-			return false;
-		}
+	QString srcFileName = QString("assets:/") + fileName;
+	QString dstFileName = fileName;
+	QFile srcFile(srcFileName);
+	QFile dstFile(dstFileName);
 
-		if (!sFile.copy(fileName)) {
-			qWarning() << QString("file copy(%1) return false").arg(fileName);
+	if (!srcFile.exists()) {
+		qWarning() << QString("src file(%1) not exists").arg(srcFileName);
+		return false;
+	}
+
+	if (dstFile.exists()) {
+		bool res = dstFile.remove();
+		if (!res) {
+			qWarning() << QString("file remove(%1) return false").arg(dstFileName);
 			return false;
 		}
-		QFile::setPermissions(fileName, permissions);
 	}
+
+	if (!srcFile.copy(dstFileName)) {
+		qWarning() << QString("file copy(%1 %2) return false").arg(srcFileName).arg(dstFileName);
+		return false;
+	}
+	QFile::setPermissions(fileName, permissions);
+
 	return true;
 }
