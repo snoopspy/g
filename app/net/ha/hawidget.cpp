@@ -39,7 +39,6 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	treeWidget_->setIndentation(0);
 	treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-	qDebug() << treeWidget_->header()->sizeHint().height();
 #ifdef Q_OS_ANDROID
 	treeWidget_->setColumnWidth(3, 140);
 #else

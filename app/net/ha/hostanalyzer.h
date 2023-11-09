@@ -1,27 +1,26 @@
 #pragma once
 
-#include <GCommand>
+#include <GGraph>
 #include <GPcapDevice>
 #include <GHostMgr>
 #include <GHostWatch>
 #include <GHostScan>
 #include <GArpBlock>
+#include <GCommand>
 #include <GTreeWidget>
 #include "hostdb.h"
 
-struct G_EXPORT HostAnalyzer : GStateObj, GHostMgr::Managable {
+struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_OBJECT
 	Q_PROPERTY(GObjRef pcapDevice READ getPcapDevice)
 	Q_PROPERTY(GObjRef hostMgr READ getHostMgr)
 	Q_PROPERTY(GObjRef hostWatch READ getHostWatch)
 	Q_PROPERTY(GObjRef hostScan READ getHostScan)
 	Q_PROPERTY(GObjRef arpBlock READ getArpBlock)
-	Q_PROPERTY(GObjRef command READ getCommand)
 	Q_PROPERTY(GObjRef hostDb READ getHostDb)
-
-public:
-	Q_INVOKABLE HostAnalyzer(QObject* parent = nullptr);
-	~HostAnalyzer() override;
+	Q_PROPERTY(GObjRef command READ getCommand)
+	Q_PROPERTY(int updateHostsTimeout MEMBER updateHostsTimrout_)
+	Q_PROPERTY(int updateElapsedTimeout MEMBER updateElapsedTimeout_)
 
 public:
 	GObjRef getPcapDevice() { return &pcapDevice_; }
@@ -29,8 +28,14 @@ public:
 	GObjRef getHostWatch() { return &hostWatch_; }
 	GObjRef getHostScan() { return &hostScan_; }
 	GObjRef getArpBlock() { return &arpBlock_; }
-	GObjRef getCommand() { return &command_; }
 	GObjRef getHostDb() { return &hostDb_; }
+	GObjRef getCommand() { return &command_; }
+	int updateHostsTimrout_{1000}; // 1 seconds
+	int updateElapsedTimeout_{10000}; // 10 seconds
+
+public:
+	Q_INVOKABLE HostAnalyzer(QObject* parent = nullptr);
+	~HostAnalyzer() override;
 
 protected:
 	bool doOpen() override;
@@ -42,8 +47,8 @@ public:
 	GHostWatch hostWatch_{this};
 	GHostScan hostScan_{this};
 	GArpBlock arpBlock_{this};
-	GCommand command_{this};
 	HostDb hostDb_{this};
+	GCommand command_{this};
 
 public:
 	const static int ColumnIp = 0;
@@ -88,4 +93,8 @@ public slots:
 	void updateHosts();
 	void updateElapsedTime();
 	void treeWidget_itemChanged(QTreeWidgetItem *item, int column);
+
+public:
+	void propLoad(QJsonObject jo) override;
+	void propSave(QJsonObject& jo) override;
 };

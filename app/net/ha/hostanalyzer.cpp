@@ -40,7 +40,7 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 };
 typedef MyTreeWidgetItem *PMyTreeWidgetItem;
 
-HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
+HostAnalyzer::HostAnalyzer(QObject* parent) : GGraph(parent) {
 #ifdef Q_OS_ANDROID
 	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
@@ -76,6 +76,12 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GStateObj(parent) {
 
 	QObject::connect(&updateHostsTimer_, &QTimer::timeout, this, &HostAnalyzer::updateHosts);
 	QObject::connect(&updateElapsedTimer_, &QTimer::timeout, this, &HostAnalyzer::updateElapsedTime);
+
+	nodes_.append(&pcapDevice_);
+	nodes_.append(&hostMgr_);
+	nodes_.append(&hostWatch_);
+	nodes_.append(&hostScan_);
+	nodes_.append(&arpBlock_);
 }
 
 HostAnalyzer::~HostAnalyzer() {
@@ -84,87 +90,23 @@ HostAnalyzer::~HostAnalyzer() {
 }
 
 bool HostAnalyzer::doOpen() {
-	GThreadMgr::suspendStart();
+	bool res = GGraph::doOpen();
+	if (!res) return false;
 
-	bool ok = true;
-	while (true) {
-		for (QObject* obj: children()) {
-			GStateObj* stateObj = dynamic_cast<GStateObj*>(obj);
-			if (stateObj != nullptr) {
-				QObject::connect(stateObj, &GStateObj::closed, this, &HostAnalyzer::processClosed);
-			}
-		}
+	hostOffset_ = hostMgr_.requestItems_.request(this, sizeof(Item));
+	hostMgr_.managables_.insert(this);
 
-		if (!pcapDevice_.open()) {
-			err = pcapDevice_.err;
-			ok = false;
-			break;
-		}
-
-		if (!hostMgr_.open()) {
-			err = hostMgr_.err;
-			ok = false;
-			break;
-		}
-		hostOffset_ = hostMgr_.requestItems_.request(this, sizeof(Item));
-		hostMgr_.managables_.insert(this);
-
-		if (!hostWatch_.open()) {
-			err = hostWatch_.err;
-			ok = false;
-			break;
-		}
-
-		if (!hostScan_.open()) {
-			err = hostScan_.err;
-			ok = false;
-			break;
-		}
-
-		if (!arpBlock_.open()) {
-			err = arpBlock_.err;
-			ok = false;
-			break;
-		}
-
-		updateHostsTimer_.start(1000); // 1 seconds
-		updateElapsedTimer_.start(10000); // 10 seconds
-
-		break;
-	}
-
-	if (ok)
-		GThreadMgr::resumeStart();
-	return ok;
+	updateHostsTimer_.start(updateHostsTimrout_);
+	updateElapsedTimer_.start(updateElapsedTimeout_);
+	return true;
 }
 
 bool HostAnalyzer::doClose() {
-	for (QObject* obj: children()) {
-		GStateObj* stateObj = dynamic_cast<GStateObj*>(obj);
-		if (stateObj != nullptr) {
-			QObject::disconnect(stateObj, &GStateObj::closed, this, &HostAnalyzer::processClosed);
-		}
-	}
+	bool res = GGraph::doClose();
 
-	arpBlock_.close();
-	pcapDevice_.close();
-	hostMgr_.close();
-	hostWatch_.close();
-	hostScan_.close();
-	int count = treeWidget_->topLevelItemCount();
-	for (int i = 0; i < count; i++) {
-		QTreeWidgetItem* item = treeWidget_->topLevelItem(i);
-		QToolButton* toolButton = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(item, 3));
-		if (toolButton != nullptr) {
-			toolButton->setText("0");
-			toolButton->setIcon(QIcon(":/img/play.png"));
-			toolButton->setChecked(false);
-			toolButton->setEnabled(false);
-		}
-	}
 	updateHostsTimer_.stop();
 	updateElapsedTimer_.stop();
-	return true;
+	return res;
 }
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
@@ -331,4 +273,14 @@ void HostAnalyzer::treeWidget_itemChanged(QTreeWidgetItem *item, int column) {
 	GMac mac = twi->property("mac").toString();
 	QString alias = item->text(column);
 	hostDb_.updateAlias(mac, alias);
+}
+
+void HostAnalyzer::propLoad(QJsonObject jo) {
+	qDebug() << ""; // gilgil temp 2023.11.09
+	GProp::propLoad(jo);
+}
+
+void HostAnalyzer::propSave(QJsonObject& jo) {
+	qDebug() << ""; // gilgil temp 2023.11.09
+	GProp::propSave(jo);
 }
