@@ -37,10 +37,10 @@ protected:
 	bool autoRead_{true};
 
 public:
-	typedef enum {
+	enum PathType {
 		InPath,
 		OutOfPath
-	} PathType;
+	};
 
 public:
 	GCapture(QObject* parent = nullptr) : GStateObj(parent) {}

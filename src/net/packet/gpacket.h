@@ -39,22 +39,22 @@ public:
 	// --------------------------------------------------------------------------
 	// Result
 	// --------------------------------------------------------------------------
-	typedef enum {
+	enum Result {
 		Eof = -2, // read
 		Fail = -1, // read write
 		None = 0, // read
 		Ok = 1, // read write
-	} Result;
+	};
 
 	// --------------------------------------------------------------------------
 	// Dlt(DataLinkType)
 	// --------------------------------------------------------------------------
-	typedef enum {
+	enum Dlt {
 		Eth, // DLT_EN10MB (1)
 		Ip, // DLT_RAW (228)
 		Dot11, // DLT_IEEE802_11_RADIO (127)
 		Null, // DLT_NULL (0)
-	} Dlt;
+	};
 	static QString dltToString(Dlt dlt);
 	static int dltToInt(Dlt dlt);
 	static Dlt intToDlt(int dataLink);

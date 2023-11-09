@@ -19,12 +19,12 @@ struct G_EXPORT GStateObj : GObj {
 	Q_OBJECT
 
 public:
-	typedef enum {
+	enum State {
 		Closed, // 0
 		Opening, // 1
 		Opened, // 2
 		Closing // 3
-	} State;
+	};
 
 	GStateObj(QObject* parent = nullptr) : GObj(parent) {}
 	~GStateObj() override;
