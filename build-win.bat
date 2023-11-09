@@ -76,8 +76,8 @@ copy %QT_DIR%\bin\Qt5Sql.dll .
 copy %QT_DIR%\bin\Qt5Widgets.dll .
 mkdir platforms
 copy %QT_DIR%\plugins\platforms\*.dll platforms\
-mkdir sqldrivers
-copy $QTDIR/plugins/sqldrivers/qsqlite.dll sqldrivers\
+mkdir plugins\sqldrivers
+copy %QT_DIR%\plugins\sqldrivers\qsqlite.dll plugins\sqldrivers\
 
 rem
 rem compress
