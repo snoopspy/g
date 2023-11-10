@@ -115,7 +115,7 @@ void GPropWidget::actionOpenTriggered(bool) {
 	bool res = stateObj->open();
 	if (!res) {
 		QString msg = stateObj->err->msg();
-		QMessageBox::warning(nullptr, "Error", msg);
+		QMessageBox::warning(this, "Error", msg);
 	}
 	setControl();
 }

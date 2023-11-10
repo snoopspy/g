@@ -173,7 +173,7 @@ void GGScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 							QString msg = QString("Can not connect %1:%2 > %3:%4").arg(
 								startText->node_->objectName(), signal,
 								endText->node_->objectName(), slot);
-							QMessageBox::warning(nullptr, "Error", msg);
+							QMessageBox::warning(signalSlotForm_, "Error", msg);
 							return;
 						}
 						GGraph::Connection* connection = new GGraph::Connection;

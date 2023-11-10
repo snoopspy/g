@@ -444,7 +444,7 @@ void GGraphWidget::actionStartTriggered(bool) {
 	bool res = graph_->open();
 	if (!res) {
 		QString msg = graph_->err->msg();
-		QMessageBox::warning(nullptr, "Error", msg);
+		QMessageBox::warning(this, "Error", msg);
 	}
 	setControl();
 }
@@ -502,7 +502,7 @@ void GGraphWidget::actionDeleteTriggered(bool) {
 }
 
 void GGraphWidget::actionAboutTriggered(bool) {
-	QMessageBox::information(nullptr, "About", QString("SnoopSpy ") + G::version());
+	QMessageBox::information(this, "About", QString("SnoopSpy ") + G::version());
 }
 
 void GGraphWidget::factoryWidgetClicked(const QModelIndex&) {

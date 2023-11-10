@@ -56,7 +56,7 @@ public:
 protected:
 	GGraph* graph_{nullptr};
 	QString fileName_;
-	QFileDialog fileDialog_;
+	QFileDialog fileDialog_{this};
 
 public:
 	bool toLowerFirstCharacter_{true};

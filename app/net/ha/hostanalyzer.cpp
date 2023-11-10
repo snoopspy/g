@@ -69,9 +69,8 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GGraph(parent) {
 
 	hostDb_.hostMgr_ = &hostMgr_;
 	if (!hostDb_.open()) {
-		QMessageBox mb;
 		QString msg = hostDb_.err->msg();
-		mb.critical(nullptr, "Error", msg);
+		QMessageBox::critical(nullptr, "Error", msg);
 	}
 
 	QObject::connect(&updateHostsTimer_, &QTimer::timeout, this, &HostAnalyzer::updateHosts);
