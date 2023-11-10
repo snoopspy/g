@@ -70,6 +70,8 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 
 	hostAnalyzer_.treeWidget_ = treeWidget_;
 
+	QObject::connect(&hostAnalyzer_, &GStateObj::closed, tbStop_, &QToolButton::click);
+
 	setControl();
 }
 
