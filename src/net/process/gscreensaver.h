@@ -53,6 +53,7 @@ struct G_EXPORT GScreenSaver : GStateObj {
 	Q_PROPERTY(int red MEMBER red_)
 	Q_PROPERTY(int green MEMBER green_)
 	Q_PROPERTY(int blue MEMBER blue_)
+	Q_PROPERTY(int fontSize MEMBER fontSize_)
 
 	Q_ENUMS(ShowStyle)
 
@@ -70,6 +71,7 @@ public:
 	int red_{128};
 	int green_{128};
 	int blue_{128};
+	int fontSize_{0};
 
 public:
 	Q_INVOKABLE GScreenSaver(QObject* parent = nullptr) : GStateObj(parent) {}

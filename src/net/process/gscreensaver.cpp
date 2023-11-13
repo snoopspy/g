@@ -19,6 +19,12 @@ ScreenSaverWidget::ScreenSaverWidget(GScreenSaver* screenSaver) : QWidget(nullpt
 	palette.setColor(label_->foregroundRole(), QColor(screenSaver_->red_, screenSaver_->green_, screenSaver_->blue_));
 	label_->setPalette(palette);
 
+	if (screenSaver_->fontSize_ != 0) {
+		QFont font = label_->font();
+		font.setPointSize(screenSaver_->fontSize_);
+		label_->setFont(font);
+	}
+
 	updateCurrentTime();
 
 	QObject::connect(timer_, &QTimer::timeout, this, &ScreenSaverWidget::updateCurrentTime);
