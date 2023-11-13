@@ -105,6 +105,15 @@ bool HostAnalyzer::doClose() {
 
 	updateHostsTimer_.stop();
 	updateElapsedTimer_.stop();
+
+	int count = treeWidget_->topLevelItemCount();
+	for (int i = 0; i < count; i++) {
+		GTreeWidgetItem* treeWidgetItem = PTreeWidgetItem(treeWidget_->topLevelItem(i));
+		QToolButton* toolButton = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(treeWidgetItem, ColumnAttack));
+		Q_ASSERT(toolButton != nullptr);
+		toolButton->setEnabled(false);
+	}
+
 	return res;
 }
 
