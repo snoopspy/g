@@ -203,6 +203,7 @@ void GPluginFactory::loadManage() {
 #include <GDnsProcessor>
 #include <GPacketDebug>
 #include <GPacketMgrDebug>
+#include <GScreenKeeper>
 
 void GPluginFactory::loadProcess() {
 #ifndef Q_OS_WIN
@@ -215,6 +216,7 @@ void GPluginFactory::loadProcess() {
 	qRegisterMetaType<GDnsProcessor*>();
 	qRegisterMetaType<GPacketDebug*>();
 	qRegisterMetaType<GPacketMgrDebug*>();
+	qRegisterMetaType<GScreenKeeper*>();
 
 	ItemCategory* category = new ItemCategory("process");
 	category->items_.push_back(new ItemNode("GBeaconFlood"));
@@ -224,7 +226,7 @@ void GPluginFactory::loadProcess() {
 	category->items_.push_back(new ItemNode("GCorrectChecksum"));
 	category->items_.push_back(new ItemNode("GDnsProcessor"));
 	category->items_.push_back(new ItemNode("GPacketDebug"));
-	category->items_.push_back(new ItemNode("GPacketMgrDebug"));
+	category->items_.push_back(new ItemNode("GScreenKeeper"));
 
 	items_.push_back(category);
 }

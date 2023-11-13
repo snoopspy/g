@@ -11,29 +11,21 @@
 #pragma once
 
 #include "base/gstateobj.h"
-#include "net/packet/gpacket.h"
 
 // ----------------------------------------------------------------------------
-// GPacketDebug
+// GScreenKeeper
 // ----------------------------------------------------------------------------
-struct G_EXPORT GPacketDebug : GStateObj {
+struct G_EXPORT GScreenKeeper : GStateObj {
 	Q_OBJECT
-	Q_PROPERTY(bool enabled MEMBER enabled_)
 
 public:
-	bool enabled_{true};
-
-public:
-	Q_INVOKABLE GPacketDebug(QObject* parent = nullptr) : GStateObj(parent) {}
-	~GPacketDebug() override { close(); }
+	Q_INVOKABLE GScreenKeeper(QObject* parent = nullptr) : GStateObj(parent) {}
+	~GScreenKeeper() override { close(); }
 
 protected:
-	bool doOpen() override { return true; }
-	bool doClose() override { return true; }
+	bool doOpen() override;
+	bool doClose() override;
 
-public slots:
-	void debug(GPacket* packet);
-
-signals:
-	void debugged(GPacket* packet);
+protected:
+	bool keepScreen(bool on);
 };

@@ -128,6 +128,7 @@ SOURCES += \
 	$${PWD}/../src/net/process/gdnsprocessor.cpp \
 	$${PWD}/../src/net/process/gpacketdebug.cpp \
 	$${PWD}/../src/net/process/gpacketmgrdebug.cpp \
+	$${PWD}/../src/net/process/gscreenkeeper.cpp \
 	$${PWD}/../src/net/write/gpcapdevicewrite.cpp \
 	$${PWD}/../src/net/write/gpcapfilewrite.cpp \
 	$${PWD}/../src/net/write/gpcapwrite.cpp \
@@ -269,6 +270,7 @@ HEADERS += \
 	$${PWD}/../src/net/process/gdnsprocessor.h \
 	$${PWD}/../src/net/process/gpacketdebug.h \
 	$${PWD}/../src/net/process/gpacketmgrdebug.h \
+	$${PWD}/../src/net/process/gscreenkeeper.h \
 	$${PWD}/../src/net/write/gpcapdevicewrite.h \
 	$${PWD}/../src/net/write/gpcapfilewrite.h \
 	$${PWD}/../src/net/write/gpcapwrite.h \
