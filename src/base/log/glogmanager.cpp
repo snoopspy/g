@@ -66,7 +66,7 @@ void GLogManager::myMessageOutput(QtMsgType type, const QMessageLogContext &cont
 		case QtFatalMsg: typeStr = "F"; break;
 		case QtInfoMsg: typeStr = "I"; break;
 	}
-	QString threadStr = QString::number(qt_gettid(), 16).toUpper();
+	QString threadStr = QString::number(qt_gettid(), 16).rightJustified(4, '0').toUpper();
 	QString fileStr = context.file;
 	int i = fileStr.lastIndexOf(QDir::separator());
 	if (i != -1) fileStr = fileStr.mid(i + 1);
