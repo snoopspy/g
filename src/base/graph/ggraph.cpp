@@ -107,13 +107,18 @@ bool GGraph::doOpen() {
 }
 
 bool GGraph::doClose() {
+	if (closeGraphOnNodeClosed_) {
+		for (GObj* obj: nodes_) {
+			GStateObj* stateObj = dynamic_cast<GStateObj*>(obj);
+			if (stateObj != nullptr)
+					QObject::disconnect(stateObj, &GStateObj::closed, this, &GGraph::stop);
+		}
+	}
+
 	for (GObj* obj: nodes_) {
 		GStateObj* stateObj = dynamic_cast<GStateObj*>(obj);
-		if (stateObj != nullptr) {
-			if (closeGraphOnNodeClosed_)
-				QObject::disconnect(stateObj, &GStateObj::closed, this, &GGraph::stop);
+		if (stateObj != nullptr)
 			stateObj->close();
-		}
 	}
 	return true;
 }
