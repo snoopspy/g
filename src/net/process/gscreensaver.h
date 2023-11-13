@@ -50,6 +50,10 @@ struct G_EXPORT GScreenSaver : GStateObj {
 	Q_PROPERTY(QString format MEMBER format_)
 	Q_PROPERTY(int updateInterval MEMBER updateInterval_)
 	Q_PROPERTY(ShowStyle showStyle MEMBER showStyle_)
+	Q_PROPERTY(int red MEMBER red_)
+	Q_PROPERTY(int green MEMBER green_)
+	Q_PROPERTY(int blue MEMBER blue_)
+
 	Q_ENUMS(ShowStyle)
 
 public:
@@ -60,9 +64,12 @@ public:
 	};
 
 public:
-	QString format_{"h:mm AP"};
+	QString format_{"MM dd h:mm AP"};
 	int updateInterval_{10000}; // 10 sec
 	ShowStyle showStyle_{ShowFullScreen};
+	int red_{128};
+	int green_{128};
+	int blue_{128};
 
 public:
 	Q_INVOKABLE GScreenSaver(QObject* parent = nullptr) : GStateObj(parent) {}

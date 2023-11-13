@@ -6,12 +6,18 @@
 // ScreenSaverWidget
 // ----------------------------------------------------------------------------
 ScreenSaverWidget::ScreenSaverWidget(GScreenSaver* screenSaver) : QWidget(nullptr), screenSaver_(screenSaver) {
+	Q_ASSERT(screenSaver_ != nullptr);
+
 	QPalette palette(QPalette::Window, Qt::black);
 	setAutoFillBackground(true);
 	setPalette(palette);
 
 	label_ = new QLabel(this);
 	timer_ = new QTimer(this);
+
+	palette = label_->palette();
+	palette.setColor(label_->foregroundRole(), QColor(screenSaver_->red_, screenSaver_->green_, screenSaver_->blue_));
+	label_->setPalette(palette);
 
 	updateCurrentTime();
 
