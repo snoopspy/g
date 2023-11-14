@@ -65,13 +65,13 @@ public:
 	};
 
 public:
-	QString format_{"MM dd h:mm AP"};
+	QString format_{"h:mm AP"};
 	int updateInterval_{10000}; // 10 sec
 	ShowStyle showStyle_{ShowFullScreen};
-	int red_{128};
-	int green_{128};
-	int blue_{128};
-	int fontSize_{0};
+	int red_{80};
+	int green_{80};
+	int blue_{80};
+	int fontSize_{40};
 
 public:
 	Q_INVOKABLE GScreenSaver(QObject* parent = nullptr) : GStateObj(parent) {}

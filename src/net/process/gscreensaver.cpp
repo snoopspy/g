@@ -60,7 +60,6 @@ void ScreenSaverWidget::updateCurrentTime() {
 
 	QRect widgetRect = rect();
 	QRect labelRect = label_->rect();
-	qDebug() << widgetRect << labelRect;
 	int left = std::rand() % (widgetRect.width() - labelRect.width());
 	int top = std::rand() % (widgetRect.height() - labelRect.height());
 	label_->setGeometry(QRect(left, top, labelRect.width(), labelRect.height()));
