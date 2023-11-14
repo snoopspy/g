@@ -16,9 +16,9 @@
 #include <GHostMgr>
 
 // ----------------------------------------------------------------------------
-// HostDb
+// GHostDb
 // ----------------------------------------------------------------------------
-struct G_EXPORT HostDb : GStateObj, GHostMgr::Managable, QRecursiveMutex {
+struct G_EXPORT GHostDb : GStateObj, GHostMgr::Managable, QRecursiveMutex {
 	Q_OBJECT
 	Q_PROPERTY(QString fileName MEMBER fileName_)
 	Q_PROPERTY(GObjPtr hostMgr READ getHostMgr WRITE setHostMgr)
@@ -31,8 +31,8 @@ public:
 	GHostMgr* hostMgr_{nullptr};
 
 public:
-	Q_INVOKABLE HostDb(QObject* parent = nullptr);
-	~HostDb() override;
+	Q_INVOKABLE GHostDb(QObject* parent = nullptr);
+	~GHostDb() override;
 
 protected:
 	bool doOpen() override;

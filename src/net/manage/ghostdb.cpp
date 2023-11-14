@@ -1,16 +1,16 @@
-#include "hostdb.h"
+#include "ghostdb.h"
 
 // ----------------------------------------------------------------------------
-// HostDb
+// GHostDb
 // ----------------------------------------------------------------------------
-HostDb::HostDb(QObject* parent) : GStateObj(parent) {
+GHostDb::GHostDb(QObject* parent) : GStateObj(parent) {
 }
 
-HostDb::~HostDb() {
+GHostDb::~GHostDb() {
 	close();
 }
 
-bool HostDb::doOpen() {
+bool GHostDb::doOpen() {
 	if (hostMgr_ == nullptr) {
 		SET_ERR(GErr::ObjectIsNull, "hostMgr is null");
 		return false;
@@ -84,7 +84,7 @@ bool HostDb::doOpen() {
 	return true;
 }
 
-bool HostDb::doClose() {
+bool GHostDb::doClose() {
 	QMutexLocker(this);
 	db_.close();
 
@@ -108,19 +108,19 @@ bool HostDb::doClose() {
 	return true;
 }
 
-void HostDb::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
+void GHostDb::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	insertOrUpdateDevice(mac, hostValue);
 }
 
-void HostDb::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
+void GHostDb::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	insertLog(mac, hostValue->ip_, hostValue->firstTs_.tv_sec, hostValue->lastTs_.tv_sec);
 }
 
-void HostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
+void GHostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	insertOrUpdateDevice(mac, hostValue);
 }
 
-bool HostDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
+bool GHostDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	QMutexLocker(this);
 
 	selectHostQuery_->bindValue(":mac", quint64(mac));
@@ -139,7 +139,7 @@ bool HostDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	return false;
 }
 
-bool HostDb::insertHost(GMac mac, GHostMgr::HostValue* hostValue) {
+bool GHostDb::insertHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	QMutexLocker(this);
 
 	insertHostQuery_->bindValue(":mac", quint64(mac));
@@ -153,7 +153,7 @@ bool HostDb::insertHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	return res;
 }
 
-bool HostDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
+bool GHostDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	QMutexLocker(this);
 
 	updateHostQuery_->bindValue(":ip", uint32_t(hostValue->ip_));
@@ -167,7 +167,7 @@ bool HostDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	return res;
 }
 
-bool HostDb::updateAlias(GMac mac, QString alias) {
+bool GHostDb::updateAlias(GMac mac, QString alias) {
 	QMutexLocker(this);
 
 	updateAliasQuery_->bindValue(":alias", alias);
@@ -179,7 +179,7 @@ bool HostDb::updateAlias(GMac mac, QString alias) {
 	return res;
 }
 
-bool HostDb::insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue) {
+bool GHostDb::insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue) {
 	QMutexLocker(this);
 
 	GHostMgr::HostValue dbHostValue;
@@ -193,7 +193,7 @@ bool HostDb::insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue) {
 	return insertHost(mac, hostValue);
 }
 
-bool HostDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
+bool GHostDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
 	QMutexLocker(this);
 
 	insertLogQuery_->bindValue(":mac", quint64(mac));
@@ -207,7 +207,7 @@ bool HostDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
 	return res;
 }
 
-QString HostDb::getDefaultName(GMac mac, GHostMgr::HostValue* hostValue) {
+QString GHostDb::getDefaultName(GMac mac, GHostMgr::HostValue* hostValue) {
 	QMutexLocker(this);
 
 	QString res;

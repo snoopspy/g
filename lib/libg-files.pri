@@ -79,6 +79,7 @@ SOURCES += \
 	$${PWD}/../src/net/delay/gsyncdelay.cpp \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.cpp \
 	$${PWD}/../src/net/filter/gbpfilter.cpp \
+	$${PWD}/../src/net/manage/ghostdb.cpp \
 	$${PWD}/../src/net/manage/ghostmgr.cpp \
 	$${PWD}/../src/net/manage/ghostscan.cpp \
 	$${PWD}/../src/net/manage/ghostwatch.cpp \
@@ -220,6 +221,7 @@ HEADERS += \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.h \
 	$${PWD}/../src/net/filter/gbpfilter.h \
 	$${PWD}/../src/net/manage/gflowkey.h \
+	$${PWD}/../src/net/manage/ghostdb.h \
 	$${PWD}/../src/net/manage/ghostmgr.h \
 	$${PWD}/../src/net/manage/ghostscan.h \
 	$${PWD}/../src/net/manage/ghostwatch.h \

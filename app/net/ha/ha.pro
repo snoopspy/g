@@ -1,4 +1,4 @@
-QT += widgets sql
+QT += widgets
 include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
 
@@ -8,14 +8,12 @@ SOURCES += \
 	dbdialog.cpp \
 	ha.cpp \
 	hawidget.cpp \
-	hostanalyzer.cpp \
-	hostdb.cpp
+	hostanalyzer.cpp
 
 HEADERS += \
 	dbdialog.h \
 	hawidget.h \
-	hostanalyzer.h \
-	hostdb.h
+	hostanalyzer.h
 
 DISTFILES += \
 	android/AndroidManifest.xml \

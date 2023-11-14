@@ -6,9 +6,9 @@
 #include <GHostWatch>
 #include <GHostScan>
 #include <GArpBlock>
+#include <GHostDb>
 #include <GCommand>
 #include <GTreeWidget>
-#include "hostdb.h"
 
 struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_OBJECT
@@ -47,7 +47,7 @@ public:
 	GHostWatch hostWatch_{this};
 	GHostScan hostScan_{this};
 	GArpBlock arpBlock_{this};
-	HostDb hostDb_{this};
+	GHostDb hostDb_{this};
 	GCommand command_{this};
 
 public:

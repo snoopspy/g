@@ -6,10 +6,10 @@
 #include <GIp>
 #include <GJson>
 
-#include <hostdb.h>
+#include <GHostDb>
 struct HostModel : QSqlQueryModel {
-	HostDb* hostDb_;
-	explicit HostModel(QObject *parent, HostDb* hostDb) : QSqlQueryModel(parent), hostDb_(hostDb) {}
+	GHostDb* hostDb_;
+	explicit HostModel(QObject *parent, GHostDb* hostDb) : QSqlQueryModel(parent), hostDb_(hostDb) {}
 
 	Qt::ItemFlags flags(const QModelIndex &index) const override {
 		Qt::ItemFlags res = QSqlQueryModel::flags(index);
@@ -45,8 +45,8 @@ struct HostModel : QSqlQueryModel {
 };
 
 struct LogModel : QSqlQueryModel {
-	HostDb* hostDb_;
-	explicit LogModel(QObject *parent, HostDb* hostDb) : QSqlQueryModel(parent), hostDb_(hostDb) {}
+	GHostDb* hostDb_;
+	explicit LogModel(QObject *parent, GHostDb* hostDb) : QSqlQueryModel(parent), hostDb_(hostDb) {}
 
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
 		QVariant res = QSqlQueryModel::data(index, role);
@@ -244,7 +244,7 @@ void DbDialog::setPeriod() {
 void DbDialog::tbSearchHost_clicked() {
 	HaWidget* widget = dynamic_cast<HaWidget*>(parent());
 	Q_ASSERT(widget != nullptr);
-	HostDb* hostDb = &widget->hostAnalyzer_.hostDb_;
+	GHostDb* hostDb = &widget->hostAnalyzer_.hostDb_;
 
 	QMutexLocker ml(hostDb);
 	QSqlQuery query(hostDb->db_);
@@ -288,7 +288,7 @@ void DbDialog::tbSearchHost_clicked() {
 void DbDialog::tbSearchLog_clicked() {
 	HaWidget* widget = dynamic_cast<HaWidget*>(parent());
 	Q_ASSERT(widget != nullptr);
-	HostDb* hostDb = &widget->hostAnalyzer_.hostDb_;
+	GHostDb* hostDb = &widget->hostAnalyzer_.hostDb_;
 
 	QMutexLocker ml(hostDb);
 	QSqlQuery query(hostDb->db_);

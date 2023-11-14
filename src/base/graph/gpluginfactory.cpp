@@ -166,6 +166,7 @@ void GPluginFactory::loadFilter() {
 // ----------------------------------------------------------------------------
 // Manage
 // ----------------------------------------------------------------------------
+#include <GHostDb>
 #include <GHostMgr>
 #include <GHostScan>
 #include <GHostWatch>
@@ -174,6 +175,7 @@ void GPluginFactory::loadFilter() {
 #include <GUdpFlowMgr>
 
 void GPluginFactory::loadManage() {
+	qRegisterMetaType<GHostDb*>();
 	qRegisterMetaType<GHostMgr*>();
 	qRegisterMetaType<GHostScan*>();
 	qRegisterMetaType<GHostWatch*>();
@@ -182,6 +184,7 @@ void GPluginFactory::loadManage() {
 	qRegisterMetaType<GUdpFlowMgr*>();
 
 	ItemCategory* category = new ItemCategory("manage");
+	category->items_.push_back(new ItemNode("GHostDb"));
 	category->items_.push_back(new ItemNode("GHostMgr"));
 	category->items_.push_back(new ItemNode("GHostScan"));
 	category->items_.push_back(new ItemNode("GHostWatch"));
