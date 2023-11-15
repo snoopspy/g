@@ -100,6 +100,10 @@ bool GHostDb::doClose() {
 		delete updateHostQuery_ ;
 		updateHostQuery_  = nullptr;
 	}
+	if (updateAliasQuery_ != nullptr) {
+		delete updateAliasQuery_ ;
+		updateAliasQuery_  = nullptr;
+	}
 	if (insertLogQuery_ != nullptr) {
 		delete insertLogQuery_ ;
 		insertLogQuery_  = nullptr;
