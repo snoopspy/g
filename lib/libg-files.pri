@@ -116,6 +116,7 @@ SOURCES += \
 	$${PWD}/../src/net/pdu/getharppacket.cpp \
 	$${PWD}/../src/net/pdu/gethhdr.cpp \
 	$${PWD}/../src/net/pdu/gicmphdr.cpp \
+	$${PWD}/../src/net/pdu/gigmphdr.cpp \
 	$${PWD}/../src/net/pdu/gip6hdr.cpp \
 	$${PWD}/../src/net/pdu/giphdr.cpp \
 	$${PWD}/../src/net/pdu/gpdu.cpp \
@@ -260,6 +261,7 @@ HEADERS += \
 	$${PWD}/../src/net/pdu/getharppacket.h \
 	$${PWD}/../src/net/pdu/gethhdr.h \
 	$${PWD}/../src/net/pdu/gicmphdr.h \
+	$${PWD}/../src/net/pdu/gigmphdr.h \
 	$${PWD}/../src/net/pdu/gip6hdr.h \
 	$${PWD}/../src/net/pdu/giphdr.h \
 	$${PWD}/../src/net/pdu/gpdu.h \

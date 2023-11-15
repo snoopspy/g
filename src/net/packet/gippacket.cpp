@@ -17,14 +17,18 @@ void GIpPacket::parse() {
 			ipHdr_ = PIpHdr(p);
 			proto = ipHdr_->p();
 			p += ipHdr_->hlen() * 4;
+			if (buf_.size_ < ipHdr_->tlen())
+				qWarning() << QString("buf size(%1) is less than ip total len(%2)").arg(buf_.size_, ipHdr_->tlen());
 			break;
 		case 0x60: // version 6
 			ip6Hdr_= PIp6Hdr(p);
 			proto = ip6Hdr_->nh();
-			p += sizeof(GIp6Hdr); // gilgil temp 2019.05.14
+			p += sizeof(GIp6Hdr);
+			if (buf_.size_ < sizeof(GIp6Hdr) + ip6Hdr_->plen())
+				qWarning() << QString("buf size(%1) is less than ip6 payload len(%2)").arg(buf_.size_, ip6Hdr_->plen());
 			break;
 		default:
-			qWarning() << "invalid ip header version" << uint8_t(*p); // gilgil temp 2019.05.31
+			qWarning() << QString("invalid ip header version(0x%1)").arg(QString::number(*p, 16));
 			proto = 0; // unknown
 			break;
 	}
@@ -33,20 +37,20 @@ void GIpPacket::parse() {
 		switch (proto) {
 			case GIpHdr::Tcp: // Tcp
 				tcpHdr_ = PTcpHdr(p);
-				// p += tcpHdr_->off() * 4;
 				tcpData_ = GTcpHdr::parseData(ipHdr_, tcpHdr_);
 				break;
 			case GIpHdr::Udp: // Udp
 				udpHdr_ = PUdpHdr(p);
-				// p += sizeof(GUdpHdr);
 				udpData_ = GUdpHdr::parseData(udpHdr_);
 				break;
 			case GIpHdr::Icmp: // Icmp
 				icmpHdr_ = PIcmpHdr(p);
-				// p += sizeof(GIcmpHdr);
+				break;
+			case GIpHdr::Igmp:
+				igmpHdr_ = PIgmpHdr(p);
 				break;
 			default:
-				// qDebug() << "unknown protocol" << proto; // gilgil temp 2019.08.19
+				qWarning() << QString("unknown protocol(%1)").arg(proto);
 				break;
 		}
 	}

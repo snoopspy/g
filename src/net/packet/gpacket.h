@@ -21,6 +21,7 @@
 #include "net/pdu/gtcphdr.h"
 #include "net/pdu/gudphdr.h"
 #include "net/pdu/gicmphdr.h"
+#include "net/pdu/gigmphdr.h"
 
 #include "net/pdu/gradiohdr.h"
 #include "net/pdu/gdot11hdr.h"
@@ -100,6 +101,7 @@ public:
 	GTcpHdr* tcpHdr_{nullptr};
 	GUdpHdr* udpHdr_{nullptr};
 	GIcmpHdr* icmpHdr_{nullptr};
+	GIgmpHdr* igmpHdr_{nullptr};
 
 	GBuf tcpData_;
 	GBuf udpData_;
@@ -139,6 +141,7 @@ public:
 		tcpHdr_ = nullptr;
 		udpHdr_ = nullptr;
 		icmpHdr_ = nullptr;
+		igmpHdr_ = nullptr;
 		tcpData_.clear();
 		udpData_.clear();
 		radioHdr_ = nullptr;

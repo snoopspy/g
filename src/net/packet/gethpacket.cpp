@@ -13,7 +13,7 @@ void GEthPacket::parse() {
 	ethHdr_ = PEthHdr(buf_.data_);
 	switch (ethHdr_->type()) {
 		case GEthHdr::Ip4: {
-		// case GEthHdr::Ip6: // gilgil temp 2023.04.24
+		case GEthHdr::Ip6:
 			GBuf backup = buf_;
 			buf_.data_ += sizeof(GEthHdr);
 			buf_.size_ -= sizeof(GEthHdr);
