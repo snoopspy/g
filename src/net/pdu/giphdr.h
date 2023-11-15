@@ -58,9 +58,9 @@ typedef GIpHdr *PIpHdr;
 #ifdef Q_OS_ANDROID
 // Disable compile optimization for sip_ and dip_
 struct G_EXPORT GVolatileIpHdr final {
-	uint8_t v_hl_;
+	uint8_t v_hlen_;
 	uint8_t tos_;
-	uint16_t len_;
+	uint16_t tlen_;
 	uint16_t id_;
 	uint16_t off_;
 	uint8_t ttl_;
@@ -69,8 +69,8 @@ struct G_EXPORT GVolatileIpHdr final {
 	volatile uint32_t sip_;
 	volatile uint32_t dip_;
 
-	uint8_t hl() { return v_hl_ & 0x0F; }
-	uint16_t len() { return ntohs(len_); }
+	uint8_t hlen() { return v_hlen_ & 0x0F; }
+	uint16_t tlen() { return ntohs(tlen_); }
 	uint32_t sip() { return ntohl(sip_); }
 	uint32_t dip() { return ntohl(dip_); }
 };
