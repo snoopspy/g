@@ -84,7 +84,7 @@ GPacket::Result GPcapCapture::write(GBuf buf) {
 
 GPacket::Result GPcapCapture::write(GPacket* packet) {
 	GPacket::Result res;
-	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->len() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr)
+	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->tlen() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr)
 		res = writeMtuSplit(packet, mtu_, GPacket::Eth);
 	else
 		res = write(packet->buf_);

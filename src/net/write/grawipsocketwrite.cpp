@@ -86,9 +86,9 @@ GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 	GIpHdr* ipHdr = PIpHdr(buf.data_);
 	addr_in_.sin_addr.s_addr = ipHdr->dip_; // network byte order
 
-	int res = ::sendto(sd_, pchar(ipHdr), ipHdr->len(), 0, (struct sockaddr*)&addr_in_, sizeof(struct sockaddr_in));
+	int res = ::sendto(sd_, pchar(ipHdr), ipHdr->tlen(), 0, (struct sockaddr*)&addr_in_, sizeof(struct sockaddr_in));
 	if (res < 0) {
-		QString msg = QString("sendto return %1(%2) buf len=%3").arg(res).arg(strerror(errno)).arg(ipHdr->len());
+		QString msg = QString("sendto return %1(%2) buf len=%3").arg(res).arg(strerror(errno)).arg(ipHdr->tlen());
 		SET_ERR(GErr::Fail, msg);
 		return GPacket::Fail;
 	}
@@ -98,15 +98,15 @@ GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 
 GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
 	GPacket::Result res;
-	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->len() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr) {
+	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->tlen() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr) {
 		GBuf backupBuf = packet->buf_;
 		GIpHdr* ipHdr = packet->ipHdr_ ;
 		packet->buf_.data_ = pbyte(ipHdr);
-		packet->buf_.size_ = ipHdr->len();
+		packet->buf_.size_ = ipHdr->tlen();
 		res = writeMtuSplit(packet, mtu_, GPacket::Ip);
 		packet->buf_ = backupBuf;
 	} else
-		res = write(GBuf(pbyte(packet->ipHdr_), packet->ipHdr_->len()));
+		res = write(GBuf(pbyte(packet->ipHdr_), packet->ipHdr_->tlen()));
 
 	if (res == GPacket::Ok)
 		emit written(packet);

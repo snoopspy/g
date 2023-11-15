@@ -15,7 +15,7 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdrTemp, GTcpHdr* tcpHdr) {
 	GVolatileIpHdr* ipHdr = PVolatileIpHdr(ipHdrTemp);
 #endif
 	uint32_t res = 0;
-	int tcpHdrDataLen = ipHdr->len() - ipHdr->hl() * 4;
+	int tcpHdrDataLen = ipHdr->tlen() - ipHdr->hlen() * 4;
 
 	// Add tcpHdr & data buffer as array of uint16_t
 	uint16_t* p = reinterpret_cast<uint16_t*>(tcpHdr);
@@ -62,7 +62,7 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdrTemp, GTcpHdr* tcpHdr) {
 
 GBuf GTcpHdr::parseData(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
 	GBuf res;
-	res.size_ = ipHdr->len() - ipHdr->hl() * 4 - tcpHdr->off() * 4;
+	res.size_ = ipHdr->tlen() - ipHdr->hlen() * 4 - tcpHdr->off() * 4;
 	if (res.size_ > 0)
 		res.data_ = reinterpret_cast<u_char*>(tcpHdr) + tcpHdr->off() * 4;
 	else

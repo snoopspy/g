@@ -90,9 +90,9 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 #endif
 	Q_ASSERT(ipHdr != nullptr);
 	if (blockType == Rst)
-		ipHdr->len_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr));
+		ipHdr->tlen_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr));
 	else
-		ipHdr->len_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr) + msg.size());
+		ipHdr->tlen_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr) + msg.size());
 	ipHdr->tos_ = 0x44;
 	if (direction == Backward) {
 		ipHdr->ttl_ = 0x80;

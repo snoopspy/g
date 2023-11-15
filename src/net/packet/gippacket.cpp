@@ -16,7 +16,7 @@ void GIpPacket::parse() {
 		case 0x40: // version 4
 			ipHdr_ = PIpHdr(p);
 			proto = ipHdr_->p();
-			p += ipHdr_->hl() * 4;
+			p += ipHdr_->hlen() * 4;
 			break;
 		case 0x60: // version 6
 			ip6Hdr_= PIp6Hdr(p);

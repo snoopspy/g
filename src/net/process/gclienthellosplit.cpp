@@ -63,7 +63,7 @@ void GClientHelloSplit::split(GPacket* packet) {
 	if (tcpData.data_[0] != 0x16 || tcpData.data_[1] != 0x03) return;
 
 	GFlow::TcpFlowKey* tcpFlowKey = &tcpFlowMgr_->currentTcpFlowKey_;
-	qDebug() << QString("split!!! tcp size=%1 %2:%3>%4:%5")
+	qDebug() << QString("tcp size=%1 %2:%3>%4:%5")
 		.arg(packet->buf_.size_)
 		.arg(QString(tcpFlowKey->sip_)).arg(tcpFlowKey->sport_).arg(QString(tcpFlowKey->dip_)).arg(tcpFlowKey->dport_); // gilgil temp 2016.10.10
 
@@ -82,10 +82,10 @@ void GClientHelloSplit::split(GPacket* packet) {
 		// first 16 bytes
 		//
 		GBuf backup = packet->buf_;
-		uint16_t oldIpHdrLen = ipHdr->len();
-		uint16_t newIpHdrLen = ipHdr->hl() * 4 + tcpHdr->off() * 4 + uint16_t(firstDataSize);
+		uint16_t oldIpHdrLen = ipHdr->tlen();
+		uint16_t newIpHdrLen = ipHdr->hlen() * 4 + tcpHdr->off() * 4 + uint16_t(firstDataSize);
 		ssize_t ipHdrLenDiff = newIpHdrLen - oldIpHdrLen;
-		ipHdr->len_ = htons(newIpHdrLen);
+		ipHdr->tlen_ = htons(newIpHdrLen);
 		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
 		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
 		packet->buf_.size_ += ipHdrLenDiff;
@@ -98,10 +98,10 @@ void GClientHelloSplit::split(GPacket* packet) {
 		// second extra bytes
 		//
 		GBuf backup = packet->buf_;
-		uint16_t oldIpHdrLen = ipHdr->len();
-		uint16_t newIpHdrLen = ipHdr->hl() * 4 + tcpHdr->off() * 4 + uint16_t(secondDataSize);
+		uint16_t oldIpHdrLen = ipHdr->tlen();
+		uint16_t newIpHdrLen = ipHdr->hlen() * 4 + tcpHdr->off() * 4 + uint16_t(secondDataSize);
 		ssize_t ipHdrLenDiff = newIpHdrLen - oldIpHdrLen;
-		ipHdr->len_ = htons(newIpHdrLen);
+		ipHdr->tlen_ = htons(newIpHdrLen);
 		memcpy(tcpData.data_, splittedTcpDataBuf_ + firstDataSize, secondDataSize);
 		tcpHdr->seq_ = htonl(tcpHdr->seq() + 16);
 		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));

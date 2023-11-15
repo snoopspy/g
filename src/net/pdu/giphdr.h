@@ -17,9 +17,9 @@
 // ----------------------------------------------------------------------------
 #pragma pack(push, 1)
 struct G_EXPORT GIpHdr final {
-	uint8_t v_hl_;
+	uint8_t v_hlen_;
 	uint8_t tos_;
-	uint16_t len_;
+	uint16_t tlen_;
 	uint16_t id_;
 	uint16_t off_;
 	uint8_t ttl_;
@@ -28,10 +28,10 @@ struct G_EXPORT GIpHdr final {
 	GIp sip_;
 	GIp dip_;
 
-	uint8_t v() { return (v_hl_ & 0xF0) >> 4; }
-	uint8_t hl() { return v_hl_ & 0x0F; }
+	uint8_t v() { return (v_hlen_ & 0xF0) >> 4; }
+	uint8_t hlen() { return v_hlen_ & 0x0F; }
 	uint8_t tos() { return tos_; }
-	uint16_t len() { return ntohs(len_); }
+	uint16_t tlen() { return ntohs(tlen_); }
 	uint16_t id() { return ntohs(id_); }
 	uint16_t off() { return ntohs(off_); }
 	uint8_t ttl() { return ttl_; }
