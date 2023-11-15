@@ -57,6 +57,13 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tbDb_->setIconSize(tbStart_->iconSize());
 	toolButtonLayout_->addWidget(tbDb_);
 
+	tbScreenSaver_ = new QToolButton(this);
+	tbScreenSaver_->setText("ScreenSaver");
+	tbScreenSaver_->setIcon(QIcon(":/img/screensaver.png"));
+	tbScreenSaver_->setAutoRaise(true);
+	tbScreenSaver_->setIconSize(tbStart_->iconSize());
+	toolButtonLayout_->addWidget(tbScreenSaver_);
+
 	mainLayout_->addWidget(treeWidget_);
 
 	int left, top, right, bottom;
@@ -67,6 +74,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &HaWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &HaWidget::tbOption_clicked);
 	QObject::connect(tbDb_, &QToolButton::clicked, this, &HaWidget::tbDb_clicked);
+	QObject::connect(tbScreenSaver_, &QToolButton::clicked, this, &HaWidget::tbScreenSaver_clicked);
 
 	hostAnalyzer_.treeWidget_ = treeWidget_;
 
@@ -151,8 +159,18 @@ void HaWidget::tbOption_clicked(bool checked) {
 
 void HaWidget::tbDb_clicked(bool checked) {
 	(void)checked;
-	DbDialog dbDialog(this);
 
+	GHostDb* hostDb = &hostAnalyzer_.hostDb_;
+	bool dbOpened = hostDb->active();
+	if (!dbOpened) {
+		if (!hostDb->open()) {
+			QMessageBox::warning(this, "Error", hostDb->err->msg());
+			hostDb->close();
+			return;
+		}
+	}
+
+	DbDialog dbDialog(this, hostDb);
 	QJsonObject& jo = GJson::instance();
 	jo["dbDialog"] >> dbDialog;
 	dbDialog.setPeriod();
@@ -175,6 +193,17 @@ void HaWidget::tbDb_clicked(bool checked) {
 		QString defaultName = hostAnalyzer_.hostDb_.getDefaultName(mac, nullptr);
 		item->setText(1, defaultName);
 	}
+
+	if (!dbOpened)
+		hostDb->close();
+}
+
+void HaWidget::tbScreenSaver_clicked(bool checked) {
+	(void)checked;
+	GScreenSaver* screenSaver = &hostAnalyzer_.screenSaver_;
+	if (screenSaver->active())
+		screenSaver->close();
+	screenSaver->open();
 }
 
 void HaWidget::processClosed() {

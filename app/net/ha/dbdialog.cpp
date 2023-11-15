@@ -6,7 +6,6 @@
 #include <GIp>
 #include <GJson>
 
-#include <GHostDb>
 struct HostModel : QSqlQueryModel {
 	GHostDb* hostDb_;
 	explicit HostModel(QObject *parent, GHostDb* hostDb) : QSqlQueryModel(parent), hostDb_(hostDb) {}
@@ -68,8 +67,7 @@ struct LogModel : QSqlQueryModel {
 	}
 };
 
-
-DbDialog::DbDialog(QWidget* parent) : QDialog(parent) {
+DbDialog::DbDialog(QWidget* parent, GHostDb* hostDb) : QDialog(parent), hostDb_(hostDb) {
 	resize(QSize(640, 480));
 	setWindowTitle("Database");
 
@@ -240,14 +238,9 @@ void DbDialog::setPeriod() {
 	dteEnd_->setDateTime(endTime);
 }
 
-#include "hawidget.h"
 void DbDialog::tbSearchHost_clicked() {
-	HaWidget* widget = dynamic_cast<HaWidget*>(parent());
-	Q_ASSERT(widget != nullptr);
-	GHostDb* hostDb = &widget->hostAnalyzer_.hostDb_;
-
-	QMutexLocker ml(hostDb);
-	QSqlQuery query(hostDb->db_);
+	QMutexLocker ml(hostDb_);
+	QSqlQuery query(hostDb_->db_);
 	QString searchStr = leSearchHost_->text();
 	QString queryStr =
 		"SELECT"\
@@ -272,7 +265,7 @@ void DbDialog::tbSearchHost_clicked() {
 	}
 
 	if (hostModel_ == nullptr)
-		hostModel_ = new HostModel(this, hostDb);
+		hostModel_ = new HostModel(this, hostDb_);
 	hostModel_->setQuery(query);
 	hostModel_->setHeaderData(ColumnHostMac, Qt::Horizontal, "mac");
 	hostModel_->setHeaderData(ColumnHostIp, Qt::Horizontal, "ip");
@@ -286,12 +279,8 @@ void DbDialog::tbSearchHost_clicked() {
 }
 
 void DbDialog::tbSearchLog_clicked() {
-	HaWidget* widget = dynamic_cast<HaWidget*>(parent());
-	Q_ASSERT(widget != nullptr);
-	GHostDb* hostDb = &widget->hostAnalyzer_.hostDb_;
-
-	QMutexLocker ml(hostDb);
-	QSqlQuery query(hostDb->db_);
+	QMutexLocker ml(hostDb_);
+	QSqlQuery query(hostDb_->db_);
 	QString searchStr = leSearchLog_->text();
 	QString queryStr =
 		"SELECT"\
@@ -321,7 +310,7 @@ void DbDialog::tbSearchLog_clicked() {
 	}
 
 	if (logModel_ == nullptr)
-		logModel_ = new LogModel(this, hostDb);
+		logModel_ = new LogModel(this, hostDb_);
 	logModel_->setQuery(query);
 	logModel_->setHeaderData(ColumnLogName, Qt::Horizontal, "name");
 	logModel_->setHeaderData(ColumnLogIp, Qt::Horizontal, "ip");

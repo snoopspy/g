@@ -8,6 +8,8 @@
 #include <GArpBlock>
 #include <GHostDb>
 #include <GCommand>
+#include <GScreenKeeper>
+#include <GScreenSaver>
 #include <GTreeWidget>
 
 struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
@@ -19,6 +21,8 @@ struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_PROPERTY(GObjRef arpBlock READ getArpBlock)
 	Q_PROPERTY(GObjRef hostDb READ getHostDb)
 	Q_PROPERTY(GObjRef command READ getCommand)
+	Q_PROPERTY(GObjRef screenKeeper READ getScreenKeeper)
+	Q_PROPERTY(GObjRef screenSaver READ getScreenSaver)
 	Q_PROPERTY(int updateHostsTimeout MEMBER updateHostsTimrout_)
 	Q_PROPERTY(int updateElapsedTimeout MEMBER updateElapsedTimeout_)
 
@@ -30,6 +34,8 @@ public:
 	GObjRef getArpBlock() { return &arpBlock_; }
 	GObjRef getHostDb() { return &hostDb_; }
 	GObjRef getCommand() { return &command_; }
+	GObjRef getScreenKeeper() { return &screenKeeper_; }
+	GObjRef getScreenSaver() { return &screenSaver_; }
 	int updateHostsTimrout_{1000}; // 1 seconds
 	int updateElapsedTimeout_{10000}; // 10 seconds
 
@@ -49,6 +55,8 @@ public:
 	GArpBlock arpBlock_{this};
 	GHostDb hostDb_{this};
 	GCommand command_{this};
+	GScreenKeeper screenKeeper_{this};
+	GScreenSaver screenSaver_{this};
 
 public:
 	const static int ColumnIp = 0;

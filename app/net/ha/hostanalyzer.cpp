@@ -68,23 +68,19 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GGraph(parent) {
 	arpBlock_.defaultPolicy_ = GArpBlock::Allow;
 
 	hostDb_.hostMgr_ = &hostMgr_;
-	if (!hostDb_.open()) {
-		QString msg = hostDb_.err->msg();
-		QMessageBox::critical(nullptr, "Error", msg);
-	}
-
-	QObject::connect(&updateHostsTimer_, &QTimer::timeout, this, &HostAnalyzer::updateHosts);
-	QObject::connect(&updateElapsedTimer_, &QTimer::timeout, this, &HostAnalyzer::updateElapsedTime);
 
 	nodes_.append(&pcapDevice_);
 	nodes_.append(&hostMgr_);
 	nodes_.append(&hostWatch_);
 	nodes_.append(&hostScan_);
 	nodes_.append(&arpBlock_);
+	nodes_.append(&hostDb_);
+
+	QObject::connect(&updateHostsTimer_, &QTimer::timeout, this, &HostAnalyzer::updateHosts);
+	QObject::connect(&updateElapsedTimer_, &QTimer::timeout, this, &HostAnalyzer::updateElapsedTime);
 }
 
 HostAnalyzer::~HostAnalyzer() {
-	hostDb_.close();
 	close();
 }
 

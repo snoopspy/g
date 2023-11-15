@@ -23,10 +23,16 @@ int main(int argc, char *argv[])
 	if (!command->open()) {
 		QMessageBox::warning(&hw, "Error", command->err->msg());
 	}
+	GScreenKeeper* screenKeeper = &hw.hostAnalyzer_.screenKeeper_;
+	if (!screenKeeper->open()) {
+		QMessageBox::warning(&hw, "Error", screenKeeper->err->msg());
+	}
+
 
 	int res = a.exec();
 
 	command->close();
+	screenKeeper->close();
 
 	jo["hw"] << hw;
 

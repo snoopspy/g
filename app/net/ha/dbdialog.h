@@ -10,6 +10,8 @@
 #include <QTabWidget>
 #include <QToolButton>
 #include <QVBoxLayout>
+
+#include <GHostDb>
 #include <GTableView>
 #include <GProp>
 
@@ -18,8 +20,11 @@ struct LogModel;
 struct DbDialog : QDialog, GProp {
 	Q_OBJECT
 public:
-	explicit DbDialog(QWidget* parent = nullptr);
+	explicit DbDialog(QWidget* parent, GHostDb* hostDb);
 	~DbDialog();
+
+protected:
+	GHostDb* hostDb_;
 
 public:
 	QVBoxLayout* mainLayout_{nullptr};
