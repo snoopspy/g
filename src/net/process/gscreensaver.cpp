@@ -45,6 +45,13 @@ void ScreenSaverWidget::closeEvent(QCloseEvent *event) {
 	qDebug() << "end"; // gilgil temp 2023.11.14
 }
 
+void ScreenSaverWidget::keyPressEvent(QKeyEvent *event) {
+	qDebug() << "beg"; // gilgil temp 2023.11.14
+	QWidget::keyPressEvent(event);
+	close();
+	qDebug() << "end"; // gilgil temp 2023.11.14
+}
+
 void ScreenSaverWidget::mousePressEvent(QMouseEvent *event)  {
 	qDebug() << "beg"; // gilgil temp 2023.11.14
 	QWidget::mousePressEvent(event);
