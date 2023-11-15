@@ -105,6 +105,7 @@ void HaWidget::setControl() {
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
+	tbScreenSaver_->setEnabled(active);
 }
 
 void HaWidget::tbStart_clicked(bool checked) {
