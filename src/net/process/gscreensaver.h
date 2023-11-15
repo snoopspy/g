@@ -88,5 +88,9 @@ protected:
 struct G_EXPORT GScreenSaver : GStateObj {
 	Q_INVOKABLE GScreenSaver(QObject* parent = nullptr) : GStateObj(parent) {}
 	~GScreenSaver() override { close(); }
-}
+
+protected:
+	bool doOpen();
+	bool doClose();
+};
 #endif // QT_GUI_LIB
