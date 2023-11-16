@@ -28,7 +28,8 @@ struct ScreenSaverWidget : QWidget {
 public:
 	GScreenSaver* screenSaver_;
 	QLabel* label_{nullptr};
-	QTimer* timer_{nullptr};
+	QTimer* updateTimer_{nullptr};
+	QTimer* setLabelVisibleTimer_{nullptr};
 	QRect lastRect_{};
 
 public:
@@ -43,6 +44,7 @@ protected:
 
 public slots:
 	void updateCurrentTime();
+	void setLabelVisible();
 };
 
 // ----------------------------------------------------------------------------

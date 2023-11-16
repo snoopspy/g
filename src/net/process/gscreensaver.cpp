@@ -13,7 +13,9 @@ ScreenSaverWidget::ScreenSaverWidget(GScreenSaver* screenSaver) : QWidget(nullpt
 	setPalette(palette);
 
 	label_ = new QLabel(this);
-	timer_ = new QTimer(this);
+	label_->setVisible(false);
+	updateTimer_ = new QTimer(this);
+	setLabelVisibleTimer_ = new QTimer(this);
 
 	palette = label_->palette();
 	palette.setColor(label_->foregroundRole(), QColor(screenSaver_->red_, screenSaver_->green_, screenSaver_->blue_));
@@ -25,8 +27,10 @@ ScreenSaverWidget::ScreenSaverWidget(GScreenSaver* screenSaver) : QWidget(nullpt
 		label_->setFont(font);
 	}
 
-	QObject::connect(timer_, &QTimer::timeout, this, &ScreenSaverWidget::updateCurrentTime);
-	timer_->start(screenSaver_->updateInterval_);
+	QObject::connect(updateTimer_, &QTimer::timeout, this, &ScreenSaverWidget::updateCurrentTime);
+	QObject::connect(setLabelVisibleTimer_, &QTimer::timeout, this, &ScreenSaverWidget::setLabelVisible);
+	updateTimer_->start(screenSaver_->updateInterval_);
+	setLabelVisibleTimer_->start(1000);
 }
 
 ScreenSaverWidget::~ScreenSaverWidget() {
@@ -48,7 +52,7 @@ void ScreenSaverWidget::paintEvent(QPaintEvent *event) {
 }
 
 void ScreenSaverWidget::closeEvent(QCloseEvent *event) {
-	timer_->stop();
+	updateTimer_->stop();
 	QWidget::closeEvent(event);
 }
 
@@ -68,6 +72,11 @@ void ScreenSaverWidget::updateCurrentTime() {
 	int left = std::rand() % (widgetRect.width() - labelRect.width());
 	int top = std::rand() % (widgetRect.height() - labelRect.height());
 	label_->setGeometry(QRect(left, top, labelRect.width(), labelRect.height()));
+}
+
+void ScreenSaverWidget::setLabelVisible() {
+	label_->setVisible(true);
+	setLabelVisibleTimer_->stop();
 }
 
 // ----------------------------------------------------------------------------
