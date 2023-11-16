@@ -29,15 +29,17 @@ public:
 	GScreenSaver* screenSaver_;
 	QLabel* label_{nullptr};
 	QTimer* timer_{nullptr};
+	QRect lastRect_{};
 
 public:
 	explicit ScreenSaverWidget(GScreenSaver* screenSaver);
 	~ScreenSaverWidget() override;
 
 protected:
+	void mousePressEvent(QMouseEvent *event) override;
+	void paintEvent(QPaintEvent *event) override;
 	void closeEvent(QCloseEvent *event) override;
 	void keyPressEvent(QKeyEvent *event) override;
-	void mousePressEvent(QMouseEvent *event) override;
 
 public slots:
 	void updateCurrentTime();

@@ -25,38 +25,36 @@ ScreenSaverWidget::ScreenSaverWidget(GScreenSaver* screenSaver) : QWidget(nullpt
 		label_->setFont(font);
 	}
 
-	updateCurrentTime();
-
 	QObject::connect(timer_, &QTimer::timeout, this, &ScreenSaverWidget::updateCurrentTime);
 	timer_->start(screenSaver_->updateInterval_);
 }
 
 ScreenSaverWidget::~ScreenSaverWidget() {
-	qDebug() << "bef"; // gilgil temp 2023.11.14
 	if (screenSaver_->active())
 		screenSaver_->close();
-	qDebug() << "end"; // gilgil temp 2023.11.14
-}
-
-void ScreenSaverWidget::closeEvent(QCloseEvent *event) {
-	qDebug() << "beg"; // gilgil temp 2023.11.14
-	QWidget::closeEvent(event);
-	timer_->stop();
-	qDebug() << "end"; // gilgil temp 2023.11.14
-}
-
-void ScreenSaverWidget::keyPressEvent(QKeyEvent *event) {
-	qDebug() << "beg"; // gilgil temp 2023.11.14
-	QWidget::keyPressEvent(event);
-	close();
-	qDebug() << "end"; // gilgil temp 2023.11.14
 }
 
 void ScreenSaverWidget::mousePressEvent(QMouseEvent *event)  {
-	qDebug() << "beg"; // gilgil temp 2023.11.14
 	QWidget::mousePressEvent(event);
 	close();
-	qDebug() << "end"; // gilgil temp 2023.11.14
+}
+
+void ScreenSaverWidget::paintEvent(QPaintEvent *event) {
+	QWidget::paintEvent(event);
+	if (rect() != lastRect_) {
+		lastRect_ = rect();
+		updateCurrentTime();
+	}
+}
+
+void ScreenSaverWidget::closeEvent(QCloseEvent *event) {
+	timer_->stop();
+	QWidget::closeEvent(event);
+}
+
+void ScreenSaverWidget::keyPressEvent(QKeyEvent *event) {
+	QWidget::keyPressEvent(event);
+	close();
 }
 
 void ScreenSaverWidget::updateCurrentTime() {
@@ -76,7 +74,6 @@ void ScreenSaverWidget::updateCurrentTime() {
 // GScreenSaver
 // ----------------------------------------------------------------------------
 bool GScreenSaver::doOpen() {
-	qDebug() << ""; // gilgil temp 2023.11.13
 	if (screenSaverWidget_ == nullptr) {
 		screenSaverWidget_ = new ScreenSaverWidget(this);
 	}
@@ -91,13 +88,11 @@ bool GScreenSaver::doOpen() {
 }
 
 bool GScreenSaver::doClose() {
-	qDebug() << "beg"; // gilgil temp 2023.11.13
 	if (screenSaverWidget_ != nullptr) {
 		delete screenSaverWidget_;
 		screenSaverWidget_ = nullptr;
 	}
 
-	qDebug() << "end"; // gilgil temp 2023.11.13
 	return true;
 }
 
