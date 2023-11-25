@@ -59,7 +59,6 @@ QString GFind::makeFullPacket(GPacket* packet) {
 }
 
 void GFind::find(GPacket* packet) {
-	(void)packet;
 	QString segment;
 	QString fullPacket;
 	QString* subject = nullptr;
@@ -74,7 +73,7 @@ void GFind::find(GPacket* packet) {
 					continue;
 				subject = &segment;
 				break;
-			case GFindItem::FullPacket: break;
+			case GFindItem::FullPacket:
 				if (fullPacket.isEmpty())
 					fullPacket = makeFullPacket(packet);
 				Q_ASSERT(!fullPacket.isEmpty());
