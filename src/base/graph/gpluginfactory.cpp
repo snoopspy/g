@@ -41,7 +41,7 @@ void GPluginFactory::loadBlock() {
 	qRegisterMetaType<GDot11Block*>();
 	qRegisterMetaType<GTcpBlock*>();
 
-	ItemCategory* category = new ItemCategory("block");
+	ItemCategory* category = new ItemCategory("Block");
 	category->items_.push_back(new ItemNode("GArpBlock"));
 	category->items_.push_back(new ItemNode("GBlock"));
 	category->items_.push_back(new ItemNode("GDot11Block"));
@@ -88,7 +88,7 @@ void GPluginFactory::loadCapture() {
 	qRegisterMetaType<GWinDivert*>();
 #endif
 
-	ItemCategory* category = new ItemCategory("capture");
+	ItemCategory* category = new ItemCategory("Capture");
 	category->items_.push_back(new ItemNode("GArpSpoof"));
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	category->items_.push_back(new ItemNode("GAsyncNetFilter"));
@@ -121,7 +121,7 @@ void GPluginFactory::loadConvert() {
 	qRegisterMetaType<GConvertEthAutoMac*>();
 	qRegisterMetaType<GConvertIp*>();
 
-	ItemCategory* category = new ItemCategory("convert");
+	ItemCategory* category = new ItemCategory("Convert");
 	category->items_.push_back(new ItemNode("GConvertEth"));
 	category->items_.push_back(new ItemNode("GConvertEthAutoMac"));
 	category->items_.push_back(new ItemNode("GConvertIp"));
@@ -141,7 +141,7 @@ void GPluginFactory::loadDelay() {
 	qRegisterMetaType<GSyncDelay*>();
 	qRegisterMetaType<GTimeStampSyncDelay*>();
 
-	ItemCategory* category = new ItemCategory("delay");
+	ItemCategory* category = new ItemCategory("Delay");
 	category->items_.push_back(new ItemNode("GDelay"));
 	category->items_.push_back(new ItemNode("GSyncDelay"));
 	category->items_.push_back(new ItemNode("GTimeStampSyncDelay"));
@@ -157,7 +157,7 @@ void GPluginFactory::loadDelay() {
 void GPluginFactory::loadFilter() {
 	qRegisterMetaType<GBpFilter*>();
 
-	ItemCategory* category = new ItemCategory("filter");
+	ItemCategory* category = new ItemCategory("Filter");
 	category->items_.push_back(new ItemNode("GBpFilter"));
 
 	items_.push_back(category);
@@ -183,7 +183,7 @@ void GPluginFactory::loadManage() {
 	qRegisterMetaType<GTcpFlowMgr*>();
 	qRegisterMetaType<GUdpFlowMgr*>();
 
-	ItemCategory* category = new ItemCategory("manage");
+	ItemCategory* category = new ItemCategory("Manage");
 	category->items_.push_back(new ItemNode("GHostDb"));
 	category->items_.push_back(new ItemNode("GHostMgr"));
 	category->items_.push_back(new ItemNode("GHostScan"));
@@ -223,7 +223,7 @@ void GPluginFactory::loadProcess() {
 	qRegisterMetaType<GScreenKeeper*>();
 	qRegisterMetaType<GScreenSaver*>();
 
-	ItemCategory* category = new ItemCategory("process");
+	ItemCategory* category = new ItemCategory("Process");
 	category->items_.push_back(new ItemNode("GBeaconFlood"));
 	category->items_.push_back(new ItemNode("GChannelHop"));
 	category->items_.push_back(new ItemNode("GClientHelloSplit"));
@@ -255,7 +255,7 @@ void GPluginFactory::loadWrite() {
 	qRegisterMetaType<GPcapFileWrite*>();
 	qRegisterMetaType<GRawIpSocketWrite*>();
 
-	ItemCategory* category = new ItemCategory("write");
+	ItemCategory* category = new ItemCategory("Write");
 #ifdef Q_OS_LINUX
 	category->items_.push_back(new ItemNode("GMonitorDeviceWrite"));
 #endif
