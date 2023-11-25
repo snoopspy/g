@@ -20,6 +20,7 @@ void GPluginFactory::loadDefault() {
 	loadBlock();
 	loadCapture();
 	loadConvert();
+	loadChange();
 	loadDelay();
 	loadFilter();
 	loadManage();
@@ -105,6 +106,23 @@ void GPluginFactory::loadCapture() {
 #ifdef Q_OS_WIN
 	category->items_.push_back(new ItemNode("GWinDivert"));
 #endif
+
+	items_.push_back(category);
+}
+
+// ----------------------------------------------------------------------------
+// Change
+// ----------------------------------------------------------------------------
+#include <GFind>
+#include <GReplace>
+
+void GPluginFactory::loadChange() {
+	qRegisterMetaType<GFind*>();
+	qRegisterMetaType<GReplace*>();
+
+	ItemCategory* category = new ItemCategory("Change");
+	category->items_.push_back(new ItemNode("GFind"));
+	category->items_.push_back(new ItemNode("GReplace"));
 
 	items_.push_back(category);
 }

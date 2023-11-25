@@ -27,6 +27,7 @@ public:
 protected:
 	void loadBlock();
 	void loadCapture();
+	void loadChange();
 	void loadConvert();
 	void loadDelay();
 	void loadFilter();
