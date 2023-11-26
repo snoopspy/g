@@ -46,16 +46,16 @@ bool GFind::doClose() {
 QString GFind::makeSegment(GPacket* packet) {
 	QString res;
 	if (packet->tcpData_.valid()) {
-		res = QByteArray(pchar(packet->tcpData_.data_), packet->tcpData_.size_);
+		res = QString::fromLatin1(pchar(packet->tcpData_.data_), packet->tcpData_.size_);
 	} else
 	if (packet->udpData_.valid()) {
-		res = QByteArray(pchar(packet->udpData_.data_), packet->udpData_.size_);
+		res = QString::fromLatin1(pchar(packet->udpData_.data_), packet->udpData_.size_);
 	}
 	return res;
 }
 
 QString GFind::makeFullPacket(GPacket* packet) {
-	return QByteArray(pchar(packet->buf_.data_), packet->buf_.size_);
+	return QString::fromLatin1(pchar(packet->buf_.data_), packet->buf_.size_);
 }
 
 void GFind::find(GPacket* packet) {
