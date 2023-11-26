@@ -64,7 +64,7 @@ struct GDemon {
 
 	static const uint16_t DefaultPort = 8908;
 	static const uint16_t NexmonPort = 8909;
-	static const int MaxBufSize = 32768;
+	static const int MaxBufSize = 65536;
 
 	static bool recvAll(int sd, pvoid buffer, int32_t size);
 
