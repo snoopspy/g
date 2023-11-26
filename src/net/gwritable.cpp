@@ -4,7 +4,7 @@
 // ----------------------------------------------------------------------------
 // GWritable
 // ----------------------------------------------------------------------------
-GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu, GPacket::Dlt dlt, GDuration msleepTime) {
+GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu, GPacket::Dlt dlt, GDuration usleepTime) {
 	size_t ethernetSize = 0; // for remove warning
 	GPacket* sendPacket = nullptr; // for remove warning
 
@@ -74,7 +74,7 @@ GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu, GPacket::D
 		tcpDataSize -= onceTcpDataSize;
 		memcpy(tcpDataData, tcpDataData + onceTcpDataSize, tcpDataSize); // next data
 		if (tcpDataSize > 0)
-			QThread::msleep(msleepTime);
+			QThread::usleep(usleepTime);
 	}
 
 	return result;

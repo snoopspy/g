@@ -20,7 +20,7 @@
 struct GWritable {
 	virtual GPacket::Result write(GBuf buf) = 0;
 	virtual GPacket::Result write(GPacket* packet) = 0;
-	GPacket::Result writeMtuSplit(GPacket* packet, size_t mtu, GPacket::Dlt dlt, GDuration msleepTime = 1);
+	GPacket::Result writeMtuSplit(GPacket* packet, size_t mtu, GPacket::Dlt dlt, GDuration usleepTime = 100);
 
 	QByteArray sendByteArray_;
 	GEthPacket sendEthPacket_;
