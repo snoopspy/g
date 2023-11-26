@@ -71,8 +71,6 @@ void GFind::find(GPacket* packet) {
 			case GFindItem::Segment:
 				if (segment.isEmpty())
 					segment = makeSegment(packet);
-				if (segment.isEmpty())
-					continue;
 				text = &segment;
 				break;
 			case GFindItem::FullPacket:
