@@ -27,9 +27,11 @@ bool GFind::doOpen() {
 		switch (type) {
 			case GFindItem::String :
 				break;
-			case GFindItem::HexValue :
-				item->hexPattern_ = QByteArray::fromHex(item->pattern_.toUtf8());
+			case GFindItem::HexValue : {
+				QByteArray ba = QByteArray::fromHex(item->pattern_.toUtf8());
+				item->hexPattern_ = QString::fromLatin1(ba.data(), ba.size());
 				break;
+			}
 			case GFindItem::RegularExpression :
 				item->re_.setPattern(item->pattern_);
 				break;
@@ -61,7 +63,7 @@ QString GFind::makeFullPacket(GPacket* packet) {
 void GFind::find(GPacket* packet) {
 	QString segment;
 	QString fullPacket;
-	QString* subject = nullptr;
+	QString* text = nullptr;
 	for (GObj* obj: items_) {
 		GFindItem* item = PFindItem(obj);
 		GFindItem::Category category = item->category_;
@@ -71,47 +73,64 @@ void GFind::find(GPacket* packet) {
 					segment = makeSegment(packet);
 				if (segment.isEmpty())
 					continue;
-				subject = &segment;
+				text = &segment;
 				break;
 			case GFindItem::FullPacket:
 				if (fullPacket.isEmpty())
 					fullPacket = makeFullPacket(packet);
 				Q_ASSERT(!fullPacket.isEmpty());
-				subject = &fullPacket;
+				text = &fullPacket;
 				break;
 		}
-		GFindItem::Type type = item->type_;
+		Q_ASSERT(text != nullptr);
 
+		GFindItem::Type type = item->type_;
 		int index = item->offset_;
 		int count = item->count_;
 		bool _found = false;
-		while (index < subject->size()) {
-			int incOffset;
+		while (index < text->size()) {
+			int foundIndex;
+			QString captured;
 			switch (type) {
 				case GFindItem::String :
-					index = subject->indexOf(item->pattern_, index);
-					if (index != -1) incOffset = item->pattern_.size();
+					foundIndex = text->indexOf(item->pattern_, index);
+					if (foundIndex != -1) captured = item->pattern_;
 					break;
 				case GFindItem::HexValue :
-					index = subject->indexOf(item->hexPattern_, index);
-					if (index != -1) incOffset = item->hexPattern_.size();
+					foundIndex = text->indexOf(item->hexPattern_, index);
+					if (foundIndex != -1) captured = item->hexPattern_;
 					break;
 				case GFindItem::RegularExpression :
-					QRegularExpressionMatch m = item->re_.match(*subject, index);
+					QRegularExpressionMatch m = item->re_.match(*text, index);
 					if (m.hasMatch()) {
-						index = m.capturedStart(0);
-						incOffset = m.capturedLength(0);
+						foundIndex = m.capturedStart(0);
+						captured = m.captured(0);
 					} else {
-						index = -1;
+						foundIndex = -1;
 					}
 					break;
 			}
-			if (index == -1) break;
+			if (foundIndex == -1) break;
+			int endOffset = item->endOffset_;
+			if (endOffset != -1 && foundIndex >= endOffset) break;
+
 			_found = true;
 			if (log_) {
-				qInfo() << QString("found(%1 %2 0x%3)").arg(item->pattern_).arg(index).arg(QString::number(index, 16));
+				QString logCaptured = captured;
+				bool isPrintable = true;
+				for (QChar ch: logCaptured) {
+					if (!ch.isPrint()) {
+						isPrintable = false;
+						break;
+					}
+				}
+				if (!isPrintable) {
+					QByteArray ba = logCaptured.toUtf8();
+					logCaptured = "0x" + ba.toHex();
+				}
+				qInfo() << QString("found('%1' %2 0x%3)").arg(logCaptured).arg(foundIndex).arg(QString::number(foundIndex, 16));
 			}
-			index += incOffset;
+			index = foundIndex + captured.size();
 			if (count != -1) {
 				if (--count <= 0)
 					break;

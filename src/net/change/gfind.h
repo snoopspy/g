@@ -21,6 +21,7 @@
 struct GFindItem : GObj {
 	Q_OBJECT
 	Q_PROPERTY(int offset MEMBER offset_)
+	Q_PROPERTY(int endOffset MEMBER endOffset_)
 	Q_PROPERTY(int count MEMBER count_)
 	Q_PROPERTY(QString pattern MEMBER pattern_)
 	Q_PROPERTY(Type type MEMBER type_)
@@ -42,6 +43,7 @@ public:
 
 public:
 	int offset_{0};
+	int endOffset_{-1};
 	int count_{1};
 	QString pattern_;
 	Type type_{String};
