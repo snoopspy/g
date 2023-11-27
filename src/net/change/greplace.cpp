@@ -79,7 +79,7 @@ void GReplace::replace(GPacket* packet) {
 	GFind::find(packet);
 	if (replaced_) {
 		QByteArray ba = heystack_.toLatin1();
-		qDebug() << ba.size();
+		// qDebug() << ba.size(); // gilgil temp 2023.11.28
 		memcpy(packet->buf_.data_, ba.data(), ba.size());
 		packet->ctrl_.changed_ = true;
 	}
