@@ -50,8 +50,8 @@ public:
 	Category category_{Segment};
 
 public:
-	QString hexPattern_;
-	QRegularExpression re_;
+	QString findHexPattern_;
+	QRegularExpression findRe_;
 };
 typedef GFindItem *PFindItem;
 
@@ -63,11 +63,11 @@ struct G_EXPORT GFind : GStateObj {
 	Q_PROPERTY(bool log MEMBER log_)
 	Q_PROPERTY(GObjRefArrayPtr items READ getItems)
 
-	GObjRefArrayPtr getItems() { return &items_; }
+	virtual GObjRefArrayPtr getItems() { return &findItems_; }
 
 public:
 	bool log_{true};
-	GObjRefArray<GFindItem> items_;
+	GObjRefArray<GFindItem> findItems_;
 
 public:
 	Q_INVOKABLE GFind(QObject* parent = nullptr);
@@ -80,9 +80,10 @@ protected:
 protected:
 	static QString makeSegment(GPacket* packet);
 	static QString makeFullPacket(GPacket* packet);
+	virtual void processFound(int itemIndex, int foundIndex, QString& captured, QString& text);
 
 public slots:
-	void find(GPacket* packet);
+	bool find(GPacket* packet);
 
 signals:
 	void found(GPacket* packet);

@@ -30,22 +30,24 @@ public:
 public:
 	QString replacePattern_;
 	Type replaceType_{String};
+
+public:
+	QString replaceHexPattern_;
 };
 typedef GReplaceItem *PReplaceItem;
 
 // ----------------------------------------------------------------------------
 // GReplace
 // ----------------------------------------------------------------------------
-struct G_EXPORT GReplace : GStateObj {
+struct G_EXPORT GReplace : GFind {
 	Q_OBJECT
-	Q_PROPERTY(bool log MEMBER log_)
-	Q_PROPERTY(GObjRefArrayPtr items READ getItems)
+	//Q_PROPERTY(GObjRefArrayPtr items READ getItems)
 
-	GObjRefArrayPtr getItems() { return &items_; }
+	GObjRefArrayPtr getItems() override { return &replaceItems_; }
 
 public:
 	bool log_{true};
-	GObjRefArray<GReplaceItem> items_;
+	GObjRefArray<GReplaceItem> replaceItems_;
 
 public:
 	Q_INVOKABLE GReplace(QObject* parent = nullptr);
@@ -54,6 +56,9 @@ public:
 protected:
 	bool doOpen() override;
 	bool doClose() override;
+
+protected:
+	void processFound(int itemIndex, int foundIndex, QString& captured, QString& text) override;
 
 public slots:
 	void replace(GPacket* packet);
