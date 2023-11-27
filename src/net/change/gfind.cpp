@@ -4,19 +4,15 @@
 // GFind
 // ----------------------------------------------------------------------------
 GFind::GFind(QObject* parent) : GStateObj(parent) {
-	qDebug() << "";
 }
 
 GFind::~GFind() {
-	qDebug() << "";
 	close();
 }
 
 bool GFind::doOpen() {
-	qDebug() << "";
 	for (GObj* obj: findItems_) {
 		GFindItem* findItem = PFindItem(obj);
-		qDebug() << findItem->pattern_; // gilgil temp 2023.11.27
 		if (findItem->count_ == 0) {
 			SET_ERR(GErr::ValueIsZero, "count can not be zero");
 			return false;
@@ -43,89 +39,59 @@ bool GFind::doOpen() {
 }
 
 bool GFind::doClose() {
-	qDebug() << "";
 	return true;
 }
 
-QString GFind::makeSegment(GPacket* packet) {
-	QString res;
-	if (packet->tcpData_.valid()) {
-		res = QString::fromLatin1(pchar(packet->tcpData_.data_), packet->tcpData_.size_);
-	} else
-	if (packet->udpData_.valid()) {
-		res = QString::fromLatin1(pchar(packet->udpData_.data_), packet->udpData_.size_);
-	}
-	return res;
-}
-
-QString GFind::makeFullPacket(GPacket* packet) {
-	return QString::fromLatin1(pchar(packet->buf_.data_), packet->buf_.size_);
-}
-
-void GFind::processFound(int itemIndex, int foundIndex, QString& captured, QString& text) {
-	(void)itemIndex;
-	(void)text;
-
-	if (!log_) return;
-	QString logCaptured = captured;
+QString GFind::printableStr(QString s) {
 	bool isPrintable = true;
-	for (QChar ch: logCaptured) {
+	for (QChar ch: s) {
 		if (!ch.isPrint()) {
 			isPrintable = false;
 			break;
 		}
 	}
 	if (!isPrintable) {
-		QByteArray ba = logCaptured.toUtf8();
-		logCaptured = "0x" + ba.toHex();
+		QByteArray ba = s.toUtf8();
+		s = "0x" + ba.toHex();
 	}
-	qInfo() << QString("found('%1' %2 0x%3)").arg(logCaptured).arg(foundIndex).arg(QString::number(foundIndex, 16));
+	return s;
 }
 
-bool GFind::find(GPacket* packet) {
+void GFind::processFound(int itemIndex, int foundIndex, QString& foundStr) {
+	(void)itemIndex;
+
+	if (!log_) return;
+	QString logFoundStr = printableStr(foundStr);
+	qInfo() << QString("found('%1' %2 0x%3)").arg(logFoundStr).arg(foundIndex).arg(QString::number(foundIndex, 16));
+}
+
+void GFind::find(GPacket* packet) {
 	bool _found = false;
-	QString segment;
-	QString fullPacket;
-	QString* text = nullptr;
+	heystack_ = QString::fromLatin1(pchar(packet->buf_.data_), packet->buf_.size_);
 	int itemIndex = 0;
+
 	for (GObj* obj: findItems_) {
 		GFindItem* findItem = PFindItem(obj);
-		GFindItem::Category category = findItem->category_;
-		switch (category) {
-			case GFindItem::Segment:
-				if (segment.isEmpty())
-					segment = makeSegment(packet);
-				text = &segment;
-				break;
-			case GFindItem::FullPacket:
-				if (fullPacket.isEmpty())
-					fullPacket = makeFullPacket(packet);
-				Q_ASSERT(!fullPacket.isEmpty());
-				text = &fullPacket;
-				break;
-		}
-		Q_ASSERT(text != nullptr);
-
 		GFindItem::Type type = findItem->type_;
 		int index = findItem->offset_;
 		int count = findItem->count_;
-		while (index < text->size()) {
+		while (index < heystack_.size()) {
 			int foundIndex;
-			QString captured;
+			QString foundStr;
 			switch (type) {
 				case GFindItem::String :
-					foundIndex = text->indexOf(findItem->pattern_, index);
-					if (foundIndex != -1) captured = findItem->pattern_;
+					foundIndex = heystack_.indexOf(findItem->pattern_, index);
+					if (foundIndex != -1) foundStr = findItem->pattern_;
 					break;
 				case GFindItem::HexValue :
-					foundIndex = text->indexOf(findItem->findHexPattern_, index);
-					if (foundIndex != -1) captured = findItem->findHexPattern_;
+					foundIndex = heystack_.indexOf(findItem->findHexPattern_, index);
+					if (foundIndex != -1) foundStr = findItem->findHexPattern_;
 					break;
 				case GFindItem::RegularExpression :
-					QRegularExpressionMatch m = findItem->findRe_.match(*text, index);
+					QRegularExpressionMatch m = findItem->findRe_.match(heystack_, index);
 					if (m.hasMatch()) {
 						foundIndex = m.capturedStart(0);
-						captured = m.captured(0);
+						foundStr = m.captured(0);
 					} else {
 						foundIndex = -1;
 					}
@@ -136,8 +102,8 @@ bool GFind::find(GPacket* packet) {
 			if (endOffset != -1 && foundIndex >= endOffset) break;
 
 			_found = true;
-			processFound(itemIndex, foundIndex, captured, *text);
-			index = foundIndex + captured.size();
+			processFound(itemIndex, foundIndex, foundStr);
+			index = foundIndex + foundStr.size();
 			if (count != -1) {
 				if (--count <= 0)
 					break;
@@ -149,5 +115,4 @@ bool GFind::find(GPacket* packet) {
 		emit found(packet);
 	else
 		emit notFound(packet);
-	return _found;
 }

@@ -25,9 +25,7 @@ struct GFindItem : GObj {
 	Q_PROPERTY(int count MEMBER count_)
 	Q_PROPERTY(QString pattern MEMBER pattern_)
 	Q_PROPERTY(Type type MEMBER type_)
-	Q_PROPERTY(Category category MEMBER category_)
 	Q_ENUMS(Type)
-	Q_ENUMS(Category)
 
 public:
 	enum Type {
@@ -36,18 +34,12 @@ public:
 		RegularExpression
 	};
 
-	enum Category {
-		Segment,
-		FullPacket
-	};
-
 public:
 	int offset_{0};
 	int endOffset_{-1};
 	int count_{1};
 	QString pattern_;
 	Type type_{String};
-	Category category_{Segment};
 
 public:
 	QString findHexPattern_;
@@ -78,12 +70,12 @@ protected:
 	bool doClose() override;
 
 protected:
-	static QString makeSegment(GPacket* packet);
-	static QString makeFullPacket(GPacket* packet);
-	virtual void processFound(int itemIndex, int foundIndex, QString& captured, QString& text);
+	QString heystack_;
+	static QString printableStr(QString s);
+	virtual void processFound(int itemIndex, int foundIndex, QString& foundStr);
 
 public slots:
-	bool find(GPacket* packet);
+	void find(GPacket* packet);
 
 signals:
 	void found(GPacket* packet);

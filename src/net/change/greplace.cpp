@@ -4,17 +4,13 @@
 // GReplace
 // ----------------------------------------------------------------------------
 GReplace::GReplace(QObject* parent) : GFind(parent) {
-	qDebug() << "";
 }
 
 GReplace::~GReplace() {
-	qDebug() << "";
 	close();
 }
 
 bool GReplace::doOpen() {
-	qDebug() << "";
-
 	GFind::findItems_.clear();
 	for (GObj* obj: replaceItems_) {
 		GReplaceItem* replaceItem = PReplaceItem(obj);
@@ -40,7 +36,6 @@ bool GReplace::doOpen() {
 		findItem->count_ = replaceItem->count_;
 		findItem->pattern_ = replaceItem->pattern_;
 		findItem->type_ = replaceItem->type_;
-		findItem->category_ = replaceItem->category_;
 		GFind::findItems_.push_back(*findItem);
 	}
 	bool res = GFind::doOpen();
@@ -51,7 +46,7 @@ bool GReplace::doClose() {
 	return GFind::doClose();
 }
 
-void GReplace::processFound(int itemIndex, int foundIndex, QString& captured, QString& text) {
+void GReplace::processFound(int itemIndex, int foundIndex, QString& foundStr) {
 	Q_ASSERT(itemIndex < replaceItems_.count());
 	GObj* obj = replaceItems_.at(itemIndex);
 	GReplaceItem* replaceItem = reinterpret_cast<GReplaceItem*>(obj);
@@ -67,27 +62,29 @@ void GReplace::processFound(int itemIndex, int foundIndex, QString& captured, QS
 			break;
 		}
 	}
-	if (captured.size() != replaceStr.size()) {
-		qWarning() << QString("size is different '%1'(%2) '%3'(%4)").arg(captured).arg(captured.size()).arg(replaceStr).arg(replaceStr.size());
+	if (foundStr.size() != replaceStr.size()) {
+		qWarning() << QString("size is different '%1'(%2) '%3'(%4)").arg(foundStr).arg(foundStr.size()).arg(replaceStr).arg(replaceStr.size());
 	}
-	text = text.left(foundIndex) + replaceStr + text.mid(foundIndex + replaceStr.size());
+	heystack_ = heystack_.left(foundIndex) + replaceStr + heystack_.mid(foundIndex + replaceStr.size());
+	replaced_ = true;
 
 	if (!log_) return;
-	QString logCaptured = captured;
-	bool isPrintable = true;
-	for (QChar ch: logCaptured) {
-		if (!ch.isPrint()) {
-			isPrintable = false;
-			break;
-		}
-	}
-	if (!isPrintable) {
-		QByteArray ba = logCaptured.toUtf8();
-		logCaptured = "0x" + ba.toHex();
-	}
-	qInfo() << QString("replaced('%1'>'%2 '%3 0x%4)").arg(logCaptured).arg(replaceStr).arg(foundIndex).arg(QString::number(foundIndex, 16));
+	QString logFoundStr = printableStr(foundStr);
+	QString logReplaceStr  = printableStr(replaceStr);
+	qInfo() << QString("replaced('%1'>'%2' %3 0x%4)").arg(logFoundStr).arg(logReplaceStr).arg(foundIndex).arg(QString::number(foundIndex, 16));
 }
 
 void GReplace::replace(GPacket* packet) {
+	replaced_ = false;
 	GFind::find(packet);
+	if (replaced_) {
+		QByteArray ba = heystack_.toLatin1();
+		qDebug() << ba.size();
+		memcpy(packet->buf_.data_, ba.data(), ba.size());
+		packet->ctrl_.changed_ = true;
+	}
+	if (replaced_)
+		emit replaced(packet);
+	else
+		emit notReplaced(packet);
 }

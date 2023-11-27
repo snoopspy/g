@@ -58,7 +58,8 @@ protected:
 	bool doClose() override;
 
 protected:
-	void processFound(int itemIndex, int foundIndex, QString& captured, QString& text) override;
+	bool replaced_;
+	void processFound(int itemIndex, int foundIndex, QString& foundStr) override;
 
 public slots:
 	void replace(GPacket* packet);
