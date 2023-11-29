@@ -1,6 +1,6 @@
 TEMPLATE = app
 QT += widgets
-CONFIG += console
+CONFIG += console c++17
 CONFIG += G_BUILD
 DEFINES += G_BUILD
 include(../g.pri)
