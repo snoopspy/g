@@ -115,14 +115,17 @@ void GPluginFactory::loadCapture() {
 // ----------------------------------------------------------------------------
 #include <GFind>
 #include <GReplace>
+#include <GTtlReplace>
 
 void GPluginFactory::loadChange() {
 	qRegisterMetaType<GFind*>();
 	qRegisterMetaType<GReplace*>();
+	qRegisterMetaType<GTtlReplace*>();
 
 	ItemCategory* category = new ItemCategory("Change");
 	category->items_.push_back(new ItemNode("GFind"));
 	category->items_.push_back(new ItemNode("GReplace"));
+	category->items_.push_back(new ItemNode("GTtlReplace"));
 
 	items_.push_back(category);
 }

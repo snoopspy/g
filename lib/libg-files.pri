@@ -74,6 +74,7 @@ SOURCES += \
 	$${PWD}/../src/net/capture/gsyncpcappipenexmon.cpp \
 	$${PWD}/../src/net/change/gfind.cpp \
 	$${PWD}/../src/net/change/greplace.cpp \
+	$${PWD}/../src/net/change/gttlreplace.cpp \
 	$${PWD}/../src/net/convert/gconverteth.cpp \
 	$${PWD}/../src/net/convert/gconvertethautomac.cpp \
 	$${PWD}/../src/net/convert/gconvertip.cpp \
@@ -218,6 +219,7 @@ HEADERS += \
 	$${PWD}/../src/net/capture/gsyncpcappipenexmon.h \
 	$${PWD}/../src/net/change/gfind.h \
 	$${PWD}/../src/net/change/greplace.h \
+	$${PWD}/../src/net/change/gttlreplace.h \
 	$${PWD}/../src/net/convert/gconverteth.h \
 	$${PWD}/../src/net/convert/gconvertethautomac.h \
 	$${PWD}/../src/net/convert/gconvertip.h \
