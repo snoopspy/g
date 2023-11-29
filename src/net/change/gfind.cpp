@@ -50,10 +50,13 @@ QString GFind::printableStr(QString s) {
 			break;
 		}
 	}
-	if (!isPrintable) {
-		QByteArray ba = s.toUtf8();
-		s = "0x" + ba.toHex();
+	if (isPrintable) return s;
+
+	QByteArray ba;
+	for (QChar ch: s) {
+		ba += ch.toLatin1();
 	}
+	s = "0x" + ba.toHex().toUpper();
 	return s;
 }
 
