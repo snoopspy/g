@@ -11,6 +11,8 @@ GFind::~GFind() {
 }
 
 bool GFind::doOpen() {
+	if (!enabled_) return true;
+
 	for (GObj* obj: findItems_) {
 		GFindItem* findItem = PFindItem(obj);
 		if (findItem->count_ == 0) {
@@ -69,6 +71,8 @@ void GFind::processFound(int itemIndex, int foundIndex, QString& foundStr) {
 }
 
 void GFind::find(GPacket* packet) {
+	if (!enabled_) return;
+
 	bool _found = false;
 	heystack_ = QString::fromLatin1(pchar(packet->buf_.data_), packet->buf_.size_);
 	int itemIndex = 0;

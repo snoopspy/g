@@ -52,12 +52,14 @@ typedef GFindItem *PFindItem;
 // ----------------------------------------------------------------------------
 struct G_EXPORT GFind : GStateObj {
 	Q_OBJECT
+	Q_PROPERTY(bool enabled MEMBER enabled_)
 	Q_PROPERTY(bool log MEMBER log_)
 	Q_PROPERTY(GObjRefArrayPtr items READ getItems)
 
 	virtual GObjRefArrayPtr getItems() { return &findItems_; }
 
 public:
+	bool enabled_{true};
 	bool log_{true};
 	GObjRefArray<GFindItem> findItems_;
 
