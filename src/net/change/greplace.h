@@ -11,6 +11,7 @@
 #pragma once
 
 #include "net/change/gfind.h"
+#include "net/process/gcorrectchecksum.h"
 
 // ----------------------------------------------------------------------------
 // GReplaceItem
@@ -41,13 +42,16 @@ typedef GReplaceItem *PReplaceItem;
 // ----------------------------------------------------------------------------
 struct G_EXPORT GReplace : GFind {
 	Q_OBJECT
-	//Q_PROPERTY(GObjRefArrayPtr items READ getItems)
 
 	GObjRefArrayPtr getItems() override { return &replaceItems_; }
+	Q_PROPERTY(GObjRef correctChecksum READ getCorrectChecksum)
+
+	GObjRef getCorrectChecksum() { return &correctChecksum_; }
 
 public:
 	bool log_{true};
 	GObjRefArray<GReplaceItem> replaceItems_;
+	GCorrectChecksum correctChecksum_;
 
 public:
 	Q_INVOKABLE GReplace(QObject* parent = nullptr);

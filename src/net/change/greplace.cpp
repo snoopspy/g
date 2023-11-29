@@ -11,6 +11,8 @@ GReplace::~GReplace() {
 }
 
 bool GReplace::doOpen() {
+	if (!enabled_) return true;
+
 	GFind::findItems_.clear();
 	for (GObj* obj: replaceItems_) {
 		GReplaceItem* replaceItem = PReplaceItem(obj);
@@ -75,16 +77,17 @@ void GReplace::processFound(int itemIndex, int foundIndex, QString& foundStr) {
 }
 
 void GReplace::replace(GPacket* packet) {
+	if (!enabled_) return;
+
 	replaced_ = false;
 	GFind::find(packet);
 	if (replaced_) {
 		QByteArray ba = heystack_.toLatin1();
-		// qDebug() << ba.size(); // gilgil temp 2023.11.28
 		memcpy(packet->buf_.data_, ba.data(), ba.size());
+		correctChecksum_.correct(packet);
 		packet->ctrl_.changed_ = true;
-	}
-	if (replaced_)
 		emit replaced(packet);
-	else
+	} else {
 		emit notReplaced(packet);
+	}
 }
