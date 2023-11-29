@@ -23,7 +23,6 @@ TEST_F(GEthHdrTest, allTest) {
 		GEthPacket packet;
 		GPacket::Result res = pcapFile_.read(&packet);
 		if (res != GPacket::Ok) break;
-		packet.parse();
 
 		GEthHdr* ethHdr = packet.ethHdr_;
 		EXPECT_NE(ethHdr, nullptr);

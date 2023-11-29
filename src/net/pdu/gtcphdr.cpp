@@ -52,9 +52,8 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdrTemp, GTcpHdr* tcpHdr) {
 	res += uint32_t(tcpHdrDataLen) + IPPROTO_TCP;
 
 	// Recalculate sum
-	if (res >> 16) {
+	if (res >> 16)
 		res = (res & 0xFFFF) + (res >> 16);
-	}
 	res = ~res;
 
 	return uint16_t(res);
@@ -93,7 +92,6 @@ TEST_F(GTcpHdrTest, allTest) {
 		GEthPacket packet;
 		GPacket::Result res = pcapFile_.read(&packet);
 		if (res != GPacket::Ok) break;
-		packet.parse();
 
 		GIpHdr* ipHdr = packet.ipHdr_;
 		EXPECT_NE(ipHdr, nullptr);

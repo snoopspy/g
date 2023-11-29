@@ -77,7 +77,6 @@ TEST_F(GIpHdrTest, allTest) {
 		GEthPacket packet;
 		GPacket::Result res = pcapFile_.read(&packet);
 		if (res != GPacket::Ok) break;
-		packet.parse();
 
 		GIpHdr* ipHdr = packet.ipHdr_;
 		EXPECT_NE(ipHdr, nullptr);
@@ -86,7 +85,7 @@ TEST_F(GIpHdrTest, allTest) {
 		// field test
 		//
 		EXPECT_EQ(ipHdr->v(), 4);
-		EXPECT_EQ(ipHdr->hl(), 5);
+		EXPECT_EQ(ipHdr->hlen(), 5);
 		EXPECT_EQ(ipHdr->sip(), GIp("10.1.1.48"));
 		EXPECT_EQ(ipHdr->dip(), GIp("8.8.8.8"));
 

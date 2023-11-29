@@ -38,9 +38,8 @@ uint16_t GUdpHdr::calcChecksum(GIpHdr* ipHdr, GUdpHdr* udpHdr) {
 	res += uint32_t(udpHdrDataLen) + IPPROTO_UDP;
 
 	// Recalculate sum
-	while (res >> 16) {
+	if (res >> 16)
 		res = (res & 0xFFFF) + (res >> 16);
-	}
 	res = ~res;
 
 	return uint16_t(res);
@@ -80,7 +79,6 @@ TEST_F(GUdpHdrTest, allTest) {
 		GIpPacket packet;
 		GPacket::Result res = pcapFile_.read(&packet);
 		if (res != GPacket::Ok) break;
-		packet.parse();
 
 		GIpHdr* ipHdr = packet.ipHdr_;
 		EXPECT_NE(ipHdr, nullptr);
