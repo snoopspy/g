@@ -99,7 +99,7 @@ void GFind::find(GPacket* packet) {
 			}
 			if (foundIndex == -1) break;
 			int endOffset = findItem->endOffset_;
-			if (endOffset != -1 && foundIndex >= endOffset) break;
+			if (endOffset != -1 && foundIndex > endOffset) break;
 
 			_found = true;
 			processFound(itemIndex, foundIndex, foundStr);
