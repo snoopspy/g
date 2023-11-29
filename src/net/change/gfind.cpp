@@ -83,7 +83,7 @@ void GFind::find(GPacket* packet) {
 		int index = findItem->offset_;
 		int count = findItem->count_;
 		while (index < heystack_.size()) {
-			int foundIndex;
+			int foundIndex = -1;
 			QString foundStr;
 			switch (type) {
 				case GFindItem::String :
