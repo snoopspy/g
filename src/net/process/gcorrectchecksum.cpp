@@ -29,6 +29,14 @@ void GCorrectChecksum::correct(GPacket* packet) {
 		}
 	}
 
+	if (icmpChecksum_) {
+		GIcmpHdr* icmpHdr = packet->icmpHdr_;
+		if (icmpHdr != nullptr) {
+			icmpHdr->sum_ = htons(GIcmpHdr::calcChecksum(ipHdr, icmpHdr));
+			changed = true;
+		}
+	}
+
 	packet->ctrl_.changed_ = changed;
 	if (changed)
 		emit corrected(packet);
