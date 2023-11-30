@@ -15,12 +15,13 @@ bool GReplace::doOpen() {
 	for (GObj* obj: replaceItems_) {
 		GReplaceItem* replaceItem = PReplaceItem(obj);
 
-		if (replaceItem->replacePattern_ == "") {
+		GReplaceItem::Type replaceType = replaceItem->replaceType_;
+		if (replaceItem->replacePattern_ == "" && replaceType != GReplaceItem::None) {
 			SET_ERR(GErr::ValueIsNull, "replacePattern can not be blank");
 			return false;
 		}
-		GReplaceItem::Type replaceType_ = replaceItem->replaceType_;
-		switch (replaceType_) {
+
+		switch (replaceType) {
 			case GReplaceItem::String :
 				break;
 			case GReplaceItem::HexValue : {
@@ -28,6 +29,8 @@ bool GReplace::doOpen() {
 				replaceItem->replaceHexPattern_ = QString::fromLatin1(ba.data(), ba.size());
 				break;
 			}
+			case GReplaceItem::None :
+				break;
 		}
 
 		GFindItem* findItem = new GFindItem;
@@ -43,6 +46,7 @@ bool GReplace::doOpen() {
 }
 
 bool GReplace::doClose() {
+	correctChecksum_.close();
 	return GFind::doClose();
 }
 
@@ -57,10 +61,15 @@ void GReplace::processFound(int itemIndex, int foundIndex, QString& foundStr) {
 		case GReplaceItem::String :
 			replaceStr = replaceItem->replacePattern_;
 			break;
-		case GReplaceItem::HexValue : {
+		case GReplaceItem::HexValue :
 			replaceStr = replaceItem->replaceHexPattern_;
 			break;
-		}
+		case GReplaceItem::None :
+			if (log_) {
+				QString logFoundStr = printableStr(foundStr);
+				qInfo() << QString("found('%1' %2 0x%3)").arg(logFoundStr).arg(foundIndex).arg(QString::number(foundIndex, 16));
+				return;
+			}
 	}
 	if (foundStr.size() != replaceStr.size()) {
 		qWarning() << QString("size is different '%1'(%2) '%3'(%4)").arg(foundStr).arg(foundStr.size()).arg(replaceStr).arg(replaceStr.size());
@@ -68,10 +77,11 @@ void GReplace::processFound(int itemIndex, int foundIndex, QString& foundStr) {
 	heystack_ = heystack_.left(foundIndex) + replaceStr + heystack_.mid(foundIndex + replaceStr.size());
 	replaced_ = true;
 
-	if (!log_) return;
-	QString logFoundStr = printableStr(foundStr);
-	QString logReplaceStr  = printableStr(replaceStr);
-	qInfo() << QString("replaced('%1'>'%2' %3 0x%4)").arg(logFoundStr).arg(logReplaceStr).arg(foundIndex).arg(QString::number(foundIndex, 16));
+	if (log_) {
+		QString logFoundStr = printableStr(foundStr);
+		QString logReplaceStr  = printableStr(replaceStr);
+		qInfo() << QString("replaced('%1'>'%2' %3 0x%4)").arg(logFoundStr).arg(logReplaceStr).arg(foundIndex).arg(QString::number(foundIndex, 16));
+	}
 }
 
 void GReplace::replace(GPacket* packet) {

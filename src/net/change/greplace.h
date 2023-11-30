@@ -26,6 +26,7 @@ public:
 	enum Type {
 		String,
 		HexValue,
+		None
 	};
 
 public:
