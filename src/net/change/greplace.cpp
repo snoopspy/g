@@ -3,15 +3,13 @@
 // ----------------------------------------------------------------------------
 // GReplace
 // ----------------------------------------------------------------------------
-GReplace::GReplace(QObject* parent) : GFind(parent) {
-}
-
-GReplace::~GReplace() {
-	close();
-}
-
 bool GReplace::doOpen() {
 	if (!enabled_) return true;
+
+	if (!correctChecksum_.open()) {
+		err = correctChecksum_.err;
+		return false;
+	}
 
 	GFind::findItems_.clear();
 	for (GObj* obj: replaceItems_) {

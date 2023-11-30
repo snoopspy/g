@@ -3,13 +3,6 @@
 // ----------------------------------------------------------------------------
 // GFind
 // ----------------------------------------------------------------------------
-GFind::GFind(QObject* parent) : GStateObj(parent) {
-}
-
-GFind::~GFind() {
-	close();
-}
-
 bool GFind::doOpen() {
 	if (!enabled_) return true;
 

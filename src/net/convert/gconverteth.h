@@ -34,7 +34,7 @@ public:
 
 public:
 	Q_INVOKABLE GConvertEth(QObject* parent = nullptr) : GStateObj(parent) {}
-	~GConvertEth() override {}
+	~GConvertEth() override { close(); }
 
 protected:
 	bool doOpen() override;

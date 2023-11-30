@@ -64,8 +64,8 @@ public:
 	GObjRefArray<GFindItem> findItems_;
 
 public:
-	Q_INVOKABLE GFind(QObject* parent = nullptr);
-	~GFind() override;
+	Q_INVOKABLE GFind(QObject* parent = nullptr) : GStateObj(parent) {}
+	~GFind() override { close(); }
 
 protected:
 	bool doOpen() override;

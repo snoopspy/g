@@ -54,8 +54,8 @@ public:
 	GCorrectChecksum correctChecksum_;
 
 public:
-	Q_INVOKABLE GReplace(QObject* parent = nullptr);
-	~GReplace() override;
+	Q_INVOKABLE GReplace(QObject* parent = nullptr) : GFind(parent) {}
+	~GReplace() override { close(); }
 
 protected:
 	bool doOpen() override;

@@ -23,7 +23,7 @@ public:
 
 public:
 	Q_INVOKABLE GConvertIp(QObject* parent = nullptr) : GStateObj(parent) {}
-	~GConvertIp() override {}
+	~GConvertIp() override { close(); }
 
 protected:
 	bool doOpen() override;
