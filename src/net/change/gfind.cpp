@@ -8,6 +8,10 @@ bool GFind::doOpen() {
 
 	for (GObj* obj: findItems_) {
 		GFindItem* findItem = PFindItem(obj);
+		if (findItem->endOffset_ != -1 && findItem->endOffset_ < findItem->offset_) {
+			SET_ERR(GErr::Fail, QString("offset(%1) must be equal or less than endOffset(%2)").arg(findItem->offset_).arg(findItem->endOffset_));
+			return false;
+		}
 		if (findItem->count_ == 0) {
 			SET_ERR(GErr::ValueIsZero, "count can not be zero");
 			return false;
@@ -76,6 +80,7 @@ void GFind::find(GPacket* packet) {
 		GFindItem::Type type = findItem->type_;
 		int index = findItem->offset_;
 		int count = findItem->count_;
+
 		while (index < heystack_.size()) {
 			int foundIndex = -1;
 			QString foundStr;
