@@ -12,11 +12,11 @@ void GThread::start() {
 		return;
 	}
 	GStateObj* stateObj = dynamic_cast<GStateObj*>(parent());
-	if (stateObj == nullptr) {
+	if (stateObj != nullptr && !stateObj->active()) {
+		startRequired_ = true;
+	} else {
 		QThread::start(priority_);
 		startRequired_ = false;
-	} else {
-		startRequired_ = true;
 	}
 }
 

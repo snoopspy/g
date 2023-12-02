@@ -197,8 +197,8 @@ void GAutoArpSpoof::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	hostCreated(mac, hostValue);
 }
 
-GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GAutoArpSpoof::TwoFlowKey twoFlowKey, GEthArpPacket infectPacket1, GEthArpPacket infectPacket2) : QThread(parent) {
-	// GDEBUG_CTOR
+GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GAutoArpSpoof::TwoFlowKey twoFlowKey, GEthArpPacket infectPacket1, GEthArpPacket infectPacket2) : GThread(parent) {
+	GDEBUG_CTOR
 	parent_ = parent;
 	twoFlowKey_ = twoFlowKey;
 	infectPacket_[0] = infectPacket1;
@@ -210,7 +210,7 @@ GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GAutoArpSpo
 }
 
 GAutoArpSpoof::FloodingThread::~FloodingThread() {
-	// GDEBUG_DTOR
+	GDEBUG_DTOR
 	{
 		QMutexLocker ml(&parent_->floodingThreadMap_.m_);
 		parent_->floodingThreadMap_.remove(twoFlowKey_);
@@ -234,8 +234,7 @@ void GAutoArpSpoof::FloodingThread::run() {
 	qDebug() << QString("end %1").arg(QString(infectPacket_->arpHdr_.tip())); // gilgil temp 2021.11.15
 }
 
-GAutoArpSpoof::RecoverThread::RecoverThread(GAutoArpSpoof* parent, GAutoArpSpoof::TwoFlowKey twoFlowKey, Flow flow1, Flow flow2) : QThread(parent) {
-	// GDEBUG_CTOR
+GAutoArpSpoof::RecoverThread::RecoverThread(GAutoArpSpoof* parent, GAutoArpSpoof::TwoFlowKey twoFlowKey, Flow flow1, Flow flow2) : GThread(parent) {
 	parent_ = parent;
 	twoFlowKey_ = twoFlowKey;
 	flow1_ = flow1;
@@ -249,7 +248,6 @@ GAutoArpSpoof::RecoverThread::RecoverThread(GAutoArpSpoof* parent, GAutoArpSpoof
 }
 
 GAutoArpSpoof::RecoverThread::~RecoverThread() {
-	// GDEBUG_DTOR
 	{
 		QMutexLocker ml(&parent_->recoverThreadMap_.m_);
 		parent_->recoverThreadMap_.remove(twoFlowKey_);
