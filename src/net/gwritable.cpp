@@ -14,12 +14,11 @@ GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu, GPacket::D
 			qCritical() << QString("invalid datalinktype %1").arg(int(dlt));
 			return GPacket::Fail;
 	}
-	GPacket* sendPacket = anyPacket_.get(dlt);
-	Q_ASSERT(sendPacket != nullptr);
 
 	sendByteArray_.resize(packet->buf_.size_);
 	memcpy(sendByteArray_.data(), packet->buf_.data_, packet->buf_.size_);
 	GBuf buf(pbyte(sendByteArray_.data()), packet->buf_.size_);
+	GPacket* sendPacket = anyPacket_.get(dlt);
 	sendPacket->copyFrom(packet, buf);
 
 	GIpHdr* ipHdr = sendPacket->ipHdr_;

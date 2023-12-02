@@ -32,11 +32,12 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 			SET_ERR(GErr::NotSupported, QString("Not supported dlt(%d)").arg(GPacket::dltToInt(dlt)));
 			return;
 	}
-	GPacket* blockPacket = anyPacket_.get(dlt);
+	copyLen += msg.size();
 
 	blockByteArray_.resize(copyLen);
 	memcpy(blockByteArray_.data(), packet->buf_.data_, copyLen);
 	GBuf buf(pbyte(blockByteArray_.data()), copyLen);
+	GPacket* blockPacket = anyPacket_.get(dlt);
 	blockPacket->copyFrom(packet, buf);
 
 	GTcpHdr* tcpHdr = blockPacket->tcpHdr_;
