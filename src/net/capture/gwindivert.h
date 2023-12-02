@@ -12,6 +12,8 @@
 
 #include "gcapture.h"
 
+#ifdef Q_OS_WIN
+
 #include "net/_win/windivert.h"
 
 // ----------------------------------------------------------------------------
@@ -62,3 +64,5 @@ public:
 	GPacket::Dlt dlt() override { return GPacket::Ip; }
 	PathType pathType() override { return ((flags_ & WINDIVERT_FLAG_SNIFF) == 0) ? InPath : OutOfPath; }
 };
+
+#endif // Q_OS_WIN
