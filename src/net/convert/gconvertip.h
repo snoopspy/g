@@ -16,22 +16,18 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GConvertIp : GStateObj {
 	Q_OBJECT
-	Q_PROPERTY(int bufSize MEMBER bufSize_)
-
-public:
-	int bufSize_{GPacket::MaxBufSize};
 
 public:
 	Q_INVOKABLE GConvertIp(QObject* parent = nullptr) : GStateObj(parent) {}
 	~GConvertIp() override { close(); }
 
 protected:
-	bool doOpen() override;
-	bool doClose() override;
+	bool doOpen() override { return true; }
+	bool doClose() override { return true; }
 
 protected:
 	GIpPacket convertedIpPacket_;
-	gbyte* convertedIpBuf_{nullptr};
+	QByteArray convertedByteArray_;
 
 public slots:
 	void convert(GPacket* packet);

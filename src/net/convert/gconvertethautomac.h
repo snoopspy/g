@@ -10,7 +10,6 @@
 
 #include "net/gatm.h"
 #include "net/write/gpcapdevicewrite.h"
-#include "net/capture/gsyncpcapdevice.h"
 
 // ----------------------------------------------------------------------------
 // GConvertEthAutoMac
@@ -18,10 +17,8 @@
 struct G_EXPORT GConvertEthAutoMac : GPcapDeviceWrite {
 	Q_OBJECT
 	Q_PROPERTY(quint16 type MEMBER type_)
-	Q_PROPERTY(int bufSize MEMBER bufSize_)
 
 public:
-	int bufSize_{GPacket::MaxBufSize};
 	uint16_t type_{GEthHdr::Ip4};
 
 public:
@@ -38,7 +35,7 @@ protected:
 	GMac myMac_{GMac::nullMac()};
 	GIp myIp_{0};
 	GEthPacket convertedEthPacket_;
-	gbyte* convertedEthBuf_{nullptr};
+	QByteArray convertedByteArray_;
 	GAtm atm_;
 	GMac resolveMacByDip(GPacket* packet);
 
