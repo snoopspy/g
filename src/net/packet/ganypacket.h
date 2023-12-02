@@ -10,16 +10,20 @@
 
 #pragma once
 
-#include "net/packet/ganypacket.h"
+#include "net/packet/gethpacket.h"
+#include "net/packet/gippacket.h"
+#include "net/packet/gdot11packet.h"
+#include "net/packet/gnullpacket.h"
 
 // ----------------------------------------------------------------------------
-// GWritable
+// GAnyPacket
 // ----------------------------------------------------------------------------
-struct GWritable {
-	virtual GPacket::Result write(GBuf buf) = 0;
-	virtual GPacket::Result write(GPacket* packet) = 0;
-	GPacket::Result writeMtuSplit(GPacket* packet, size_t mtu, GPacket::Dlt dlt, GDuration usleepTime = 100);
+struct GAnyPacket {
+	GPacket* get(GPacket::Dlt dlt);
 
-	GAnyPacket anyPacket_;
-	QByteArray sendByteArray_;
+protected:
+	GEthPacket ethPacket_;
+	GIpPacket ipPacket_;
+	GDot11Packet dot11Packet_;
+	GNullPacket nullPacket_;
 };

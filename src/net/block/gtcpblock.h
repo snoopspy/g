@@ -12,8 +12,7 @@
 
 #include "base/gstateobj.h"
 #include "net/write/gwrite.h"
-#include "net/packet/gethpacket.h"
-#include "net/packet/gippacket.h"
+#include "net/packet/ganypacket.h"
 
 // ----------------------------------------------------------------------------
 // GTcpBlock
@@ -25,7 +24,6 @@ struct G_EXPORT GTcpBlock : GStateObj {
 	Q_PROPERTY(QStringList forwardFinMsg MEMBER forwardFinMsg_)
 	Q_PROPERTY(BlockType backwardBlockType MEMBER backwardBlockType_)
 	Q_PROPERTY(QStringList backwardFinMsg MEMBER backwardFinMsg_)
-	Q_PROPERTY(int bufSize MEMBER bufSize_)
 	Q_PROPERTY(GObjPtr writer READ getWriter WRITE setWriter)
 	Q_ENUMS(BlockType)
 
@@ -45,7 +43,6 @@ public:
 	QStringList forwardFinMsg_;
 	BlockType backwardBlockType_{Rst};
 	QStringList backwardFinMsg_;
-	int bufSize_{GPacket::MaxBufSize};
 	GWrite* writer_{nullptr};
 
 public:
@@ -60,9 +57,8 @@ protected:
 	QString forwardFinMsgStr_;
 	QString backwardFinMsgStr_;
 
-	GEthPacket blockEthPacket_;
-	GIpPacket blockIpPacket_;
-	gbyte* blockBuf_{nullptr};
+	GAnyPacket anyPacket_;
+	QByteArray blockByteArray_;
 
 	enum Direction {
 		Forward,

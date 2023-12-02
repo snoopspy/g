@@ -14,43 +14,30 @@ bool GTcpBlock::doOpen() {
 	forwardFinMsgStr_= forwardFinMsg_.join("\r\n");
 	backwardFinMsgStr_ = backwardFinMsg_.join("\r\n");
 
-	Q_ASSERT(blockBuf_ == nullptr);
-	blockBuf_ = new gbyte[bufSize_];
-
 	return true;
 }
 
 bool GTcpBlock::doClose() {
-	if (blockBuf_ != nullptr) {
-		delete[] blockBuf_;
-		blockBuf_ = nullptr;
-	}
-
 	return true;
 }
 
 void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction, GTcpBlock::BlockType blockType, uint32_t seq, uint32_t ack, QString msg) {
-	GPacket* blockPacket = nullptr;
-	size_t copyLen;
-
 	GPacket::Dlt dlt = packet->dlt();
+	size_t copyLen;
 	switch (dlt) {
-		case GPacket::Eth: blockPacket = &blockEthPacket_; copyLen = sizeof(GEthHdr) + sizeof(GIpHdr) + sizeof(GTcpHdr); break;
-		case GPacket::Ip: blockPacket = &blockIpPacket_; copyLen = sizeof(GIpHdr) + sizeof(GTcpHdr); break;
-		case GPacket::Dot11: blockPacket = nullptr; break;
-		case GPacket::Null: blockPacket = nullptr; break;
+		case GPacket::Eth: copyLen = sizeof(GEthHdr) + sizeof(GIpHdr) + sizeof(GTcpHdr); break;
+		case GPacket::Ip: copyLen = sizeof(GIpHdr) + sizeof(GTcpHdr); break;
+		case GPacket::Dot11:
+		case GPacket::Null:
+			SET_ERR(GErr::NotSupported, QString("Not supported dlt(%d)").arg(GPacket::dltToInt(dlt)));
+			return;
 	}
-	if (blockPacket == nullptr) {
-		SET_ERR(GErr::NotSupported, QString("Not supported dlt(%d)").arg(GPacket::dltToInt(dlt)));
-		return;
-	}
+	GPacket* blockPacket = anyPacket_.get(dlt);
 
-	if (int(copyLen) > bufSize_) {
-		qWarning() << QString("copyLen(%1) > bufSize_(%2)").arg(copyLen).arg(bufSize_);
-		return;
-	}
-	memcpy(blockBuf_, packet->buf_.data_, copyLen);
-	blockPacket->copyFrom(packet, GBuf(blockBuf_, copyLen));
+	blockByteArray_.resize(copyLen);
+	memcpy(blockByteArray_.data(), packet->buf_.data_, copyLen);
+	GBuf buf(pbyte(blockByteArray_.data()), copyLen);
+	blockPacket->copyFrom(packet, buf);
 
 	GTcpHdr* tcpHdr = blockPacket->tcpHdr_;
 	Q_ASSERT(tcpHdr != nullptr);

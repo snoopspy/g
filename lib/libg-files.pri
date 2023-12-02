@@ -102,6 +102,7 @@ SOURCES += \
 	$${PWD}/../src/net/demon/gdemon.cpp \
 	$${PWD}/../src/net/demon/gdemonclient.cpp \
 	$${PWD}/../src/net/demon/gtrace.cpp \
+	$${PWD}/../src/net/packet/ganypacket.cpp \
 	$${PWD}/../src/net/packet/gdot11packet.cpp \
 	$${PWD}/../src/net/packet/gethpacket.cpp \
 	$${PWD}/../src/net/packet/gippacket.cpp \
@@ -250,6 +251,7 @@ HEADERS += \
 	$${PWD}/../src/net/demon/gdemon.h \
 	$${PWD}/../src/net/demon/gdemonclient.h \
 	$${PWD}/../src/net/demon/gtrace.h \
+	$${PWD}/../src/net/packet/ganypacket.h \
 	$${PWD}/../src/net/packet/gdot11packet.h \
 	$${PWD}/../src/net/packet/gethpacket.h \
 	$${PWD}/../src/net/packet/gippacket.h \

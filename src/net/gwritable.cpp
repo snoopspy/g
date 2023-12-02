@@ -6,30 +6,21 @@
 // ----------------------------------------------------------------------------
 GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu, GPacket::Dlt dlt, GDuration usleepTime) {
 	size_t ethernetSize = 0; // for remove warning
-	GPacket* sendPacket = nullptr; // for remove warning
-
 	switch (dlt) {
-		case GPacket::Eth:
-			ethernetSize = sizeof(GEthHdr);
-			sendPacket = &sendEthPacket_;
-			break;
-		case GPacket::Ip:
-			ethernetSize = 0;
-			sendPacket = &sendIpPacket_;
-			break;
+		case GPacket::Eth: ethernetSize = sizeof(GEthHdr); break;
+		case GPacket::Ip: ethernetSize = 0; break;
 		case GPacket::Dot11:
 		case GPacket::Null:
 			qCritical() << QString("invalid datalinktype %1").arg(int(dlt));
 			return GPacket::Fail;
 	}
+	GPacket* sendPacket = anyPacket_.get(dlt);
 	Q_ASSERT(sendPacket != nullptr);
 
 	sendByteArray_.resize(packet->buf_.size_);
 	memcpy(sendByteArray_.data(), packet->buf_.data_, packet->buf_.size_);
-	GBuf sendBuf;
-	sendBuf.data_ = pbyte(sendByteArray_.data());
-	sendBuf.size_ = packet->buf_.size_;
-	sendPacket->copyFrom(packet, sendBuf);
+	GBuf buf(pbyte(sendByteArray_.data()), packet->buf_.size_);
+	sendPacket->copyFrom(packet, buf);
 
 	GIpHdr* ipHdr = sendPacket->ipHdr_;
 	if (ipHdr == nullptr) {

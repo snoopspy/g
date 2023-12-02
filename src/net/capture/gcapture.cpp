@@ -59,19 +59,7 @@ GPacket::Result GCapture::drop(GPacket* packet) {
 void GCapture::run() {
 	qDebug() << "beg";
 
-	GEthPacket ethPacket;
-	GIpPacket ipPacket;
-	GDot11Packet dot11Packet;
-	GNullPacket nullPacket;
-
-	GPacket* packet;
-	switch(dlt()) {
-		case GPacket::Eth: packet = &ethPacket; break;
-		case GPacket::Ip: packet = &ipPacket; break;
-		case GPacket::Dot11: packet = &dot11Packet; break;
-		case GPacket::Null: default: packet = &nullPacket; break;
-	}
-
+	GPacket* packet = anyPacket_.get(dlt());
 	PathType pt = pathType();
 	while (active()) {
 		GPacket::Result res = read(packet);

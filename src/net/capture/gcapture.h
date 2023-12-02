@@ -14,11 +14,7 @@
 #include "base/sys/gthread.h"
 #include "net/greadable.h"
 #include "net/gwritable.h"
-#include "net/packet/gpacket.h"
-#include "net/packet/gethpacket.h"
-#include "net/packet/gippacket.h"
-#include "net/packet/gdot11packet.h"
-#include "net/packet/gnullpacket.h"
+#include "net/packet/ganypacket.h"
 
 // ----------------------------------------------------------------------------
 // GCapture
@@ -61,6 +57,7 @@ public:
 	virtual PathType pathType() { return OutOfPath; }
 
 protected:
+	GAnyPacket anyPacket_;
 	struct Thread : GThread {
 		Thread(GCapture* capture) : GThread(capture) {}
 	protected:
