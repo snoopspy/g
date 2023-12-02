@@ -11,8 +11,8 @@
 #pragma once
 
 #include "base/gstateobj.h"
-#include "net/write/gwrite.h"
-#include "net/packet/ganypacket.h"
+#include "net/write/grawipsocketwrite.h"
+#include "net/packet/gippacket.h"
 
 // ----------------------------------------------------------------------------
 // GTcpBlock
@@ -24,7 +24,8 @@ struct G_EXPORT GTcpBlock : GStateObj {
 	Q_PROPERTY(QStringList forwardFinMsg MEMBER forwardFinMsg_)
 	Q_PROPERTY(BlockType backwardBlockType MEMBER backwardBlockType_)
 	Q_PROPERTY(QStringList backwardFinMsg MEMBER backwardFinMsg_)
-	Q_PROPERTY(GObjPtr writer READ getWriter WRITE setWriter)
+	Q_PROPERTY(GObjRef writer READ getWriter)
+
 	Q_ENUMS(BlockType)
 
 public:
@@ -34,8 +35,7 @@ public:
 		Fin
 	};
 public:
-	GObjPtr getWriter() { return writer_; }
-	void setWriter(GObjPtr value) { writer_ = dynamic_cast<GWrite*>(value.data()); }
+	GObjRef getWriter() { return &writer_; }
 
 public:
 	bool enabled_{true};
@@ -43,7 +43,7 @@ public:
 	QStringList forwardFinMsg_;
 	BlockType backwardBlockType_{Rst};
 	QStringList backwardFinMsg_;
-	GWrite* writer_{nullptr};
+	GRawIpSocketWrite writer_{this};
 
 public:
 	Q_INVOKABLE GTcpBlock(QObject* parent = nullptr) : GStateObj(parent) {}
@@ -57,7 +57,7 @@ protected:
 	QString forwardFinMsgStr_;
 	QString backwardFinMsgStr_;
 
-	GAnyPacket anyPacket_;
+	GIpPacket blockIpPacket_;
 	QByteArray blockByteArray_;
 
 	enum Direction {

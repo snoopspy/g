@@ -1,13 +1,11 @@
 #include "gtcpblock.h"
-#include "net/write/gpcapdevicewrite.h"
-#include <cstring> // for memcpy
 
 // ----------------------------------------------------------------------------
 // GTcpBlock
 // ----------------------------------------------------------------------------
 bool GTcpBlock::doOpen() {
-	if (writer_ == nullptr) {
-		SET_ERR(GErr::ObjectIsNull, "writer must be specified");
+	if (!writer_.open()) {
+		err = writer_.err;
 		return false;
 	}
 
@@ -18,107 +16,85 @@ bool GTcpBlock::doOpen() {
 }
 
 bool GTcpBlock::doClose() {
-	return true;
+	return writer_.close();
 }
 
 void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction, GTcpBlock::BlockType blockType, uint32_t seq, uint32_t ack, QString msg) {
-	GPacket::Dlt dlt = packet->dlt();
-	size_t copyLen;
-	switch (dlt) {
-		case GPacket::Eth: copyLen = sizeof(GEthHdr) + sizeof(GIpHdr) + sizeof(GTcpHdr); break;
-		case GPacket::Ip: copyLen = sizeof(GIpHdr) + sizeof(GTcpHdr); break;
-		case GPacket::Dot11:
-		case GPacket::Null:
-			SET_ERR(GErr::NotSupported, QString("Not supported dlt(%d)").arg(GPacket::dltToInt(dlt)));
-			return;
-	}
-	copyLen += msg.size();
-
-	blockByteArray_.resize(copyLen);
-	memcpy(blockByteArray_.data(), packet->buf_.data_, copyLen);
-	GBuf buf(pbyte(blockByteArray_.data()), copyLen);
-	GPacket* blockPacket = anyPacket_.get(dlt);
-	blockPacket->copyFrom(packet, buf);
-
-	GTcpHdr* tcpHdr = blockPacket->tcpHdr_;
-	Q_ASSERT(tcpHdr != nullptr);
+	size_t blockLen = sizeof(GIpHdr) + sizeof(GTcpHdr) + msg.size();
+	blockByteArray_.resize(blockLen);
 
 	//
-	// Data
+	// blockIpPacket_
 	//
+	gbyte* data = pbyte(blockByteArray_.data());
+	blockIpPacket_.buf_.data_ = data;
+	blockIpPacket_.buf_.size_ = blockLen;
+	blockIpPacket_.ipHdr_ = PIpHdr(data);
+	blockIpPacket_.tcpHdr_ = PTcpHdr(data + sizeof(GIpHdr));
 	if (blockType == Fin) {
-		blockPacket->tcpData_.data_ = pbyte(tcpHdr) + sizeof(GTcpHdr);
-		memcpy(blockPacket->tcpData_.data_, qPrintable(msg), msg.size());
-		blockPacket->tcpData_.size_ = msg.size();
+		blockIpPacket_.tcpData_.data_ = data + sizeof(GIpHdr) + sizeof(GTcpHdr);
+		blockIpPacket_.tcpData_.size_ = msg.size();
+	} else {
+		blockIpPacket_.tcpData_.clear();
+	}
+
+	//
+	// IP
+	//
+	GIpHdr* blockIpHdr = blockIpPacket_.ipHdr_;
+#ifndef Q_OS_ANDROID
+	GIpHdr* ipHdr = packet->ipHdr_;
+#else
+	GVolatileIpHdr* ipHdr = PVolatileIpHdr(packet->ipHdr_);
+#endif
+	Q_ASSERT(ipHdr != nullptr);
+	memcpy(pvoid(blockIpHdr), pvoid(ipHdr), sizeof(GIpHdr));
+	blockIpHdr->v_hlen_ = 0x45;
+	blockIpHdr->tos_ = 0x44;
+	if (blockType == Rst)
+		blockIpHdr->tlen_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr));
+	else
+		blockIpHdr->tlen_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr) + msg.size());
+	if (direction == Backward) {
+		blockIpHdr->ttl_ = 0x80;
+		std::swap(blockIpHdr->sip_, blockIpHdr->dip_);
 	}
 
 	//
 	// TCP
 	//
+	GTcpHdr* blockTcpHdr = blockIpPacket_.tcpHdr_;
+	GTcpHdr* tcpHdr = packet->tcpHdr_;
+	Q_ASSERT(tcpHdr != nullptr);
+	memcpy(blockTcpHdr, tcpHdr, sizeof(GTcpHdr));
 	if (direction == Backward)
-		std::swap(tcpHdr->sport_, tcpHdr->dport_);
-	tcpHdr->seq_ = htonl(seq);
-	tcpHdr->ack_ = htonl(ack);
+		std::swap(blockTcpHdr->sport_, blockTcpHdr->dport_);
+	blockTcpHdr->seq_ = htonl(seq);
+	blockTcpHdr->ack_ = htonl(ack);
 	if (blockType == Rst) {
-		tcpHdr->flags_ = GTcpHdr::Rst | GTcpHdr::Ack;
-		tcpHdr->win_ = 0;
+		blockTcpHdr->flags_ = GTcpHdr::Rst | GTcpHdr::Ack;
+		blockTcpHdr->win_ = 0;
 	} else {
-		tcpHdr->flags_ = GTcpHdr::Fin | GTcpHdr::Ack | GTcpHdr::Psh;
+		blockTcpHdr->flags_ = GTcpHdr::Fin | GTcpHdr::Ack | GTcpHdr::Psh;
 	}
-	tcpHdr->off_rsvd_ = (sizeof(GTcpHdr) / 4) << 4;
-	tcpHdr->flags_ &= ~GTcpHdr::Syn;
+	blockTcpHdr->off_rsvd_ = (sizeof(GTcpHdr) / 4) << 4;
+	blockTcpHdr->flags_ &= ~GTcpHdr::Syn;
 
 	//
-	// IP
+	// Data
 	//
-#ifndef Q_OS_ANDROID
-	GIpHdr* ipHdr = blockPacket->ipHdr_;
-#else
-	GVolatileIpHdr* ipHdr = PVolatileIpHdr(blockPacket->ipHdr_);
-#endif
-	Q_ASSERT(ipHdr != nullptr);
-	if (blockType == Rst)
-		ipHdr->tlen_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr));
-	else
-		ipHdr->tlen_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr) + msg.size());
-	ipHdr->tos_ = 0x44;
-	if (direction == Backward) {
-		ipHdr->ttl_ = 0x80;
-		std::swap(ipHdr->sip_, ipHdr->dip_);
+	if (blockType == Fin) {
+		memcpy(blockIpPacket_.tcpData_.data_, qPrintable(msg), msg.size());
 	}
 
 	//
 	// checksum
 	//
-	tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(PIpHdr(ipHdr), tcpHdr));
-	ipHdr->sum_ = htons(GIpHdr::calcChecksum(PIpHdr(ipHdr)));
-
-	//
-	// Ethernet
-	//
-	GPcapDeviceWrite* pcapDeviceWrite = dynamic_cast<GPcapDeviceWrite*>(writer_);
-	if (pcapDeviceWrite != nullptr && packet->ethHdr_ != nullptr) {
-		GEthHdr* ethHdr = blockPacket->ethHdr_;
-		Q_ASSERT(pcapDeviceWrite->intf() != nullptr);
-		GMac myMac = pcapDeviceWrite->intf()->mac();
-		if (direction == Backward) {
-			ethHdr->dmac_ = ethHdr->smac();
-			ethHdr->smac_ = myMac;
-		} else {
-			//ethHdr->dmac_ = ethHdr->dmac();
-			ethHdr->smac_ = myMac;
-		}
-	}
-
-	// buf size
-	size_t bufSize = 0;
-	if (dlt == GPacket::Eth) bufSize += sizeof(GEthHdr);
-	bufSize += sizeof(GIpHdr) + sizeof(GTcpHdr);
-	if (blockType == Fin) bufSize += msg.size();
-	blockPacket->buf_.size_ = bufSize;
+	blockIpHdr->sum_ = htons(GIpHdr::calcChecksum(PIpHdr(blockIpHdr)));
+	blockTcpHdr->sum_ = htons(GTcpHdr::calcChecksum(PIpHdr(blockIpHdr), blockTcpHdr));
 
 	// write
-	writer_->write(blockPacket);
+	writer_.write(&blockIpPacket_);
 }
 
 void GTcpBlock::block(GPacket* packet) {
