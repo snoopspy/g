@@ -45,10 +45,11 @@ bool GBpFilter::check(GBuf* buf) {
 	return res > 0;
 }
 
-void GBpFilter::check(GPacket* packet) {
+bool GBpFilter::check(GPacket* packet) {
 	bool res = check(&packet->buf_);
 	if (res)
 		emit filtered(packet);
 	else
 		emit notFiltered(packet);
+	return res;
 }

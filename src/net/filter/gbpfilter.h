@@ -41,7 +41,7 @@ public:
 	bool check(GBuf* buf);
 
 public slots:
-	void check(GPacket* packet);
+	bool check(GPacket* packet);
 
 signals:
 	void filtered(GPacket* packet);
