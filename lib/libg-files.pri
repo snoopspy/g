@@ -297,6 +297,7 @@ SOURCES += \
 	$${PWD}/../src/net/capture/gmonitordevice.cpp \
 	$${PWD}/../src/net/capture/gnetfilter.cpp \
 	$${PWD}/../src/net/capture/gsyncmonitordevice.cpp \
+	$${PWD}/../src/net/capture/gsyncnetfilter.cpp \
 	$${PWD}/../src/net/process/gbeaconflood.cpp \
 	$${PWD}/../src/net/process/gchannelhop.cpp \
 	$${PWD}/../src/net/iw/giw.cpp \
@@ -307,6 +308,7 @@ HEADERS += \
 	$${PWD}/../src/net/capture/gmonitordevice.h \
 	$${PWD}/../src/net/capture/gnetfilter.h \
 	$${PWD}/../src/net/capture/gsyncmonitordevice.h \
+	$${PWD}/../src/net/capture/gsyncnetfilter.h \
 	$${PWD}/../src/net/process/gbeaconflood.h \
 	$${PWD}/../src/net/process/gchannelhop.h \
 	$${PWD}/../src/net/iw/giw.h \
