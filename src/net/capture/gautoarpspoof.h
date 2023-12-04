@@ -55,17 +55,16 @@ protected:
 
 	typedef QPair<GFlow::IpFlowKey, GFlow::IpFlowKey> TwoFlowKey;
 	struct FloodingThread : GThread {
-		FloodingThread(GAutoArpSpoof* parent, TwoFlowKey twoFlowKey, GEthArpPacket infectPacket1, GEthArpPacket infectPacket2);
+		FloodingThread(GAutoArpSpoof* aas, TwoFlowKey twoFlowKey, GEthArpPacket infectPacket1, GEthArpPacket infectPacket2);
 		~FloodingThread() override;
 		void run() override;
 
-		GAutoArpSpoof* parent_;
+		GAutoArpSpoof* aas_;
 		GStateWaitEvent swe_;
 		TwoFlowKey twoFlowKey_;
 		GEthArpPacket infectPacket_[2];
 	};
-	struct FloodingThreadMap : QMap<TwoFlowKey, FloodingThread*> {
-		QRecursiveMutex m_;
+	struct FloodingThreadMap : QMap<TwoFlowKey, FloodingThread*>, QRecursiveMutex {
 	} floodingThreadMap_;
 
 	struct RecoverThread : GThread {
@@ -78,8 +77,7 @@ protected:
 		TwoFlowKey twoFlowKey_;
 		Flow flow1_, flow2_;
 	};
-	struct RecoverThreadMap : QMap<TwoFlowKey, RecoverThread*> {
-		QRecursiveMutex m_;
+	struct RecoverThreadMap : QMap<TwoFlowKey, RecoverThread*>, QRecursiveMutex {
 	} recoverThreadMap_;
 
 	void removeFlows(Flow* flow1, Flow* flow2);

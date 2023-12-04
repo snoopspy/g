@@ -79,9 +79,7 @@ public:
 	// --------------------------------------------------------------------------
 	// HostMap
 	// --------------------------------------------------------------------------
-	struct HostMap : QMap<GMac, HostValue*> {
-		QMutex m_;
-
+	struct HostMap : QMap<GMac, HostValue*>, QMutex {
 		void clear() {
 			for (HostValue* hostValue: *this) {
 				HostValue::deallocate(hostValue);

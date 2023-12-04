@@ -108,7 +108,7 @@ void GHostWatch::WatchThread::run() {
 
 		sendInfos.clear();
 		{
-			QMutexLocker ml(&hm->m_);
+			QMutexLocker ml(hm);
 			for (GHostMgr::HostMap::iterator it = hm->begin(); it != hm->end(); it++) {
 				GHostMgr::HostValue* hostValue = it.value();
 				if (now - hostValue->lastTs_.tv_sec < hw->scanStartSec_)

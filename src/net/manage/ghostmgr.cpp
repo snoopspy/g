@@ -29,7 +29,7 @@ bool GHostMgr::doOpen() {
 	gwIp_ = intf_->gateway();
 
 	{
-		QMutexLocker ml(&hostMap_.m_);
+		QMutexLocker ml(&hostMap_);
 		hostMap_.clear();
 	}
 	return GPacketMgr::doOpen();
@@ -37,7 +37,7 @@ bool GHostMgr::doOpen() {
 
 bool GHostMgr::doClose() {
 	{
-		QMutexLocker ml(&hostMap_.m_);
+		QMutexLocker ml(&hostMap_);
 		for (Managable* manager: managables_) {
 			for (HostMap::iterator it = hostMap_.begin(); it != hostMap_.end(); it++) {
 				GMac mac = it.key();
@@ -51,7 +51,7 @@ bool GHostMgr::doClose() {
 }
 
 void GHostMgr::deleteOldHosts(time_t now) {
-	QMutexLocker ml(&hostMap_.m_);
+	QMutexLocker ml(&hostMap_);
 	HostMap::iterator it = hostMap_.begin();
 	while (it != hostMap_.end()) {
 		HostValue* hostValue = it.value();
@@ -170,7 +170,7 @@ void GHostMgr::manage(GPacket* packet) {
 
 	currentMac_ = mac;
 	{
-		QMutexLocker ml(&hostMap_.m_);
+		QMutexLocker ml(&hostMap_);
 		HostMap::iterator it = hostMap_.find(currentMac_);
 		if (it == hostMap_.end()) {
 			qDebug() << QString("detected %1 %2 %3 %4").arg(QString(mac)).arg(QString(ip)).arg(host).arg(vendor); // gilgil temp 2022.03.07
@@ -213,7 +213,6 @@ void GHostMgr::manage(GPacket* packet) {
 }
 
 bool GHostMgr::propLoad(QJsonObject jo, QMetaProperty mpro) {
-	// qDebug() << mpro.name(); // gilgil temp 2021.11.11
 	if (QString(mpro.name()) == "pcapDevice") {
 		QObject* p = parent();
 		if (p != nullptr && QString(p->metaObject()->className()) == "GAutoArpSpoof")

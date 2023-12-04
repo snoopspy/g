@@ -70,14 +70,14 @@ bool GAutoArpSpoof::doClose() {
 	if (!enabled_) return true;
 
 	{
-		QMutexLocker ml(&floodingThreadMap_.m_);
+		QMutexLocker ml(&floodingThreadMap_);
 		for (FloodingThread* thread: floodingThreadMap_) {
 			thread->swe_.wakeAll();
 		}
 	}
 
 	{
-		QMutexLocker ml(&recoverThreadMap_.m_);
+		QMutexLocker ml(&recoverThreadMap_);
 		for (RecoverThread* thread: recoverThreadMap_) {
 			thread->swe_.wakeAll();
 		}
@@ -87,13 +87,13 @@ bool GAutoArpSpoof::doClose() {
 	quint64 start = timer.elapsed();
 	while (true) {
 		{
-			QMutexLocker ml(&floodingThreadMap_.m_);
+			QMutexLocker ml(&floodingThreadMap_);
 			int count = floodingThreadMap_.count();
 			qDebug() << QString("floodingThreadSet count=%1").arg(count); // gilgil temp 2021.11.05
 			if (count == 0) break;
 		}
 		QCoreApplication::processEvents();
-		QThread::msleep(10);
+		QThread::msleep(100);
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
 			int count = floodingThreadMap_.count();
@@ -105,13 +105,13 @@ bool GAutoArpSpoof::doClose() {
 	start = timer.elapsed();
 	while (true) {
 		{
-			QMutexLocker ml(&recoverThreadMap_.m_);
+			QMutexLocker ml(&recoverThreadMap_);
 			int count = recoverThreadMap_.count();
 			qDebug() << QString("recoverThreadSet count=%1").arg(count); // gilgil temp 2021.11.05
 			if (count == 0) break;
 		}
 		QCoreApplication::processEvents();
-		QThread::msleep(10);
+		QThread::msleep(100);
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
 			int count = recoverThreadMap_.count();
@@ -197,23 +197,23 @@ void GAutoArpSpoof::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	hostCreated(mac, hostValue);
 }
 
-GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* parent, GAutoArpSpoof::TwoFlowKey twoFlowKey, GEthArpPacket infectPacket1, GEthArpPacket infectPacket2) : GThread(parent) {
+GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* aas, GAutoArpSpoof::TwoFlowKey twoFlowKey, GEthArpPacket infectPacket1, GEthArpPacket infectPacket2) : GThread(aas) {
 	GDEBUG_CTOR
-	parent_ = parent;
+	aas_ = aas;
 	twoFlowKey_ = twoFlowKey;
 	infectPacket_[0] = infectPacket1;
 	infectPacket_[1] = infectPacket2;
 	{
-		QMutexLocker ml(&parent_->floodingThreadMap_.m_);
-		parent_->floodingThreadMap_.insert(twoFlowKey, this);
+		QMutexLocker ml(&aas_->floodingThreadMap_);
+		aas_->floodingThreadMap_.insert(twoFlowKey, this);
 	}
 }
 
 GAutoArpSpoof::FloodingThread::~FloodingThread() {
 	GDEBUG_DTOR
 	{
-		QMutexLocker ml(&parent_->floodingThreadMap_.m_);
-		parent_->floodingThreadMap_.remove(twoFlowKey_);
+		QMutexLocker ml(&aas_->floodingThreadMap_);
+		aas_->floodingThreadMap_.remove(twoFlowKey_);
 	}
 }
 
@@ -221,15 +221,15 @@ void GAutoArpSpoof::FloodingThread::run() {
 	qDebug() << QString("beg %1").arg(QString(infectPacket_->arpHdr_.tip())); // gilgil temp 2021.11.15
 	QElapsedTimer timer;
 	timer.start();
-	while (parent_->active()) {
+	while (aas_->active()) {
 		qint64 elapsed = timer.elapsed();
-		if (elapsed > qint64(parent_->floodingTimeout_)) break;
+		if (elapsed > qint64(aas_->floodingTimeout_)) break;
 		for (int i = 0; i < 2; i++) {
 			GBuf buf(pbyte(&infectPacket_[i]), sizeof(GEthArpPacket));
-			parent_->write(buf);
-			if (swe_.wait(parent_->sendInterval_)) break;
+			aas_->write(buf);
+			if (swe_.wait(aas_->sendInterval_)) break;
 		}
-		if (swe_.wait(parent_->floodingSendInterval_)) break;
+		if (swe_.wait(aas_->floodingSendInterval_)) break;
 	}
 	qDebug() << QString("end %1").arg(QString(infectPacket_->arpHdr_.tip())); // gilgil temp 2021.11.15
 }
@@ -242,14 +242,14 @@ GAutoArpSpoof::RecoverThread::RecoverThread(GAutoArpSpoof* parent, GAutoArpSpoof
 	GFlow::IpFlowKey ipFlowKey1{flow1.senderIp_, flow1.targetIp_};
 	GFlow::IpFlowKey ipFlowKey2{flow2.senderIp_, flow2.targetIp_};
 	{
-		QMutexLocker ml(&parent_->recoverThreadMap_.m_);
+		QMutexLocker ml(&parent_->recoverThreadMap_);
 		parent_->recoverThreadMap_.insert(twoFlowKey, this);
 	}
 }
 
 GAutoArpSpoof::RecoverThread::~RecoverThread() {
 	{
-		QMutexLocker ml(&parent_->recoverThreadMap_.m_);
+		QMutexLocker ml(&parent_->recoverThreadMap_);
 		parent_->recoverThreadMap_.remove(twoFlowKey_);
 
 		if (parent_->active()) {
@@ -294,7 +294,7 @@ void GAutoArpSpoof::removeFlows(Flow* flow1, Flow* flow2) {
 
 	TwoFlowKey twoFlowKey(flow1Key, flow2Key);
 	{
-		QMutexLocker ml(&floodingThreadMap_.m_);
+		QMutexLocker ml(&floodingThreadMap_);
 		FloodingThreadMap::iterator it = floodingThreadMap_.find(twoFlowKey);
 		if (it != floodingThreadMap_.end()) {
 			FloodingThread* floodingThread = it.value();
@@ -302,7 +302,7 @@ void GAutoArpSpoof::removeFlows(Flow* flow1, Flow* flow2) {
 		}
 	}
 	{
-		QMutexLocker ml(&recoverThreadMap_.m_);
+		QMutexLocker ml(&recoverThreadMap_);
 		RecoverThreadMap::iterator it = recoverThreadMap_.find(twoFlowKey);
 		if (it != recoverThreadMap_.end()) {
 			RecoverThread* recoverThread = it.value();
