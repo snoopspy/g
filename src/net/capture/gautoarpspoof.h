@@ -59,7 +59,6 @@ protected:
 		~FloodingThread() override;
 		void run() override;
 
-		GAutoArpSpoof* aas_;
 		GStateWaitEvent swe_;
 		TwoFlowKey twoFlowKey_;
 		GEthArpPacket infectPacket_[2];
@@ -68,11 +67,10 @@ protected:
 	} floodingThreadMap_;
 
 	struct RecoverThread : GThread {
-		RecoverThread(GAutoArpSpoof* parent, TwoFlowKey twoFlowKey, Flow flow1, Flow flow2);
+		RecoverThread(GAutoArpSpoof* autoArpSpoof, TwoFlowKey twoFlowKey, Flow flow1, Flow flow2);
 		~RecoverThread() override;
 		void run() override;
 
-		GAutoArpSpoof* parent_;
 		GStateWaitEvent swe_;
 		TwoFlowKey twoFlowKey_;
 		Flow flow1_, flow2_;
@@ -85,3 +83,4 @@ protected:
 public:
 	void removeFlows(GIp senderIp1, GIp targetIp1, GIp senderIp2, GIp targetIp2);
 };
+typedef GAutoArpSpoof *PAutoArpSpoof;
