@@ -192,6 +192,7 @@ void GPluginFactory::loadFilter() {
 #include <GHostScan>
 #include <GHostWatch>
 #include <GIpFlowMgr>
+#include <GIpMgr>
 #include <GTcpFlowMgr>
 #include <GUdpFlowMgr>
 
@@ -201,6 +202,7 @@ void GPluginFactory::loadManage() {
 	qRegisterMetaType<GHostScan*>();
 	qRegisterMetaType<GHostWatch*>();
 	qRegisterMetaType<GIpFlowMgr*>();
+	qRegisterMetaType<GIpMgr*>();
 	qRegisterMetaType<GTcpFlowMgr*>();
 	qRegisterMetaType<GUdpFlowMgr*>();
 
@@ -210,6 +212,7 @@ void GPluginFactory::loadManage() {
 	category->items_.push_back(new ItemNode("GHostScan"));
 	category->items_.push_back(new ItemNode("GHostWatch"));
 	category->items_.push_back(new ItemNode("GIpFlowMgr"));
+	category->items_.push_back(new ItemNode("GIpMgr"));
 	category->items_.push_back(new ItemNode("GTcpFlowMgr"));
 	category->items_.push_back(new ItemNode("GUdpFlowMgr"));
 
@@ -229,6 +232,7 @@ void GPluginFactory::loadManage() {
 #include <GPacketMgrDebug>
 #include <GScreenKeeper>
 #include <GScreenSaver>
+#include <GTraceRoute>
 
 void GPluginFactory::loadProcess() {
 #ifndef Q_OS_WIN
@@ -243,6 +247,7 @@ void GPluginFactory::loadProcess() {
 	qRegisterMetaType<GPacketMgrDebug*>();
 	qRegisterMetaType<GScreenKeeper*>();
 	qRegisterMetaType<GScreenSaver*>();
+	qRegisterMetaType<GTraceRoute*>();
 
 	ItemCategory* category = new ItemCategory("Process");
 	category->items_.push_back(new ItemNode("GBeaconFlood"));
@@ -254,6 +259,7 @@ void GPluginFactory::loadProcess() {
 	category->items_.push_back(new ItemNode("GPacketDebug"));
 	category->items_.push_back(new ItemNode("GScreenKeeper"));
 	category->items_.push_back(new ItemNode("GScreenSaver"));
+	category->items_.push_back(new ItemNode("GTraceRoute"));
 
 	items_.push_back(category);
 }

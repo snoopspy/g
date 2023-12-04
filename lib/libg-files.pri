@@ -87,6 +87,7 @@ SOURCES += \
 	$${PWD}/../src/net/manage/ghostscan.cpp \
 	$${PWD}/../src/net/manage/ghostwatch.cpp \
 	$${PWD}/../src/net/manage/gipflowmgr.cpp \
+	$${PWD}/../src/net/manage/gipmgr.cpp \
 	$${PWD}/../src/net/manage/gtcpflowmgr.cpp \
 	$${PWD}/../src/net/manage/gudpflowmgr.cpp \
 	$${PWD}/../src/net/gatm.cpp \
@@ -136,6 +137,7 @@ SOURCES += \
 	$${PWD}/../src/net/process/gpacketmgrdebug.cpp \
 	$${PWD}/../src/net/process/gscreenkeeper.cpp \
 	$${PWD}/../src/net/process/gscreensaver.cpp \
+	$${PWD}/../src/net/process/gtraceroute.cpp \
 	$${PWD}/../src/net/write/gpcapdevicewrite.cpp \
 	$${PWD}/../src/net/write/gpcapfilewrite.cpp \
 	$${PWD}/../src/net/write/gpcapwrite.cpp \
@@ -234,6 +236,7 @@ HEADERS += \
 	$${PWD}/../src/net/manage/ghostscan.h \
 	$${PWD}/../src/net/manage/ghostwatch.h \
 	$${PWD}/../src/net/manage/gipflowmgr.h \
+	$${PWD}/../src/net/manage/gipmgr.h \
 	$${PWD}/../src/net/manage/gpacketmgr.h \
 	$${PWD}/../src/net/manage/gtcpflowmgr.h \
 	$${PWD}/../src/net/manage/gudpflowmgr.h \
@@ -285,6 +288,7 @@ HEADERS += \
 	$${PWD}/../src/net/process/gpacketmgrdebug.h \
 	$${PWD}/../src/net/process/gscreenkeeper.h \
 	$${PWD}/../src/net/process/gscreensaver.h \
+	$${PWD}/../src/net/process/gtraceroute.h \
 	$${PWD}/../src/net/write/gpcapdevicewrite.h \
 	$${PWD}/../src/net/write/gpcapfilewrite.h \
 	$${PWD}/../src/net/write/gpcapwrite.h \
