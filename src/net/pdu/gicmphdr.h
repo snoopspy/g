@@ -37,7 +37,7 @@ struct G_EXPORT GIcmpHdr {
 };
 typedef GIcmpHdr *PIcmpHdr;
 
-// PingRequest or PingReply
+// for PingRequest and PingReply
 struct G_EXPORT GIcmpPingHdr : GIcmpHdr {
 	uint16_t id_;
 	uint16_t seq_;
@@ -56,10 +56,11 @@ struct G_EXPORT GIcmpPingHdr : GIcmpHdr {
 };
 typedef GIcmpPingHdr *PIcmpPingHdr;
 
-struct G_EXPORT GIcmpTtlExceededHdr : GIcmpHdr {
+// for DestinationUnReaclable and TtlExceeded
+struct G_EXPORT GIcmpIpHdr : GIcmpHdr {
 	uint32_t unused_;
-	GIpHdr* ipHdr() { return PIpHdr(pbyte(this) + sizeof(GIcmpTtlExceededHdr)); }
+	GIpHdr* ipHdr() { return PIpHdr(pbyte(this) + sizeof(GIcmpIpHdr)); }
 };
-typedef GIcmpTtlExceededHdr *PIcmpTtlExceededHdr;
+typedef GIcmpIpHdr *PIcmpIpHdr;
 
 #pragma pack(pop)
