@@ -109,7 +109,7 @@ void GIpMgr::manage(GPacket* packet) {
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr == nullptr) return;
 
-	processIp(packet, ipHdr->sip());
+	// processIp(packet, ipHdr->sip()); // gilgil temp 2023.12.04
 	processIp(packet, ipHdr->dip());
 
 	emit managed(packet);
