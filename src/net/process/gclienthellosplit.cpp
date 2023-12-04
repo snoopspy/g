@@ -5,7 +5,7 @@
 // ----------------------------------------------------------------------------
 bool GClientHelloSplit::doOpen() {
 	if (tcpFlowMgr_ == nullptr) {
-		SET_ERR(GErr::ObjectIsNull, "tcpFlowMgr must be specified");
+		SET_ERR(GErr::ObjectIsNull, "tcpFlowMgr is null");
 		return false;
 	}
 	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request(this, sizeof(Item));

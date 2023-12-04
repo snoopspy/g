@@ -14,7 +14,7 @@ bool GDot11Block::doOpen() {
 	if (!enabled_) return true;
 
 	if (writer_ == nullptr) {
-		SET_ERR(GErr::ObjectIsNull, "writer must be specified");
+		SET_ERR(GErr::ObjectIsNull, "writer is null");
 		return false;
 	}
 
