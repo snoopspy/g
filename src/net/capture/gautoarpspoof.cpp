@@ -89,7 +89,7 @@ bool GAutoArpSpoof::doClose() {
 		{
 			QMutexLocker ml(&floodingThreadMap_);
 			int count = floodingThreadMap_.count();
-			qDebug() << QString("floodingThreadSet count=%1").arg(count); // gilgil temp 2021.11.05
+			qDebug() << QString("floodingThreadMap_.count()=%1").arg(count); // gilgil temp 2021.11.05
 			if (count == 0) break;
 		}
 		QCoreApplication::processEvents();
@@ -97,7 +97,7 @@ bool GAutoArpSpoof::doClose() {
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
 			int count = floodingThreadMap_.count();
-			qCritical() << QString("floodingThreadSet_.count() is %1").arg(count);
+			qCritical() << QString("floodingThreadMap_.count()=%1").arg(count);
 			break;
 		}
 	}
@@ -107,7 +107,7 @@ bool GAutoArpSpoof::doClose() {
 		{
 			QMutexLocker ml(&recoverThreadMap_);
 			int count = recoverThreadMap_.count();
-			qDebug() << QString("recoverThreadSet count=%1").arg(count); // gilgil temp 2021.11.05
+			qDebug() << QString("recoverThreadMap_.count()=%1").arg(count); // gilgil temp 2021.11.05
 			if (count == 0) break;
 		}
 		QCoreApplication::processEvents();
@@ -115,7 +115,7 @@ bool GAutoArpSpoof::doClose() {
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
 			int count = recoverThreadMap_.count();
-			qCritical() << QString("recoverThreadSet_.count() is %1").arg(count);
+			qCritical() << QString("recoverThreadMap_.count()=%1").arg(count);
 			break;
 		}
 	}
