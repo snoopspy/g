@@ -41,24 +41,29 @@ typedef GIcmpHdr *PIcmpHdr;
 struct G_EXPORT GIcmpPingHdr : GIcmpHdr {
 	uint16_t id_;
 	uint16_t seq_;
-	struct timeval ts_;
-	uint32_t unused_;
+	uint32_t tv_sec_;
+	uint32_t tv_usec_;
 
 	uint16_t id() { return ntohs(id_); }
-	uint16_t seq() { return ntohs(id_); }
+	uint16_t seq() { return ntohs(seq_); }
+	uint32_t tv_sec() { return ntohl(tv_sec_); }
+	uint32_t tv_usec() { return ntohl(tv_usec_); }
 	struct timeval ts() {
-		struct timeval res;
-		res.tv_sec = ntohl(ts_.tv_sec);
-		res.tv_usec = ntohl(ts_.tv_usec);
-		return res;
+		struct timeval tv;
+		tv.tv_sec = tv_sec();
+		tv.tv_usec = tv_usec();
+		return tv;
 	}
-	void* data() { return pbyte(this) + sizeof(GIcmpPingHdr); }
+
+	gbyte* data() { return pbyte(this) + sizeof(GIcmpPingHdr); }
 };
 typedef GIcmpPingHdr *PIcmpPingHdr;
 
 // for DestinationUnReaclable and TtlExceeded
 struct G_EXPORT GIcmpIpHdr : GIcmpHdr {
 	uint32_t unused_;
+
+	uint32_t unused() { return ntohl(unused_); }
 	GIpHdr* ipHdr() { return PIpHdr(pbyte(this) + sizeof(GIcmpIpHdr)); }
 };
 typedef GIcmpIpHdr *PIcmpIpHdr;
