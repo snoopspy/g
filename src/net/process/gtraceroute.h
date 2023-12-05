@@ -46,9 +46,9 @@ public:
 	GDuration stopTimeout_{5000};
 	GDuration ttlChangeTimeout_{1};
 	GDuration sendTimeout_{1};
-	uint16_t tcpLocalPort_{5559};
-	uint16_t udpLocalPort_{5559};
-	uint16_t icmpId_{5559};
+	uint16_t tcpLocalPort_{0};
+	uint16_t udpLocalPort_{0};
+	uint16_t icmpId_{0};
 	QString logFileName_{"tr.tsv"};
 	GRawIpSocketWrite* rawIpSocketWrite_{nullptr};
 
