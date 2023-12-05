@@ -49,7 +49,7 @@ public:
 	uint16_t tcpLocalPort_{5559};
 	uint16_t udpLocalPort_{5559};
 	uint16_t icmpId_{5559};
-	QString logFileName_{"tr.log"};
+	QString logFileName_{"tr.tsv"};
 	GRawIpSocketWrite* rawIpSocketWrite_{nullptr};
 
 public:
