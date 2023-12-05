@@ -142,7 +142,7 @@ namespace GFlow {
 	// ----------------------------------------------------------------------------
 	// TransportKey
 	// ----------------------------------------------------------------------------
-	struct TransportKey{
+	struct TransportKey {
 	public:
 		GIp ip_;
 		uint16_t port_;
