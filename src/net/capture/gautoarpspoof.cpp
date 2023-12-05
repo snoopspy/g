@@ -89,15 +89,16 @@ bool GAutoArpSpoof::doClose() {
 		{
 			QMutexLocker ml(&floodingThreadMap_);
 			int count = floodingThreadMap_.count();
-			qDebug() << QString("floodingThreadMap_.count()=%1").arg(count); // gilgil temp 2021.11.05
 			if (count == 0) break;
+			qDebug() << QString("flooding map thread count = %1").arg(count); // gilgil temp 2021.11.05
 		}
 		QCoreApplication::processEvents();
 		QThread::msleep(100);
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
+			QMutexLocker ml(&floodingThreadMap_);
 			int count = floodingThreadMap_.count();
-			qCritical() << QString("floodingThreadMap_.count()=%1").arg(count);
+			qCritical() << QString("flooding map thread count = %1").arg(count);
 			break;
 		}
 	}
@@ -107,15 +108,16 @@ bool GAutoArpSpoof::doClose() {
 		{
 			QMutexLocker ml(&recoverThreadMap_);
 			int count = recoverThreadMap_.count();
-			qDebug() << QString("recoverThreadMap_.count()=%1").arg(count); // gilgil temp 2021.11.05
 			if (count == 0) break;
+			qDebug() << QString("recover map thread count = %1").arg(count); // gilgil temp 2021.11.05
 		}
 		QCoreApplication::processEvents();
 		QThread::msleep(100);
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
+			QMutexLocker ml(&recoverThreadMap_);
 			int count = recoverThreadMap_.count();
-			qCritical() << QString("recoverThreadMap_.count()=%1").arg(count);
+			qCritical() << QString("recover map thread count =%1").arg(count);
 			break;
 		}
 	}
@@ -169,7 +171,6 @@ void GAutoArpSpoof::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	if (floodingTimeout_ != 0) {
 		QMetaObject::invokeMethod(this, [this, twoFlowKey, flow, revFlow]() {
 			FloodingThread* thread = new FloodingThread(this, twoFlowKey, flow.infectPacket_, revFlow.infectPacket_);
-			QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 			thread->start();
 		});
 	}
@@ -177,7 +178,6 @@ void GAutoArpSpoof::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	if (recoverTimeout_ != 0) {
 		QMetaObject::invokeMethod(this, [this, twoFlowKey, flow, revFlow]() {
 			RecoverThread* thread = new RecoverThread(this, twoFlowKey, flow, revFlow);
-			QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 			thread->start();
 		});
 	}
@@ -206,6 +206,7 @@ GAutoArpSpoof::FloodingThread::FloodingThread(GAutoArpSpoof* aas, GAutoArpSpoof:
 		QMutexLocker ml(&aas->floodingThreadMap_);
 		aas->floodingThreadMap_.insert(twoFlowKey, this);
 	}
+	QObject::connect(this, &QThread::finished, this, &QObject::deleteLater);
 }
 
 GAutoArpSpoof::FloodingThread::~FloodingThread() {
@@ -248,6 +249,7 @@ GAutoArpSpoof::RecoverThread::RecoverThread(GAutoArpSpoof* autoArpSpoof, GAutoAr
 		QMutexLocker ml(&aas->recoverThreadMap_);
 		aas->recoverThreadMap_.insert(twoFlowKey, this);
 	}
+	QObject::connect(this, &QThread::finished, this, &QObject::deleteLater);
 }
 
 GAutoArpSpoof::RecoverThread::~RecoverThread() {
