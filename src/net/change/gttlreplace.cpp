@@ -13,7 +13,7 @@ void GTtlReplace::replace(GPacket* packet) {
 	}
 
 	if (log_)
-		qInfo() << QString("replaced(%1 > %2").arg(ipHdr->ttl_).arg(ttl_);
+		qInfo() << QString("replaced %1 > %2").arg(ipHdr->ttl_).arg(ttl_);
 
 	uint16_t oldChecksum = ipHdr->sum();
 	uint16_t oldValue = ipHdr->ttl_ << 8 | ipHdr->p_;
