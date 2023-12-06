@@ -108,7 +108,6 @@ protected:
 				if (res < hopNo)
 					res = hopNo;
 			}
-			qDebug() << res;
 			return res;
 		}
 	};
@@ -177,6 +176,7 @@ protected:
 		~IcmpThread() override;
 		void run() override;
 		bool processHostResponse(GIcmpPingHdr* icmpPingHdr);
+		bool processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, GIcmpPingHdr* icmpPingHdr2);
 
 		QString logHeader() override {
 			return QString("ICMP\t%1:%2\t%3:%4\t").arg(QString(icmpKey_.sip_)).arg(id_).arg(QString(icmpKey_.dip_)).arg(id_);

@@ -159,7 +159,7 @@ void GTraceRoute::processTtlResponse(GPacket* packet, bool* ok) {
 	switch (p) {
 		case GIpHdr::Tcp : {
 			GTcpHdr* tcpHdr2 = PTcpHdr(nextPdu);
-			if (pbyte(tcpHdr2) + 8 > pbyte(end)) { // 8(sport + dport + seq size)
+			if (pbyte(tcpHdr2) + 8 > pbyte(end)) { // 8 = sport(2) + dport(2) + seq(4)
 				qWarning() << QString("invalid packet data=0x%1 size=%2 tcpHdr2=0x%3")
 					.arg(QString::number(qintptr(packet->buf_.data_), 16)).arg(packet->buf_.size_).arg(QString::number(qintptr(tcpHdr2), 16));
 				return;
@@ -172,7 +172,26 @@ void GTraceRoute::processTtlResponse(GPacket* packet, bool* ok) {
 				if (it == tcpMgr_.end()) return;
 				TcpThread* tcpThread = it.value();
 				*ok = tcpThread->processTtlResponse(ipHdr, ipHdr2, tcpHdr2);
+			}
+		}
+		case GIpHdr::Udp : {
+			qDebug() << "to do later"; // gilgil temp 2023.12.06
+			break;
+		}
+		case GIpHdr::Icmp : {
+			GIcmpPingHdr* icmpPingHdr2 = PIcmpPingHdr(nextPdu);
+			if (pbyte(icmpPingHdr2) + 8 > pbyte(end)) { // 8 = type(1) + code(1) + sum(2) + id(2) + seq(2)
+				qWarning() << QString("invalid packet data=0x%1 size=%2 icmpPingHdr2=0x%3")
+					.arg(QString::number(qintptr(packet->buf_.data_), 16)).arg(packet->buf_.size_).arg(QString::number(qintptr(icmpPingHdr2), 16));
 				return;
+			}
+			IcmpKey icmpKey(sip2, dip2);
+			{
+				QMutexLocker ml(&icmpMgr_);
+				IcmpMgr::iterator it = icmpMgr_.find(icmpKey);
+				if (it == icmpMgr_.end()) return;
+				IcmpThread* icmpThread = it.value();
+				*ok = icmpThread->processTtlResponse(ipHdr, ipHdr2, icmpPingHdr2);
 			}
 		}
 		default: break;
@@ -193,7 +212,8 @@ void GTraceRoute::processCreateThread(GPacket* packet) {
 		if (flags != GTcpHdr::Syn) return;
 		uint16_t port = tcpHdr->dport();
 		TcpKey tcpKey(sip, dip, port);
-		TcpMgr::iterator it = tcpMgr_.find(tcpKey);
+		TcpMgr::iterator it;
+		{ QMutexLocker ml(&tcpMgr_); it = tcpMgr_.find(tcpKey); }
 		if (it == tcpMgr_.end()) {
 			QMetaObject::invokeMethod(this, [this, tcpKey, packet]() {
 				TcpThread* tcpThread = new TcpThread(this, tcpKey, packet);
@@ -207,14 +227,15 @@ void GTraceRoute::processCreateThread(GPacket* packet) {
 	if (udpHdr != nullptr) {
 		uint16_t port = udpHdr->dport();
 		UdpKey udpKey(sip, dip, port);
-		UdpMgr::iterator it = udpMgr_.find(udpKey);
+		UdpMgr::iterator it ;
+		{ QMutexLocker ml(&udpMgr_); it = udpMgr_.find(udpKey); }
 		if (it == udpMgr_.end()) {
 			QMetaObject::invokeMethod(this, [this, udpKey, packet]() {
 				UdpThread* udpThread = new UdpThread(this, udpKey, packet);
 				udpThread->start();
 			}, Qt::BlockingQueuedConnection);
-			return;
 		}
+		return;
 	}
 
 	GIcmpHdr* icmpHdr = packet->icmpHdr_;
@@ -222,14 +243,15 @@ void GTraceRoute::processCreateThread(GPacket* packet) {
 		uint8_t type = icmpHdr->type();
 		if (type != GIcmpHdr::PingRequest) return;
 		IcmpKey icmpKey(sip, dip);
-		IcmpMgr::iterator it = icmpMgr_.find(icmpKey);
+		IcmpMgr::iterator it;
+		{ QMutexLocker ml(&icmpMgr_); it = icmpMgr_.find(icmpKey); }
 		if (it == icmpMgr_.end()) {
 			QMetaObject::invokeMethod(this, [this, icmpKey, packet]() {
 				IcmpThread* icmpThread = new IcmpThread(this, icmpKey, packet);
 				icmpThread->start();
 			}, Qt::BlockingQueuedConnection);
-			return;
 		}
+		return;
 	}
 }
 
@@ -460,7 +482,7 @@ GTraceRoute::IcmpThread::IcmpThread(GTraceRoute* tr, IcmpKey icmpKey, GPacket* p
 	GIcmpPingHdr* icmpPingHdr = PIcmpPingHdr(icmpHdr);
 	gbyte* icmpData = icmpPingHdr->data();
 	size_t icmpDataLen = ipHdr->tlen() - (ipHdr->hlen() * 4 + sizeof(GIcmpPingHdr));
-	qDebug() << "icmpDataLen =" << icmpDataLen << sizeof(GIcmpPingHdr) << sizeof(struct timeval); // gilgil temp 2023..12.06
+	qDebug() << "icmpDataLen =" << icmpDataLen; // gilgil temp 2023..12.06
 
 	sendPacketByteArray_.resize(sizeof(GIpHdr) + sizeof(GIcmpPingHdr) + icmpDataLen);
 	GIpHdr* sendIpHdr = PIpHdr(sendPacketByteArray_.data());
@@ -516,6 +538,7 @@ void GTraceRoute::IcmpThread::run() {
 	Q_ASSERT(icmpPingHdr != nullptr);
 	for (uint8_t ttl = 1; ttl <= tr->maxHop_; ttl++) {
 		ipHdr->tos_ = 0x44;
+		ipHdr->id_ = htons(ttl);
 		ipHdr->ttl_ = ttl;
 		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
 
@@ -544,6 +567,30 @@ bool GTraceRoute::IcmpThread::processHostResponse(GIcmpPingHdr* icmpPingHdr) {
 	if (hostHopNo_ != 0 && hopNo >= hostHopNo_) return false;
 	hostHopNo_ = hopNo;
 	GIp hopIp = icmpKey_.dip_;
+	qDebug() << QString("%1 %2").arg(hopNo).arg(QString(hopIp));
+	return true;
+}
+
+bool GTraceRoute::IcmpThread::processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, GIcmpPingHdr* icmpPingHdr2) {
+	uint16_t id = ipHdr2->id();
+	uint16_t seq = icmpPingHdr2->seq();
+	if (id != seq) {
+		qWarning() << QString("different id(%1) seq(%2)").arg(id).arg(seq);
+		return false;
+	}
+	int hopNo = id;
+	GIp hopIp = ipHdr->sip();
+	HopMap::iterator it = hopMap_.find(hopNo);
+	if (it != hopMap_.end()) {
+		GIp ip = it.value();
+		if (ip != hopIp) {
+			qWarning() << QString("different ip old(%1) new(%2)").arg(QString(ip)).arg(QString(hopIp));
+			return false;
+		}
+	}
+	if (hostHopNo_ != 0 && hopNo == hostHopNo_)
+		qWarning() << QString("same hopNo and hostHopNo(%1)").arg(hopIp);
+	hopMap_.insert(hopNo, hopIp);
 	qDebug() << QString("%1 %2").arg(hopNo).arg(QString(hopIp));
 	return true;
 }
