@@ -1,5 +1,4 @@
 #include "gpcapfile.h"
-#include "base/prop/gpropitem-filepath.h"
 
 // ----------------------------------------------------------------------------
 // GPcapFile
@@ -97,6 +96,7 @@ GPacket::Result GPcapFile::read(GPacket* packet) {
 
 #ifdef QT_GUI_LIB
 
+#include "base/prop/gpropitem-filepath.h"
 GPropItem* GPcapFile::propCreateItem(GPropItemParam* param) {
 	if (QString(param->mpro_.name()) == "fileName") {
 		GPropItemFilePath* res = new GPropItemFilePath(param);
