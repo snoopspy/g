@@ -173,6 +173,7 @@ void GTraceRoute::processTtlResponse(GPacket* packet, bool* ok) {
 				TcpThread* tcpThread = it.value();
 				*ok = tcpThread->processTtlResponse(ipHdr, ipHdr2, tcpHdr2);
 			}
+			break;
 		}
 		case GIpHdr::Udp : {
 			qDebug() << "to do later"; // gilgil temp 2023.12.06
@@ -193,6 +194,7 @@ void GTraceRoute::processTtlResponse(GPacket* packet, bool* ok) {
 				IcmpThread* icmpThread = it.value();
 				*ok = icmpThread->processTtlResponse(ipHdr, ipHdr2, icmpPingHdr2);
 			}
+			break;
 		}
 		default: break;
 	}
