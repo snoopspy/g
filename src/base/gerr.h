@@ -34,6 +34,7 @@ struct G_EXPORT GErr {
 		ValueIsNotNull,
 		ValueIsZero,
 		ValueIsNotZero,
+		InvalidValue,
 		ObjectIsNull,
 		ObjectIsNotNull,
 		ReturnNull,
