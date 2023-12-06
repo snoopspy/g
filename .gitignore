@@ -31,3 +31,5 @@ makefile-win
 moc_*
 qrc_*
 ui_*
+nohup.out
+
