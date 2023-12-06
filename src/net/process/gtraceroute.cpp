@@ -160,7 +160,7 @@ void GTraceRoute::processTtlResponse(GPacket* packet, bool* ok) {
 		case GIpHdr::Tcp : {
 			GTcpHdr* tcpHdr2 = PTcpHdr(nextPdu);
 			if (pbyte(tcpHdr2) + 8 > pbyte(end)) { // 8 = sport(2) + dport(2) + seq(4)
-				qWarning() << QString("invalid packet data=0x%1 size=%2 tcpHdr2=0x%3")
+				qWarning() << QString("invalid packet size : data=0x%1 size=%2 tcpHdr2=0x%3")
 					.arg(QString::number(qintptr(packet->buf_.data_), 16)).arg(packet->buf_.size_).arg(QString::number(qintptr(tcpHdr2), 16));
 				return;
 			}
@@ -181,7 +181,7 @@ void GTraceRoute::processTtlResponse(GPacket* packet, bool* ok) {
 		case GIpHdr::Icmp : {
 			GIcmpPingHdr* icmpPingHdr2 = PIcmpPingHdr(nextPdu);
 			if (pbyte(icmpPingHdr2) + 8 > pbyte(end)) { // 8 = type(1) + code(1) + sum(2) + id(2) + seq(2)
-				qWarning() << QString("invalid packet data=0x%1 size=%2 icmpPingHdr2=0x%3")
+				qWarning() << QString("invalid packet size : data=0x%1 size=%2 icmpPingHdr2=0x%3")
 					.arg(QString::number(qintptr(packet->buf_.data_), 16)).arg(packet->buf_.size_).arg(QString::number(qintptr(icmpPingHdr2), 16));
 				return;
 			}
