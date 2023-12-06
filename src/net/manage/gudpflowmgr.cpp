@@ -20,12 +20,12 @@ bool GUdpFlowMgr::doClose() {
 	return GPacketMgr::doClose();
 }
 
-void GUdpFlowMgr::deleteOldFlowMaps(long now) {
+void GUdpFlowMgr::deleteOldFlowMaps(time_t now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
 		UdpFlowValue* udpFlowValue = it.value();
-		long elapsed = now - udpFlowValue->lastTs_.tv_sec;
-		long timeout = 0;
+		time_t elapsed = now - udpFlowValue->lastTs_.tv_sec;
+		time_t timeout = 0;
 		switch (udpFlowValue->state_) {
 			case UdpFlowValue::Half: timeout = halfTimeout_; break;
 			case UdpFlowValue::Full: timeout = fullTimeout_; break;

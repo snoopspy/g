@@ -20,12 +20,12 @@ bool GTcpFlowMgr::doClose() {
 	return GPacketMgr::doClose();
 }
 
-void GTcpFlowMgr::deleteOldFlowMaps(long now) {
+void GTcpFlowMgr::deleteOldFlowMaps(time_t now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
 		TcpFlowValue* tcpFlowValue = it.value();
-		long elapsed = now - tcpFlowValue->lastTs_.tv_sec;
-		long timeout = 0;
+		time_t elapsed = now - tcpFlowValue->lastTs_.tv_sec;
+		time_t timeout = 0;
 		switch (tcpFlowValue->state_) {
 			case TcpFlowValue::Half: timeout = halfTimeout_; break;
 			case TcpFlowValue::Full: timeout = fullTimeout_; break;

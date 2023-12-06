@@ -20,12 +20,12 @@ bool GIpFlowMgr::doClose() {
 	return GPacketMgr::doClose();
 }
 
-void GIpFlowMgr::deleteOldFlowMaps(long now) {
+void GIpFlowMgr::deleteOldFlowMaps(time_t now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
 		IpFlowValue* ipFlowValue = it.value();
-		long elapsed = now - ipFlowValue->lastTs_.tv_sec;
-		long timeout = 0;
+		time_t elapsed = now - ipFlowValue->lastTs_.tv_sec;
+		time_t timeout = 0;
 		switch (ipFlowValue->state_) {
 			case IpFlowValue::Half: timeout = halfTimeout_; break;
 			case IpFlowValue::Full: timeout = fullTimeout_; break;

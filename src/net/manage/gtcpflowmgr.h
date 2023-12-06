@@ -99,7 +99,7 @@ public:
 
 protected:
 	FlowMap flowMap_;
-	void deleteOldFlowMaps(long now);
+	void deleteOldFlowMaps(time_t now);
 
 public:
 	GFlow::TcpFlowKey currentTcpFlowKey_;
