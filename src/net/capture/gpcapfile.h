@@ -19,10 +19,12 @@ struct G_EXPORT GPcapFile : GPcapCapture {
 	Q_OBJECT
 	Q_PROPERTY(QString fileName MEMBER fileName_)
 	Q_PROPERTY(int loopCount MEMBER loopCount_)
+	Q_PROPERTY(QStringList frameNumbers MEMBER frameNumbers_)
 
 public:
 	QString fileName_{""};
 	int loopCount_{1};
+	QStringList frameNumbers_;
 
 public:
 	Q_INVOKABLE GPcapFile(QObject* parent = nullptr) : GPcapCapture(parent) {}
@@ -37,6 +39,8 @@ public:
 
 protected:
 	int loopIndex_;
+	int currentFrameNumber_;
+	QSet<int>frameNumberSet_;
 
 #ifdef QT_GUI_LIB
 public:
