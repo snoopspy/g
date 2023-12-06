@@ -42,8 +42,8 @@ public:
 	QString intfName_{""};
 	int maxHop_{30};
 	int queryCount_{3};
-	GDuration startTimeout_{5000};
-	GDuration stopTimeout_{5000};
+	GDuration startTimeout_{1000};
+	GDuration stopTimeout_{1000};
 	GDuration ttlChangeTimeout_{1};
 	GDuration sendTimeout_{1};
 	uint16_t tcpLocalPort_{0};
@@ -145,7 +145,7 @@ protected:
 		bool processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, GTcpHdr* tcpHdr2);
 
 		QString logHeader() override {
-			return QString("TCP\t%1:%2\t%3:%4\t").arg(QString(tcpKey_.sip_)).arg(sport_).arg(QString(tcpKey_.dip_)).arg(tcpKey_.port_);
+			return QString("TCP\t%1\t%2\t%3\t%4\t").arg(QString(tcpKey_.sip_)).arg(sport_).arg(QString(tcpKey_.dip_)).arg(tcpKey_.port_);
 		}
 	};
 
@@ -161,7 +161,7 @@ protected:
 		void run() override;
 
 		QString logHeader() override {
-			return QString("UDP\t%1:%2\t%3:%4\t").arg(QString(udpKey_.sip_)).arg(sport_).arg(QString(udpKey_.dip_)).arg(udpKey_.port_);
+			return QString("UDP\t%1\t%2\t%3\t%4\t").arg(QString(udpKey_.sip_)).arg(sport_).arg(QString(udpKey_.dip_)).arg(udpKey_.port_);
 		}
 	};
 
@@ -179,7 +179,7 @@ protected:
 		bool processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, GIcmpPingHdr* icmpPingHdr2);
 
 		QString logHeader() override {
-			return QString("ICMP\t%1:%2\t%3:%4\t").arg(QString(icmpKey_.sip_)).arg(id_).arg(QString(icmpKey_.dip_)).arg(id_);
+			return QString("ICMP\t%1\t%2\t%3\t%4\t").arg(QString(icmpKey_.sip_)).arg(id_).arg(QString(icmpKey_.dip_)).arg(id_);
 		}
 	};
 

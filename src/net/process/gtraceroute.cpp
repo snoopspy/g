@@ -306,7 +306,7 @@ void GTraceRoute::ProbeThread::writeLog() {
 	else {
 		QTextStream ts(&file);
 		if (!exists) {
-			QString header = "proto\tsrc\tdst\t";
+			QString header = "proto\tsip\tsport\tdip\tdport\t";
 			for (int i = 1; i <= tr->maxHop_; i++) {
 				header += QString::number(i);
 				if (i < tr->maxHop_)
@@ -415,8 +415,7 @@ void GTraceRoute::TcpThread::run() {
 bool GTraceRoute::TcpThread::processHostResponse(GTcpHdr* tcpHdr) {
 	uint16_t dport = tcpHdr->dport();
 	if (dport != sport_) return false;
-	uint32_t ack = tcpHdr->ack();
-	int hopNo = ack - 1; // seq number sent previously
+	uint32_t hopNo = tcpHdr->ack() - 1; // ack = seq number sent previously
 	if (hostHopNo_ != 0 && hopNo >= hostHopNo_) return false;
 	hostHopNo_ = hopNo;
 	GIp hopIp = tcpKey_.dip_;
