@@ -41,8 +41,8 @@ public:
 	QString intfName_{""};
 	int maxHop_{30};
 	int queryCount_{3};
-	GDuration startTimeout_{1000};
-	GDuration stopTimeout_{3000};
+	GDuration startTimeout_{100};
+	GDuration stopTimeout_{1000};
 	GDuration ttlChangeTimeout_{1};
 	GDuration sendTimeout_{1};
 	uint16_t tcpLocalPort_{0};
@@ -188,6 +188,7 @@ protected:
 	struct TcpMgr : QMap<TcpKey, TcpThread*>, QRecursiveMutex {} tcpMgr_;
 	struct UdpMgr : QMap<UdpKey, UdpThread*>, QRecursiveMutex {} udpMgr_;
 	struct IcmpMgr : QMap<IcmpKey, IcmpThread*>, QRecursiveMutex {} icmpMgr_;
+
 
 #ifdef QT_GUI_LIB
 public:
