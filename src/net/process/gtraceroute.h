@@ -33,24 +33,23 @@ struct G_EXPORT GTraceRoute : GStateObj {
 	Q_PROPERTY(quint16 udpLocalPort MEMBER udpLocalPort_)
 	Q_PROPERTY(quint16 icmpId MEMBER icmpId_)
 	Q_PROPERTY(QString logFileName MEMBER logFileName_)
-	Q_PROPERTY(GObjPtr rawIpSockerWrite READ getRawIpSockerWrite WRITE setRawIpSockerWrite )
+	Q_PROPERTY(GObjRef write READ getRawIpSockerWrite)
 
-	GObjPtr getRawIpSockerWrite() { return rawIpSocketWrite_; }
-	void setRawIpSockerWrite(GObjPtr value) { rawIpSocketWrite_ = dynamic_cast<GRawIpSocketWrite*>(value.data()); }
+	GObjRef getRawIpSockerWrite() { return &rawIpSocketWrite_; }
 
 public:
 	QString intfName_{""};
 	int maxHop_{30};
 	int queryCount_{3};
 	GDuration startTimeout_{1000};
-	GDuration stopTimeout_{1000};
+	GDuration stopTimeout_{3000};
 	GDuration ttlChangeTimeout_{1};
 	GDuration sendTimeout_{1};
 	uint16_t tcpLocalPort_{0};
 	uint16_t udpLocalPort_{0};
 	uint16_t icmpId_{0};
 	QString logFileName_{"tr.tsv"};
-	GRawIpSocketWrite* rawIpSocketWrite_{nullptr};
+	GRawIpSocketWrite rawIpSocketWrite_{this};
 
 public:
 	Q_INVOKABLE GTraceRoute(QObject* parent = nullptr);
@@ -63,6 +62,7 @@ protected:
 protected:
 	GIntf* intf_{nullptr};
 	GIp myIp_{0};
+	QMutex logFileMutex_;
 
 protected:
 	void processHostResponse(GPacket* packet, bool* ok);
@@ -116,7 +116,7 @@ protected:
 	// ProbeThread
 	// ------------------------------------------------------------------------
 	struct ProbeThread : GThread {
-		ProbeThread(GTraceRoute* tr);
+		ProbeThread(GTraceRoute* tr, GPacket* packet);
 		~ProbeThread() override;
 
 		GIpPacket sendPacket_;
@@ -127,6 +127,7 @@ protected:
 		GIp hostHopIp_;
 		int hostHopNo_{0};
 
+		QDateTime logTime_;
 		virtual QString logHeader() = 0;
 		void writeLog();
 	};
@@ -138,14 +139,14 @@ protected:
 		TcpKey tcpKey_;
 		uint16_t sport_;
 
-		TcpThread(GTraceRoute* tr, TcpKey tcpKey, GPacket* packet);
+		TcpThread(GTraceRoute* tr, GPacket* packet, TcpKey tcpKey);
 		~TcpThread() override;
 		void run() override;
 		bool processHostResponse(GTcpHdr* tcpHdr);
 		bool processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, GTcpHdr* tcpHdr2);
 
 		QString logHeader() override {
-			return QString("TCP\t%1\t%2\t%3\t%4\t").arg(QString(tcpKey_.sip_)).arg(sport_).arg(QString(tcpKey_.dip_)).arg(tcpKey_.port_);
+			return QString("tcp\t%1\t%2\t%3\t%4\t").arg(QString(tcpKey_.sip_)).arg(sport_).arg(QString(tcpKey_.dip_)).arg(tcpKey_.port_);
 		}
 	};
 
@@ -156,12 +157,12 @@ protected:
 		UdpKey udpKey_;
 		uint16_t sport_;
 
-		UdpThread(GTraceRoute* tr, UdpKey udpKey, GPacket* packet);
+		UdpThread(GTraceRoute* tr, GPacket* packet, UdpKey udpKey);
 		~UdpThread() override;
 		void run() override;
 
 		QString logHeader() override {
-			return QString("UDP\t%1\t%2\t%3\t%4\t").arg(QString(udpKey_.sip_)).arg(sport_).arg(QString(udpKey_.dip_)).arg(udpKey_.port_);
+			return QString("udp\t%1\t%2\t%3\t%4\t").arg(QString(udpKey_.sip_)).arg(sport_).arg(QString(udpKey_.dip_)).arg(udpKey_.port_);
 		}
 	};
 
@@ -172,14 +173,14 @@ protected:
 		IcmpKey icmpKey_;
 		uint16_t id_;
 
-		IcmpThread(GTraceRoute* tr, IcmpKey icmpKey, GPacket* packet);
+		IcmpThread(GTraceRoute* tr, GPacket* packet, IcmpKey icmpKey);
 		~IcmpThread() override;
 		void run() override;
 		bool processHostResponse(GIcmpPingHdr* icmpPingHdr);
 		bool processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, GIcmpPingHdr* icmpPingHdr2);
 
 		QString logHeader() override {
-			return QString("ICMP\t%1\t%2\t%3\t%4\t").arg(QString(icmpKey_.sip_)).arg(id_).arg(QString(icmpKey_.dip_)).arg(id_);
+			return QString("icmp\t%1\t%2\t%3\t%4\t").arg(QString(icmpKey_.sip_)).arg(id_).arg(QString(icmpKey_.dip_)).arg(id_);
 		}
 	};
 

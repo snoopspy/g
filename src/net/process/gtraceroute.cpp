@@ -33,11 +33,10 @@ bool GTraceRoute::doOpen() {
 		SET_ERR(GErr::ValueIsNull, msg);
 		return false;
 	}
-
 	myIp_ = intf_->ip();
 
-	if (rawIpSocketWrite_ == nullptr) {
-		SET_ERR(GErr::ObjectIsNull, "rawIpSocketWrite is null");
+	if (!rawIpSocketWrite_.open()) {
+		err = rawIpSocketWrite_.err;
 		return false;
 	}
 
@@ -59,12 +58,7 @@ bool GTraceRoute::doClose() {
 		{ QMutexLocker ml(&udpMgr_); udpCount = udpMgr_.count(); }
 		{ QMutexLocker ml(&icmpMgr_); icmpCount = icmpMgr_.count();	}
 		if (tcpCount == 0 && udpCount == 0 && icmpCount == 0) break;
-		{
-			QMutexLocker ml1(&tcpMgr_);
-			QMutexLocker ml2(&udpMgr_);
-			QMutexLocker ml3(&icmpMgr_);
-			qDebug() << QString("thread count %1 %2 %3").arg(tcpMgr_.count()).arg(tcpMgr_.count()).arg(tcpMgr_.count());
-		}
+		qDebug() << QString("thread count %1 %2 %3").arg(tcpCount).arg(udpCount).arg(icmpCount);
 
 		QCoreApplication::processEvents();
 		QThread::msleep(100);
@@ -73,10 +67,13 @@ bool GTraceRoute::doClose() {
 			QMutexLocker ml1(&tcpMgr_);
 			QMutexLocker ml2(&udpMgr_);
 			QMutexLocker ml3(&icmpMgr_);
-			qCritical() << QString("thread count %1 %2 %3").arg(tcpMgr_.count()).arg(tcpMgr_.count()).arg(tcpMgr_.count());
+			qCritical() << QString("thread count %1 %2 %3").arg(udpMgr_.count()).arg(tcpMgr_.count()).arg(icmpMgr_.count());
 			break;
 		}
 	}
+
+	rawIpSocketWrite_.close();
+
 	return true;
 }
 
@@ -218,7 +215,7 @@ void GTraceRoute::processCreateThread(GPacket* packet) {
 		{ QMutexLocker ml(&tcpMgr_); it = tcpMgr_.find(tcpKey); }
 		if (it == tcpMgr_.end()) {
 			QMetaObject::invokeMethod(this, [this, tcpKey, packet]() {
-				TcpThread* tcpThread = new TcpThread(this, tcpKey, packet);
+				TcpThread* tcpThread = new TcpThread(this, packet, tcpKey);
 				tcpThread->start();
 			}, Qt::BlockingQueuedConnection);
 		}
@@ -233,7 +230,7 @@ void GTraceRoute::processCreateThread(GPacket* packet) {
 		{ QMutexLocker ml(&udpMgr_); it = udpMgr_.find(udpKey); }
 		if (it == udpMgr_.end()) {
 			QMetaObject::invokeMethod(this, [this, udpKey, packet]() {
-				UdpThread* udpThread = new UdpThread(this, udpKey, packet);
+				UdpThread* udpThread = new UdpThread(this, packet, udpKey);
 				udpThread->start();
 			}, Qt::BlockingQueuedConnection);
 		}
@@ -249,7 +246,7 @@ void GTraceRoute::processCreateThread(GPacket* packet) {
 		{ QMutexLocker ml(&icmpMgr_); it = icmpMgr_.find(icmpKey); }
 		if (it == icmpMgr_.end()) {
 			QMetaObject::invokeMethod(this, [this, icmpKey, packet]() {
-				IcmpThread* icmpThread = new IcmpThread(this, icmpKey, packet);
+				IcmpThread* icmpThread = new IcmpThread(this, packet, icmpKey);
 				icmpThread->start();
 			}, Qt::BlockingQueuedConnection);
 		}
@@ -270,7 +267,8 @@ void GTraceRoute::probe(GPacket* packet) {
 // ----------------------------------------------------------------------------
 // ProbeThread
 // ----------------------------------------------------------------------------
-GTraceRoute::ProbeThread::ProbeThread(GTraceRoute* tr) : GThread(tr) {
+GTraceRoute::ProbeThread::ProbeThread(GTraceRoute* tr, GPacket* packet) : GThread(tr) {
+	logTime_ = QDateTime::fromTime_t(packet->ts_.tv_sec);
 	QObject::connect(this, &QThread::finished, this, &QObject::deleteLater);
 }
 
@@ -278,7 +276,7 @@ GTraceRoute::ProbeThread::~ProbeThread() {
 }
 
 void GTraceRoute::ProbeThread::writeLog() {
-	QString msg = logHeader();
+	QString msg = logTime_.toString("yy.MM.dd\thh:mm:ss\t") + logHeader();
 	int maxHopNo = std::max(hopMap_.maxHopNo(), hostHopNo_);
 	qDebug() << "maxHopNo is" << maxHopNo; // gilgil temp 2023.12.06
 	for (int hopNo = 1; hopNo <= maxHopNo; hopNo++) {
@@ -301,30 +299,33 @@ void GTraceRoute::ProbeThread::writeLog() {
 	GTraceRoute* tr = PTraceRoute(parent());
 	Q_ASSERT(tr != nullptr);
 
-	QFile file(tr->logFileName_);
-	bool exists = file.exists();
-	if (!file.open(QIODevice::WriteOnly | QIODevice::Append))
-		qWarning() << QString("can not open file(%1) %2").arg(tr->logFileName_).arg(file.errorString());
-	else {
-		QTextStream ts(&file);
-		if (!exists) {
-			QString header = "proto\tsip\tsport\tdip\tdport\t";
-			for (int i = 1; i <= tr->maxHop_; i++) {
-				header += QString::number(i);
-				if (i < tr->maxHop_)
-					header += '\t';
+	{
+		QMutexLocker ml(&tr->logFileMutex_);
+		QFile file(tr->logFileName_);
+		bool exists = file.exists();
+		if (!file.open(QIODevice::WriteOnly | QIODevice::Append))
+			qWarning() << QString("can not open file(%1) %2").arg(tr->logFileName_).arg(file.errorString());
+		else {
+			QTextStream ts(&file);
+			if (!exists) {
+				QString header = "date\ttime\tproto\tsip\tsport\tdip\tdport\t";
+				for (int i = 1; i <= tr->maxHop_; i++) {
+					header += QString::number(i);
+					if (i < tr->maxHop_)
+						header += '\t';
+				}
+				ts << header << '\n';
 			}
-			ts << header << '\n';
+			ts << msg;
+			file.close();
 		}
-		ts << msg;
-		file.close();
 	}
 }
 
 // ----------------------------------------------------------------------------
 // TcpThread
 // ----------------------------------------------------------------------------
-GTraceRoute::TcpThread::TcpThread(GTraceRoute* tr, TcpKey tcpKey, GPacket* packet) : ProbeThread(tr) {
+GTraceRoute::TcpThread::TcpThread(GTraceRoute* tr, GPacket* packet, TcpKey tcpKey) : ProbeThread(tr, packet) {
 	qDebug() << QString("%1 %2 %3").arg(QString(tcpKey.sip_)).arg(QString(tcpKey.dip_)).arg(tcpKey.port_);
 
 	tcpKey_ = tcpKey;
@@ -338,9 +339,11 @@ GTraceRoute::TcpThread::TcpThread(GTraceRoute* tr, TcpKey tcpKey, GPacket* packe
 	GIpHdr* sendIpHdr = PIpHdr(sendPacketByteArray_.data());
 	GTcpHdr* sendTcpHdr = PTcpHdr(sendPacketByteArray_.data() + sizeof(GIpHdr));
 
+	// ip header
 	*sendIpHdr = *ipHdr;
 	sendIpHdr->tlen_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr));
 
+	// tcp header
 	*sendTcpHdr = *tcpHdr;
 	uint16_t sport = tr->tcpLocalPort_;
 	if (sport == 0)
@@ -400,7 +403,7 @@ void GTraceRoute::TcpThread::run() {
 		tcpHdr->sum_ = htons(GIpHdr::recalcChecksum(oldTcpChecksum, uint16_t(0), uint16_t(ttl)));
 
 		for (int q = 0; q < tr->queryCount_; q++) {
-			tr->rawIpSocketWrite_->write(&sendPacket_);
+			tr->rawIpSocketWrite_.write(&sendPacket_);
 			swe_.wait(tr->sendTimeout_);
 			if (!tr->active()) break;
 		}
@@ -451,10 +454,10 @@ bool GTraceRoute::TcpThread::processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, G
 // ----------------------------------------------------------------------------
 // UdpThread
 // ----------------------------------------------------------------------------
-GTraceRoute::UdpThread::UdpThread(GTraceRoute* tr, UdpKey udpKey, GPacket* packet) : ProbeThread(tr) {
-	qDebug() << "";
-	(void)udpKey;
-	(void)packet;
+GTraceRoute::UdpThread::UdpThread(GTraceRoute* tr, GPacket* packet, UdpKey udpKey) : ProbeThread(tr, packet) {
+	qDebug() << QString("%1 %2 %3").arg(QString(udpKey.sip_)).arg(QString(udpKey.dip_)).arg(udpKey.port_);
+
+	udpKey_ = udpKey;
 }
 
 GTraceRoute::UdpThread::~UdpThread() {
@@ -468,7 +471,7 @@ void GTraceRoute::UdpThread::run() {
 // ----------------------------------------------------------------------------
 // IcmpThread
 // ----------------------------------------------------------------------------
-GTraceRoute::IcmpThread::IcmpThread(GTraceRoute* tr, IcmpKey icmpKey, GPacket* packet) : ProbeThread(tr) {
+GTraceRoute::IcmpThread::IcmpThread(GTraceRoute* tr, GPacket* packet, IcmpKey icmpKey) : ProbeThread(tr, packet) {
 	qDebug() << QString("%1 %2").arg(QString(icmpKey.sip_)).arg(QString(icmpKey.dip_));
 	icmpKey_ = icmpKey;
 
@@ -482,15 +485,17 @@ GTraceRoute::IcmpThread::IcmpThread(GTraceRoute* tr, IcmpKey icmpKey, GPacket* p
 	GIcmpPingHdr* icmpPingHdr = PIcmpPingHdr(icmpHdr);
 	gbyte* icmpData = icmpPingHdr->data();
 	size_t icmpDataLen = ipHdr->tlen() - (ipHdr->hlen() * 4 + sizeof(GIcmpPingHdr));
-	qDebug() << "icmpDataLen =" << icmpDataLen; // gilgil temp 2023..12.06
+	qDebug() << "icmpDataLen =" << icmpDataLen; // gilgil temp 2023.12.06
 
 	sendPacketByteArray_.resize(sizeof(GIpHdr) + sizeof(GIcmpPingHdr) + icmpDataLen);
 	GIpHdr* sendIpHdr = PIpHdr(sendPacketByteArray_.data());
 	GIcmpPingHdr* sendIcmpPingHdr = PIcmpPingHdr(sendPacketByteArray_.data() + sizeof(GIpHdr));
 	gbyte* sendIcmpData = pbyte(sendPacketByteArray_.data() + sizeof(GIpHdr) + sizeof(GIcmpPingHdr));
 
+	// ip header
 	*sendIpHdr = *ipHdr;
 
+	// icmp ping header
 	*sendIcmpPingHdr = *icmpPingHdr;
 	uint16_t id = tr->icmpId_;
 	if (id == 0)
@@ -499,9 +504,8 @@ GTraceRoute::IcmpThread::IcmpThread(GTraceRoute* tr, IcmpKey icmpKey, GPacket* p
 	sendIcmpPingHdr->id_ = htons(id);
 	sendIcmpPingHdr->seq_ = 0;
 
+	// icmp data
 	memcpy(sendIcmpData, icmpData, icmpDataLen);
-
-	icmpPingHdr->data();
 
 	sendPacket_.clear();
 	GBuf buf(pbyte(sendPacketByteArray_.data()), sendPacketByteArray_.size());
@@ -546,7 +550,7 @@ void GTraceRoute::IcmpThread::run() {
 		icmpPingHdr->sum_ = htons(GIcmpHdr::calcChecksum(ipHdr, icmpPingHdr));
 
 		for (int q = 0; q < tr->queryCount_; q++) {
-			tr->rawIpSocketWrite_->write(&sendPacket_);
+			tr->rawIpSocketWrite_.write(&sendPacket_);
 			swe_.wait(tr->sendTimeout_);
 			if (!tr->active()) break;
 		}
@@ -597,9 +601,16 @@ bool GTraceRoute::IcmpThread::processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, 
 #ifdef QT_GUI_LIB
 
 #include "base/prop/gpropitem-interface.h"
+#include "base/prop/gpropitem-filepath.h"
 GPropItem* GTraceRoute::propCreateItem(GPropItemParam* param) {
 	if (QString(param->mpro_.name()) == "intfName") {
 		return new GPropItemInterface(param);
+	}
+	if (QString(param->mpro_.name()) == "logFileName") {
+		GPropItemFilePath* res = new GPropItemFilePath(param);
+		QStringList filters{"tsv files - *.tsv(*.tsv)", "any files - *(*)"};
+		res->fd_->setNameFilters(filters);
+		return res;
 	}
 	return GObj::propCreateItem(param);
 }
