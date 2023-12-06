@@ -435,10 +435,9 @@ bool GTraceRoute::TcpThread::processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, G
 	HopMap::iterator it = hopMap_.find(hopNo);
 	if (it != hopMap_.end()) {
 		GIp ip = it.value();
-		if (ip != hopIp) {
+		if (ip != hopIp)
 			qWarning() << QString("different ip old(%1) new(%2)").arg(QString(ip)).arg(QString(hopIp));
-			return false;
-		}
+		return false;
 	}
 	if (hostHopNo_ != 0 && hopNo == hostHopNo_)
 		qWarning() << QString("same hopNo and hostHopNo(%1)").arg(hopIp);
@@ -582,10 +581,9 @@ bool GTraceRoute::IcmpThread::processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, 
 	HopMap::iterator it = hopMap_.find(hopNo);
 	if (it != hopMap_.end()) {
 		GIp ip = it.value();
-		if (ip != hopIp) {
+		if (ip != hopIp)
 			qWarning() << QString("different ip old(%1) new(%2)").arg(QString(ip)).arg(QString(hopIp));
-			return false;
-		}
+		return false;
 	}
 	if (hostHopNo_ != 0 && hopNo == hostHopNo_)
 		qWarning() << QString("same hopNo and hostHopNo(%1)").arg(hopIp);
