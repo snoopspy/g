@@ -186,7 +186,7 @@ void HostAnalyzer::updateHosts() {
 		treeWidgetItem->setProperty("shouldBeDeleted", true);
 	}
 
-	QMutexLocker ml(&hostMgr_.hostMap_.m_);
+	QMutexLocker ml(&hostMgr_.hostMap_);
 	for (GHostMgr::HostMap::iterator it = hostMgr_.hostMap_.begin(); it != hostMgr_.hostMap_.end(); it++) {
 		GMac mac = it.key();
 		GHostMgr::HostValue* hostValue = it.value();

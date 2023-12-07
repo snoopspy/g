@@ -84,9 +84,6 @@ void GTraceRoute::checkTtlResponse(GPacket* packet, bool* ok) {
 	if (type != GIcmpHdr::TtlExceeded) return;
 	*ok = true;
 
-	GIp sip = ipHdr->sip();
-	GIp dip = ipHdr->dip();
-
 	GIcmpIpHdr* icmpIpHdr = PIcmpIpHdr(icmpHdr);
 	GIpHdr* ipHdr2 = icmpIpHdr->ipHdr();
 	if (!packet->buf_.contains(ipHdr2)) {
@@ -94,7 +91,6 @@ void GTraceRoute::checkTtlResponse(GPacket* packet, bool* ok) {
 		return;
 	}
 
-	GIp sip2 = ipHdr2->sip();
 	GIp dip2 = ipHdr2->dip();
 
 	void* nextPdu = pbyte(ipHdr2) + ipHdr2->hlen() * 4; // tcp, udp or icmp
@@ -185,7 +181,7 @@ GTraceRoute::ProbeThread::ProbeThread(GTraceRoute* tr, GPacket* packet, Key key)
 
 	sendPacketByteArray_.resize(copyBuf.size_);
 	GIpHdr* sendIpHdr = PIpHdr(sendPacketByteArray_.data());
-	memcpy(sendIpHdr, copyBuf.data_, copyBuf.size_);
+	memcpy(pvoid(sendIpHdr), pvoid(copyBuf.data_), copyBuf.size_);
 	sendIpHdr->tos_ = 0x45;
 	sendIpHdr->off_ = htons(sendIpHdr->off() | 0x8000); // set Reserved bit(MSB). means my sending ttl probe packet
 
