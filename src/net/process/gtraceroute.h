@@ -29,9 +29,6 @@ struct G_EXPORT GTraceRoute : GStateObj {
 	Q_PROPERTY(ulong stopTimeout MEMBER stopTimeout_)
 	Q_PROPERTY(ulong ttlChangeTimeout MEMBER ttlChangeTimeout_)
 	Q_PROPERTY(ulong sendTimeout MEMBER sendTimeout_)
-	Q_PROPERTY(quint16 tcpLocalPort MEMBER tcpLocalPort_)
-	Q_PROPERTY(quint16 udpLocalPort MEMBER udpLocalPort_)
-	Q_PROPERTY(quint16 icmpId MEMBER icmpId_)
 	Q_PROPERTY(QString logFileName MEMBER logFileName_)
 	Q_PROPERTY(GObjRef write READ getRawIpSockerWrite)
 
@@ -45,9 +42,6 @@ public:
 	GDuration stopTimeout_{1000};
 	GDuration ttlChangeTimeout_{1};
 	GDuration sendTimeout_{1};
-	uint16_t tcpLocalPort_{0};
-	uint16_t udpLocalPort_{0};
-	uint16_t icmpId_{0};
 	QString logFileName_{"tr.tsv"};
 	GRawIpSocketWrite rawIpSocketWrite_{this};
 
@@ -65,9 +59,8 @@ protected:
 	QMutex logFileMutex_;
 
 protected:
-	void processHostResponse(GPacket* packet, bool* ok);
-	void processTtlResponse(GPacket* packet, bool* ok);
-	void processCreateThread(GPacket* packet);
+	void checkTtlResponse(GPacket* packet, bool* ok);
+	void checkCreateThread(GPacket* packet);
 
 public slots:
 	void probe(GPacket* packet);
@@ -76,26 +69,20 @@ protected:
 	// ------------------------------------------------------------------------
 	// Key
 	// ------------------------------------------------------------------------
-	struct TransportKey {
-		GIp sip_;
+	struct Key {
+		uint8_t p_; // tcp, udp or icmp
 		GIp dip_;
-		uint16_t port_;
 
-		TransportKey() {}
-		TransportKey(GIp sip, GIp dip, uint16_t port) : sip_(sip), dip_(dip), port_(port) {}
+		Key() {}
+		Key(uint8_t p , GIp dip) : p_(p), dip_(dip) {}
 
-		bool operator < (const TransportKey& r) const {
-			if (this->sip_ < r.sip_) return true;
-			if (this->sip_ > r.sip_) return false;
+		bool operator < (const Key& r) const {
 			if (this->dip_ < r.dip_) return true;
-			if (this->dip_ > r.dip_) return false;
-			if (this->port_ < r.port_) return true;
+			if (this->dip_ > r.dip_) return true;
+			if (this->p_ < r.p_) return true;
 			return false;
 		};
 	};
-	typedef TransportKey TcpKey;
-	typedef TransportKey UdpKey;
-	typedef GFlow::IpFlowKey IcmpKey;
 
 	// ------------------------------------------------------------------------
 	// HopMap
@@ -116,16 +103,20 @@ protected:
 	// ProbeThread
 	// ------------------------------------------------------------------------
 	struct ProbeThread : GThread {
-		ProbeThread(GTraceRoute* tr, GPacket* packet);
+		ProbeThread(GTraceRoute* tr, GPacket* packet, Key key);
 		~ProbeThread() override;
+
+		void run() override;
+
+		Key key_;
+		GIpHdr* ipHdr_;
 
 		GIpPacket sendPacket_;
 		QByteArray sendPacketByteArray_;
 		GStateWaitEvent swe_;
-
 		HopMap hopMap_;
-		GIp hostHopIp_;
-		int hostHopNo_{0};
+
+		bool checkTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2);
 
 		QDateTime logTime_;
 		virtual QString logHeader() = 0;
@@ -136,17 +127,17 @@ protected:
 	// TcpThread
 	// ------------------------------------------------------------------------
 	struct TcpThread : ProbeThread {
-		TcpKey tcpKey_;
-		uint16_t sport_;
-
-		TcpThread(GTraceRoute* tr, GPacket* packet, TcpKey tcpKey);
+		TcpThread(GTraceRoute* tr, GPacket* packet, Key key);
 		~TcpThread() override;
-		void run() override;
-		bool processHostResponse(GTcpHdr* tcpHdr);
-		bool processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, GTcpHdr* tcpHdr2);
+
+		GTcpHdr* tcpHdr_;
+		GIp sip_;
+		uint16_t sport_;
+		GIp dip_;
+		uint16_t dport_;
 
 		QString logHeader() override {
-			return QString("tcp\t%1\t%2\t%3\t%4\t").arg(QString(tcpKey_.sip_)).arg(sport_).arg(QString(tcpKey_.dip_)).arg(tcpKey_.port_);
+			return QString("tcp\t%1\t%2\t%3\t%4\t").arg(QString(sip_)).arg(sport_).arg(QString(dip_)).arg(dport_);
 		}
 	};
 
@@ -154,15 +145,17 @@ protected:
 	// UdpThread
 	// ------------------------------------------------------------------------
 	struct UdpThread : ProbeThread {
-		UdpKey udpKey_;
-		uint16_t sport_;
-
-		UdpThread(GTraceRoute* tr, GPacket* packet, UdpKey udpKey);
+		UdpThread(GTraceRoute* tr, GPacket* packet, Key key);
 		~UdpThread() override;
-		void run() override;
+
+		GUdpHdr* udpHdr_;
+		GIp sip_;
+		uint16_t sport_;
+		GIp dip_;
+		uint16_t dport_;
 
 		QString logHeader() override {
-			return QString("udp\t%1\t%2\t%3\t%4\t").arg(QString(udpKey_.sip_)).arg(sport_).arg(QString(udpKey_.dip_)).arg(udpKey_.port_);
+			return QString("udp\t%1\t%2\t%3\t%4\t").arg(QString(sip_)).arg(sport_).arg(QString(dip_)).arg(dport_);
 		}
 	};
 
@@ -170,25 +163,21 @@ protected:
 	// UdpThread
 	// ------------------------------------------------------------------------
 	struct IcmpThread : ProbeThread {
-		IcmpKey icmpKey_;
+		IcmpThread(GTraceRoute* tr, GPacket* packet, Key key);
+		~IcmpThread() override;
+
+		GIcmpPingHdr* icmpPingHdr_;
+		GIp sip_;
+		GIp dip_;
 		uint16_t id_;
 
-		IcmpThread(GTraceRoute* tr, GPacket* packet, IcmpKey icmpKey);
-		~IcmpThread() override;
-		void run() override;
-		bool processHostResponse(GIcmpPingHdr* icmpPingHdr);
-		bool processTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2, GIcmpPingHdr* icmpPingHdr2);
-
 		QString logHeader() override {
-			return QString("icmp\t%1\t%2\t%3\t%4\t").arg(QString(icmpKey_.sip_)).arg(id_).arg(QString(icmpKey_.dip_)).arg(id_);
+			return QString("icmp\t%1\t%2\t%3\t%4\t").arg(QString(sip_)).arg(id_).arg(QString(dip_)).arg(id_);
 		}
 	};
 
 protected:
-	struct TcpMgr : QMap<TcpKey, TcpThread*>, QRecursiveMutex {} tcpMgr_;
-	struct UdpMgr : QMap<UdpKey, UdpThread*>, QRecursiveMutex {} udpMgr_;
-	struct IcmpMgr : QMap<IcmpKey, IcmpThread*>, QRecursiveMutex {} icmpMgr_;
-
+	struct ThreadMgr : QMap<Key, ProbeThread*>, QRecursiveMutex {} threadMgr_;
 
 #ifdef QT_GUI_LIB
 public:
