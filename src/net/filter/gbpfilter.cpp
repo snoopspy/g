@@ -38,15 +38,15 @@ bool GBpFilter::doClose() {
 	return true;
 }
 
-bool GBpFilter::check(GBuf* buf) {
+bool GBpFilter::check(GBuf buf) {
 	Q_ASSERT(code_ != nullptr);
-	u_int len = u_int(buf->size_);
-	u_int res = bpf_filter(code_->bf_insns, const_cast<u_char*>(buf->data_), len, len);
+	u_int len = u_int(buf.size_);
+	u_int res = bpf_filter(code_->bf_insns, const_cast<u_char*>(buf.data_), len, len);
 	return res > 0;
 }
 
 bool GBpFilter::check(GPacket* packet) {
-	bool res = check(&packet->buf_);
+	bool res = check(packet->buf_);
 	if (res)
 		emit filtered(packet);
 	else

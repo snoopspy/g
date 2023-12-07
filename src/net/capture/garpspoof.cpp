@@ -233,7 +233,7 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 				Flow& flow = it.value();
 				ethHdr->dmac_ = flow.targetMac_;
 				if (bpFilter_ != nullptr) {
-					if (!bpFilter_->check(&packet->buf_)) {
+					if (!bpFilter_->check(packet->buf_)) {
 						relay(packet);
 						continue;
 					}

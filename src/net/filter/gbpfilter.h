@@ -38,7 +38,7 @@ protected:
 	bpf_program* code_{nullptr};
 
 public:
-	bool check(GBuf* buf);
+	bool check(GBuf buf);
 
 public slots:
 	bool check(GPacket* packet);
