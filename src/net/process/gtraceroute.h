@@ -12,8 +12,8 @@
 
 #include "base/sys/gthread.h"
 #include "base/sys/gwaitevent.h"
+#include "net/filter/gbpfilter.h"
 #include "net/gnetinfo.h"
-#include "net/manage/gflowkey.h"
 #include "net/packet/gpacket.h"
 #include "net/write/grawipsocketwrite.h"
 
@@ -30,8 +30,10 @@ struct G_EXPORT GTraceRoute : GStateObj {
 	Q_PROPERTY(ulong ttlChangeTimeout MEMBER ttlChangeTimeout_)
 	Q_PROPERTY(ulong sendTimeout MEMBER sendTimeout_)
 	Q_PROPERTY(QString logFileName MEMBER logFileName_)
+	Q_PROPERTY(GObjRef filter READ getBpFilter)
 	Q_PROPERTY(GObjRef write READ getRawIpSockerWrite)
 
+	GObjRef getBpFilter() { return &bpFilter_; }
 	GObjRef getRawIpSockerWrite() { return &rawIpSocketWrite_; }
 
 public:
@@ -43,6 +45,7 @@ public:
 	GDuration ttlChangeTimeout_{1};
 	GDuration sendTimeout_{1};
 	QString logFileName_{"tr.tsv"};
+	GBpFilter bpFilter_{this};
 	GRawIpSocketWrite rawIpSocketWrite_{this};
 
 public:
@@ -78,7 +81,7 @@ protected:
 
 		bool operator < (const Key& r) const {
 			if (this->dip_ < r.dip_) return true;
-			if (this->dip_ > r.dip_) return true;
+			if (this->dip_ > r.dip_) return false;
 			if (this->p_ < r.p_) return true;
 			return false;
 		};

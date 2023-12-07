@@ -4,7 +4,6 @@
 // GTraceRoute
 // ----------------------------------------------------------------------------
 GTraceRoute::GTraceRoute(QObject* parent) : GStateObj(parent) {
-	qDebug() << "";
 #ifndef Q_OS_ANDROID
 	GRtmEntry* entry = GNetInfo::instance().rtm().getBestEntry(QString("8.8.8.8"));
 	if (entry != nullptr) {
@@ -18,7 +17,6 @@ GTraceRoute::GTraceRoute(QObject* parent) : GStateObj(parent) {
 }
 
 GTraceRoute::~GTraceRoute() {
-	qDebug() << "";
 }
 
 bool GTraceRoute::doOpen() {
@@ -35,6 +33,11 @@ bool GTraceRoute::doOpen() {
 	}
 	myIp_ = intf_->ip();
 
+	if (!bpFilter_.open()) {
+		err = bpFilter_.err;
+		return false;
+	}
+
 	if (!rawIpSocketWrite_.open()) {
 		err = rawIpSocketWrite_.err;
 		return false;
@@ -44,8 +47,6 @@ bool GTraceRoute::doOpen() {
 }
 
 bool GTraceRoute::doClose() {
-	qDebug() << "";
-
 	{ QMutexLocker ml(&threadMgr_); for (ProbeThread* thread: threadMgr_) thread->swe_.wakeAll(); }
 
 	QElapsedTimer timer;
@@ -60,12 +61,13 @@ bool GTraceRoute::doClose() {
 		QThread::msleep(100);
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
-			QMutexLocker ml1(&threadMgr_);
+			QMutexLocker ml(&threadMgr_);
 			qCritical() << QString("thread count %1").arg(threadMgr_.count());
 			break;
 		}
 	}
 
+	bpFilter_.close();
 	rawIpSocketWrite_.close();
 
 	return true;
@@ -80,6 +82,7 @@ void GTraceRoute::checkTtlResponse(GPacket* packet, bool* ok) {
 
 	uint8_t type = icmpHdr->type();
 	if (type != GIcmpHdr::TtlExceeded) return;
+	*ok = true;
 
 	GIp sip = ipHdr->sip();
 	GIp dip = ipHdr->dip();
@@ -94,7 +97,7 @@ void GTraceRoute::checkTtlResponse(GPacket* packet, bool* ok) {
 	GIp sip2 = ipHdr2->sip();
 	GIp dip2 = ipHdr2->dip();
 
-	void* nextPdu = pbyte(ipHdr2) + ipHdr2->hlen() * 4;
+	void* nextPdu = pbyte(ipHdr2) + ipHdr2->hlen() * 4; // tcp, udp or icmp
 	if (!packet->buf_.contains(pbyte(nextPdu))) {
 		qWarning() << QString("invalid nextPdu(%1) packet=%2").arg(QString::number(qintptr(nextPdu), 16)).arg(QString(packet->buf_));
 		return;
@@ -107,15 +110,16 @@ void GTraceRoute::checkTtlResponse(GPacket* packet, bool* ok) {
 		ThreadMgr::iterator it = threadMgr_.find(key);
 		if (it == threadMgr_.end()) return;
 		ProbeThread* probeThread = it.value();
-		*ok = probeThread->checkTtlResponse(ipHdr, ipHdr2);
+		probeThread->checkTtlResponse(ipHdr, ipHdr2);
 	}
 }
 
 void GTraceRoute::checkCreateThread(GPacket* packet) {
+	if (!bpFilter_.check(packet->buf_)) return;
+
 	GIpHdr* ipHdr = packet->ipHdr_;
 	Q_ASSERT(ipHdr != nullptr);
 
-	// GIp sip = ipHdr->sip(); // gilgil temp 2023.12.07
 	GIp dip = ipHdr->dip();
 	if (dip == myIp_) return;
 
@@ -131,15 +135,16 @@ void GTraceRoute::checkCreateThread(GPacket* packet) {
 	if (packet->tcpHdr_ != nullptr) {
 		QMetaObject::invokeMethod(this, [this, key, packet]() {
 			TcpThread* tcpThread = new TcpThread(this, packet, key);
+			{ QMutexLocker ml(&threadMgr_);	threadMgr_.insert(key, tcpThread); }
 			tcpThread->start();
 		}, Qt::BlockingQueuedConnection);
 		return;
 	}
 
-
 	if (packet->udpHdr_ != nullptr) {
 		QMetaObject::invokeMethod(this, [this, key, packet]() {
 			UdpThread* udpThread = new UdpThread(this, packet, key);
+			{ QMutexLocker ml(&threadMgr_);	threadMgr_.insert(key, udpThread); }
 			udpThread->start();
 		}, Qt::BlockingQueuedConnection);
 		return;
@@ -148,6 +153,7 @@ void GTraceRoute::checkCreateThread(GPacket* packet) {
 	if (packet->icmpHdr_ != nullptr) {
 		QMetaObject::invokeMethod(this, [this, key, packet]() {
 			IcmpThread* icmpThread = new IcmpThread(this, packet, key);
+			{ QMutexLocker ml(&threadMgr_);	threadMgr_.insert(key, icmpThread); }
 			icmpThread->start();
 		}, Qt::BlockingQueuedConnection);
 		return;
@@ -177,9 +183,12 @@ GTraceRoute::ProbeThread::ProbeThread(GTraceRoute* tr, GPacket* packet, Key key)
 		return;
 	}
 
-	sendPacketByteArray_.resize(tlen);
+	sendPacketByteArray_.resize(copyBuf.size_);
 	GIpHdr* sendIpHdr = PIpHdr(sendPacketByteArray_.data());
 	memcpy(sendIpHdr, copyBuf.data_, copyBuf.size_);
+	sendIpHdr->tos_ = 0x45;
+	sendIpHdr->off_ = htons(sendIpHdr->off() | 0x8000); // set Reserved bit(MSB). means my sending ttl probe packet
+
 
 	sendPacket_.clear();
 	GBuf buf(pbyte(sendPacketByteArray_.data()), sendPacketByteArray_.size());
@@ -188,8 +197,6 @@ GTraceRoute::ProbeThread::ProbeThread(GTraceRoute* tr, GPacket* packet, Key key)
 
 	logTime_ = QDateTime::fromTime_t(packet->ts_.tv_sec);
 	QObject::connect(this, &QThread::finished, this, &QObject::deleteLater);
-
-	{ QMutexLocker ml(&tr->threadMgr_); tr->threadMgr_.insert(key, this); }
 }
 
 GTraceRoute::ProbeThread::~ProbeThread() {
@@ -199,7 +206,6 @@ GTraceRoute::ProbeThread::~ProbeThread() {
 }
 
 void GTraceRoute::ProbeThread::run() {
-	qDebug() << "beg";
 	GTraceRoute* tr = PTraceRoute(parent());
 	Q_ASSERT(tr != nullptr);
 
@@ -207,7 +213,6 @@ void GTraceRoute::ProbeThread::run() {
 	GIpHdr* ipHdr = sendPacket_.ipHdr_;
 	Q_ASSERT(ipHdr != nullptr);
 	for (uint8_t ttl = 1; ttl <= tr->maxHop_; ttl++) {
-		ipHdr->tos_ = 0x44;
 		ipHdr->id_ = htons(ttl);
 		ipHdr->ttl_ = ttl;
 		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
@@ -224,28 +229,26 @@ void GTraceRoute::ProbeThread::run() {
 	if (tr->active()) swe_.wait(tr->stopTimeout_);
 
 	writeLog();
-	qDebug() << "end";
 }
 
 bool GTraceRoute::ProbeThread::checkTtlResponse(GIpHdr* ipHdr, GIpHdr* ipHdr2) {
+	if ((ipHdr2->off() & 0x8000) == 0) return false; // if not my sending ttl probe packet
 	GIp hopIp = ipHdr->sip();
 	int hopNo = ipHdr2->id();
 	HopMap::iterator it = hopMap_.find(hopNo);
 	if (it != hopMap_.end()) {
 		GIp ip = it.value();
 		if (ip != hopIp)
-			qWarning() << QString("different ip old(%1) new(%2)").arg(QString(ip)).arg(QString(hopIp));
+			qWarning() << QString("different ip old(%1) new(%2) hop=%3").arg(QString(ip)).arg(QString(hopIp)).arg(hopNo);
 		return false;
 	}
 	hopMap_.insert(hopNo, hopIp);
-	qDebug() << QString("%1 %2").arg(hopNo).arg(QString(hopIp));
 	return true;
 }
 
 void GTraceRoute::ProbeThread::writeLog() {
-	QString msg = logTime_.toString("yy.MM.dd\thh:mm:ss\t") + logHeader();
+	QString msg = logHeader();
 	int maxHopNo = hopMap_.maxHopNo();
-	qDebug() << "maxHopNo is" << maxHopNo; // gilgil temp 2023.12.06
 	for (int hopNo = 1; hopNo <= maxHopNo; hopNo++) {
 		HopMap::iterator it = hopMap_.find(hopNo);
 		if (it == hopMap_.end())
@@ -257,7 +260,6 @@ void GTraceRoute::ProbeThread::writeLog() {
 		if (hopNo < maxHopNo)
 			msg += '\t';
 	}
-	msg += '\n';
 
 	GTraceRoute* tr = PTraceRoute(parent());
 	Q_ASSERT(tr != nullptr);
@@ -279,6 +281,10 @@ void GTraceRoute::ProbeThread::writeLog() {
 				}
 				ts << header << '\n';
 			}
+			QString dbgMsg = msg;
+			dbgMsg.replace('\t', ' ');
+			qDebug() << dbgMsg;
+			msg = logTime_.toString("yy.MM.dd\thh:mm:ss\t") + msg + '\n';
 			ts << msg;
 			file.close();
 		}
