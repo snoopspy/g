@@ -30,7 +30,7 @@ bool GPcapFile::doOpen() {
 	for (QString s: frameNumbers_) {
 		s = s.trimmed();
 		if (s.isEmpty()) continue;
-		int idx = s.indexOf("=");
+		int idx = s.indexOf("-");
 		if (idx == -1) {
 			int frameNumber = s.toInt();
 			if (frameNumber <= 0) {
@@ -39,7 +39,7 @@ bool GPcapFile::doOpen() {
 			}
 			frameNumberSet_.insert(frameNumber);
 		} else {
-			QString s1 = s.left(idx -1);
+			QString s1 = s.left(idx);
 			QString s2 = s.mid(idx + 1);
 			int frameNumber1 = s1.toInt();
 			int frameNumber2 = s2.toInt();
