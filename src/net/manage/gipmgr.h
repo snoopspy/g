@@ -45,7 +45,7 @@ public:
 	struct IpValue : GPacketMgr::Value {
 		// int foo; // gilgil temp 2023.12.04
 #ifdef _DEBUG
-		size_t totalMemSize_;
+		size_t totalMemSize_{0};
 #endif // _DEBUG
 
 		static struct IpValue* allocate(size_t totalMemSize) {

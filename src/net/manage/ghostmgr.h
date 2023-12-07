@@ -38,7 +38,7 @@ public:
 		QString host_;
 		QString vendor_;
 #ifdef _DEBUG
-		size_t totalMemSize_;
+		size_t totalMemSize_{0};
 #endif // _DEBUG
 
 		static struct HostValue* allocate(size_t totalMemSize) {
