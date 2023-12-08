@@ -114,13 +114,19 @@ void GTraceRoute::checkTtlResponse(GPacket* packet, bool* ok) {
 }
 
 void GTraceRoute::checkCreateThread(GPacket* packet) {
-	if (!bpFilter_.check(packet->buf_)) return;
+	GEthHdr* ethHdr = packet->ethHdr_;
+	if (ethHdr != nullptr) {
+		GMac dmac = ethHdr->dmac();
+		if (dmac.isBroadcast() || dmac.isMulticast()) return;
+	}
 
 	GIpHdr* ipHdr = packet->ipHdr_;
 	Q_ASSERT(ipHdr != nullptr);
-
 	GIp dip = ipHdr->dip();
-	if (dip == myIp_) return;
+	if (dip == myIp_ || dip.isBroadcast() || dip.isMulticast() || dip.isLocalHost()) return;
+
+	if (!bpFilter_.check(packet->buf_)) return;
+
 
 	uint8_t p = ipHdr->p();
 	Key key(p, dip);
