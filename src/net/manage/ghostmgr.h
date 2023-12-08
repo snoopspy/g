@@ -18,7 +18,7 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GHostMgr : GPacketMgr {
 	Q_OBJECT
-	Q_PROPERTY(long timeoutSec MEMBER timeoutSec_)
+	Q_PROPERTY(ulong timeoutSec MEMBER timeoutSec_)
 	Q_PROPERTY(GObjPtr pcapDevice READ getPcapDevice WRITE setPcapDevice)
 
 	GObjPtr getPcapDevice() { return pcapDevice_; }
@@ -26,7 +26,7 @@ struct G_EXPORT GHostMgr : GPacketMgr {
 
 public:
 	bool enabled_{true};
-	long timeoutSec_{70}; // 1 minute + 10 seconds
+	GDuration timeoutSec_{70}; // 1 minute + 10 seconds
 	GPcapDevice* pcapDevice_{nullptr};
 
 public:

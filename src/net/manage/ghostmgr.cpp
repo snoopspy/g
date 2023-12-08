@@ -55,7 +55,7 @@ void GHostMgr::deleteOldHosts(time_t now) {
 	HostMap::iterator it = hostMap_.begin();
 	while (it != hostMap_.end()) {
 		HostValue* hostValue = it.value();
-		long elapsed = now - hostValue->lastTs_.tv_sec;
+		ulong elapsed = now - hostValue->lastTs_.tv_sec;
 		if (elapsed >= timeoutSec_) {
 			GMac mac = it.key();
 			qDebug() << QString("%1 %2").arg(QString(mac)).arg(QString(it.value()->ip_));
