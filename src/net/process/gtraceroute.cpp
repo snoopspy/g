@@ -123,6 +123,13 @@ void GTraceRoute::checkCreateThread(GPacket* packet) {
 	Key key(p, dip);
 
 	{
+		NextProbeMgr::iterator it;
+		nextProbeMgr_.deleteOldProbes(packet->ts_.tv_sec);
+		it = nextProbeMgr_.find(key);
+		if (it != nextProbeMgr_.end()) return;
+	}
+
+	{
 		ThreadMgr::iterator it;
 		{ QMutexLocker ml(&threadMgr_); it = threadMgr_.find(key); }
 		if (it != threadMgr_.end()) return;
@@ -132,6 +139,7 @@ void GTraceRoute::checkCreateThread(GPacket* packet) {
 		QMetaObject::invokeMethod(this, [this, key, packet]() {
 			TcpThread* tcpThread = new TcpThread(this, packet, key);
 			{ QMutexLocker ml(&threadMgr_);	threadMgr_.insert(key, tcpThread); }
+			{ QMutexLocker ml(&nextProbeMgr_); nextProbeMgr_.insert(key, packet->ts_.tv_sec); }
 			tcpThread->start();
 		}, Qt::BlockingQueuedConnection);
 		return;
@@ -140,7 +148,8 @@ void GTraceRoute::checkCreateThread(GPacket* packet) {
 	if (packet->udpHdr_ != nullptr) {
 		QMetaObject::invokeMethod(this, [this, key, packet]() {
 			UdpThread* udpThread = new UdpThread(this, packet, key);
-			{ QMutexLocker ml(&threadMgr_);	threadMgr_.insert(key, udpThread); }
+			{ QMutexLocker ml(&threadMgr_); threadMgr_.insert(key, udpThread); }
+			{ QMutexLocker ml(&nextProbeMgr_); nextProbeMgr_.insert(key, packet->ts_.tv_sec); }
 			udpThread->start();
 		}, Qt::BlockingQueuedConnection);
 		return;
@@ -150,6 +159,7 @@ void GTraceRoute::checkCreateThread(GPacket* packet) {
 		QMetaObject::invokeMethod(this, [this, key, packet]() {
 			IcmpThread* icmpThread = new IcmpThread(this, packet, key);
 			{ QMutexLocker ml(&threadMgr_);	threadMgr_.insert(key, icmpThread); }
+			{ QMutexLocker ml(&nextProbeMgr_); nextProbeMgr_.insert(key, packet->ts_.tv_sec); }
 			icmpThread->start();
 		}, Qt::BlockingQueuedConnection);
 		return;

@@ -29,6 +29,7 @@ struct G_EXPORT GTraceRoute : GStateObj {
 	Q_PROPERTY(ulong stopTimeout MEMBER stopTimeout_)
 	Q_PROPERTY(ulong ttlChangeTimeout MEMBER ttlChangeTimeout_)
 	Q_PROPERTY(ulong sendTimeout MEMBER sendTimeout_)
+	Q_PROPERTY(ulong nextProbeTimeoutSec MEMBER nextProbeTimeoutSec_)
 	Q_PROPERTY(QString logFileName MEMBER logFileName_)
 	Q_PROPERTY(GObjRef filter READ getBpFilter)
 	Q_PROPERTY(GObjRef write READ getRawIpSockerWrite)
@@ -44,6 +45,8 @@ public:
 	GDuration stopTimeout_{1000};
 	GDuration ttlChangeTimeout_{1};
 	GDuration sendTimeout_{1};
+	GDuration nextProbeTimeoutSec_{3600}; // 1 hour
+	Q_PROPERTY(ulong nextProbeTimeoutSec MEMBER nextProbeTimeoutSec_)
 	QString logFileName_{"tr.tsv"};
 	GBpFilter bpFilter_{this};
 	GRawIpSocketWrite rawIpSocketWrite_{this};
@@ -181,6 +184,23 @@ protected:
 
 protected:
 	struct ThreadMgr : QMap<Key, ProbeThread*>, QRecursiveMutex {} threadMgr_;
+
+	struct NextProbeMgr : QMap<Key, time_t>, QRecursiveMutex {
+		GTraceRoute* tr_;
+		NextProbeMgr(GTraceRoute* tr) : tr_(tr) {}
+		void deleteOldProbes(time_t now) {
+			NextProbeMgr::iterator it = begin();
+			while (it != end()) {
+				time_t t = it.value();
+				ulong elapsed = now - t;
+				if (elapsed >= tr_->nextProbeTimeoutSec_) {
+					it = erase(it);
+					continue;
+				}
+				it++;
+			}
+		}
+	} nextProbeMgr_{this};
 
 #ifdef QT_GUI_LIB
 public:
