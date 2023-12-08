@@ -46,7 +46,6 @@ public:
 	GDuration ttlChangeTimeout_{1};
 	GDuration sendTimeout_{1};
 	GDuration nextProbeTimeoutSec_{3600}; // 1 hour
-	Q_PROPERTY(ulong nextProbeTimeoutSec MEMBER nextProbeTimeoutSec_)
 	QString logFileName_{"tr.tsv"};
 	GBpFilter bpFilter_{this};
 	GRawIpSocketWrite rawIpSocketWrite_{this};
