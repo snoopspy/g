@@ -60,9 +60,9 @@ void GHostScan::run() {
 
 	GIp begIp = intf->getBeginIp();
 	GIp endIp = intf->getEndIp();
-	if (intf->mask() < 0xFFFF00) { // not C class
-		begIp = (myIp & 0xFFFF00) + 1;
-		endIp = myIp | ~0xFFFF00;
+	if (intf->mask() < 0xFFFFFF00) { // not C class
+		begIp = (myIp & 0xFFFFFF00) + 1;
+		endIp = myIp | ~0xFFFFFF00;
 	}
 	qDebug() << QString("begIp=%1 endIp=%2").arg(QString(begIp), QString(endIp));
 
