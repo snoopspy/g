@@ -38,7 +38,7 @@ struct G_EXPORT GTraceRoute : GStateObj {
 	GObjRef getRawIpSockerWrite() { return &rawIpSocketWrite_; }
 
 public:
-	QString intfName_{""};
+	QString intfName_;
 	int maxHop_{30};
 	int queryCount_{3};
 	GDuration startTimeout_{100};

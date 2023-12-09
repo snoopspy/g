@@ -33,7 +33,7 @@ struct G_EXPORT GChannelHop : GStateObj {
 public:
 	bool enabled_{true};
 	bool debugLog_{false};
-	QString intfName_{""};
+	QString intfName_;
 	int hopInterval_{250};
 	QStringList channelList_;
 

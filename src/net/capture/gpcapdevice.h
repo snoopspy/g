@@ -29,7 +29,7 @@ struct G_EXPORT GPcapDevice : GPcapCapture {
 	Q_PROPERTY(bool nonBlock MEMBER nonBlock_)
 
 public:
-	QString intfName_{""};
+	QString intfName_;
 	int snapLen_{GPacket::MaxBufSize};
 	int flags_{1}; // PCAP_OPENFLAG_PROMISCUOUS
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)

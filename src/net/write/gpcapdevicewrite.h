@@ -25,7 +25,7 @@ struct G_EXPORT GPcapDeviceWrite : GPcapWrite {
 	Q_PROPERTY(int mtu MEMBER mtu_)
 
 public:
-	QString intfName_{""};
+	QString intfName_;
 	int mtu_{GPacket::MtuSize};
 
 public:
