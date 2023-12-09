@@ -1,4 +1,5 @@
 #include "grawipsocketwrite.h"
+#include "net/gnetinfo.h"
 
 // ----------------------------------------------------------------------------
 // GRawIpSocketWrite
