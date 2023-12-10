@@ -22,11 +22,11 @@ struct G_EXPORT GBeaconHdr : GDot11Hdr {
 		le8_t len_;
 
 		void* value() {
-			return (char*)this + sizeof(Tag);
+			return pbyte(this) + sizeof(Tag);
 		}
 
 		Tag* next() {
-			char* res = (char*)this;
+			gbyte* res = pbyte(this);
 			res += sizeof(Tag) + this->len_;
 			return PTag(res);
 		}

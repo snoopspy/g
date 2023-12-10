@@ -100,7 +100,6 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 		if (ssid != "" && channel != 0)
 			break;
 		tag = tag->next();
-		if (tag == nullptr) break;
 	}
 	if (ssid == "" || channel == 0) return;
 	if (ignoreOtherChannelFrame_ && currentChannel_ != channel)

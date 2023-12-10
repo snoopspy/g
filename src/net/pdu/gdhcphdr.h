@@ -51,24 +51,6 @@ struct G_EXPORT GDhcpHdr final {
 	uint8_t* bootFileName() { return bootFileName_; }
 	uint32_t magic() { return ntohl(magic_); }
 
-	struct Option {
-		uint8_t type_;
-		uint8_t len_;
-
-		Option* next() {
-			Option* res = POption((char*)this + sizeof(type_) + sizeof(len_) + len_);
-			if (res->type_ == End) return nullptr;
-			return res;
-		}
-
-		void* value() { return (char*)this + sizeof(type_) + sizeof(len_); }
-	};
-	typedef Option *POption;
-
-	Option* firstOption() {
-		return POption((char*)this + sizeof(GDhcpHdr));
-	}
-
 	// OptionType(Option::type_)
 	enum: uint8_t {
 		HostName = 12,
@@ -78,6 +60,28 @@ struct G_EXPORT GDhcpHdr final {
 		ClientIdentifier = 61,
 		End = 255
 	};
+
+	struct Option {
+		uint8_t type_;
+		uint8_t len_;
+
+		void* value() {
+			return pbyte(this) + sizeof(type_) + sizeof(len_);
+		}
+
+		Option* next() {
+			gbyte* res = pbyte(this);
+			res += sizeof(Option) + len_;
+			if (*res == End) return nullptr;
+			return POption(res);
+		}
+	};
+	typedef Option *POption;
+
+	Option* firstOption() {
+		return POption((char*)this + sizeof(GDhcpHdr));
+	}
+
 };
 typedef GDhcpHdr *PDhcpHdr;
 #pragma pack(pop)

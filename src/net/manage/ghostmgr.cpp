@@ -97,10 +97,10 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, Q
 				*ip = ntohl(*PIp(option->value()));
 				break;
 			case GDhcpHdr::HostName: // Discover, Request sent from client
-				*host = std::string(reinterpret_cast<const char*>(option->value()), option->len_).data();
+				*host = std::string(pchar(option->value()), option->len_).data();
 				break;
 			case GDhcpHdr::VendorClassIdentitier:
-				*vendor = std::string(reinterpret_cast<const char*>(option->value()), option->len_).data();
+				*vendor = std::string(pchar(option->value()), option->len_).data();
 				break;
 			case GDhcpHdr::End:
 				exit = true;

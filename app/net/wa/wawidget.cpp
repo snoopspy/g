@@ -12,7 +12,9 @@ WaWidget::WaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("WiFi Analyzer");
 
 	tableWidget_ = new GTableWidget(this);
+#ifdef Q_OS_ANDROID
 	tableWidget_->horizontalHeader()->setFixedHeight(120);
+#endif // Q_OS_ANDROID
 	tableWidget_->setColumnCount(4);
 	tableWidget_->setHorizontalHeaderItem(0, new QTableWidgetItem("Mac"));
 	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("SSID"));
