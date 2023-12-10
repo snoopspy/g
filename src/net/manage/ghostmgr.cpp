@@ -68,7 +68,7 @@ void GHostMgr::deleteOldHosts(time_t now) {
 	}
 }
 
-bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, QString* alias) {
+bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, QString* vendor) {
 	GUdpHdr* udpHdr = packet->udpHdr_;
 	if (udpHdr == nullptr) return false;
 
@@ -88,12 +88,10 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, Q
 		*ip = dhcpHdr->yourIp();
 	}
 
-	GEthHdr* ethHdr = packet->ethHdr_;
-	if (ethHdr == nullptr) return false;
-	gbyte* end = packet->buf_.data_ + packet->buf_.size_;
+	GBuf scanBuf(pbyte(dhcpHdr) + sizeof(GDhcpHdr), udpHdr->len() - sizeof(GUdpHdr) - sizeof(GDhcpHdr));
 	GDhcpHdr::Option* option = dhcpHdr->firstOption();
 	bool exit = false;
-	while (!exit) {
+	while (scanBuf.contains(option)) {
 		switch (option->type_) {
 			case GDhcpHdr::RequestedIpAddress: // Request
 				*ip = ntohl(*PIp(option->value()));
@@ -102,7 +100,7 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, Q
 				*host = std::string(reinterpret_cast<const char*>(option->value()), option->len_).data();
 				break;
 			case GDhcpHdr::VendorClassIdentitier:
-				*alias = std::string(reinterpret_cast<const char*>(option->value()), option->len_).data();
+				*vendor = std::string(reinterpret_cast<const char*>(option->value()), option->len_).data();
 				break;
 			case GDhcpHdr::End:
 				exit = true;
@@ -113,7 +111,6 @@ bool GHostMgr::processDhcp(GPacket* packet, GMac* mac, GIp* ip, QString* host, Q
 		if (exit) break;
 		option = option->next();
 		if (option == nullptr) break;
-		if (pbyte(option) >= end) break;
 	}
 	return ok;
 }
