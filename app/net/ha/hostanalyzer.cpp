@@ -91,7 +91,7 @@ bool HostAnalyzer::doOpen() {
 	hostOffset_ = hostMgr_.requestItems_.request(this, sizeof(Item));
 	hostMgr_.managables_.insert(this);
 
-	updateHostsTimer_.start(updateHostsTimrout_);
+	updateHostsTimer_.start(updateHostsTimeout_);
 	updateElapsedTimer_.start(updateElapsedTimeout_);
 	return true;
 }

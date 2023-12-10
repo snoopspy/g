@@ -23,7 +23,7 @@ struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_PROPERTY(GObjRef command READ getCommand)
 	Q_PROPERTY(GObjRef screenKeeper READ getScreenKeeper)
 	Q_PROPERTY(GObjRef screenSaver READ getScreenSaver)
-	Q_PROPERTY(int updateHostsTimeout MEMBER updateHostsTimrout_)
+	Q_PROPERTY(int updateHostsTimeout MEMBER updateHostsTimeout_)
 	Q_PROPERTY(int updateElapsedTimeout MEMBER updateElapsedTimeout_)
 
 public:
@@ -36,7 +36,7 @@ public:
 	GObjRef getCommand() { return &command_; }
 	GObjRef getScreenKeeper() { return &screenKeeper_; }
 	GObjRef getScreenSaver() { return &screenSaver_; }
-	int updateHostsTimrout_{1000}; // 1 seconds
+	int updateHostsTimeout_{1000}; // 1 seconds
 	int updateElapsedTimeout_{10000}; // 10 seconds
 
 public:
