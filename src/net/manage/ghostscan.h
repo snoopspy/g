@@ -24,6 +24,7 @@ struct G_EXPORT GHostScan : GStateObj {
 	Q_PROPERTY(ulong rescanInterval MEMBER rescanInterval_)
 	Q_PROPERTY(ulong sendInterval MEMBER sendInterval_)
 	Q_PROPERTY(int scanCount MEMBER scanCount_)
+	Q_PROPERTY(QString scanNetmask MEMBER scanNetmask_)
 	Q_PROPERTY(GObjPtr pcapDevice READ getPcapDevice WRITE setPcapDevice)
 
 	GObjPtr getPcapDevice() { return pcapDevice_; }
@@ -34,6 +35,7 @@ public:
 	GDuration rescanInterval_{600000}; // 10 minutes
 	GDuration sendInterval_{10}; // 10 msecs
 	int scanCount_{3};
+	QString scanNetmask_{"FFFFFF00"};
 	GPcapDevice* pcapDevice_{nullptr};
 
 public:

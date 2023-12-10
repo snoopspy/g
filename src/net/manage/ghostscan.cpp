@@ -60,10 +60,12 @@ void GHostScan::run() {
 
 	GIp begIp = intf->getBeginIp();
 	GIp endIp = intf->getEndIp();
-	if (intf->mask() < 0xFFFFFF00) { // not C class
-		begIp = (myIp & 0xFFFFFF00) + 1;
-		endIp = myIp | ~0xFFFFFF00;
-	}
+	GIp scanNetmask = scanNetmask_.toUInt(nullptr, 16);
+	GIp mask = intf->mask();
+	if (mask < scanNetmask)
+		mask = scanNetmask;
+	begIp = (myIp & mask) + 1;
+	endIp = myIp | ~mask;
 	qDebug() << QString("begIp=%1 endIp=%2").arg(QString(begIp), QString(endIp));
 
 	GEthArpPacket packet;
