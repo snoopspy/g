@@ -101,9 +101,9 @@ void GHostWatch::WatchThread::run() {
 		QDateTime dt = QDateTime::currentDateTime();
 		now = long(dt.toTime_t());
 #else
-		struct timeval tv;
-		gettimeofday(&tv, nullptr);
-		now = tv.tv_sec;
+		struct timeval ts;
+		gettimeofday(&ts, nullptr);
+		now = ts.tv_sec;
 #endif // Q_OS_WIN
 
 		sendInfos.clear();
