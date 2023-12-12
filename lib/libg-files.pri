@@ -88,6 +88,7 @@ SOURCES += \
 	$${PWD}/../src/net/manage/ghostwatch.cpp \
 	$${PWD}/../src/net/manage/gipflowmgr.cpp \
 	$${PWD}/../src/net/manage/gipmgr.cpp \
+	$${PWD}/../src/net/manage/gpacketmgr.cpp \
 	$${PWD}/../src/net/manage/gtcpflowmgr.cpp \
 	$${PWD}/../src/net/manage/gudpflowmgr.cpp \
 	$${PWD}/../src/net/gatm.cpp \
