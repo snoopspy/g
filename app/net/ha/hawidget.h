@@ -24,6 +24,7 @@ public:
 
 public:
 	QToolButton* tbDb_{nullptr};
+	QToolButton* tbHost_{nullptr};
 	QToolButton* tbScreenSaver_{nullptr};
 
 private slots:
@@ -31,6 +32,7 @@ private slots:
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
 	void tbDb_clicked(bool checked = false);
+	void tbHost_clicked(bool checked = false);
 	void tbScreenSaver_clicked(bool checked = false);
 
 	void processClosed();

@@ -57,6 +57,13 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tbDb_->setIconSize(tbStart_->iconSize());
 	toolButtonLayout_->addWidget(tbDb_);
 
+	tbHost_ = new QToolButton(this);
+	tbHost_->setText("Host");
+	tbHost_->setIcon(QIcon(":/img/edit.png"));
+	tbHost_->setAutoRaise(true);
+	tbHost_->setIconSize(tbStart_->iconSize());
+	toolButtonLayout_->addWidget(tbHost_);
+
 	tbScreenSaver_ = new QToolButton(this);
 	tbScreenSaver_->setText("ScreenSaver");
 	tbScreenSaver_->setIcon(QIcon(":/img/screensaver.png"));
@@ -74,6 +81,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &HaWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &HaWidget::tbOption_clicked);
 	QObject::connect(tbDb_, &QToolButton::clicked, this, &HaWidget::tbDb_clicked);
+	QObject::connect(tbHost_, &QToolButton::clicked, this, &HaWidget::tbHost_clicked);
 	QObject::connect(tbScreenSaver_, &QToolButton::clicked, this, &HaWidget::tbScreenSaver_clicked);
 
 	hostAnalyzer_.treeWidget_ = treeWidget_;
@@ -105,6 +113,7 @@ void HaWidget::setControl() {
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
+	tbHost_->setEnabled(treeWidget_->selectedItems().count() > 0);
 	tbScreenSaver_->setEnabled(active);
 }
 
@@ -197,6 +206,11 @@ void HaWidget::tbDb_clicked(bool checked) {
 
 	if (!dbOpened)
 		hostDb->close();
+}
+
+void HaWidget::tbHost_clicked(bool checked) {
+	(void)checked;
+	qDebug() << "";
 }
 
 void HaWidget::tbScreenSaver_clicked(bool checked) {
