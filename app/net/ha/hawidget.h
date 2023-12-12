@@ -16,9 +16,6 @@ public:
 	void propSave(QJsonObject& jo) override;
 
 public:
-	void setControl();
-
-public:
 	GTreeWidget* treeWidget_;
 	HostAnalyzer hostAnalyzer_{this};
 
@@ -26,6 +23,9 @@ public:
 	QToolButton* tbDb_{nullptr};
 	QToolButton* tbHost_{nullptr};
 	QToolButton* tbScreenSaver_{nullptr};
+
+public slots:
+	void setControl();
 
 private slots:
 	void tbStart_clicked(bool checked = false);

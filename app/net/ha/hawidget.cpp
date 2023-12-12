@@ -77,6 +77,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
 	mainLayout_->setContentsMargins(0, top, 0, 0);
 
+	QObject::connect(treeWidget_, &QTreeWidget::itemSelectionChanged, this, &HaWidget::setControl);
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &HaWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &HaWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &HaWidget::tbOption_clicked);
