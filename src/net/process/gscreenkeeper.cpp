@@ -50,12 +50,10 @@ bool GScreenKeeper::keepScreen(bool on) {
 }
 #else // Q_OS_ANDROID
 bool GScreenKeeper::doOpen() {
-	qWarning() << "do nothing";
 	return true;
 }
 
 bool GScreenKeeper::doClose() {
-	qWarning() << "do nothing";
 	return true;
 }
 #endif // Q_OS_ANDROID
