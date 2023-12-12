@@ -44,8 +44,8 @@ struct G_EXPORT GArpBlock : GStateObj, GHostMgr::Managable {
 
 public:
 	enum Policy {
-		Allow,
-		Block
+		Allow = 1,
+		Block = 2
 	};
 
 	enum AttackDirection {

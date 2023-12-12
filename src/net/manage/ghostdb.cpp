@@ -36,7 +36,8 @@ bool GHostDb::doOpen() {
 			"	ip INTEGER,"
 			"	alias TEXT,"
 			"	host TEXT,"
-			"	vendor TEXT"
+			"	vendor TEXT,"
+			"	mode INTEGER"
 			");"
 	)) {
 		SET_ERR(GErr::Fail, query.lastError().text());
@@ -61,12 +62,12 @@ bool GHostDb::doOpen() {
 		return false;
 	}
 	insertHostQuery_ = new QSqlQuery(db_);
-	if (!insertHostQuery_->prepare("INSERT INTO host (mac, ip, host, vendor) VALUES (:mac, :ip, :host, :vendor)")) {
+	if (!insertHostQuery_->prepare("INSERT INTO host (mac, ip, host, vendor, mode) VALUES (:mac, :ip, :host, :vendor, :mode)")) {
 		SET_ERR(GErr::Fail, insertHostQuery_->lastError().text());
 		return false;
 	}
 	updateHostQuery_ = new QSqlQuery(db_);
-	if (!updateHostQuery_->prepare("UPDATE host SET ip = :ip, host = :host, vendor = :vendor WHERE mac = :mac")) {
+	if (!updateHostQuery_->prepare("UPDATE host SET ip = :ip, host = :host, vendor = :vendor, mode = :mode WHERE mac = :mac")) {
 		SET_ERR(GErr::Fail, updateHostQuery_->lastError().text());
 		return false;
 	}
@@ -138,6 +139,9 @@ bool GHostDb::selectHost(GMac mac, GHostMgr::HostValue* hostValue) {
 		hostValue->ip_ = selectHostQuery_->value("ip").toUInt();
 		hostValue->host_ = selectHostQuery_->value("host").toString();
 		hostValue->vendor_ = selectHostQuery_->value("vendor").toString();
+		int i = GHostMgr::Mode(selectHostQuery_->value("mode").toInt());
+		qDebug() << "mode is " << i;
+		hostValue->mode_ = GHostMgr::Mode(i);
 		return true;
 	}
 	return false;
@@ -150,6 +154,7 @@ bool GHostDb::insertHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	insertHostQuery_->bindValue(":ip", uint32_t(hostValue->ip_));
 	insertHostQuery_->bindValue(":host", hostValue->host_);
 	insertHostQuery_->bindValue(":vendor", hostValue->vendor_);
+	insertHostQuery_->bindValue(":mode", int(hostValue->mode_));
 	bool res = insertHostQuery_->exec();
 	if (!res) {
 		qWarning() << insertHostQuery_->lastError().text();
@@ -163,6 +168,7 @@ bool GHostDb::updateHost(GMac mac, GHostMgr::HostValue* hostValue) {
 	updateHostQuery_->bindValue(":ip", uint32_t(hostValue->ip_));
 	updateHostQuery_->bindValue(":host", hostValue->host_);
 	updateHostQuery_->bindValue(":vendor", hostValue->vendor_);
+	updateHostQuery_->bindValue(":mode", int(hostValue->mode_));
 	updateHostQuery_->bindValue(":mac", quint64(mac));
 	bool res = updateHostQuery_->exec();
 	if (!res) {
@@ -192,6 +198,7 @@ bool GHostDb::insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue) {
 		newHostValue.ip_ = hostValue->ip_ == 0 ? dbHostValue.ip_ : hostValue->ip_;
 		newHostValue.host_ = hostValue->host_ == "" ? dbHostValue.host_ : hostValue->host_;
 		newHostValue.vendor_ = hostValue->vendor_ == "" ? dbHostValue.vendor_ : hostValue->vendor_;
+		newHostValue.mode_ = dbHostValue.mode_;
 		return updateHost(mac, &newHostValue);
 	}
 	return insertHost(mac, hostValue);

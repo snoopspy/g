@@ -93,10 +93,23 @@ bool GArpBlock::doClose() {
 }
 
 void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	qDebug() << QString(hostValue->ip_);
-
 	Item* item = PItem(hostValue->mem(itemOffset_));
-	new (item) Item(mac, hostValue->ip_, defaultPolicy_);
+	Policy policy = defaultPolicy_;
+	if (hostDb_ != nullptr) {
+		GHostMgr::HostValue hostValue;
+		if (hostDb_->selectHost(mac, &hostValue)) {
+			switch (hostValue.mode_) {
+				case GHostMgr::Default :
+					break;
+				case GHostMgr::Allow :
+					policy = Allow;
+					break;
+				case GHostMgr::Block :
+					policy = Block;
+			}
+		}
+	}
+	new (item) Item(mac, hostValue->ip_, policy);
 	if (item->policy_ == Block)
 		infect(item, GArpHdr::Request);
 
@@ -107,11 +120,8 @@ void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
-	qDebug() << QString(hostValue->ip_);
-
-	(void)mac;
-
 	Item* item = PItem(hostValue->mem(itemOffset_));
+	Q_ASSERT(mac == item->mac_ );
 	if (item->policy_ == Block)
 		recover(item, GArpHdr::Request);
 	item->~Item();

@@ -30,13 +30,21 @@ public:
 	GPcapDevice* pcapDevice_{nullptr};
 
 public:
+	enum Mode {
+		Default = 0,
+		Allow = 1,
+		Block = 2
+	};
+
 	// --------------------------------------------------------------------------
 	// HostValue
 	// --------------------------------------------------------------------------
 	struct HostValue : GPacketMgr::Value {
-		GIp ip_;
+		GIp ip_{0};
 		QString host_;
 		QString vendor_;
+		Mode mode_{Default};
+
 #ifdef _DEBUG
 		size_t totalMemSize_{0};
 #endif // _DEBUG
