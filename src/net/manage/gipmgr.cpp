@@ -48,7 +48,7 @@ void GIpMgr::deleteOldHosts(time_t now) {
 	IpMap::iterator it = ipMap_.begin();
 	while (it != ipMap_.end()) {
 		IpValue* ipValue = it.value();
-		long elapsed = now - ipValue->lastTs_.tv_sec;
+		long elapsed = now - ipValue->lastTime_;
 		if (elapsed >= timeoutSec_) {
 			GIp ip = it.key();
 			qDebug() << QString("%1").arg(QString(ip));
@@ -85,7 +85,7 @@ void GIpMgr::processIp(GPacket* packet, GIp ip) {
 		if (it == ipMap_.end()) {
 			qDebug() << QString("detected %1").arg(QString(ip));
 			currentIpVal_ = IpValue::allocate(requestItems_.totalMemSize_);
-			currentIpVal_->firstTs_ = currentIpVal_->lastTs_ = packet->ts_;
+			currentIpVal_->firstTime_ = currentIpVal_->lastTime_ = packet->ts_.tv_sec;
 
 			it = ipMap_.insert(currentIp_, currentIpVal_);
 			for (Managable* manager: managables_)
@@ -93,7 +93,7 @@ void GIpMgr::processIp(GPacket* packet, GIp ip) {
 		}
 	}
 	Q_ASSERT(currentIpVal_ != nullptr);
-	currentIpVal_->lastTs_ = packet->ts_;
+	currentIpVal_->lastTime_ = packet->ts_.tv_sec;
 }
 
 void GIpMgr::manage(GPacket* packet) {

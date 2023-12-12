@@ -24,7 +24,7 @@ void GTcpFlowMgr::deleteOldFlowMaps(time_t now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
 		TcpFlowValue* tcpFlowValue = it.value();
-		time_t elapsed = now - tcpFlowValue->lastTs_.tv_sec;
+		time_t elapsed = now - tcpFlowValue->lastTime_;
 		time_t timeout = 0;
 		switch (tcpFlowValue->state_) {
 			case TcpFlowValue::Half: timeout = halfTimeout_; break;
@@ -70,7 +70,7 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 
 	if (it == flowMap_.end()) {
 		currentTcpFlowVal_ = TcpFlowValue::allocate(requestItems_.totalMemSize_);
-		currentTcpFlowVal_->firstTs_ = currentTcpFlowVal_->lastTs_ = packet->ts_;
+		currentTcpFlowVal_->firstTime_ = currentTcpFlowVal_->lastTime_ = packet->ts_.tv_sec;
 
 		if (currentRevTcpFlowVal_ == nullptr) {
 			currentTcpFlowVal_->state_ = TcpFlowValue::Half;
@@ -86,7 +86,7 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 		currentTcpFlowVal_ = it.value();
 	}
 	Q_ASSERT(currentTcpFlowVal_ != nullptr);
-	currentTcpFlowVal_->lastTs_ = packet->ts_;
+	currentTcpFlowVal_->lastTime_ = packet->ts_.tv_sec;
 
 	if ((tcpHdr->flags() & (GTcpHdr::Rst | GTcpHdr::Fin)) != 0) {
 		TcpFlowValue::State state = (tcpHdr->flags() & GTcpHdr::Rst) ? TcpFlowValue::Rst : TcpFlowValue::Fin;

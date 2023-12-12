@@ -16,8 +16,8 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 			case HostAnalyzer::ColumnElapsed: {
 				const GTreeWidgetItem* item1 = PTreeWidgetItem(this);
 				const GTreeWidgetItem* item2 = PTreeWidgetItem(&other);
-				quint64 firstTs1 = item1->property("firstTs").toLongLong();
-				quint64 firstTs2 = item2->property("firstTs").toLongLong();
+				quint64 firstTs1 = item1->property("firstTime").toLongLong();
+				quint64 firstTs2 = item2->property("firstTime").toLongLong();
 				return firstTs1 < firstTs2;
 			}
 			case HostAnalyzer::ColumnAttack: {
@@ -126,8 +126,8 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->mac_ = mac;
 	item->ip_ = hostValue->ip_;
 	item->defaultName_ = hostDb_.getDefaultName(mac, item);
-	item->firstTs_ = item->blockTs_ = hostValue->firstTs_;
-	item->blockTs_.tv_sec += extendTimeoutSec_;
+	item->firstTime_ = item->blockTime_ = hostValue->firstTime_;
+	item->blockTime_ += extendTimeoutSec_;
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
@@ -203,7 +203,7 @@ void HostAnalyzer::updateHosts() {
 			QObject::connect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
 			treeWidgetItem->setFlags(treeWidgetItem->flags()  | Qt::ItemIsEditable);
 			treeWidgetItem->setProperty("mac", QString(mac));
-			treeWidgetItem->setProperty("firstTs", qint64(item->firstTs_.tv_sec));
+			treeWidgetItem->setProperty("firstTime", qint64(item->firstTime_));
 			treeWidget_->addTopLevelItem(treeWidgetItem);
 
 			QToolButton *toolButton = new QToolButton(treeWidget_);
@@ -254,7 +254,7 @@ void HostAnalyzer::updateElapsedTime() {
 	for (int i = 0; i < count; i++) {
 		GTreeWidgetItem* item = PTreeWidgetItem(treeWidget_->topLevelItem(i));
 		Q_ASSERT(item != nullptr);
-		qint64 first = item->property("firstTs").toLongLong();
+		qint64 first = item->property("firstTime").toLongLong();
 		qint64 elapsed = now - first;
 
 		qint64 days = elapsed / 86400;

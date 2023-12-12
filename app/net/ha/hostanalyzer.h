@@ -87,8 +87,8 @@ protected:
 		} state_{Created};
 		QTreeWidgetItem* treeWidgetItem_{nullptr};
 		QString defaultName_;
-		struct timeval firstTs_;
-		struct timeval blockTs_;
+		time_t firstTime_;
+		time_t blockTime_;
 	};
 	typedef Item *PItem;
 	// --------------------------------------------------------------------------

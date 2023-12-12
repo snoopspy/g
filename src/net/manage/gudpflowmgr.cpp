@@ -24,7 +24,7 @@ void GUdpFlowMgr::deleteOldFlowMaps(time_t now) {
 	FlowMap::iterator it = flowMap_.begin();
 	while (it != flowMap_.end()) {
 		UdpFlowValue* udpFlowValue = it.value();
-		time_t elapsed = now - udpFlowValue->lastTs_.tv_sec;
+		time_t elapsed = now - udpFlowValue->lastTime_;
 		time_t timeout = 0;
 		switch (udpFlowValue->state_) {
 			case UdpFlowValue::Half: timeout = halfTimeout_; break;
@@ -68,7 +68,7 @@ void GUdpFlowMgr::manage(GPacket* packet) {
 
 	if (it == flowMap_.end()) {
 		currentUdpFlowVal_ = UdpFlowValue::allocate(requestItems_.totalMemSize_);
-		currentUdpFlowVal_->firstTs_ = currentUdpFlowVal_->lastTs_ = packet->ts_;
+		currentUdpFlowVal_->firstTime_ = currentUdpFlowVal_->lastTime_ = packet->ts_.tv_sec;
 
 		if (currentRevUdpFlowVal_ == nullptr) {
 			currentUdpFlowVal_->state_ = UdpFlowValue::Half;
@@ -84,7 +84,7 @@ void GUdpFlowMgr::manage(GPacket* packet) {
 		currentUdpFlowVal_ = it.value();
 	}
 	Q_ASSERT(currentUdpFlowVal_ != nullptr);
-	currentUdpFlowVal_->lastTs_ = packet->ts_;
+	currentUdpFlowVal_->lastTime_ = packet->ts_.tv_sec;
 
 	emit managed(packet);
 }

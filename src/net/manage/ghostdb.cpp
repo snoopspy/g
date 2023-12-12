@@ -123,7 +123,7 @@ void GHostDb::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 void GHostDb::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	Item* item = PItem(hostValue->mem(itemOffset_));
 	item->~Item();
-	insertLog(mac, item->ip_, item->firstTs_.tv_sec, item->lastTs_.tv_sec);
+	insertLog(mac, item->ip_, item->firstTime_, item->lastTime_);
 }
 
 void GHostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {

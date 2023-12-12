@@ -55,7 +55,7 @@ void GHostMgr::deleteOldHosts(time_t now) {
 	HostMap::iterator it = hostMap_.begin();
 	while (it != hostMap_.end()) {
 		HostValue* hostValue = it.value();
-		ulong elapsed = now - hostValue->lastTs_.tv_sec;
+		ulong elapsed = now - hostValue->lastTime_;
 		if (elapsed >= timeoutSec_) {
 			GMac mac = it.key();
 			qDebug() << QString("%1 %2").arg(QString(mac)).arg(QString(it.value()->ip_));
@@ -172,7 +172,7 @@ void GHostMgr::manage(GPacket* packet) {
 		if (it == hostMap_.end()) {
 			qDebug() << QString("detected %1 %2 %3 %4").arg(QString(mac)).arg(QString(ip)).arg(host).arg(vendor); // gilgil temp 2022.03.07
 			currentHostVal_ = HostValue::allocate(requestItems_.totalMemSize_);
-			currentHostVal_->firstTs_ = currentHostVal_->lastTs_ = packet->ts_;
+			currentHostVal_->firstTime_ = currentHostVal_->lastTime_ = packet->ts_.tv_sec;
 			currentHostVal_->ip_ = ip;
 			currentHostVal_->host_ = host;
 			currentHostVal_->vendor_ = vendor;
@@ -204,7 +204,7 @@ void GHostMgr::manage(GPacket* packet) {
 		}
 	}
 	Q_ASSERT(currentHostVal_ != nullptr);
-	currentHostVal_->lastTs_ = packet->ts_;
+	currentHostVal_->lastTime_ = packet->ts_.tv_sec;
 
 	emit managed(packet);
 }
