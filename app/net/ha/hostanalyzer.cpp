@@ -63,19 +63,19 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GGraph(parent) {
 
 	hostScan_.pcapDevice_ = &pcapDevice_;
 
+	hostDb_.hostMgr_ = &hostMgr_;
+
 	arpBlock_.pcapDevice_ = &pcapDevice_;
 	arpBlock_.hostMgr_ = &hostMgr_;
 	arpBlock_.hostDb_ = &hostDb_;
 	arpBlock_.defaultPolicy_ = GArpBlock::Allow;
 
-	hostDb_.hostMgr_ = &hostMgr_;
-
 	nodes_.append(&pcapDevice_);
 	nodes_.append(&hostMgr_);
 	nodes_.append(&hostWatch_);
 	nodes_.append(&hostScan_);
-	nodes_.append(&arpBlock_);
 	nodes_.append(&hostDb_);
+	nodes_.append(&arpBlock_);
 
 	QObject::connect(&updateHostsTimer_, &QTimer::timeout, this, &HostAnalyzer::updateHosts);
 	QObject::connect(&updateElapsedTimer_, &QTimer::timeout, this, &HostAnalyzer::updateElapsedTime);
@@ -89,11 +89,12 @@ bool HostAnalyzer::doOpen() {
 	bool res = GGraph::doOpen();
 	if (!res) return false;
 
-	hostOffset_ = hostMgr_.requestItems_.request(this, sizeof(Item));
+	itemOffset_ = hostMgr_.requestItems_.request(this, sizeof(Item));
 	hostMgr_.managables_.insert(this);
 
 	updateHostsTimer_.start(updateHostsTimeoutSec_ * 1000);
 	updateElapsedTimer_.start(updateElapsedTimeoutSec_ * 1000);
+
 	return true;
 }
 
@@ -117,15 +118,16 @@ bool HostAnalyzer::doClose() {
 }
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = PItem(hostValue->mem(hostOffset_));
+	Item* item = PItem(hostValue->mem(itemOffset_));
 	new (item) Item;
 
 	item->state_ = Item::Created;
 	item->treeWidgetItem_ = nullptr;
 	item->mac_ = mac;
 	item->ip_ = hostValue->ip_;
-	item->defaultName_ = hostDb_.getDefaultName(mac, hostValue);
-	item->firstTs_ = hostValue->firstTs_;
+	item->defaultName_ = hostDb_.getDefaultName(mac, item);
+	item->firstTs_ = item->blockTs_ = hostValue->firstTs_;
+	item->blockTs_.tv_sec += extendTimeoutSec_;
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
@@ -134,13 +136,12 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = PItem(hostValue->mem(hostOffset_));
+	Item* item = PItem(hostValue->mem(itemOffset_));
 
 	item->state_ = Item::Changed;
 	item->mac_ = mac;
 	item->ip_ = hostValue->ip_;
-	item->defaultName_ = hostDb_.getDefaultName(mac, hostValue);
-	item->firstTs_ = hostValue->firstTs_;
+	item->defaultName_ = hostDb_.getDefaultName(mac, item);
 }
 
 #include "hawidget.h"
@@ -193,7 +194,7 @@ void HostAnalyzer::updateHosts() {
 	for (GHostMgr::HostMap::iterator it = hostMgr_.hostMap_.begin(); it != hostMgr_.hostMap_.end(); it++) {
 		GMac mac = it.key();
 		GHostMgr::HostValue* hostValue = it.value();
-		Item* item = PItem(hostValue->mem(hostOffset_));
+		Item* item = PItem(hostValue->mem(itemOffset_));
 
 		MyTreeWidgetItem* treeWidgetItem = PMyTreeWidgetItem(item->treeWidgetItem_);
 		if (treeWidgetItem == nullptr) {
@@ -205,25 +206,11 @@ void HostAnalyzer::updateHosts() {
 			treeWidgetItem->setProperty("firstTs", qint64(item->firstTs_.tv_sec));
 			treeWidget_->addTopLevelItem(treeWidgetItem);
 
-			GArpBlock::Policy policy = arpBlock_.defaultPolicy_;
-			GHostMgr::HostValue hostValue;
-			if (hostDb_.selectHost(mac, &hostValue)) {
-				switch (hostValue.mode_) {
-					case GHostMgr::Default :
-						break;
-					case GHostMgr::Allow :
-						policy = GArpBlock::Allow;
-						break;
-					case GHostMgr::Block :
-						policy = GArpBlock::Block;
-						break;
-				}
-			}
 			QToolButton *toolButton = new QToolButton(treeWidget_);
 			toolButton->setAutoRaise(true);
 			toolButton->setCheckable(true);
 			toolButton->setProperty("mac", QString(mac));
-			if (policy == GArpBlock::Block) {
+			if (item->policy_ == GArpBlock::Block) {
 				toolButton->setText("B");
 				toolButton->setIcon(QIcon(":/img/pause.png"));
 				toolButton->setChecked(true);
@@ -232,7 +219,7 @@ void HostAnalyzer::updateHosts() {
 				toolButton->setIcon(QIcon(":/img/play.png"));
 				toolButton->setChecked(false);
 			}
-			toolButton->setEnabled(hostValue.mode_ == GHostMgr::Default);
+			toolButton->setEnabled(item->mode_ == GHostDb::Default);
 			treeWidget_->setItemWidget(treeWidgetItem, ColumnAttack, toolButton);
 
 			QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);

@@ -21,7 +21,7 @@ struct DbDialog : QDialog, GProp {
 	Q_OBJECT
 public:
 	explicit DbDialog(QWidget* parent, GHostDb* hostDb);
-	~DbDialog();
+	~DbDialog() override;
 
 protected:
 	GHostDb* hostDb_;

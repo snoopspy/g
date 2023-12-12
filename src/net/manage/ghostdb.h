@@ -40,9 +40,24 @@ protected:
 
 public:
 	// GHostMgr::Managable
+	size_t itemOffset_;
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
+
+	// --------------------------------------------------------------------------
+	// Item
+	// --------------------------------------------------------------------------
+	enum Mode {
+		Default = 0,
+		Allow = 1,
+		Block = 2
+	};
+	struct Item : GHostMgr::HostValue {
+		Mode mode_{Default};
+	};
+	typedef Item *PItem;
+	// --------------------------------------------------------------------------
 
 public:
 	QSqlDatabase db_;
@@ -55,13 +70,13 @@ protected:
 	QSqlQuery* insertLogQuery_{nullptr};
 
 public:
-	bool selectHost(GMac mac, GHostMgr::HostValue* hostValue);
-	bool insertHost(GMac mac, GHostMgr::HostValue* hostValue);
-	bool updateHost(GMac mac, GHostMgr::HostValue* hostValue);
+	bool selectHost(GMac mac, Item* item);
+	bool insertHost(GMac mac, Item* item);
+	bool updateHost(GMac mac, Item* item);
 	bool updateAlias(GMac mac, QString alias);
-	bool insertOrUpdateDevice(GMac mac, GHostMgr::HostValue* hostValue);
+	bool insertOrUpdateDevice(GMac mac, Item* item);
 	bool insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime);
 
 public:
-	QString getDefaultName(GMac mac, GHostMgr::HostValue* hostValue = nullptr);
+	QString getDefaultName(GMac mac, Item* item = nullptr);
 };

@@ -5,8 +5,8 @@
 #include <GHostMgr>
 #include <GHostWatch>
 #include <GHostScan>
-#include <GArpBlock>
 #include <GHostDb>
+#include <GArpBlock>
 #include <GCommand>
 #include <GScreenKeeper>
 #include <GScreenSaver>
@@ -21,8 +21,8 @@ struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_PROPERTY(GObjRef hostMgr READ getHostMgr)
 	Q_PROPERTY(GObjRef hostWatch READ getHostWatch)
 	Q_PROPERTY(GObjRef hostScan READ getHostScan)
-	Q_PROPERTY(GObjRef arpBlock READ getArpBlock)
 	Q_PROPERTY(GObjRef hostDb READ getHostDb)
+	Q_PROPERTY(GObjRef arpBlock READ getArpBlock)
 	Q_PROPERTY(GObjRef command READ getCommand)
 	Q_PROPERTY(GObjRef screenKeeper READ getScreenKeeper)
 	Q_PROPERTY(GObjRef screenSaver READ getScreenSaver)
@@ -35,8 +35,8 @@ public:
 	GObjRef getHostMgr() { return &hostMgr_; }
 	GObjRef getHostWatch() { return &hostWatch_; }
 	GObjRef getHostScan() { return &hostScan_; }
-	GObjRef getArpBlock() { return &arpBlock_; }
 	GObjRef getHostDb() { return &hostDb_; }
+	GObjRef getArpBlock() { return &arpBlock_; }
 	GObjRef getCommand() { return &command_; }
 	GObjRef getScreenKeeper() { return &screenKeeper_; }
 	GObjRef getScreenSaver() { return &screenSaver_; }
@@ -54,8 +54,8 @@ public:
 	GHostMgr hostMgr_{this};
 	GHostWatch hostWatch_{this};
 	GHostScan hostScan_{this};
-	GArpBlock arpBlock_{this};
 	GHostDb hostDb_{this};
+	GArpBlock arpBlock_{this};
 	GCommand command_{this};
 	GScreenKeeper screenKeeper_{this};
 	GScreenSaver screenSaver_{this};
@@ -71,7 +71,7 @@ public:
 
 protected:
 	// GHostMgr::Managable
-	size_t hostOffset_{0};
+	size_t itemOffset_{0};
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
@@ -79,17 +79,16 @@ protected:
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
-	struct Item {
+	struct Item : GArpBlock::Item {
 		enum State {
 			Created,
 			Changed,
 			NotChanged
-		} state_;
-		QTreeWidgetItem* treeWidgetItem_;
-		GMac mac_;
-		GIp ip_;
+		} state_{Created};
+		QTreeWidgetItem* treeWidgetItem_{nullptr};
 		QString defaultName_;
 		struct timeval firstTs_;
+		struct timeval blockTs_;
 	};
 	typedef Item *PItem;
 	// --------------------------------------------------------------------------

@@ -82,11 +82,9 @@ public:
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
-	struct Item {
-		Item(GMac mac, GIp ip, Policy policy) : mac_(mac), ip_(ip), policy_(policy) {}
-		GMac mac_;
-		GIp ip_;
-		Policy policy_;
+	struct Item : GHostDb::Item {
+		GMac mac_{GMac::nullMac()};
+		Policy policy_{Allow};
 	};
 	typedef Item *PItem;
 	// --------------------------------------------------------------------------

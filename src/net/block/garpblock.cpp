@@ -19,6 +19,13 @@ bool GArpBlock::doOpen() {
 		SET_ERR(GErr::ObjectIsNull, "hostMgr is null");
 		return false;
 	}
+	itemOffset_ = hostMgr_->requestItems_.request(this, sizeof(Item));
+	hostMgr_->managables_.insert(this);
+
+	if (hostDb_ == nullptr) {
+		SET_ERR(GErr::ObjectIsNull, "hostDb is null");
+		return false;
+	}
 
 	write_.intfName_ = pcapDevice_->intfName_;
 	if (!write_.open()) {
@@ -71,9 +78,6 @@ bool GArpBlock::doOpen() {
 	// sendPacket_.arpHdr_.tmac_ // set later
 	// sendPacket_.arpHdr_.tip_ // set later
 
-	itemOffset_ = hostMgr_->requestItems_.request(this, sizeof(Item));
-	hostMgr_->managables_.insert(this);
-
 	itemList_.clear();
 	infectThread_.start();
 
@@ -94,22 +98,21 @@ bool GArpBlock::doClose() {
 
 void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	Item* item = PItem(hostValue->mem(itemOffset_));
-	Policy policy = defaultPolicy_;
-	if (hostDb_ != nullptr) {
-		GHostMgr::HostValue hostValue;
-		if (hostDb_->selectHost(mac, &hostValue)) {
-			switch (hostValue.mode_) {
-				case GHostMgr::Default :
-					break;
-				case GHostMgr::Allow :
-					policy = Allow;
-					break;
-				case GHostMgr::Block :
-					policy = Block;
-			}
-		}
+	new (item) Item;
+
+	item->mac_ = mac;
+	item->policy_ = defaultPolicy_;
+	GHostDb::Item* hostDbItem = GHostDb::PItem(hostValue->mem(hostDb_->itemOffset_));
+	switch (hostDbItem->mode_) {
+		case GHostDb::Default :
+			break;
+		case GHostDb::Allow :
+			item->policy_ = Allow;
+			break;
+		case GHostDb::Block :
+			item->policy_ = Block;
 	}
-	new (item) Item(mac, hostValue->ip_, policy);
+
 	if (item->policy_ == Block)
 		infect(item, GArpHdr::Request);
 
@@ -121,7 +124,7 @@ void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 
 void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	Item* item = PItem(hostValue->mem(itemOffset_));
-	Q_ASSERT(mac == item->mac_ );
+	Q_ASSERT(mac == item->mac_);
 	if (item->policy_ == Block)
 		recover(item, GArpHdr::Request);
 	item->~Item();

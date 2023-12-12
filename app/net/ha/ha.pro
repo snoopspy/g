@@ -8,12 +8,14 @@ SOURCES += \
 	dbdialog.cpp \
 	ha.cpp \
 	hawidget.cpp \
-	hostanalyzer.cpp
+	hostanalyzer.cpp \
+	hostdialog.cpp
 
 HEADERS += \
 	dbdialog.h \
 	hawidget.h \
-	hostanalyzer.h
+	hostanalyzer.h \
+	hostdialog.h
 
 DISTFILES += \
 	android/AndroidManifest.xml \
