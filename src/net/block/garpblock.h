@@ -11,8 +11,9 @@
 #pragma once
 
 #include "net/manage/ghostmgr.h"
+#include "net/manage/ghostdb.h"
 #include "net/pdu/getharppacket.h"
-#include "base/sys/gwaitevent.h"
+#include "net/write/gpcapdevicewrite.h"
 #include "net/gatm.h"
 
 // ----------------------------------------------------------------------------
@@ -28,6 +29,7 @@ struct G_EXPORT GArpBlock : GStateObj, GHostMgr::Managable {
 	Q_PROPERTY(AttackDirection attackDirection MEMBER attackDirection_)
 	Q_PROPERTY(GObjPtr pcapDevice READ getPcapDevice WRITE setPcapDevice)
 	Q_PROPERTY(GObjPtr hostMgr READ getHostMgr WRITE setHostMgr)
+	Q_PROPERTY(GObjPtr hostDb READ getHostDb WRITE setHostDb)
 	Q_ENUMS(Policy)
 	Q_ENUMS(AttackDirection)
 
@@ -37,6 +39,8 @@ struct G_EXPORT GArpBlock : GStateObj, GHostMgr::Managable {
 	void setPcapDevice(GObjPtr value) { pcapDevice_ = dynamic_cast<GPcapDevice*>(value.data()); }
 	GObjPtr getHostMgr() { return hostMgr_; }
 	void setHostMgr(GObjPtr value) { hostMgr_ = dynamic_cast<GHostMgr*>(value.data()); }
+	GObjPtr getHostDb() { return hostDb_; }
+	void setHostDb(GObjPtr value) { hostDb_ = dynamic_cast<GHostDb*>(value.data()); }
 
 public:
 	enum Policy {
@@ -58,6 +62,8 @@ public:
 	AttackDirection attackDirection_{Both};
 	GPcapDevice *pcapDevice_{nullptr};
 	GHostMgr *hostMgr_{nullptr};
+	GHostDb* hostDb_{nullptr};
+	GPcapDeviceWrite write_{this};
 
 	Q_INVOKABLE GArpBlock(QObject *parent = nullptr);
 	~GArpBlock() override;
@@ -90,10 +96,10 @@ public:
 
 protected:
 	GAtm atm_;
-	GMac mac_;
-	GIp ip_;
-	GMac gwMac_;
-	GIp gwIp_;
+	GMac mac_{GMac::nullMac()};
+	GIp ip_{0};
+	GMac gwMac_{GMac::nullMac()};
+	GIp gwIp_{0};
 
 	QMutex sendMutex_;
 	GEthArpPacket sendPacket_;

@@ -20,10 +20,13 @@ bool GArpBlock::doOpen() {
 		return false;
 	}
 
-	itemOffset_ = hostMgr_->requestItems_.request(this, sizeof(Item));
-	hostMgr_->managables_.insert(this);
+	write_.intfName_ = pcapDevice_->intfName_;
+	if (!write_.open()) {
+		err = write_.err;
+		return false;
+	}
 
-	GIntf* intf = pcapDevice_->intf();
+	GIntf* intf = write_.intf();
 	if (intf == nullptr) {
 		SET_ERR(GErr::ObjectIsNull, "intf is null");
 		return false;
@@ -68,6 +71,9 @@ bool GArpBlock::doOpen() {
 	// sendPacket_.arpHdr_.tmac_ // set later
 	// sendPacket_.arpHdr_.tip_ // set later
 
+	itemOffset_ = hostMgr_->requestItems_.request(this, sizeof(Item));
+	hostMgr_->managables_.insert(this);
+
 	itemList_.clear();
 	infectThread_.start();
 
@@ -81,10 +87,14 @@ bool GArpBlock::doClose() {
 	infectThread_.quit();
 	infectThread_.wait();
 
+	write_.close();
+
 	return true;
 }
 
 void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
+	qDebug() << QString(hostValue->ip_);
+
 	Item* item = PItem(hostValue->mem(itemOffset_));
 	new (item) Item(mac, hostValue->ip_, defaultPolicy_);
 	if (item->policy_ == Block)
@@ -97,6 +107,8 @@ void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
+	qDebug() << QString(hostValue->ip_);
+
 	(void)mac;
 
 	Item* item = PItem(hostValue->mem(itemOffset_));
@@ -128,8 +140,7 @@ void GArpBlock::infect(Item* item, uint16_t operation) {
 		sendPacket_.arpHdr_.tmac_ = item->mac_;
 		sendPacket_.arpHdr_.tip_ = htonl(item->ip_);
 
-		if (pcapDevice_->active())
-			pcapDevice_->write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
+		write_.write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
 	}
 
 	if (attackDirection_ == Gateway || attackDirection_ == Both) { // To Gateway
@@ -140,8 +151,7 @@ void GArpBlock::infect(Item* item, uint16_t operation) {
 		sendPacket_.arpHdr_.tmac_ = gwMac_;
 		sendPacket_.arpHdr_.tip_ = htonl(gwIp_);
 
-		if (pcapDevice_->active())
-			pcapDevice_->write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
+		write_.write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
 	}
 }
 
@@ -157,8 +167,7 @@ void GArpBlock::recover(Item *item, uint16_t operation)
 		sendPacket_.arpHdr_.tmac_ = item->mac_;
 		sendPacket_.arpHdr_.tip_ = htonl(item->ip_);
 
-		if (pcapDevice_->active())
-			pcapDevice_->write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
+		write_.write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
 	}
 
 	if (attackDirection_ == Gateway || attackDirection_ == Both) { // To Gateway
@@ -169,8 +178,7 @@ void GArpBlock::recover(Item *item, uint16_t operation)
 		sendPacket_.arpHdr_.tmac_ = gwMac_;
 		sendPacket_.arpHdr_.tip_ = htonl(gwIp_);
 
-		if (pcapDevice_->active())
-			pcapDevice_->write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
+		write_.write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
 	}
 }
 
