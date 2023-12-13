@@ -70,12 +70,6 @@ public:
 	QTimer updateElapsedTimer_;
 
 protected:
-	// GHostMgr::Managable
-	size_t itemOffset_{0};
-	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
-	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
-	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
-
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
@@ -92,6 +86,13 @@ protected:
 	};
 	typedef Item *PItem;
 	// --------------------------------------------------------------------------
+
+	// GHostMgr::Managable
+	size_t itemOffset_{0};
+	Item* getItem(GHostMgr::HostValue* hostValue) { return PItem(hostValue->mem(itemOffset_)); }
+	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 public:
 	GTreeWidget* treeWidget_{nullptr}; // reference

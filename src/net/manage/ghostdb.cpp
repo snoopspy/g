@@ -115,19 +115,21 @@ bool GHostDb::doClose() {
 }
 
 void GHostDb::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = PItem(hostValue->mem(itemOffset_));
+	Item* item = getItem(hostValue);
 	new (item) Item;
+	*GHostMgr::PHostValue(item) = *hostValue;
 	insertOrUpdateDevice(mac, item);
 }
 
 void GHostDb::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = PItem(hostValue->mem(itemOffset_));
+	Item* item = getItem(hostValue);
 	item->~Item();
 	insertLog(mac, item->ip_, item->firstTime_, item->lastTime_);
 }
 
 void GHostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = PItem(hostValue->mem(itemOffset_));
+	Item* item = getItem(hostValue);
+	*GHostMgr::PHostValue(item) = *hostValue;
 	insertOrUpdateDevice(mac, item);
 }
 
@@ -200,12 +202,11 @@ bool GHostDb::insertOrUpdateDevice(GMac mac, Item* item) {
 
 	Item dbItem;
 	if (selectHost(mac, &dbItem)) {
-		Item newItem;
-		newItem.ip_ = item->ip_ == 0 ? dbItem.ip_ : item->ip_;
-		newItem.host_ = item->host_ == "" ? dbItem.host_ : item->host_;
-		newItem.vendor_ = item->vendor_ == "" ? dbItem.vendor_ : item->vendor_;
-		newItem.mode_ = dbItem.mode_;
-		return updateHost(mac, &newItem);
+		if (item->ip_ == 0) item->ip_ = dbItem.ip_;
+		if (item->host_ == "") item->host_ = dbItem.host_;
+		if (item->vendor_ == "") item->vendor_ = dbItem.vendor_;
+		item->mode_ = dbItem.mode_;
+		return updateHost(mac, item);
 	}
 	return insertHost(mac, item);
 }

@@ -97,12 +97,13 @@ bool GArpBlock::doClose() {
 }
 
 void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = PItem(hostValue->mem(itemOffset_));
+	Item* item = getItem(hostValue);
 	new (item) Item;
+	GHostDb::Item* hostDbItem = hostDb_->getItem(hostValue);
+	*GHostDb::PItem(item) = *hostDbItem;
 
 	item->mac_ = mac;
 	item->policy_ = defaultPolicy_;
-	GHostDb::Item* hostDbItem = GHostDb::PItem(hostValue->mem(hostDb_->itemOffset_));
 	switch (hostDbItem->mode_) {
 		case GHostDb::Default :
 			break;
@@ -123,7 +124,7 @@ void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = PItem(hostValue->mem(itemOffset_));
+	Item* item = getItem(hostValue);
 	Q_ASSERT(mac == item->mac_);
 	if (item->policy_ == Block)
 		recover(item, GArpHdr::Request);
@@ -137,9 +138,9 @@ void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 
 void GArpBlock::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
-
-	Item* item = PItem(hostValue->mem(itemOffset_));
-	item->ip_ = hostValue->ip_;
+	Item* item = getItem(hostValue);
+	GHostDb::Item* hostDbItem = hostDb_->getItem(hostValue);
+	*GHostDb::PItem(item) = *hostDbItem;
 }
 
 void GArpBlock::infect(Item* item, uint16_t operation) {

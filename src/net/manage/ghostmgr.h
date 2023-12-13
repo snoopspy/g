@@ -37,7 +37,6 @@ public:
 		GIp ip_{0};
 		QString host_;
 		QString vendor_;
-
 #ifdef _DEBUG
 		size_t totalMemSize_{0};
 #endif // _DEBUG
@@ -45,7 +44,7 @@ public:
 		static struct HostValue* allocate(size_t totalMemSize) {
 			HostValue* hostValue = reinterpret_cast<HostValue*>(malloc(sizeof(HostValue) + totalMemSize));
 #ifdef _DEBUG
-			hostValue->totalMemSize_= totalMemSize;
+			hostValue->totalMemSize_ = totalMemSize;
 			memset(pbyte(hostValue) + sizeof(HostValue), 'A', totalMemSize);
 #endif // _DEBUG
 			new (hostValue) HostValue;
@@ -62,6 +61,7 @@ public:
 
 		void* mem(size_t offset) { return pbyte(this) + sizeof(HostValue) + offset; }
 	};
+	typedef HostValue *PHostValue;
 
 public:
 	// --------------------------------------------------------------------------
@@ -72,8 +72,15 @@ public:
 		virtual void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) = 0;
 		virtual void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) = 0;
 	};
-	typedef QSet<Managable*> Managables;
-	Managables managables_;
+	struct Managables : QList<Managable*> {
+		void insert(Managable* managable) {
+			for (Managable* m: *this) {
+				if (m == managable)
+					return;
+			}
+			push_back(managable);
+		}
+	} managables_;
 	// --------------------------------------------------------------------------
 
 public:

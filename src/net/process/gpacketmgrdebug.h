@@ -46,6 +46,13 @@ public:
 	GUdpFlowMgr* udpFlowMgr_{nullptr};
 
 public:
+	Q_INVOKABLE GPacketMgrDebug(QObject* parent = nullptr) : GStateObj(parent) {}
+	~GPacketMgrDebug() override { close(); }
+
+protected:
+	bool doOpen() override;
+	bool doClose() override;
+
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
@@ -63,34 +70,28 @@ public:
 	// --------------------------------------------------------------------------
 
 public:
-	Q_INVOKABLE GPacketMgrDebug(QObject* parent = nullptr) : GStateObj(parent) {}
-	~GPacketMgrDebug() override { close(); }
-
-protected:
-	bool doOpen() override;
-	bool doClose() override;
-
-protected:
-	size_t hostOffset_{0};
-	size_t ipFlowOffset_{0};
-	size_t tcpFlowOffset_{0};
-	size_t udpFlowOffset_{0};
-
-public:
 	// GHostMgr::Managable
+	size_t hostOffset_{0};
+	Item* getItem(GHostMgr::HostValue* hostValue) { return PItem(hostValue->mem(hostOffset_)); }
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 	// GIpFlowMgr::Managable
+	size_t ipFlowOffset_{0};
+	Item* getItem(GIpFlowMgr::IpFlowValue* ipFlowValue) { return PItem(ipFlowValue->mem(ipFlowOffset_)); }
 	void ipFlowCreated(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFlowValue* ipFlowValue) override;
 	void ipFlowDeleted(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFlowValue* ipFlowValue) override;
 
 	// GTcpFlowMgr::Managable
+	size_t tcpFlowOffset_{0};
+	Item* getItem(GTcpFlowMgr::TcpFlowValue* tcpFlowValue) { return PItem(tcpFlowValue->mem(tcpFlowOffset_)); }
 	void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 
 	// GUdpFlowMgr::Managable
+	size_t udpFlowOffset_{0};
+	Item* getItem(GUdpFlowMgr::UdpFlowValue* udpFlowValue) { return PItem(udpFlowValue->mem(udpFlowOffset_)); }
 	void udpFlowCreated(GFlow::UdpFlowKey udpFlowKey, GUdpFlowMgr::UdpFlowValue* udpFlowValue) override;
 	void udpFlowDeleted(GFlow::UdpFlowKey udpFlowKey, GUdpFlowMgr::UdpFlowValue* udpFlowValue) override;
 

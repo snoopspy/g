@@ -39,12 +39,6 @@ protected:
 	bool doClose() override;
 
 public:
-	// GHostMgr::Managable
-	size_t itemOffset_;
-	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
-	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
-	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
-
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
@@ -58,6 +52,13 @@ public:
 	};
 	typedef Item *PItem;
 	// --------------------------------------------------------------------------
+
+	// GHostMgr::Managable
+	size_t itemOffset_;
+	Item* getItem(GHostMgr::HostValue* hostValue) { return PItem(hostValue->mem(itemOffset_)); }
+	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
+	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
 
 public:
 	QSqlDatabase db_;

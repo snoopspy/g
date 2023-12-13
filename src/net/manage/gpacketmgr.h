@@ -46,8 +46,8 @@ public:
 	// Value
 	// --------------------------------------------------------------------------
 	struct Value {
-		time_t firstTime_;
-		time_t lastTime_;
+		time_t firstTime_{0};
+		time_t lastTime_{0};
 
 		static struct Value* allocate(size_t totalMemSize) {
 			Value* res = reinterpret_cast<Value*>(malloc(sizeof(Value) + totalMemSize));

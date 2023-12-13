@@ -118,7 +118,7 @@ bool HostAnalyzer::doClose() {
 }
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = PItem(hostValue->mem(itemOffset_));
+	Item* item = getItem(hostValue);
 	new (item) Item;
 
 	item->state_ = Item::Created;
@@ -132,11 +132,13 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
-	(void)hostValue;
+
+	Item* item = getItem(hostValue);
+	item->~Item();
 }
 
 void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = PItem(hostValue->mem(itemOffset_));
+	Item* item = getItem(hostValue);
 
 	item->state_ = Item::Changed;
 	item->mac_ = mac;

@@ -28,13 +28,13 @@ bool GClientHelloSplit::doClose() {
 void GClientHelloSplit::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
 	// qDebug() << QString("_tcpFlowDetected %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
 	(void)tcpFlowKey;
-	Item* item = PItem(tcpFlowValue->mem(tcpFlowOffset_));
+	Item* item = getItem(tcpFlowValue);
 	new (item) Item;
 }
 
 void GClientHelloSplit::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
 	(void)tcpFlowKey;
-	Item* item = PItem(tcpFlowValue->mem(tcpFlowOffset_));
+	Item* item = getItem(tcpFlowValue);
 	item->~Item();
 	// qDebug() << QString("_tcpFlowDeleted %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
 }
