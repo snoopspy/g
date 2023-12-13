@@ -257,6 +257,7 @@ void GPluginFactory::loadProcess() {
 	category->items_.push_back(new ItemNode("GCorrectChecksum"));
 	category->items_.push_back(new ItemNode("GDnsProcessor"));
 	category->items_.push_back(new ItemNode("GPacketDebug"));
+	category->items_.push_back(new ItemNode("GPacketMgrDebug"));
 	category->items_.push_back(new ItemNode("GScreenKeeper"));
 	category->items_.push_back(new ItemNode("GScreenSaver"));
 	category->items_.push_back(new ItemNode("GTraceRoute"));
