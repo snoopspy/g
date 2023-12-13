@@ -96,7 +96,10 @@ public:
 	void udpFlowDeleted(GFlow::UdpFlowKey udpFlowKey, GUdpFlowMgr::UdpFlowValue* udpFlowValue) override;
 
 public slots:
-	void debug(GPacket* packet);
+	void debugHost(GPacket* packet);
+	void debugIp(GPacket* packet);
+	void debugTcp(GPacket* packet);
+	void debugUdp(GPacket* packet);
 
 signals:
 	void debugged(GPacket* packet);
