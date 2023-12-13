@@ -51,7 +51,7 @@ public:
 		static struct IpValue* allocate(size_t totalMemSize) {
 			IpValue* ipValue = reinterpret_cast<IpValue*>(malloc(sizeof(IpValue) + totalMemSize));
 #ifdef _DEBUG
-			ipValue->totalMemSize_= totalMemSize;
+			ipValue->totalMemSize_ = totalMemSize;
 			memset(pbyte(ipValue) + sizeof(IpValue), 'A', totalMemSize);
 #endif // _DEBUG
 			new (ipValue) IpValue;
@@ -77,8 +77,15 @@ public:
 		virtual void ipCreated(GIp ip, GIpMgr::IpValue* ipValue) = 0;
 		virtual void ipDeleted(GIp ip, GIpMgr::IpValue* ipValue) = 0;
 	};
-	typedef QSet<Managable*> Managables;
-	Managables managables_;
+	struct Managables : QList<Managable*> {
+		void insert(Managable* managable) {
+			for (Managable* m: *this) {
+				if (m == managable)
+					return;
+			}
+			push_back(managable);
+		}
+	} managables_;
 	// --------------------------------------------------------------------------
 
 public:

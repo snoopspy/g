@@ -56,8 +56,15 @@ public:
 		virtual void ipFlowCreated(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFlowValue* ipFlowValue) = 0;
 		virtual void ipFlowDeleted(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFlowValue* ipFlowValue) = 0;
 	};
-	typedef QSet<Managable*> Managables;
-	Managables managables_;
+	struct Managables : QList<Managable*> {
+		void insert(Managable* managable) {
+			for (Managable* m: *this) {
+				if (m == managable)
+					return;
+			}
+			push_back(managable);
+		}
+	} managables_;
 	// --------------------------------------------------------------------------
 
 protected:

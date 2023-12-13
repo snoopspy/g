@@ -62,8 +62,15 @@ public:
 		virtual void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) = 0;
 		virtual void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) = 0;
 	};
-	typedef QSet<Managable*> Managables;
-	Managables managables_;
+	struct Managables : QList<Managable*> {
+		void insert(Managable* managable) {
+			for (Managable* m: *this) {
+				if (m == managable)
+					return;
+			}
+			push_back(managable);
+		}
+	} managables_;
 	// --------------------------------------------------------------------------
 
 protected:
