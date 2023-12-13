@@ -314,11 +314,10 @@ GPacket::Result GNetFilter::drop(GPacket* packet) {
 int GNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struct nfq_data* nfad, void* data) {
 	(void)qh;
 	(void)nfmsg;
-
-	#ifdef _DEBUG
+#ifdef _DEBUG
 	if (--count != 0)
 		qWarning() << "count is" << count;
-	#endif // _DEBUG
+#endif // _DEBUG
 
 	GNetFilter* netFilter = static_cast<GNetFilter*>(data);
 	Q_ASSERT(netFilter->qh_ == qh);

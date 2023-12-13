@@ -61,7 +61,6 @@ QString GFind::printableStr(QString s) {
 
 void GFind::processFound(int itemIndex, int foundIndex, QString& foundStr) {
 	(void)itemIndex;
-
 	if (log_) {
 		QString logFoundStr = printableStr(foundStr);
 		qInfo() << QString("found('%1' %2 0x%3)").arg(logFoundStr).arg(foundIndex).arg(QString::number(foundIndex, 16));

@@ -72,7 +72,6 @@ void GAsyncNetFilter::run() {
 
 int GAsyncNetFilter::_asyncCallback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struct nfq_data* nfad, void* data) {
 	(void)nfmsg;
-
 	GAsyncNetFilter* asyncNetFilter = static_cast<GAsyncNetFilter*>(data);
 	GIpPacket* ipPacket = &asyncNetFilter->asyncIpPacket_;
 

@@ -69,7 +69,6 @@ void WaWidget::setControl() {
 
 void WaWidget::tbStart_clicked(bool checked) {
 	(void)checked;
-
 	devices_.clear();
 	tableWidget_->setRowCount(0);
 
@@ -87,7 +86,6 @@ void WaWidget::tbStart_clicked(bool checked) {
 
 void WaWidget::tbStop_clicked(bool checked) {
 	(void)checked;
-
 	wifiAnalyzer_.close();
 	timer_->stop();
 	setControl();
@@ -96,7 +94,6 @@ void WaWidget::tbStop_clicked(bool checked) {
 #include <GPropDialog>
 void WaWidget::tbOption_clicked(bool checked) {
 	(void)checked;
-
 	GPropDialog propDialog;
 	propDialog.widget_.setObject(&wifiAnalyzer_);
 
