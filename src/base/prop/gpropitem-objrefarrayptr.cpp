@@ -22,6 +22,7 @@ public:
 		Q_ASSERT(treeWidget != nullptr);
 		QToolButton* toolButton = new QToolButton(treeWidget);
 		toolButton->setText("-");
+		toolButton->setToolTip("Remove");
 		toolButton->setAutoRaise(true);
 		treeWidget->setItemWidget(this, 1, toolButton);
 		QObject::connect(toolButton, SIGNAL(clicked(bool)), this, SLOT(myClicked(bool)));
@@ -43,6 +44,7 @@ protected slots:
 // ----------------------------------------------------------------------------
 GPropItemObjRefArrayPtr::GPropItemObjRefArrayPtr(GPropItemParam* param) : GPropItemToolButton(param) {
 	toolButton_->setText("+");
+	toolButton_->setToolTip("Add");
 	QObject::connect(toolButton_, SIGNAL(clicked(bool)), this, SLOT(myClicked(bool)));
 }
 

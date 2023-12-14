@@ -14,18 +14,21 @@ GDefaultWidget::GDefaultWidget(QWidget* parent) : QWidget(parent) {
 
 	tbStart_ = new QToolButton(this);
 	tbStart_->setText("Start");
+	tbStart_->setToolTip("Start");
 	tbStart_->setIcon(QIcon(":/img/start.png"));
 	tbStart_->setAutoRaise(true);
 	toolButtonLayout_->addWidget(tbStart_);
 
 	tbStop_ = new QToolButton(this);
 	tbStop_->setText("Stop");
+	tbStop_->setToolTip("Stop");
 	tbStop_->setIcon(QIcon(":/img/stop.png"));
 	tbStop_->setAutoRaise(true);
 	toolButtonLayout_->addWidget(tbStop_);
 
 	tbOption_ = new QToolButton(this);
 	tbOption_->setText("Option");
+	tbOption_->setToolTip("Option");
 	tbOption_->setIcon(QIcon(":/img/option.png"));
 	tbOption_->setAutoRaise(true);
 	toolButtonLayout_->addWidget(tbOption_);

@@ -13,6 +13,7 @@ GPropItemFilePath::GPropItemFilePath(GPropItemParam* param) : GPropItemWidget(pa
 	layout_->setContentsMargins(0, 0, 0, 0);
 	lineEdit_->setFrame(false);
 	toolButton_->setText("...");
+	toolButton_->setToolTip("Select File");
 	layout_->addWidget(lineEdit_);
 	layout_->addWidget(toolButton_);
 	widget_->setLayout(layout_);

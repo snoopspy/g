@@ -90,7 +90,8 @@ DbDialog::DbDialog(QWidget* parent, GHostDb* hostDb) : QDialog(parent), hostDb_(
 				leSearchHost_ = new QLineEdit(this);
 				hostHLayout_->addWidget(leSearchHost_);
 				tbSearchHost_ = new QToolButton(this);
-				tbSearchHost_->setText("DB");
+				tbSearchHost_->setText("Search Host");
+				tbSearchHost_->setToolTip("Search Host");
 				tbSearchHost_->setIcon(QIcon(":/img/search.png"));
 				tbSearchHost_->setAutoRaise(true);
 				hostHLayout_->addWidget(tbSearchHost_);
@@ -124,7 +125,8 @@ DbDialog::DbDialog(QWidget* parent, GHostDb* hostDb) : QDialog(parent), hostDb_(
 				leSearchLog_ = new QLineEdit(this);
 				logHLayout_->addWidget(leSearchLog_);
 				tbSearchLog_ = new QToolButton(this);
-				tbSearchLog_->setText("DB");
+				tbSearchLog_->setText("Search Log");
+				tbSearchLog_->setToolTip("Search Log");
 				tbSearchLog_->setIcon(QIcon(":/img/search.png"));
 				tbSearchLog_->setAutoRaise(true);
 				logHLayout_->addWidget(tbSearchLog_);

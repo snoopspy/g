@@ -51,14 +51,16 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	hv->setStretchLastSection(false);
 
 	tbDb_ = new QToolButton(this);
-	tbDb_->setText("DB");
+	tbDb_->setText("Database");
+	tbDb_->setToolTip("Database");
 	tbDb_->setIcon(QIcon(":/img/db.png"));
 	tbDb_->setAutoRaise(true);
 	tbDb_->setIconSize(tbStart_->iconSize());
 	toolButtonLayout_->addWidget(tbDb_);
 
 	tbHost_ = new QToolButton(this);
-	tbHost_->setText("Host");
+	tbHost_->setText("Edit Host");
+	tbHost_->setToolTip("Edit Host");
 	tbHost_->setIcon(QIcon(":/img/edit.png"));
 	tbHost_->setAutoRaise(true);
 	tbHost_->setIconSize(tbStart_->iconSize());
@@ -66,6 +68,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 
 	tbScreenSaver_ = new QToolButton(this);
 	tbScreenSaver_->setText("ScreenSaver");
+	tbScreenSaver_->setToolTip("ScreenSaver");
 	tbScreenSaver_->setIcon(QIcon(":/img/screensaver.png"));
 	tbScreenSaver_->setAutoRaise(true);
 	tbScreenSaver_->setIconSize(tbStart_->iconSize());

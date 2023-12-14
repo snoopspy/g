@@ -12,6 +12,7 @@ GPropItemDirPath::GPropItemDirPath(GPropItemParam* param) : GPropItemWidget(para
 	layout_->setContentsMargins(0, 0, 0, 0);
 	lineEdit_->setFrame(false);
 	toolButton_->setText("...");
+	toolButton_->setToolTip("Select Path");
 	layout_->addWidget(lineEdit_);
 	layout_->addWidget(toolButton_);
 	widget_->setLayout(layout_);
