@@ -33,15 +33,25 @@ public:
 			Half,
 			Full
 		} state_;
+#ifdef _DEBUG
+		size_t totalMemSize_{0};
+#endif // _DEBUG
 
 		static struct IpFlowValue* allocate(size_t totalMemSize) {
-			IpFlowValue* res = reinterpret_cast<IpFlowValue*>(malloc(sizeof(IpFlowValue) + totalMemSize));
-			new (res) IpFlowValue;
-			return res;
+			IpFlowValue* ipFlowValue = reinterpret_cast<IpFlowValue*>(malloc(sizeof(IpFlowValue) + totalMemSize));
+#ifdef _DEBUG
+			ipFlowValue->totalMemSize_ = totalMemSize;
+			memset(pbyte(ipFlowValue) + sizeof(IpFlowValue), 'A', totalMemSize);
+#endif // _DEBUG
+			new (ipFlowValue) IpFlowValue;
+			return ipFlowValue;
 		}
 
 		static void deallocate(IpFlowValue* ipFlowValue) {
 			ipFlowValue->~IpFlowValue();
+#ifdef _DEBUG
+			memset(pbyte(ipFlowValue) + sizeof(IpFlowValue), 'B', ipFlowValue->totalMemSize_);
+#endif // _DEBUG
 			free(static_cast<void*>(ipFlowValue));
 		}
 

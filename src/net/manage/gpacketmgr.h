@@ -48,15 +48,25 @@ public:
 	struct Value {
 		time_t firstTime_{0};
 		time_t lastTime_{0};
+#ifdef _DEBUG
+		size_t totalMemSize_{0};
+#endif // _DEBUG
 
 		static struct Value* allocate(size_t totalMemSize) {
-			Value* res = reinterpret_cast<Value*>(malloc(sizeof(Value) + totalMemSize));
-			new (res) Value;
-			return res;
+			Value* value = reinterpret_cast<Value*>(malloc(sizeof(Value) + totalMemSize));
+#ifdef _DEBUG
+			value->totalMemSize_ = totalMemSize;
+			memset(pbyte(value) + sizeof(Value), 'A', totalMemSize);
+#endif // _DEBUG
+			new (value) Value;
+			return value;
 		}
 
 		static void deallocate(Value* value) {
 			value->~Value();
+#ifdef _DEBUG
+			memset(pbyte(value) + sizeof(Value), 'B', value->totalMemSize_);
+#endif // _DEBUG
 			free(static_cast<void*>(value));
 		}
 

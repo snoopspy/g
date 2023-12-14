@@ -42,7 +42,7 @@ public:
 #endif // _DEBUG
 
 		static struct HostValue* allocate(size_t totalMemSize) {
-			HostValue* hostValue = reinterpret_cast<HostValue*>(malloc(sizeof(HostValue) + totalMemSize));
+			HostValue* hostValue = PHostValue(malloc(sizeof(HostValue) + totalMemSize));
 #ifdef _DEBUG
 			hostValue->totalMemSize_ = totalMemSize;
 			memset(pbyte(hostValue) + sizeof(HostValue), 'A', totalMemSize);
