@@ -33,14 +33,14 @@ bool GPacketMgrDebug::doClose() {
 void GPacketMgrDebug::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	if (!enabled_) return;
 	qDebug() << QString("hostCreated %1 %2 %3").arg(QString(mac)).arg(QString(hostValue->ip_)).arg(hostValue->host_);
-	Item* item = PItem(hostValue->mem(hostOffset_));
+	Item* item = getItem(hostValue);
 	new (item) Item;
 }
 
 void GPacketMgrDebug::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	if (!enabled_) return;
 	qDebug() << QString("hostDeleted %1 %2 %3").arg(QString(mac)).arg(QString(hostValue->ip_)).arg(hostValue->host_);
-	Item* item = PItem(hostValue->mem(hostOffset_));
+	Item* item = getItem(hostValue);
 	item->~Item();
 }
 
@@ -97,7 +97,7 @@ void GPacketMgrDebug::debugHost(GPacket* packet) {
 	Q_ASSERT(hostMgr_ != nullptr);
 	Q_ASSERT(hostMgr_->currentHostVal_ != nullptr);
 
-	Item* item = PItem(hostMgr_->currentHostVal_->mem(hostOffset_));
+	Item* item = getItem(hostMgr_->currentHostVal_);
 	item->packets++;
 	item->bytes += packet->buf_.size_;
 	GMac mac = hostMgr_->currentMac_;
@@ -114,7 +114,7 @@ void GPacketMgrDebug::debugIp(GPacket* packet) {
 	Q_ASSERT(ipFlowMgr_ != nullptr);
 	Q_ASSERT(ipFlowMgr_->currentIpFlowVal_ != nullptr);
 
-	Item* item = PItem(ipFlowMgr_->currentIpFlowVal_->mem(ipFlowOffset_));
+	Item* item = getItem(ipFlowMgr_->currentIpFlowVal_);
 	item->packets++;
 	item->bytes += packet->buf_.size_;
 	GFlow::IpFlowKey* ipFlowKey = &ipFlowMgr_->currentIpFlowKey_;
@@ -131,7 +131,7 @@ void GPacketMgrDebug::debugTcp(GPacket* packet) {
 	Q_ASSERT(tcpFlowMgr_ != nullptr);
 	Q_ASSERT(tcpFlowMgr_->currentTcpFlowVal_  != nullptr);
 
-	Item* item = PItem(tcpFlowMgr_->currentTcpFlowVal_->mem(tcpFlowOffset_));
+	Item* item = getItem(tcpFlowMgr_->currentTcpFlowVal_);
 	item->packets++;
 	item->bytes += packet->buf_.size_;
 	GFlow::TcpFlowKey* tcpFlowKey = &tcpFlowMgr_->currentTcpFlowKey_;
@@ -148,7 +148,7 @@ void GPacketMgrDebug::debugUdp(GPacket* packet) {
 	Q_ASSERT(udpFlowMgr_ != nullptr);
 	Q_ASSERT(udpFlowMgr_->currentUdpFlowVal_ != nullptr);
 
-	Item* item = PItem(udpFlowMgr_->currentUdpFlowVal_->mem(udpFlowOffset_));
+	Item* item = getItem(udpFlowMgr_->currentUdpFlowVal_);
 	item->packets++;
 	item->bytes += packet->buf_.size_;
 	GFlow::UdpFlowKey* udpFlowKey = &udpFlowMgr_->currentUdpFlowkey_;

@@ -46,7 +46,7 @@ void GClientHelloSplit::split(GPacket* packet) {
 	if (tcpHdr == nullptr) return;
 
 	Q_ASSERT(tcpFlowMgr_->currentTcpFlowVal_ != nullptr);
-	Item* item = PItem(tcpFlowMgr_->currentTcpFlowVal_->mem(tcpFlowOffset_));
+	Item* item = getItem(tcpFlowMgr_->currentTcpFlowVal_);
 	if (item->processed_) return;
 
 	if (tcpHdr->flags() & GTcpHdr::Syn && tcpHdr->flags() & GTcpHdr::Ack) {

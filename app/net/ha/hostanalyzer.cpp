@@ -195,7 +195,7 @@ void HostAnalyzer::updateHosts() {
 	for (GHostMgr::HostMap::iterator it = hostMgr_.hostMap_.begin(); it != hostMgr_.hostMap_.end(); it++) {
 		GMac mac = it.key();
 		GHostMgr::HostValue* hostValue = it.value();
-		Item* item = PItem(hostValue->mem(itemOffset_));
+		Item* item = getItem(hostValue);
 
 		MyTreeWidgetItem* treeWidgetItem = PMyTreeWidgetItem(item->treeWidgetItem_);
 		if (treeWidgetItem == nullptr) {
