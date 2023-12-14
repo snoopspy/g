@@ -81,7 +81,6 @@ protected:
 		} state_{Created};
 		QTreeWidgetItem* treeWidgetItem_{nullptr};
 		QString defaultName_;
-		time_t firstTime_;
 		time_t blockTime_;
 	};
 	typedef Item *PItem;

@@ -118,21 +118,20 @@ bool HostAnalyzer::doClose() {
 }
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
+	(void)mac;
 	Item* item = getItem(hostValue);
 	new (item) Item;
+	GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
+	*GArpBlock::PItem(item) = *arpBlockItem;
 
 	item->state_ = Item::Created;
 	item->treeWidgetItem_ = nullptr;
-	item->mac_ = mac;
-	item->ip_ = hostValue->ip_;
 	item->defaultName_ = hostDb_.getDefaultName(mac, item);
-	item->firstTime_ = item->blockTime_ = hostValue->firstTime_;
-	item->blockTime_ += extendTimeoutSec_;
+	item->blockTime_ = hostValue->firstTime_ + extendTimeoutSec_;
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
-
 	Item* item = getItem(hostValue);
 	item->~Item();
 }
