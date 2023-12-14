@@ -239,13 +239,13 @@ QString GHostDb::getDefaultName(GMac mac, Item* item) {
 	if (!selectHostQuery_->exec()) {
 		qWarning() << selectHostQuery_->lastError().text();
 	} else if (selectHostQuery_->next()) {
-		QString alias = selectHostQuery_->value("alias").toString();
+		QString alias = selectHostQuery_->value("alias").toString().trimmed();
 		if (alias != "") return alias;
 		if (res == "") {
-			QString host = selectHostQuery_->value("host").toString();
+			QString host = selectHostQuery_->value("host").toString().trimmed();
 			if (host != "") return host;
-			QString vendor = selectHostQuery_->value("vendor").toString();
-			if (vendor != "") return host;
+			QString vendor = selectHostQuery_->value("vendor").toString().trimmed();
+			if (vendor != "") return vendor;
 		}
 	}
 
