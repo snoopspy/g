@@ -136,6 +136,7 @@ void GHostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 bool GHostDb::selectHost(GMac mac, Item* item) {
 	QMutexLocker(this);
 
+	Q_ASSERT(selectHostQuery_ != nullptr);
 	selectHostQuery_->bindValue(":mac", quint64(mac));
 	if (!selectHostQuery_->exec()) {
 		qWarning() << selectHostQuery_->lastError().text();
@@ -158,6 +159,7 @@ bool GHostDb::selectHost(GMac mac, Item* item) {
 bool GHostDb::insertHost(GMac mac, Item* item) {
 	QMutexLocker(this);
 
+	Q_ASSERT(insertHostQuery_ != nullptr);
 	insertHostQuery_->bindValue(":mac", quint64(mac));
 	insertHostQuery_->bindValue(":ip", uint32_t(item->ip_));
 	insertHostQuery_->bindValue(":host", item->host_);
@@ -173,6 +175,7 @@ bool GHostDb::insertHost(GMac mac, Item* item) {
 bool GHostDb::updateHost(GMac mac, Item *item) {
 	QMutexLocker(this);
 
+	Q_ASSERT(updateHostQuery_ != nullptr);
 	updateHostQuery_->bindValue(":ip", uint32_t(item->ip_));
 	updateHostQuery_->bindValue(":host", item->host_);
 	updateHostQuery_->bindValue(":vendor", item->vendor_);
@@ -188,6 +191,7 @@ bool GHostDb::updateHost(GMac mac, Item *item) {
 bool GHostDb::updateAlias(GMac mac, QString alias) {
 	QMutexLocker(this);
 
+	Q_ASSERT(updateAliasQuery_ != nullptr);
 	updateAliasQuery_->bindValue(":alias", alias);
 	updateAliasQuery_->bindValue(":mac", quint64(mac));
 	bool res = updateAliasQuery_->exec();
@@ -214,6 +218,7 @@ bool GHostDb::insertOrUpdateDevice(GMac mac, Item* item) {
 bool GHostDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
 	QMutexLocker(this);
 
+	Q_ASSERT(insertLogQuery_ != nullptr);
 	insertLogQuery_->bindValue(":mac", quint64(mac));
 	insertLogQuery_->bindValue(":ip", uint32_t(ip));
 	insertLogQuery_->bindValue(":beg_time", quint64(begTime));
@@ -235,6 +240,7 @@ QString GHostDb::getDefaultName(GMac mac, Item* item) {
 		else if (item->vendor_ != "") res = item->vendor_;
 	}
 
+	Q_ASSERT(selectHostQuery_ != nullptr);
 	selectHostQuery_->bindValue(":mac", quint64(mac));
 	if (!selectHostQuery_->exec()) {
 		qWarning() << selectHostQuery_->lastError().text();
