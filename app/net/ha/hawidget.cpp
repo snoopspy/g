@@ -33,7 +33,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 #ifdef Q_OS_ANDROID
 	itemDelegate->setHeight(140);
 #endif // Q_OS_ANDROID
-	treeWidget_->setHeaderLabels(QStringList{"ip", "name", "elapsed", ""});
+	treeWidget_->setHeaderLabels(QStringList{"IP", "Name", "Elapsed", ""});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 	treeWidget_->setIndentation(0);
