@@ -48,6 +48,7 @@ public:
 		Block = 2
 	};
 	struct Item : GHostMgr::HostValue {
+		QString alias_;
 		Mode mode_{Default};
 	};
 	typedef Item *PItem;
@@ -67,14 +68,12 @@ protected:
 	QSqlQuery* selectHostQuery_{nullptr};
 	QSqlQuery* insertHostQuery_{nullptr};
 	QSqlQuery* updateHostQuery_{nullptr};
-	QSqlQuery* updateAliasQuery_{nullptr};
 	QSqlQuery* insertLogQuery_{nullptr};
 
 public:
 	bool selectHost(GMac mac, Item* item);
 	bool insertHost(GMac mac, Item* item);
 	bool updateHost(GMac mac, Item* item);
-	bool updateAlias(GMac mac, QString alias);
 	bool insertOrUpdateDevice(GMac mac, Item* item);
 	bool insertLog(GMac mac, GIp ip, time_t sttTime, time_t endTime);
 

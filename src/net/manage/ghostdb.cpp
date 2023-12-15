@@ -63,18 +63,13 @@ bool GHostDb::doOpen() {
 		return false;
 	}
 	insertHostQuery_ = new QSqlQuery(db_);
-	if (!insertHostQuery_->prepare("INSERT INTO host (mac, ip, host, vendor, mode) VALUES (:mac, :ip, :host, :vendor, :mode)")) {
+	if (!insertHostQuery_->prepare("INSERT INTO host (mac, ip, alias, host, vendor, mode) VALUES (:mac, :ip, :alias, :host, :vendor, :mode)")) {
 		SET_ERR(GErr::Fail, insertHostQuery_->lastError().text());
 		return false;
 	}
 	updateHostQuery_ = new QSqlQuery(db_);
-	if (!updateHostQuery_->prepare("UPDATE host SET ip = :ip, host = :host, vendor = :vendor, mode = :mode WHERE mac = :mac")) {
+	if (!updateHostQuery_->prepare("UPDATE host SET ip = :ip, alias = :alias, host = :host, vendor = :vendor, mode = :mode WHERE mac = :mac")) {
 		SET_ERR(GErr::Fail, updateHostQuery_->lastError().text());
-		return false;
-	}
-	updateAliasQuery_ = new QSqlQuery(db_);
-	if (!updateAliasQuery_->prepare("UPDATE host SET alias = :alias WHERE mac = :mac")) {
-		SET_ERR(GErr::Fail, updateAliasQuery_->lastError().text());
 		return false;
 	}
 	insertLogQuery_ = new QSqlQuery(db_);
@@ -101,10 +96,6 @@ bool GHostDb::doClose() {
 	if (updateHostQuery_ != nullptr) {
 		delete updateHostQuery_ ;
 		updateHostQuery_  = nullptr;
-	}
-	if (updateAliasQuery_ != nullptr) {
-		delete updateAliasQuery_ ;
-		updateAliasQuery_  = nullptr;
 	}
 	if (insertLogQuery_ != nullptr) {
 		delete insertLogQuery_ ;
@@ -146,6 +137,7 @@ bool GHostDb::selectHost(GMac mac, Item* item) {
 	if (selectHostQuery_->next()) {
 		Q_ASSERT(quint64(mac) == selectHostQuery_->value("mac").toULongLong());
 		item->ip_ = selectHostQuery_->value("ip").toUInt();
+		item->alias_ = selectHostQuery_->value("alias").toString();
 		item->host_ = selectHostQuery_->value("host").toString();
 		item->vendor_ = selectHostQuery_->value("vendor").toString();
 		int i = Mode(selectHostQuery_->value("mode").toInt());
@@ -162,6 +154,7 @@ bool GHostDb::insertHost(GMac mac, Item* item) {
 	Q_ASSERT(insertHostQuery_ != nullptr);
 	insertHostQuery_->bindValue(":mac", quint64(mac));
 	insertHostQuery_->bindValue(":ip", uint32_t(item->ip_));
+	insertHostQuery_->bindValue(":alias", item->alias_);
 	insertHostQuery_->bindValue(":host", item->host_);
 	insertHostQuery_->bindValue(":vendor", item->vendor_);
 	insertHostQuery_->bindValue(":mode", int(item->mode_));
@@ -177,6 +170,7 @@ bool GHostDb::updateHost(GMac mac, Item *item) {
 
 	Q_ASSERT(updateHostQuery_ != nullptr);
 	updateHostQuery_->bindValue(":ip", uint32_t(item->ip_));
+	updateHostQuery_->bindValue(":alias", item->alias_);
 	updateHostQuery_->bindValue(":host", item->host_);
 	updateHostQuery_->bindValue(":vendor", item->vendor_);
 	updateHostQuery_->bindValue(":mode", int(item->mode_));
@@ -184,19 +178,6 @@ bool GHostDb::updateHost(GMac mac, Item *item) {
 	bool res = updateHostQuery_->exec();
 	if (!res) {
 		qWarning() << updateHostQuery_->lastError().text();
-	}
-	return res;
-}
-
-bool GHostDb::updateAlias(GMac mac, QString alias) {
-	QMutexLocker(this);
-
-	Q_ASSERT(updateAliasQuery_ != nullptr);
-	updateAliasQuery_->bindValue(":alias", alias);
-	updateAliasQuery_->bindValue(":mac", quint64(mac));
-	bool res = updateAliasQuery_->exec();
-	if (!res) {
-		qWarning() << updateAliasQuery_->lastError().text();
 	}
 	return res;
 }
