@@ -49,7 +49,7 @@ bool GHostDb::doOpen() {
 			"CREATE TABLE IF NOT EXISTS log ("\
 			"	mac INTEGER,"\
 			"	ip INTEGER,"\
-			"	beg_time INTEGER,"\
+			"	stt_time INTEGER,"\
 			"	end_time INTEGER"\
 			");"
 	)) {
@@ -78,7 +78,7 @@ bool GHostDb::doOpen() {
 		return false;
 	}
 	insertLogQuery_ = new QSqlQuery(db_);
-	if (!insertLogQuery_->prepare("INSERT INTO log (mac, ip, beg_time, end_time) VALUES (:mac, :ip, :beg_time, :end_time)")) {
+	if (!insertLogQuery_->prepare("INSERT INTO log (mac, ip, stt_time, end_time) VALUES (:mac, :ip, :stt_time, :end_time)")) {
 		SET_ERR(GErr::Fail, insertLogQuery_->lastError().text());
 		return false;
 	}
@@ -215,13 +215,13 @@ bool GHostDb::insertOrUpdateDevice(GMac mac, Item* item) {
 	return insertHost(mac, item);
 }
 
-bool GHostDb::insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime) {
+bool GHostDb::insertLog(GMac mac, GIp ip, time_t sttTime, time_t endTime) {
 	QMutexLocker(this);
 
 	Q_ASSERT(insertLogQuery_ != nullptr);
 	insertLogQuery_->bindValue(":mac", quint64(mac));
 	insertLogQuery_->bindValue(":ip", uint32_t(ip));
-	insertLogQuery_->bindValue(":beg_time", quint64(begTime));
+	insertLogQuery_->bindValue(":stt_time", quint64(sttTime));
 	insertLogQuery_->bindValue(":end_time", quint64(endTime));
 	bool res = insertLogQuery_->exec();
 	if (!res) {

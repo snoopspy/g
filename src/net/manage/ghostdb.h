@@ -76,7 +76,7 @@ public:
 	bool updateHost(GMac mac, Item* item);
 	bool updateAlias(GMac mac, QString alias);
 	bool insertOrUpdateDevice(GMac mac, Item* item);
-	bool insertLog(GMac mac, GIp ip, time_t begTime, time_t endTime);
+	bool insertLog(GMac mac, GIp ip, time_t sttTime, time_t endTime);
 
 public:
 	QString getDefaultName(GMac mac, Item* item = nullptr);

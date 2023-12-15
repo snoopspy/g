@@ -56,7 +56,7 @@ struct LogModel : QSqlQueryModel {
 					return hostDb_->getDefaultName(mac);
 				}
 				case DbDialog::ColumnLogIp: break;
-				case DbDialog::ColumnLogBegTime:
+				case DbDialog::ColumnLogSttTime:
 				case DbDialog::ColumnLogEndTime: {
 					QDateTime dt = QDateTime::fromSecsSinceEpoch(res.toULongLong());
 					return dt.toString("MMdd hh:mm");
@@ -154,7 +154,7 @@ void DbDialog::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	tabWidget_->setCurrentIndex(jo["tabIndex"].toInt(0));
 	leSearchHost_->setText(jo["searchHost"].toString());
-	dteBegin_->setDateTime(QDateTime::fromString(jo["begTime"].toString(), "yy/MM/dd hh:mm"));
+	dteBegin_->setDateTime(QDateTime::fromString(jo["sttTime"].toString(), "yy/MM/dd hh:mm"));
 	dteEnd_->setDateTime(QDateTime::fromString(jo["endTime"].toString(), "yy/MM/dd hh:mm"));
 	leSearchLog_->setText(jo["searchLog"].toString());
 	cbPeriod_->setCurrentIndex(jo["searchPeriod"].toInt(int(Today)));
@@ -164,7 +164,7 @@ void DbDialog::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["tabIndex"] = tabWidget_->currentIndex();
 	jo["searchHost"] = leSearchHost_->text();
-	jo["begTime"] = dteBegin_->dateTime().toString("yy/MM/dd hh:mm");
+	jo["sttTime"] = dteBegin_->dateTime().toString("yy/MM/dd hh:mm");
 	jo["endTime"] = dteEnd_->dateTime().toString("yy/MM/dd hh:mm");
 	jo["searchLog"] = leSearchLog_->text();
 	jo["searchPeriod"] = cbPeriod_->currentIndex();
@@ -172,49 +172,49 @@ void DbDialog::propSave(QJsonObject& jo) {
 
 void DbDialog::setPeriod() {
 	SearchPeriod period = SearchPeriod(cbPeriod_->currentIndex());
-	QDateTime begTime = QDateTime::currentDateTime();
-	QDateTime endTime = begTime;
+	QDateTime sttTime = QDateTime::currentDateTime();
+	QDateTime endTime = sttTime;
 	switch (period) {
 		case Min10:
-			begTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 600); // 10 minutes
+			sttTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 600); // 10 minutes
 			break;
 		case Min20:
-			begTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 1200); // 20 minutes
+			sttTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 1200); // 20 minutes
 			break;
 		case Min30:
-			begTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 1800); // 30 minutes
+			sttTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 1800); // 30 minutes
 			break;
 		case Hour1:
-			begTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 3600); // 1 Hour
+			sttTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 3600); // 1 Hour
 			break;
 		case Hour2:
-			begTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 3600 * 2); // 2 Hours
+			sttTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 3600 * 2); // 2 Hours
 			break;
 		case Hour3:
-			begTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 3600 * 3); // 3 Hours
+			sttTime = QDateTime::fromSecsSinceEpoch(endTime.toSecsSinceEpoch() - 3600 * 3); // 3 Hours
 			break;
 		case Today:
-			begTime.setTime(QTime(0, 0));
+			sttTime.setTime(QTime(0, 0));
 			break;
 		case Yesterday: {
-			begTime.setDate(begTime.addDays(-1).date());
-			begTime.setTime(QTime(0, 0));
+			sttTime.setDate(sttTime.addDays(-1).date());
+			sttTime.setTime(QTime(0, 0));
 			endTime.setDate(endTime.addDays(-1).date());
 			endTime.setTime(QTime(23, 59));
 			break;
 		}
 		case ThisWeek:
-			while(begTime.date().dayOfWeek() != 7) { // Sunday
-				begTime.setDate(begTime.addDays(-1).date());
+			while(sttTime.date().dayOfWeek() != 7) { // Sunday
+				sttTime.setDate(sttTime.addDays(-1).date());
 			}
-			begTime.setTime(QTime(0, 0));
+			sttTime.setTime(QTime(0, 0));
 			break;
 		case LastWeek:
-			begTime.setDate(begTime.addDays(-7).date());
-			while(begTime.date().dayOfWeek() != 7) { // Sunday
-				begTime.setDate(begTime.addDays(-1).date());
+			sttTime.setDate(sttTime.addDays(-7).date());
+			while(sttTime.date().dayOfWeek() != 7) { // Sunday
+				sttTime.setDate(sttTime.addDays(-1).date());
 			}
-			begTime.setTime(QTime(0, 0));
+			sttTime.setTime(QTime(0, 0));
 			endTime.setDate(endTime.addDays(-7).date());
 			while(endTime.date().dayOfWeek() != 6) { // Saturday
 				endTime.setDate(endTime.addDays(1).date());
@@ -222,21 +222,21 @@ void DbDialog::setPeriod() {
 			endTime.setTime(QTime(23, 59));
 			break;
 		case ThisMonth:
-			begTime.setDate(QDate(begTime.date().year(), begTime.date().month(), 1));
-			begTime.setTime(QTime(0, 0));
+			sttTime.setDate(QDate(sttTime.date().year(), sttTime.date().month(), 1));
+			sttTime.setTime(QTime(0, 0));
 			break;
 		case LastMonth:
-			begTime.setDate(begTime.date().addMonths(-1));
-			begTime.setDate(QDate(begTime.date().year(), begTime.date().month(), 1));
-			begTime.setTime(QTime(0, 0));
-			endTime = begTime;
+			sttTime.setDate(sttTime.date().addMonths(-1));
+			sttTime.setDate(QDate(sttTime.date().year(), sttTime.date().month(), 1));
+			sttTime.setTime(QTime(0, 0));
+			endTime = sttTime;
 			endTime.setDate(endTime.date().addMonths(1).addDays(-1));
 			endTime.setTime(QTime(23, 59));
 			break;
 		case Custom:
 			return;
 	}
-	dteBegin_->setDateTime(begTime);
+	dteBegin_->setDateTime(sttTime);
 	dteEnd_->setDateTime(endTime);
 }
 
@@ -269,11 +269,11 @@ void DbDialog::tbSearchHost_clicked() {
 	if (hostModel_ == nullptr)
 		hostModel_ = new HostModel(this, hostDb_);
 	hostModel_->setQuery(query);
-	hostModel_->setHeaderData(ColumnHostMac, Qt::Horizontal, "mac");
-	hostModel_->setHeaderData(ColumnHostIp, Qt::Horizontal, "ip");
-	hostModel_->setHeaderData(ColumnHostAlias, Qt::Horizontal, "alias");
-	hostModel_->setHeaderData(ColumnHostHost, Qt::Horizontal, "host");
-	hostModel_->setHeaderData(ColumnHostVendor, Qt::Horizontal, "vendor");
+	hostModel_->setHeaderData(ColumnHostMac, Qt::Horizontal, "Mac");
+	hostModel_->setHeaderData(ColumnHostIp, Qt::Horizontal, "IP");
+	hostModel_->setHeaderData(ColumnHostAlias, Qt::Horizontal, "Alias");
+	hostModel_->setHeaderData(ColumnHostHost, Qt::Horizontal, "Host");
+	hostModel_->setHeaderData(ColumnHostVendor, Qt::Horizontal, "Vendor");
 
 	hostView_->setModel(hostModel_);
 	hostView_->resizeColumnsToContents();
@@ -288,11 +288,11 @@ void DbDialog::tbSearchLog_clicked() {
 		"SELECT"\
 		" PRINTF('%012X', log.mac) as _mac,"\
 		" (log.ip>>24) ||'.'|| ((log.ip>>16)&255) ||'.'|| ((log.ip>>8)&255) ||'.'|| (log.iP&255) as _ip,"\
-		" log.beg_time as beg_time, log.end_time as end_time,"\
+		" log.stt_time as stt_time, log.end_time as end_time,"\
 		" host.alias as alias, host.host as host, host.vendor as vendor "\
 		"FROM log, host "\
 		"WHERE (host.mac = log.mac)"\
-		" AND ((:begTime <= beg_time AND beg_time <= :endTime) OR (:begTime <= end_time AND end_time <= :endTime) OR (beg_time <= :begTime AND :endTime <= end_time))";
+		" AND ((:sttTime <= stt_time AND stt_time <= :endTime) OR (:sttTime <= end_time AND end_time <= :endTime) OR (stt_time <= :sttTime AND :endTime <= end_time))";
 	if (searchStr != "") {
 		queryStr += " AND (_mac LIKE :search OR _ip LIKE :search OR alias LIKE :search OR host LIKE :search OR vendor LIKE :search)";
 	}
@@ -300,7 +300,7 @@ void DbDialog::tbSearchLog_clicked() {
 		QMessageBox::warning(this, "Error", query.lastError().text());
 		return;
 	}
-	query.bindValue(":begTime", dteBegin_->dateTime().toSecsSinceEpoch());
+	query.bindValue(":sttTime", dteBegin_->dateTime().toSecsSinceEpoch());
 	query.bindValue(":endTime", dteEnd_->dateTime().toSecsSinceEpoch());
 	if (searchStr != "") {
 		searchStr = "%" + searchStr + "%";
@@ -314,10 +314,10 @@ void DbDialog::tbSearchLog_clicked() {
 	if (logModel_ == nullptr)
 		logModel_ = new LogModel(this, hostDb_);
 	logModel_->setQuery(query);
-	logModel_->setHeaderData(ColumnLogName, Qt::Horizontal, "name");
-	logModel_->setHeaderData(ColumnLogIp, Qt::Horizontal, "ip");
-	logModel_->setHeaderData(ColumnLogBegTime, Qt::Horizontal, "beg_time");
-	logModel_->setHeaderData(ColumnLogEndTime, Qt::Horizontal, "end_time");
+	logModel_->setHeaderData(ColumnLogName, Qt::Horizontal, "Name");
+	logModel_->setHeaderData(ColumnLogIp, Qt::Horizontal, "IP");
+	logModel_->setHeaderData(ColumnLogSttTime, Qt::Horizontal, "Start");
+	logModel_->setHeaderData(ColumnLogEndTime, Qt::Horizontal, "End");
 
 	logView_->setModel(logModel_);
 	logView_->hideColumn(ColumnLogAlias);

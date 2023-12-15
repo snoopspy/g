@@ -65,7 +65,7 @@ public:
 
 	const static int ColumnLogName = 0;
 	const static int ColumnLogIp = 1;
-	const static int ColumnLogBegTime = 2;
+	const static int ColumnLogSttTime = 2;
 	const static int ColumnLogEndTime = 3;
 	const static int ColumnLogAlias = 4;
 	const static int ColumnLogHost = 5;
