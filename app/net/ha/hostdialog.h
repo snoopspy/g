@@ -1,6 +1,9 @@
 #pragma once
 
 #include <QDialog>
+#include <QLabel>
+#include <QLineEdit>
+
 #include <GHostDb>
 #include <GProp>
 
@@ -14,6 +17,13 @@ public:
 public:
 	GHostDb* hostDb_;
 	GMac mac_;
+
+protected:
+	QLineEdit* leMac_{nullptr};
+	QLineEdit* leIp_{nullptr};
+	QLineEdit* leAlias_{nullptr};
+	QLineEdit* leHost_{nullptr};
+	QLineEdit* leVendor_{nullptr};
 
 public:
 	void propLoad(QJsonObject jo) override;
