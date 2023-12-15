@@ -18,7 +18,7 @@ HostDialog::HostDialog(QWidget* parent, GHostDb* hostDb, GMac mac) : QDialog(par
 
 	QLabel* lblMac = new QLabel("Mac", this); leMac_ = new QLineEdit(QString(mac), this);
 	QLabel* lblIp = new QLabel("IP", this); leIp_ = new QLineEdit(QString(item.ip_), this);
-	QLabel* lblAlias  = new QLabel("Alias", this); leAlias_ = new QLineEdit(hostDb_->getDefaultName(mac, &item), this);
+	QLabel* lblAlias  = new QLabel("Alias", this); leAlias_ = new QLineEdit(item.alias_, this);
 	QLabel* lblHost = new QLabel("Host", this); leHost_ = new QLineEdit(item.host_, this);
 	QLabel* lblVendor = new QLabel("Vendor", this); leVendor_ = new QLineEdit(item.vendor_, this);
 

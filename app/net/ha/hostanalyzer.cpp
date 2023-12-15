@@ -14,10 +14,10 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 			case HostAnalyzer::ColumnName:
 				return text(1) < other.text(HostAnalyzer::ColumnName);
 			case HostAnalyzer::ColumnElapsed: {
-				const GTreeWidgetItem* item1 = PTreeWidgetItem(this);
-				const GTreeWidgetItem* item2 = PTreeWidgetItem(&other);
-				quint64 firstTs1 = item1->property("firstTime").toLongLong();
-				quint64 firstTs2 = item2->property("firstTime").toLongLong();
+				const GTreeWidgetItem* twi1 = PTreeWidgetItem(this);
+				const GTreeWidgetItem* twi2 = PTreeWidgetItem(&other);
+				quint64 firstTs1 = twi1->property("firstTime").toLongLong();
+				quint64 firstTs2 = twi2->property("firstTime").toLongLong();
 				return firstTs1 < firstTs2;
 			}
 			case HostAnalyzer::ColumnAttack: {
@@ -253,9 +253,9 @@ void HostAnalyzer::updateElapsedTime() {
 	qint64 now = QDateTime::currentDateTime().toSecsSinceEpoch();
 	int count = treeWidget_->topLevelItemCount();
 	for (int i = 0; i < count; i++) {
-		GTreeWidgetItem* item = PTreeWidgetItem(treeWidget_->topLevelItem(i));
-		Q_ASSERT(item != nullptr);
-		qint64 first = item->property("firstTime").toLongLong();
+		GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->topLevelItem(i));
+		Q_ASSERT(twi != nullptr);
+		qint64 first = twi->property("firstTime").toLongLong();
 		qint64 elapsed = now - first;
 
 		qint64 days = elapsed / 86400;
@@ -271,7 +271,7 @@ void HostAnalyzer::updateElapsedTime() {
 		if (minutes != 0) s += QString("%1m ").arg(minutes);
 		s += QString("%1s").arg(seconds);
 		QObject::disconnect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
-		item->setText(ColumnElapsed, s);
+		twi->setText(ColumnElapsed, s);
 		QObject::connect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
 	}
 }
@@ -280,8 +280,19 @@ void HostAnalyzer::treeWidget_itemChanged(QTreeWidgetItem *item, int column) {
 	if (column != ColumnName) return;
 	GTreeWidgetItem* twi = PTreeWidgetItem(item);
 	GMac mac = twi->property("mac").toString();
-	QString alias = item->text(column);
-	hostDb_.updateAlias(mac, alias);
+
+	GHostDb::Item dbItem;
+	bool res = hostDb_.selectHost(mac, &dbItem);
+	if (!res) {
+		qWarning() << QString("hostDb_.selectHost(%1) return false").arg(QString(mac));
+		return;
+	}
+	QString alias = item->text(ColumnName);
+	res = hostDb_.updateHost(mac, &dbItem);
+	if (!res) {
+		qWarning() << QString("hostDb_.updateHost(%1) return false").arg(QString(mac));
+		return;
+	}
 }
 
 void HostAnalyzer::propLoad(QJsonObject jo) {

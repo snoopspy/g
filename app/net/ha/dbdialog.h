@@ -62,6 +62,7 @@ public:
 	const static int ColumnHostAlias = 2;
 	const static int ColumnHostHost = 3;
 	const static int ColumnHostVendor = 4;
+	const static int ColumnHostMode = 5;
 
 	const static int ColumnLogName = 0;
 	const static int ColumnLogIp = 1;

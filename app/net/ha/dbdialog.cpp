@@ -12,8 +12,15 @@ struct HostModel : QSqlQueryModel {
 
 	Qt::ItemFlags flags(const QModelIndex &index) const override {
 		Qt::ItemFlags res = QSqlQueryModel::flags(index);
-		if (index.column() == 2) // alias
-			res |= Qt::ItemIsEditable;
+		int column = index.column();
+		switch (column) {
+			case DbDialog::ColumnHostAlias :
+			case DbDialog::ColumnHostMode :
+				res |= Qt::ItemIsEditable;
+				break;
+			default:
+				break;
+		}
 		return res;
 	}
 
@@ -29,17 +36,38 @@ struct HostModel : QSqlQueryModel {
 	}
 
 	bool setData(const QModelIndex &index, const QVariant &value, int role) override {
-		if (index.column() == DbDialog::ColumnHostAlias && role == Qt::EditRole) {
-			QModelIndex macIndex = index.siblingAtColumn(DbDialog::ColumnHostMac);
-			GMac mac = macIndex.data().toString();
-			QString alias = value.toString();
-			bool res = hostDb_->updateAlias(mac, alias);
-			DbDialog* dbDialog = dynamic_cast<DbDialog*>(parent());
-			Q_ASSERT(dbDialog != nullptr);
-			dbDialog->tbSearchHost_->click();
-			return res;
+		if (role != Qt::EditRole)
+			QSqlQueryModel::setData(index, value, role);
+
+		QModelIndex macIndex = index.siblingAtColumn(DbDialog::ColumnHostMac);
+		GMac mac = macIndex.data().toString();
+
+		GHostDb::Item dbItem;
+		bool res = hostDb_->selectHost(mac, &dbItem);
+		if (!res) {
+			qWarning() << QString("hostDb_.selectHost(%1) return false").arg(QString(mac));
+			return false;
 		}
-		return QSqlQueryModel::setData(index, value, role);
+
+		int column = index.column();
+		switch (column) {
+			case DbDialog::ColumnHostAlias :
+				dbItem.alias_ = value.toString();
+				break;
+			case DbDialog::ColumnHostMode :
+				dbItem.mode_ = GHostDb::Mode(value.toInt());
+				break;
+		}
+
+		res = hostDb_->updateHost(mac, &dbItem);
+		if (!res) {
+			qWarning() << QString("hostDb_.updateHost(%1) return false").arg(QString(mac));
+			return false;
+		}
+		DbDialog* dbDialog = dynamic_cast<DbDialog*>(parent());
+		Q_ASSERT(dbDialog != nullptr);
+		dbDialog->tbSearchHost_->click();
+		return res;
 	}
 };
 
@@ -248,7 +276,7 @@ void DbDialog::tbSearchHost_clicked() {
 		"SELECT"\
 		" PRINTF('%012X', host.mac) AS _mac,"\
 		" (ip>>24) ||'.'|| ((ip>>16)&255) ||'.'|| ((ip>>8)&255) ||'.'|| (ip&255) as _ip,"\
-		" alias, host, vendor "\
+		" alias, host, vendor, mode "\
 		"FROM host";
 	if (searchStr != "") {
 		queryStr += " WHERE _mac LIKE :search OR _ip LIKE :search OR alias LIKE :search OR host LIKE :search OR vendor LIKE :search";
@@ -274,6 +302,7 @@ void DbDialog::tbSearchHost_clicked() {
 	hostModel_->setHeaderData(ColumnHostAlias, Qt::Horizontal, "Alias");
 	hostModel_->setHeaderData(ColumnHostHost, Qt::Horizontal, "Host");
 	hostModel_->setHeaderData(ColumnHostVendor, Qt::Horizontal, "Vendor");
+	hostModel_->setHeaderData(ColumnHostMode, Qt::Horizontal, "Mode");
 
 	hostView_->setModel(hostModel_);
 	hostView_->resizeColumnsToContents();
