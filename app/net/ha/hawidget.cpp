@@ -59,8 +59,8 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	toolButtonLayout_->addWidget(tbDb_);
 
 	tbHost_ = new QToolButton(this);
-	tbHost_->setText("Edit Host");
-	tbHost_->setToolTip("Edit Host");
+	tbHost_->setText("Host");
+	tbHost_->setToolTip("Host");
 	tbHost_->setIcon(QIcon(":/img/edit.png"));
 	tbHost_->setAutoRaise(true);
 	tbHost_->setIconSize(tbStart_->iconSize());
@@ -147,13 +147,13 @@ void HaWidget::tbOption_clicked(bool checked) {
 	(void)checked;
 
 	GPropDialog propDialog;
+	propDialog.setWindowTitle("Option");
 	propDialog.widget_.setObject(&hostAnalyzer_);
 
 	QJsonObject& jo = GJson::instance();
 	bool isFirst = jo.find("propDialog") == jo.end();
 	jo["propDialog"] >> propDialog;
 
-	propDialog.setWindowTitle("Option");
 #ifdef Q_OS_ANDROID
 	propDialog.showMaximized();
 #else
@@ -170,7 +170,6 @@ void HaWidget::tbOption_clicked(bool checked) {
 }
 
 #include "dbdialog.h"
-
 void HaWidget::tbDb_clicked(bool checked) {
 	(void)checked;
 
@@ -212,9 +211,26 @@ void HaWidget::tbDb_clicked(bool checked) {
 		hostDb->close();
 }
 
+#include "hostdialog.h"
 void HaWidget::tbHost_clicked(bool checked) {
 	(void)checked;
-	qDebug() << "";
+
+	if (treeWidget_->selectedItems().count() == 0) return;
+	GTreeWidgetItem* item = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
+	GMac mac = item->property("mac").toString();
+	HostDialog hostDialog(this, &hostAnalyzer_.hostDb_, mac);
+
+	QJsonObject& jo = GJson::instance();
+	jo["hostDialog"] >> hostDialog;
+
+#ifdef Q_OS_ANDROID
+	hostDialog.showMaximized();
+#else
+	hostDialog.show();
+#endif
+	hostDialog.exec();
+
+	jo["hostDialog"] << hostDialog;
 }
 
 void HaWidget::tbScreenSaver_clicked(bool checked) {
