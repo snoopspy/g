@@ -64,6 +64,8 @@ struct HostModel : QSqlQueryModel {
 			qWarning() << QString("hostDb_.updateHost(%1) return false").arg(QString(mac));
 			return false;
 		}
+
+		// Refresh updated data
 		DbDialog* dbDialog = dynamic_cast<DbDialog*>(parent());
 		Q_ASSERT(dbDialog != nullptr);
 		dbDialog->tbSearchHost_->click();
