@@ -188,6 +188,7 @@ bool GHostDb::insertOrUpdateDevice(GMac mac, Item* item) {
 	Item dbItem;
 	if (selectHost(mac, &dbItem)) {
 		if (item->ip_ == 0) item->ip_ = dbItem.ip_;
+		if (item->alias_ == "") item->alias_ = dbItem.alias_;
 		if (item->host_ == "") item->host_ = dbItem.host_;
 		if (item->vendor_ == "") item->vendor_ = dbItem.vendor_;
 		item->mode_ = dbItem.mode_;
