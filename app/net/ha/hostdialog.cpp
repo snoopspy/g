@@ -3,7 +3,6 @@
 
 #include <GJson>
 
-
 HostDialog::HostDialog(QWidget* parent, GHostDb* hostDb, GMac mac) : QDialog(parent), hostDb_(hostDb), mac_(mac) {
 	resize(QSize(640, 480));
 	setWindowTitle("Host");

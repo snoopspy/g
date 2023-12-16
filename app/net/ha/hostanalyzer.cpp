@@ -287,7 +287,8 @@ void HostAnalyzer::treeWidget_itemChanged(QTreeWidgetItem *item, int column) {
 		qWarning() << QString("hostDb_.selectHost(%1) return false").arg(QString(mac));
 		return;
 	}
-	QString alias = item->text(ColumnName);
+
+	dbItem.alias_ = item->text(ColumnName);
 	res = hostDb_.updateHost(mac, &dbItem);
 	if (!res) {
 		qWarning() << QString("hostDb_.updateHost(%1) return false").arg(QString(mac));
