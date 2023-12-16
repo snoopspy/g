@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QComboBox>
 #include <QDialog>
 #include <QLabel>
 #include <QLineEdit>
@@ -24,6 +25,7 @@ protected:
 	QLineEdit* leAlias_{nullptr};
 	QLineEdit* leHost_{nullptr};
 	QLineEdit* leVendor_{nullptr};
+	QComboBox* cbMode_{nullptr};
 
 public:
 	void propLoad(QJsonObject jo) override;

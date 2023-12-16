@@ -20,6 +20,7 @@ HostDialog::HostDialog(QWidget* parent, GHostDb* hostDb, GMac mac) : QDialog(par
 	QLabel* lblAlias  = new QLabel("Alias", this); leAlias_ = new QLineEdit(item.alias_, this);
 	QLabel* lblHost = new QLabel("Host", this); leHost_ = new QLineEdit(item.host_, this);
 	QLabel* lblVendor = new QLabel("Vendor", this); leVendor_ = new QLineEdit(item.vendor_, this);
+	QLabel* lblMode = new QLabel("Mode", this); cbMode_ = new QComboBox(this); cbMode_->addItems(QStringList{"Default", "Allow", "Block"});
 
 	leMac_->setReadOnly(true);
 	leIp_->setReadOnly(true);
@@ -31,6 +32,7 @@ HostDialog::HostDialog(QWidget* parent, GHostDb* hostDb, GMac mac) : QDialog(par
 	layout->addWidget(lblAlias, 2, 0); layout->addWidget(leAlias_, 2, 1);
 	layout->addWidget(lblHost, 3, 0); layout->addWidget(leHost_, 3, 1);
 	layout->addWidget(lblVendor, 4, 0); layout->addWidget(leVendor_, 4, 1);
+	layout->addWidget(lblMode, 5, 0); layout->addWidget(cbMode_, 5, 1);
 
 	setLayout(layout);
 }
