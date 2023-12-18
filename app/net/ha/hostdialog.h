@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPushButton>
 
 #include <GHostDb>
 #include <GProp>
@@ -26,6 +27,15 @@ protected:
 	QLineEdit* leHost_{nullptr};
 	QLineEdit* leVendor_{nullptr};
 	QComboBox* cbMode_{nullptr};
+
+	QPushButton* pbOk_{nullptr};
+	QPushButton* pbCancel_{nullptr};
+
+public slots:
+	void setControl();
+	void setControl2(int index);
+	void pbOk_clicked();
+	void pbCancel_clicked();
 
 public:
 	void propLoad(QJsonObject jo) override;
