@@ -90,8 +90,8 @@ public:
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
 
-	struct ItemList : QList<PItem>, QMutex {
-	} itemList_;
+	struct ItemMap : QMap<GMac, Item*>, QMutex {
+	} itemMap_;
 
 protected:
 	GAtm atm_;

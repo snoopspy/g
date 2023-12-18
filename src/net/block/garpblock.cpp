@@ -78,7 +78,7 @@ bool GArpBlock::doOpen() {
 	// sendPacket_.arpHdr_.tmac_ // set later
 	// sendPacket_.arpHdr_.tip_ // set later
 
-	itemList_.clear();
+	itemMap_.clear();
 	infectThread_.start();
 
 	return true;
@@ -118,8 +118,8 @@ void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		infect(item, GArpHdr::Request);
 
 	{
-		QMutexLocker ml(&itemList_);
-		itemList_.push_back(item);
+		QMutexLocker ml(&itemMap_);
+		itemMap_.insert(mac, item);
 	}
 }
 
@@ -131,8 +131,8 @@ void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->~Item();
 
 	{
-		QMutexLocker ml(&itemList_);
-		itemList_.removeOne(item);
+		QMutexLocker ml(&itemMap_);
+		itemMap_.remove(mac);
 	}
 }
 
@@ -197,12 +197,12 @@ void GArpBlock::recover(Item *item, uint16_t operation)
 }
 
 void GArpBlock::InfectThread::run() {
-	ItemList* itemList = &arpBlock_->itemList_;
+	ItemMap* itemMap = &arpBlock_->itemMap_;
 
 	while (arpBlock_->active()) {
 		{
-			QMutexLocker ml(itemList);
-			for (Item* item: *itemList) {
+			QMutexLocker ml(itemMap);
+			for (Item* item: *itemMap) {
 				if (item->policy_ != Block) continue;
 				arpBlock_->infect(item, GArpHdr::Reply);
 				if (swe_.wait(arpBlock_->sendInterval_)) break;
@@ -214,8 +214,8 @@ void GArpBlock::InfectThread::run() {
 	}
 
 	{
-		QMutexLocker ml(itemList);
-		for (Item* item: *itemList) {
+		QMutexLocker ml(itemMap);
+		for (Item* item: *itemMap) {
 			if (item->policy_ == Block)
 				arpBlock_->recover(item, GArpHdr::Request);
 		}

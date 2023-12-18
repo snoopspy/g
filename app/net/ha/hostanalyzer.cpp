@@ -160,24 +160,25 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 	Q_ASSERT(toolButton != nullptr);
 	GMac mac = toolButton->property("mac").toString();
 	{
-		QMutexLocker ml(&arpBlock_.itemList_);
-		for (GArpBlock::Item* item: arpBlock_.itemList_) {
-			if (mac == item->mac_) {
-				bool block = item->policy_ == GArpBlock::Block;
-				bool nextBlock = !block;
-				if (nextBlock) {
-					arpBlock_.infect(item, GArpHdr::Request);
-					item->policy_ = GArpBlock::Block;
-					toolButton->setText("B");
-					toolButton->setIcon(QIcon(":/img/pause.png"));
-				} else {
-					arpBlock_.recover(item, GArpHdr::Request);
-					item->policy_ = GArpBlock::Allow;
-					toolButton->setText("A");
-					toolButton->setIcon(QIcon(":/img/play.png"));
-
-				}
-			}
+		QMutexLocker ml(&arpBlock_.itemMap_);
+		GArpBlock::ItemMap::iterator it = arpBlock_.itemMap_.find(mac);
+		if (it == arpBlock_.itemMap_.end()) {
+			qWarning() << QString("can not find mac(%1)").arg(QString(mac));
+			return;
+		}
+		GArpBlock::Item* arpBlockItem = it.value();
+		bool block = arpBlockItem->policy_ == GArpBlock::Block;
+		bool nextBlock = !block;
+		if (nextBlock) {
+			arpBlock_.infect(arpBlockItem, GArpHdr::Request);
+			arpBlockItem->policy_ = GArpBlock::Block;
+			toolButton->setText("B");
+			toolButton->setIcon(QIcon(":/img/pause.png"));
+		} else {
+			arpBlock_.recover(arpBlockItem, GArpHdr::Request);
+			arpBlockItem->policy_ = GArpBlock::Allow;
+			toolButton->setText("A");
+			toolButton->setIcon(QIcon(":/img/play.png"));
 		}
 	}
 }
