@@ -118,7 +118,7 @@ void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		infect(item, GArpHdr::Request);
 
 	{
-		QMutexLocker ml(&itemList_.m_);
+		QMutexLocker ml(&itemList_);
 		itemList_.push_back(item);
 	}
 }
@@ -131,7 +131,7 @@ void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->~Item();
 
 	{
-		QMutexLocker ml(&itemList_.m_);
+		QMutexLocker ml(&itemList_);
 		itemList_.removeOne(item);
 	}
 }
@@ -201,7 +201,7 @@ void GArpBlock::InfectThread::run() {
 
 	while (arpBlock_->active()) {
 		{
-			QMutexLocker ml(&itemList->m_);
+			QMutexLocker ml(itemList);
 			for (Item* item: *itemList) {
 				if (item->policy_ != Block) continue;
 				arpBlock_->infect(item, GArpHdr::Reply);
@@ -214,7 +214,7 @@ void GArpBlock::InfectThread::run() {
 	}
 
 	{
-		QMutexLocker ml(&itemList->m_);
+		QMutexLocker ml(itemList);
 		for (Item* item: *itemList) {
 			if (item->policy_ == Block)
 				arpBlock_->recover(item, GArpHdr::Request);
