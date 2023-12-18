@@ -101,7 +101,6 @@ public slots:
 	void toolButton_toggled(bool checked);
 	void updateHosts();
 	void updateElapsedTime();
-	void treeWidget_itemChanged(QTreeWidgetItem *item, int column);
 
 public:
 	void propLoad(QJsonObject jo) override;

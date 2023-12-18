@@ -9,18 +9,6 @@
 #include <GJson>
 #include <GItemDelegate>
 
-struct MyItemDelegate : public GItemDelegate {
-public:
-	MyItemDelegate(QObject *parent) : GItemDelegate(parent) {}
-
-	QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
-		if(index.column() == HostAnalyzer::ColumnName) {
-			return QItemDelegate::createEditor(parent, option, index);
-		}
-		return nullptr;
-	}
-};
-
 HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("HostAnalyzer");
 
@@ -28,7 +16,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 #ifdef Q_OS_ANDROID
 	treeWidget_->header()->setFixedHeight(120);
 #endif // Q_OS_ANDROID
-	MyItemDelegate* itemDelegate = new MyItemDelegate(this);
+	GItemDelegate* itemDelegate = new GItemDelegate(this);
 	treeWidget_->setItemDelegate(itemDelegate);
 #ifdef Q_OS_ANDROID
 	itemDelegate->setHeight(140);
@@ -204,7 +192,7 @@ void HaWidget::tbDb_clicked(bool checked) {
 		Q_ASSERT(item != nullptr);
 		QString mac = item->property("mac").toString();
 		QString defaultName = hostAnalyzer_.hostDb_.getDefaultName(mac);
-		item->setText(1, defaultName);
+		item->setText(HostAnalyzer::ColumnName, defaultName);
 	}
 
 	if (!dbOpened)

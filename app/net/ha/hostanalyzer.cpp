@@ -160,7 +160,7 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 	Q_ASSERT(toolButton != nullptr);
 	GMac mac = toolButton->property("mac").toString();
 	{
-		QMutexLocker ml(&arpBlock_.itemList_.m_);
+		QMutexLocker ml(&arpBlock_.itemList_);
 		for (GArpBlock::Item* item: arpBlock_.itemList_) {
 			if (mac == item->mac_) {
 				bool block = item->policy_ == GArpBlock::Block;
@@ -168,17 +168,15 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 				if (nextBlock) {
 					arpBlock_.infect(item, GArpHdr::Request);
 					item->policy_ = GArpBlock::Block;
-
 					toolButton->setText("B");
 					toolButton->setIcon(QIcon(":/img/pause.png"));
 				} else {
 					arpBlock_.recover(item, GArpHdr::Request);
 					item->policy_ = GArpBlock::Allow;
-
 					toolButton->setText("A");
 					toolButton->setIcon(QIcon(":/img/play.png"));
+
 				}
-				break;
 			}
 		}
 	}
@@ -199,10 +197,7 @@ void HostAnalyzer::updateHosts() {
 
 		MyTreeWidgetItem* treeWidgetItem = PMyTreeWidgetItem(item->treeWidgetItem_);
 		if (treeWidgetItem == nullptr) {
-			QObject::disconnect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
 			treeWidgetItem = new MyTreeWidgetItem(treeWidget_);
-			QObject::connect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
-			treeWidgetItem->setFlags(treeWidgetItem->flags()  | Qt::ItemIsEditable);
 			treeWidgetItem->setProperty("mac", QString(mac));
 			treeWidgetItem->setProperty("firstTime", qint64(item->firstTime_));
 			treeWidget_->addTopLevelItem(treeWidgetItem);
@@ -229,10 +224,8 @@ void HostAnalyzer::updateHosts() {
 
 		Q_ASSERT(treeWidgetItem != nullptr);
 		if (item->state_ != Item::NotChanged) {
-			QObject::disconnect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
 			treeWidgetItem->setText(ColumnIp, QString(item->ip_));
 			treeWidgetItem->setText(ColumnName, QString(item->defaultName_));
-			QObject::connect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
 			item->state_ = Item::NotChanged;
 		}
 		treeWidgetItem->setProperty("shouldBeDeleted", false);
@@ -270,29 +263,7 @@ void HostAnalyzer::updateElapsedTime() {
 		if (hours != 0) s += QString("%1h ").arg(hours);
 		if (minutes != 0) s += QString("%1m ").arg(minutes);
 		s += QString("%1s").arg(seconds);
-		QObject::disconnect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
 		twi->setText(ColumnElapsed, s);
-		QObject::connect(treeWidget_, &QTreeWidget::itemChanged, this, &HostAnalyzer::treeWidget_itemChanged);
-	}
-}
-
-void HostAnalyzer::treeWidget_itemChanged(QTreeWidgetItem *item, int column) {
-	if (column != ColumnName) return;
-	GTreeWidgetItem* twi = PTreeWidgetItem(item);
-	GMac mac = twi->property("mac").toString();
-
-	GHostDb::Item dbItem;
-	bool res = hostDb_.selectHost(mac, &dbItem);
-	if (!res) {
-		qWarning() << QString("hostDb_.selectHost(%1) return false").arg(QString(mac));
-		return;
-	}
-
-	dbItem.alias_ = item->text(ColumnName);
-	res = hostDb_.updateHost(mac, &dbItem);
-	if (!res) {
-		qWarning() << QString("hostDb_.updateHost(%1) return false").arg(QString(mac));
-		return;
 	}
 }
 
