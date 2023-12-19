@@ -51,15 +51,17 @@ bool GArpBlock::doOpen() {
 		return false;
 	}
 
-	atm_.intfName_ = pcapDevice_->intfName_;
-	if (!atm_.open()) {
-		err = atm_.err;
-		return false;
-	}
-	atm_.insert(gwIp_, GMac::nullMac());
-	if (!atm_.wait()) {
-		err = atm_.err;
-		return false;
+	if (atm_.find(gwIp_) == atm_.end()) {
+		atm_.intfName_ = pcapDevice_->intfName_;
+		if (!atm_.open()) {
+			err = atm_.err;
+			return false;
+		}
+		atm_.insert(gwIp_, GMac::nullMac());
+		if (!atm_.wait()) {
+			err = atm_.err;
+			return false;
+		}
 	}
 	gwMac_ = atm_.find(gwIp_).value();
 	atm_.close();
@@ -99,21 +101,21 @@ bool GArpBlock::doClose() {
 void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	Item* item = getItem(hostValue);
 	new (item) Item;
-	GHostDb::Item* hostDbItem = hostDb_->getItem(hostValue);
-	*GHostDb::PItem(item) = *hostDbItem;
-
 	item->mac_ = mac;
-	item->policy_ = defaultPolicy_;
+	item->ip_ = hostValue->ip_;
+	Policy policy = defaultPolicy_;
+	GHostDb::Item* hostDbItem = hostDb_->getItem(hostValue);
 	switch (hostDbItem->mode_) {
 		case GHostDb::Default :
 			break;
 		case GHostDb::Allow :
-			item->policy_ = Allow;
+			policy = Allow;
 			break;
 		case GHostDb::Block :
-			item->policy_ = Block;
+			policy = Block;
+			break;
 	}
-
+	item->policy_ = policy;
 	if (item->policy_ == Block)
 		infect(item, GArpHdr::Request);
 
@@ -139,8 +141,7 @@ void GArpBlock::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 void GArpBlock::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
 	Item* item = getItem(hostValue);
-	GHostDb::Item* hostDbItem = hostDb_->getItem(hostValue);
-	*GHostDb::PItem(item) = *hostDbItem;
+	item->ip_ = hostValue->ip_;
 }
 
 void GArpBlock::infect(Item* item, uint16_t operation) {

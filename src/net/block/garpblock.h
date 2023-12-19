@@ -76,8 +76,9 @@ public:
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
-	struct Item : GHostDb::Item {
+	struct Item {
 		GMac mac_{GMac::nullMac()};
+		GIp ip_{0};
 		Policy policy_{Allow};
 	};
 	typedef Item *PItem;
