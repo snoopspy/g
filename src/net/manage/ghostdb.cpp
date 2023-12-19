@@ -108,14 +108,17 @@ bool GHostDb::doClose() {
 void GHostDb::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	Item* item = getItem(hostValue);
 	new (item) Item;
-	*GHostMgr::PHostValue(item) = *hostValue;
+	item->mac_ = mac;
+	item->ip_ = hostValue->ip_;
+	item->host_ = hostValue->host_;
+	item->vendor_ = hostValue->vendor_;
 	insertOrUpdateDevice(mac, item);
 }
 
 void GHostDb::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	Item* item = getItem(hostValue);
 	item->~Item();
-	insertLog(mac, item->ip_, item->firstTime_, item->lastTime_);
+	insertLog(mac, item->ip_, hostValue->firstTime_, hostValue->lastTime_);
 }
 
 void GHostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {

@@ -73,13 +73,15 @@ protected:
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
-	struct Item : GArpBlock::Item {
+	struct Item {
 		enum State {
 			Created,
 			Changed,
 			NotChanged
 		} state_{Created};
 		QTreeWidgetItem* treeWidgetItem_{nullptr};
+		GMac mac_{GMac::nullMac()};
+		GIp ip_{0};
 		QString defaultName_;
 		time_t blockTime_;
 	};

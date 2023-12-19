@@ -47,8 +47,12 @@ public:
 		Allow = 1,
 		Block = 2
 	};
-	struct Item : GHostMgr::HostValue {
+	struct Item {
+		GMac mac_{GMac::nullMac()};
+		GIp ip_{0};
 		QString alias_;
+		QString host_;
+		QString vendor_;
 		Mode mode_{Default};
 	};
 	typedef Item *PItem;
