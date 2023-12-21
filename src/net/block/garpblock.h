@@ -82,6 +82,9 @@ public:
 		Policy policy_{Allow};
 	};
 	typedef Item *PItem;
+
+	struct ItemMap : QMap<GMac, Item*>, QRecursiveMutex {
+	} itemMap_;
 	// --------------------------------------------------------------------------
 
 	// GHostMgr::Managable
@@ -90,9 +93,6 @@ public:
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
-
-	struct ItemMap : QMap<GMac, Item*>, QMutex {
-	} itemMap_;
 
 protected:
 	GAtm atm_;

@@ -188,11 +188,9 @@ void HaWidget::tbDb_clicked(bool checked) {
 	// Change default name because alias can be chaned
 	int count = treeWidget_->topLevelItemCount();
 	for (int i = 0; i < count; i++) {
-		GTreeWidgetItem *item = dynamic_cast<GTreeWidgetItem *>(treeWidget_->topLevelItem(i));
-		Q_ASSERT(item != nullptr);
-		QString mac = item->property("mac").toString();
-		QString defaultName = hostAnalyzer_.hostDb_.getDefaultName(mac);
-		item->setText(HostAnalyzer::ColumnName, defaultName);
+		GTreeWidgetItem *twi = dynamic_cast<GTreeWidgetItem *>(treeWidget_->topLevelItem(i));
+		Q_ASSERT(twi != nullptr);
+		hostAnalyzer_.updateHost(twi);
 	}
 
 	if (!dbOpened)
@@ -204,8 +202,8 @@ void HaWidget::tbHost_clicked(bool checked) {
 	(void)checked;
 
 	if (treeWidget_->selectedItems().count() == 0) return;
-	GTreeWidgetItem* item = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
-	GMac mac = item->property("mac").toString();
+	GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
+	GMac mac = twi->property("mac").toString();
 	HostDialog hostDialog(this, &hostAnalyzer_.hostDb_, mac);
 
 	QJsonObject& jo = GJson::instance();
@@ -217,6 +215,8 @@ void HaWidget::tbHost_clicked(bool checked) {
 	hostDialog.show();
 #endif
 	hostDialog.exec();
+
+	hostAnalyzer_.updateHost(twi);
 
 	jo["hostDialog"] << hostDialog;
 }

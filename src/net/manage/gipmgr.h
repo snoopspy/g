@@ -92,7 +92,7 @@ public:
 	// --------------------------------------------------------------------------
 	// IpMap
 	// --------------------------------------------------------------------------
-	struct IpMap : QMap<GIp, IpValue*>, QMutex {
+	struct IpMap : QMap<GIp, IpValue*>, QRecursiveMutex {
 		void clear() {
 			for (IpValue* ipValue: *this) {
 				IpValue::deallocate(ipValue);

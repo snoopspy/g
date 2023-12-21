@@ -128,12 +128,22 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->ip_ = hostValue->ip_;
 	item->defaultName_ = hostDb_.getDefaultName(mac, hostDb_.getItem(hostValue));
 	item->blockTime_ = hostValue->firstTime_ + extendTimeoutSec_;
+
+	{
+		QMutexLocker ml(&itemMap_);
+		itemMap_.insert(mac, item);
+	}
 }
 
 void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
 	Item* item = getItem(hostValue);
 	item->~Item();
+
+	{
+		QMutexLocker ml(&itemMap_);
+		itemMap_.remove(mac);
+	}
 }
 
 void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
@@ -141,8 +151,49 @@ void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 
 	item->state_ = Item::Changed;
 	Q_ASSERT(item->mac_ == mac);
-	item->ip_ = hostValue->ip_;
-	item->defaultName_ = hostDb_.getDefaultName(mac, hostDb_.getItem(hostValue));
+	{
+		QMutexLocker ml(&itemMap_);
+		ItemMap::iterator it = itemMap_.find(mac);
+		if (it == itemMap_.end())
+			return;
+		GTreeWidgetItem* twi = it.value()->treeWidgetItem_;
+		updateHost(twi);
+	}
+}
+
+void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
+	GMac mac = twi->property("mac").toString();
+	qDebug() << "mac=" << QString(mac);
+	{
+		QMutexLocker ml(&itemMap_);
+		GHostMgr::HostMap::Iterator it = hostMgr_.hostMap_.find(mac);
+		if (it == hostMgr_.hostMap_.end())
+			return;
+		GHostMgr::HostValue* hostValue = it.value();
+
+		Item* item = getItem(hostValue);
+		twi->setText(ColumnIp, QString(item->ip_));
+		twi->setText(ColumnName, item->defaultName_);
+
+		GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
+		GArpBlock::Policy policy = arpBlockItem->policy_;
+		QToolButton* toolButton = dynamic_cast<QToolButton*>(twi->treeWidget()->itemWidget(twi, ColumnAttack));
+		Q_ASSERT(toolButton != nullptr);
+		if (policy == GArpBlock::Block) {
+			toolButton->setText("B");
+			toolButton->setIcon(QIcon(":/img/pause.png"));
+			toolButton->setChecked(true);
+		} else {
+			toolButton->setText("A");
+			toolButton->setIcon(QIcon(":/img/play.png"));
+			toolButton->setChecked(false);
+		}
+
+		GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
+		QString defaultName = hostDb_.getDefaultName(mac);
+		twi->setText(HostAnalyzer::ColumnName, defaultName);
+		toolButton->setEnabled(dbItem->mode_ == GHostDb::Default);
+	}
 }
 
 #include "hawidget.h"
@@ -157,8 +208,13 @@ void HostAnalyzer::processClosed() {
 void HostAnalyzer::toolButton_toggled(bool checked) {
 	(void)checked;
 	QToolButton* toolButton = dynamic_cast<QToolButton*>(sender());
+	qDebug() << "toolButton=" << pvoid(toolButton);
 	Q_ASSERT(toolButton != nullptr);
-	GMac mac = toolButton->property("mac").toString();
+	quintptr up = toolButton->property("treeWidgetItem").toULongLong();
+	MyTreeWidgetItem* twi = PMyTreeWidgetItem(up);
+	qDebug() << "twi=" << pvoid(twi);
+	Q_ASSERT(twi != nullptr);
+	GMac mac = twi->property("mac").toString();
 	{
 		QMutexLocker ml(&arpBlock_.itemMap_);
 		GArpBlock::ItemMap::iterator it = arpBlock_.itemMap_.find(mac);
@@ -172,13 +228,16 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 		if (nextBlock) {
 			arpBlock_.infect(arpBlockItem, GArpHdr::Request);
 			arpBlockItem->policy_ = GArpBlock::Block;
-			toolButton->setText("B");
-			toolButton->setIcon(QIcon(":/img/pause.png"));
 		} else {
 			arpBlock_.recover(arpBlockItem, GArpHdr::Request);
 			arpBlockItem->policy_ = GArpBlock::Allow;
-			toolButton->setText("A");
-			toolButton->setIcon(QIcon(":/img/play.png"));
+		}
+
+		{
+			QMutexLocker ml2(&hostMgr_.hostMap_);
+			GHostMgr::HostMap::iterator it = hostMgr_.hostMap_.find(mac);
+			Q_ASSERT(it != hostMgr_.hostMap_.end());
+			updateHost(twi);
 		}
 	}
 }
@@ -196,50 +255,37 @@ void HostAnalyzer::updateHosts() {
 		GHostMgr::HostValue* hostValue = it.value();
 		Item* item = getItem(hostValue);
 
-		MyTreeWidgetItem* treeWidgetItem = PMyTreeWidgetItem(item->treeWidgetItem_);
-		if (treeWidgetItem == nullptr) {
-			treeWidgetItem = new MyTreeWidgetItem(treeWidget_);
-			treeWidgetItem->setProperty("mac", QString(mac));
-			treeWidgetItem->setProperty("firstTime", qint64(hostValue->firstTime_));
-			treeWidget_->addTopLevelItem(treeWidgetItem);
+		MyTreeWidgetItem* twi = PMyTreeWidgetItem(item->treeWidgetItem_);
+		if (twi == nullptr) {
+			twi = new MyTreeWidgetItem(treeWidget_);
+			twi->setProperty("mac", QString(mac));
+			twi->setProperty("firstTime", qint64(hostValue->firstTime_));
+			treeWidget_->addTopLevelItem(twi);
 
 			QToolButton *toolButton = new QToolButton(treeWidget_);
 			toolButton->setAutoRaise(true);
 			toolButton->setCheckable(true);
-			toolButton->setProperty("mac", QString(mac));
-			GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
-			GArpBlock::Policy policy = arpBlockItem->policy_;
-			if (policy == GArpBlock::Block) {
-				toolButton->setText("B");
-				toolButton->setIcon(QIcon(":/img/pause.png"));
-				toolButton->setChecked(true);
-			} else {
-				toolButton->setText("A");
-				toolButton->setIcon(QIcon(":/img/play.png"));
-				toolButton->setChecked(false);
-			}
-			GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
-			toolButton->setEnabled(dbItem->mode_ == GHostDb::Default);
-			treeWidget_->setItemWidget(treeWidgetItem, ColumnAttack, toolButton);
+			treeWidget_->setItemWidget(twi, ColumnAttack, toolButton);
 
 			QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
-			item->treeWidgetItem_ = treeWidgetItem;
+			item->treeWidgetItem_ = twi;
+
+			updateHost(twi);
 		}
 
-		Q_ASSERT(treeWidgetItem != nullptr);
+		Q_ASSERT(twi != nullptr);
 		if (item->state_ != Item::NotChanged) {
-			treeWidgetItem->setText(ColumnIp, QString(item->ip_));
-			treeWidgetItem->setText(ColumnName, QString(item->defaultName_));
+			updateHost(twi);
 			item->state_ = Item::NotChanged;
 		}
-		treeWidgetItem->setProperty("shouldBeDeleted", false);
+		twi->setProperty("shouldBeDeleted", false);
 	}
 
 	int i = 0;
 	while (i < treeWidget_->topLevelItemCount()) {
-		GTreeWidgetItem* treeWidgetItem = PTreeWidgetItem(treeWidget_->topLevelItem(i));
-		if (treeWidgetItem->property("shouldBeDeleted").toBool()) {
-			delete treeWidgetItem;
+		GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->topLevelItem(i));
+		if (twi->property("shouldBeDeleted").toBool()) {
+			delete twi;
 			continue;
 		}
 		i++;

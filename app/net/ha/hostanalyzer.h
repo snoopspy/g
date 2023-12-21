@@ -79,13 +79,16 @@ protected:
 			Changed,
 			NotChanged
 		} state_{Created};
-		QTreeWidgetItem* treeWidgetItem_{nullptr};
+		GTreeWidgetItem* treeWidgetItem_{nullptr};
 		GMac mac_{GMac::nullMac()};
 		GIp ip_{0};
 		QString defaultName_;
 		time_t blockTime_;
 	};
 	typedef Item *PItem;
+
+	struct ItemMap : QMap<GMac, Item*>, QRecursiveMutex {
+	} itemMap_;
 	// --------------------------------------------------------------------------
 
 	// GHostMgr::Managable
@@ -97,6 +100,7 @@ protected:
 
 public:
 	GTreeWidget* treeWidget_{nullptr}; // reference
+	void updateHost(GTreeWidgetItem* twi);
 
 public slots:
 	void processClosed();

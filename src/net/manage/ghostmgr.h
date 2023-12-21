@@ -87,7 +87,7 @@ public:
 	// --------------------------------------------------------------------------
 	// HostMap
 	// --------------------------------------------------------------------------
-	struct HostMap : QMap<GMac, HostValue*>, QMutex {
+	struct HostMap : QMap<GMac, HostValue*>, QRecursiveMutex {
 		void clear() {
 			for (HostValue* hostValue: *this) {
 				HostValue::deallocate(hostValue);
