@@ -254,6 +254,7 @@ void HostAnalyzer::updateHosts() {
 		MyTreeWidgetItem* twi = PMyTreeWidgetItem(item->treeWidgetItem_);
 		if (twi == nullptr) {
 			twi = new MyTreeWidgetItem(treeWidget_);
+			item->treeWidgetItem_ = twi;
 			twi->setProperty("mac", QString(mac));
 			twi->setProperty("firstTime", qint64(hostValue->firstTime_));
 			treeWidget_->addTopLevelItem(twi);
@@ -266,7 +267,7 @@ void HostAnalyzer::updateHosts() {
 			treeWidget_->setItemWidget(twi, ColumnAttack, toolButton);
 
 			QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
-			item->treeWidgetItem_ = twi;
+
 
 			updateHost(twi);
 			item->state_ = Item::NotChanged;

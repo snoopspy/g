@@ -15,6 +15,7 @@ bool GHostDb::doOpen() {
 		SET_ERR(GErr::ObjectIsNull, "hostMgr is null");
 		return false;
 	}
+	hostMgr_->managables_.insert(this);
 
 	static bool first = true;
 	if (first) {
