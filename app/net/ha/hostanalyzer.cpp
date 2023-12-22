@@ -126,7 +126,7 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->treeWidgetItem_ = nullptr;
 	item->mac_ = mac;
 	item->ip_ = hostValue->ip_;
-	item->defaultName_ = hostDb_.getDefaultName(mac, hostDb_.getItem(hostValue));
+	item->defaultName_ = hostDb_.getDefaultName(mac);
 	item->blockTime_ = hostValue->firstTime_ + extendTimeoutSec_;
 
 	{
@@ -151,14 +151,8 @@ void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 
 	item->state_ = Item::Changed;
 	Q_ASSERT(item->mac_ == mac);
-	{
-		QMutexLocker ml(&itemMap_);
-		ItemMap::iterator it = itemMap_.find(mac);
-		if (it == itemMap_.end())
-			return;
-		GTreeWidgetItem* twi = it.value()->treeWidgetItem_;
-		updateHost(twi);
-	}
+	item->ip_ = hostValue->ip_;
+	item->defaultName_ = hostDb_.getDefaultName(mac);
 }
 
 void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
@@ -173,7 +167,6 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 
 		Item* item = getItem(hostValue);
 		twi->setText(ColumnIp, QString(item->ip_));
-		twi->setText(ColumnName, item->defaultName_);
 
 		GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
 		GArpBlock::Policy policy = arpBlockItem->policy_;
@@ -189,10 +182,13 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 			toolButton->setChecked(false);
 		}
 
-		GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
+		GHostDb::Item dbItem;
+		if (!hostDb_.selectHost(mac, &dbItem)) {
+			qWarning() << QString("hostDb_->selectHost(%1) return false").arg(QString(mac));
+		}
 		QString defaultName = hostDb_.getDefaultName(mac);
 		twi->setText(HostAnalyzer::ColumnName, defaultName);
-		toolButton->setEnabled(dbItem->mode_ == GHostDb::Default);
+		toolButton->setEnabled(dbItem.mode_ == GHostDb::Default);
 	}
 }
 
@@ -263,6 +259,8 @@ void HostAnalyzer::updateHosts() {
 			treeWidget_->addTopLevelItem(twi);
 
 			QToolButton *toolButton = new QToolButton(treeWidget_);
+			quintptr up = quintptr(twi);
+			toolButton->setProperty("treeWidgetItem", up);
 			toolButton->setAutoRaise(true);
 			toolButton->setCheckable(true);
 			treeWidget_->setItemWidget(twi, ColumnAttack, toolButton);
@@ -271,6 +269,7 @@ void HostAnalyzer::updateHosts() {
 			item->treeWidgetItem_ = twi;
 
 			updateHost(twi);
+			item->state_ = Item::NotChanged;
 		}
 
 		Q_ASSERT(twi != nullptr);

@@ -59,8 +59,8 @@ public:
 	// --------------------------------------------------------------------------
 
 	// GHostMgr::Managable
-	size_t itemOffset_;
-	Item* getItem(GHostMgr::HostValue* hostValue) { return PItem(hostValue->mem(itemOffset_)); }
+	//size_t itemOffset_;
+	//Item* getItem(GHostMgr::HostValue* hostValue) { return PItem(hostValue->mem(itemOffset_)); }
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
@@ -82,5 +82,5 @@ public:
 	bool insertLog(GMac mac, GIp ip, time_t sttTime, time_t endTime);
 
 public:
-	QString getDefaultName(GMac mac, Item* item = nullptr);
+	QString getDefaultName(GMac mac);
 };
