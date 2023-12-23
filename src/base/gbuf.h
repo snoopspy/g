@@ -11,11 +11,11 @@
 #pragma once
 
 #include "gbase.h"
+#include <QString>
 
 // ----------------------------------------------------------------------------
 // GBuf
 // ----------------------------------------------------------------------------
-struct QString;
 struct G_EXPORT GBuf final {
 	gbyte* data_;
 	size_t size_;
