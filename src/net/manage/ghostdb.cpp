@@ -15,6 +15,7 @@ bool GHostDb::doOpen() {
 		SET_ERR(GErr::ObjectIsNull, "hostMgr is null");
 		return false;
 	}
+	itemOffset_ = hostMgr_->requestItems_.request(this, sizeof(Item));
 	hostMgr_->managables_.insert(this);
 
 	static bool first = true;
@@ -105,26 +106,29 @@ bool GHostDb::doClose() {
 }
 
 void GHostDb::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item item;
-	item.mac_ = mac;
-	item.ip_ = hostValue->ip_;
-	item.host_ = hostValue->host_;
-	item.vendor_ = hostValue->vendor_;
-	insertOrUpdateDevice(mac, &item);
+	Item* item = getItem(hostValue);
+	new (item) Item;
+	item->mac_ = mac;
+	item->ip_ = hostValue->ip_;
+	item->host_ = hostValue->host_;
+	item->vendor_ = hostValue->vendor_;
+	insertOrUpdateDevice(mac, item);
 }
 
 void GHostDb::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 	(void)mac;
+	Item* item = getItem(hostValue);
+	item->~Item();
 	insertLog(mac, hostValue->ip_, hostValue->firstTime_, hostValue->lastTime_);
 }
 
 void GHostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item item;
-	item.mac_ = mac;
-	item.ip_ = hostValue->ip_;
-	item.host_ = hostValue->host_;
-	item.vendor_ = hostValue->vendor_;
-	insertOrUpdateDevice(mac, &item);
+	Item* item = getItem(hostValue);
+	Q_ASSERT(item->mac_ == mac);
+	item->ip_ = hostValue->ip_;
+	item->host_ = hostValue->host_;
+	item->vendor_ = hostValue->vendor_;
+	insertOrUpdateDevice(mac, item);
 }
 
 bool GHostDb::selectHost(GMac mac, Item* item) {
@@ -213,23 +217,4 @@ bool GHostDb::insertLog(GMac mac, GIp ip, time_t sttTime, time_t endTime) {
 		qWarning() << insertLogQuery_->lastError().text();
 	}
 	return res;
-}
-
-QString GHostDb::getDefaultName(GMac mac) {
-	QMutexLocker(this);
-
-	Q_ASSERT(selectHostQuery_ != nullptr);
-	selectHostQuery_->bindValue(":mac", quint64(mac));
-	if (!selectHostQuery_->exec()) {
-		qWarning() << selectHostQuery_->lastError().text();
-	} else if (selectHostQuery_->next()) {
-		QString alias = selectHostQuery_->value("alias").toString().trimmed();
-		if (alias != "") return alias;
-		QString host = selectHostQuery_->value("host").toString().trimmed();
-		if (host != "") return host;
-		QString vendor = selectHostQuery_->value("vendor").toString().trimmed();
-		if (vendor != "") return vendor;
-	}
-
-	return QString(mac);
 }

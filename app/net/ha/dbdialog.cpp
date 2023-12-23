@@ -83,7 +83,9 @@ struct LogModel : QSqlQueryModel {
 			switch (index.column()) {
 				case DbDialog::ColumnLogName: {
 					GMac mac = res.toString();
-					return hostDb_->getDefaultName(mac);
+					GHostDb::Item dbItem;
+					hostDb_->selectHost(mac, &dbItem);
+					return dbItem.getDefaultName();
 				}
 				case DbDialog::ColumnLogIp: break;
 				case DbDialog::ColumnLogSttTime:

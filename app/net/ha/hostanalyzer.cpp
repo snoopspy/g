@@ -126,7 +126,9 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->treeWidgetItem_ = nullptr;
 	item->mac_ = mac;
 	item->ip_ = hostValue->ip_;
-	item->defaultName_ = hostDb_.getDefaultName(mac);
+
+	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
+	item->defaultName_ = dbItem->getDefaultName();
 	item->blockTime_ = hostValue->firstTime_ + extendTimeoutSec_;
 
 	{
@@ -152,7 +154,9 @@ void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->state_ = Item::Changed;
 	Q_ASSERT(item->mac_ == mac);
 	item->ip_ = hostValue->ip_;
-	item->defaultName_ = hostDb_.getDefaultName(mac);
+
+	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
+	item->defaultName_ = dbItem->getDefaultName();
 }
 
 void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
@@ -182,13 +186,10 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 			toolButton->setChecked(false);
 		}
 
-		GHostDb::Item dbItem;
-		if (!hostDb_.selectHost(mac, &dbItem)) {
-			qWarning() << QString("hostDb_->selectHost(%1) return false").arg(QString(mac));
-		}
-		QString defaultName = hostDb_.getDefaultName(mac);
+		GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
+		QString defaultName = dbItem->getDefaultName();
 		twi->setText(HostAnalyzer::ColumnName, defaultName);
-		toolButton->setEnabled(dbItem.mode_ == GHostDb::Default);
+		toolButton->setEnabled(dbItem->mode_ == GHostDb::Default);
 	}
 }
 

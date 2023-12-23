@@ -54,11 +54,20 @@ public:
 		QString host_;
 		QString vendor_;
 		Mode mode_{Default};
+
+		QString getDefaultName() {
+			if (alias_ != "") return alias_;
+			if (host_ != "") return host_;
+			if (vendor_ != "") return vendor_;
+			return QString(mac_);
+		}
 	};
 	typedef Item *PItem;
 	// --------------------------------------------------------------------------
 
 	// GHostMgr::Managable
+	size_t itemOffset_;
+	Item* getItem(GHostMgr::HostValue* hostValue) { return PItem(hostValue->mem(itemOffset_)); }
 	void hostCreated(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
@@ -78,7 +87,4 @@ public:
 	bool updateHost(GMac mac, Item* item);
 	bool insertOrUpdateDevice(GMac mac, Item* item);
 	bool insertLog(GMac mac, GIp ip, time_t sttTime, time_t endTime);
-
-public:
-	QString getDefaultName(GMac mac);
 };
