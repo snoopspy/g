@@ -172,6 +172,8 @@ void HaWidget::tbDb_clicked(bool checked) {
 	}
 
 	DbDialog dbDialog(this, hostDb);
+	dbDialog.setModal(true);
+
 	QJsonObject& jo = GJson::instance();
 	jo["dbDialog"] >> dbDialog;
 	dbDialog.setPeriod();
@@ -205,6 +207,7 @@ void HaWidget::tbHost_clicked(bool checked) {
 	GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
 	GMac mac = twi->property("mac").toString();
 	HostDialog hostDialog(this, &hostAnalyzer_.hostDb_, mac);
+	hostDialog.setModal(true);
 
 	QJsonObject& jo = GJson::instance();
 	jo["hostDialog"] >> hostDialog;
@@ -216,7 +219,10 @@ void HaWidget::tbHost_clicked(bool checked) {
 #endif
 	hostDialog.exec();
 
-	hostAnalyzer_.updateHost(twi);
+	int res = hostDialog.result();
+	qDebug() << res;
+	if (res == QDialog::Accepted)
+		hostAnalyzer_.updateHost(twi);
 
 	jo["hostDialog"] << hostDialog;
 }

@@ -88,13 +88,11 @@ void HostDialog::pbOk_clicked() {
 		return;
 	}
 
-	setResult(QDialog::Accepted);
-	close();
+	accept();
 }
 
 void HostDialog::pbCancel_clicked() {
-	setResult(QDialog::Rejected);
-	close();
+	reject();
 }
 
 void HostDialog::propLoad(QJsonObject jo) {
