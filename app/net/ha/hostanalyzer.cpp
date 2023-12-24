@@ -16,8 +16,10 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 			case HostAnalyzer::ColumnElapsed: {
 				const GTreeWidgetItem* twi1 = PTreeWidgetItem(this);
 				const GTreeWidgetItem* twi2 = PTreeWidgetItem(&other);
-				quint64 firstTs1 = twi1->property("firstTime").toLongLong();
-				quint64 firstTs2 = twi2->property("firstTime").toLongLong();
+				GHostMgr::HostValue* hostValue1 = GHostMgr::PHostValue(twi1->property("hostValue").toLongLong());
+				GHostMgr::HostValue* hostValue2 = GHostMgr::PHostValue(twi2->property("hostValue").toLongLong());
+				quint64 firstTs1 = hostValue1->firstTime_;
+				quint64 firstTs2 = hostValue2->firstTime_;
 				return firstTs1 < firstTs2;
 			}
 			case HostAnalyzer::ColumnAttack: {
@@ -124,11 +126,7 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 
 	item->state_ = Item::Created;
 	item->treeWidgetItem_ = nullptr;
-	item->mac_ = mac;
-	item->ip_ = hostValue->ip_;
-
-	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
-	item->defaultName_ = dbItem->getDefaultName();
+	item->hostValue_ = hostValue;
 	item->blockTime_ = hostValue->firstTime_ + extendTimeoutSec_;
 
 	{
@@ -149,48 +147,37 @@ void HostAnalyzer::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
+	(void)mac;
 	Item* item = getItem(hostValue);
-
 	item->state_ = Item::Changed;
-	Q_ASSERT(item->mac_ == mac);
-	item->ip_ = hostValue->ip_;
-
-	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
-	item->defaultName_ = dbItem->getDefaultName();
 }
 
 void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
-	GMac mac = twi->property("mac").toString();
-	qDebug() << "mac=" << QString(mac);
-	{
-		QMutexLocker ml(&itemMap_);
-		GHostMgr::HostMap::Iterator it = hostMgr_.hostMap_.find(mac);
-		if (it == hostMgr_.hostMap_.end())
-			return;
-		GHostMgr::HostValue* hostValue = it.value();
+	quintptr uip = twi->property("hostValue").toULongLong();
+	GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(uip);
+	Q_ASSERT(hostValue != nullptr);
 
-		Item* item = getItem(hostValue);
-		twi->setText(ColumnIp, QString(item->ip_));
+	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
+	Q_ASSERT(dbItem != nullptr);
+	twi->setText(ColumnIp, QString(dbItem->ip_));
+	QString defaultName = dbItem->getDefaultName();
+	twi->setText(HostAnalyzer::ColumnName, defaultName);
 
-		GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
-		GArpBlock::Policy policy = arpBlockItem->policy_;
-		QToolButton* toolButton = dynamic_cast<QToolButton*>(twi->treeWidget()->itemWidget(twi, ColumnAttack));
-		Q_ASSERT(toolButton != nullptr);
-		if (policy == GArpBlock::Block) {
-			toolButton->setText("B");
-			toolButton->setIcon(QIcon(":/img/pause.png"));
-			toolButton->setChecked(true);
-		} else {
-			toolButton->setText("A");
-			toolButton->setIcon(QIcon(":/img/play.png"));
-			toolButton->setChecked(false);
-		}
-
-		GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
-		QString defaultName = dbItem->getDefaultName();
-		twi->setText(HostAnalyzer::ColumnName, defaultName);
-		toolButton->setEnabled(dbItem->mode_ == GHostDb::Default);
+	GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
+	Q_ASSERT(arpBlockItem != nullptr);
+	GArpBlock::Policy policy = arpBlockItem->policy_;
+	QToolButton* toolButton = dynamic_cast<QToolButton*>(twi->treeWidget()->itemWidget(twi, ColumnAttack));
+	Q_ASSERT(toolButton != nullptr);
+	if (policy == GArpBlock::Block) {
+		toolButton->setText("B");
+		toolButton->setIcon(QIcon(":/img/pause.png"));
+		toolButton->setChecked(true);
+	} else {
+		toolButton->setText("A");
+		toolButton->setIcon(QIcon(":/img/play.png"));
+		toolButton->setChecked(false);
 	}
+	toolButton->setEnabled(dbItem->mode_ == GHostDb::Default);
 }
 
 #include "hawidget.h"
@@ -205,38 +192,27 @@ void HostAnalyzer::processClosed() {
 void HostAnalyzer::toolButton_toggled(bool checked) {
 	(void)checked;
 	QToolButton* toolButton = dynamic_cast<QToolButton*>(sender());
-	qDebug() << "toolButton=" << pvoid(toolButton);
 	Q_ASSERT(toolButton != nullptr);
-	quintptr up = toolButton->property("treeWidgetItem").toULongLong();
-	MyTreeWidgetItem* twi = PMyTreeWidgetItem(up);
-	qDebug() << "twi=" << pvoid(twi);
-	Q_ASSERT(twi != nullptr);
-	GMac mac = twi->property("mac").toString();
-	{
-		QMutexLocker ml(&arpBlock_.itemMap_);
-		GArpBlock::ItemMap::iterator it = arpBlock_.itemMap_.find(mac);
-		if (it == arpBlock_.itemMap_.end()) {
-			qWarning() << QString("can not find mac(%1)").arg(QString(mac));
-			return;
-		}
-		GArpBlock::Item* arpBlockItem = it.value();
-		bool block = arpBlockItem->policy_ == GArpBlock::Block;
-		bool nextBlock = !block;
-		if (nextBlock) {
-			arpBlock_.infect(arpBlockItem, GArpHdr::Request);
-			arpBlockItem->policy_ = GArpBlock::Block;
-		} else {
-			arpBlock_.recover(arpBlockItem, GArpHdr::Request);
-			arpBlockItem->policy_ = GArpBlock::Allow;
-		}
 
-		{
-			QMutexLocker ml2(&hostMgr_.hostMap_);
-			GHostMgr::HostMap::iterator it = hostMgr_.hostMap_.find(mac);
-			Q_ASSERT(it != hostMgr_.hostMap_.end());
-			updateHost(twi);
-		}
+	quintptr uip = toolButton->property("hostValue").toULongLong();
+	Q_ASSERT(uip != 0);
+	GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(uip);
+	Q_ASSERT(hostValue != nullptr);
+
+	GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
+	Q_ASSERT(arpBlockItem != nullptr);
+	bool block = arpBlockItem->policy_ == GArpBlock::Block;
+	bool nextBlock = !block;
+	if (nextBlock) {
+		arpBlock_.infect(arpBlockItem, GArpHdr::Request);
+		arpBlockItem->policy_ = GArpBlock::Block;
+	} else {
+		arpBlock_.recover(arpBlockItem, GArpHdr::Request);
+		arpBlockItem->policy_ = GArpBlock::Allow;
 	}
+
+	Item* item = getItem(hostValue);
+	updateHost(item->treeWidgetItem_);
 }
 
 void HostAnalyzer::updateHosts() {
@@ -248,7 +224,6 @@ void HostAnalyzer::updateHosts() {
 
 	QMutexLocker ml(&hostMgr_.hostMap_);
 	for (GHostMgr::HostMap::iterator it = hostMgr_.hostMap_.begin(); it != hostMgr_.hostMap_.end(); it++) {
-		GMac mac = it.key();
 		GHostMgr::HostValue* hostValue = it.value();
 		Item* item = getItem(hostValue);
 
@@ -256,19 +231,16 @@ void HostAnalyzer::updateHosts() {
 		if (twi == nullptr) {
 			twi = new MyTreeWidgetItem(treeWidget_);
 			item->treeWidgetItem_ = twi;
-			twi->setProperty("mac", QString(mac));
-			twi->setProperty("firstTime", qint64(hostValue->firstTime_));
+			quintptr uip = quintptr(hostValue);
+			twi->setProperty("hostValue", uip);
 			treeWidget_->addTopLevelItem(twi);
-
 			QToolButton *toolButton = new QToolButton(treeWidget_);
-			quintptr up = quintptr(twi);
-			toolButton->setProperty("treeWidgetItem", up);
+			toolButton->setProperty("hostValue", uip);
 			toolButton->setAutoRaise(true);
 			toolButton->setCheckable(true);
 			treeWidget_->setItemWidget(twi, ColumnAttack, toolButton);
 
 			QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
-
 
 			updateHost(twi);
 			item->state_ = Item::NotChanged;
@@ -299,7 +271,10 @@ void HostAnalyzer::updateElapsedTime() {
 	for (int i = 0; i < count; i++) {
 		GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->topLevelItem(i));
 		Q_ASSERT(twi != nullptr);
-		qint64 first = twi->property("firstTime").toLongLong();
+		quintptr uip = twi->property("hostValue").toLongLong();
+		GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(uip);
+		Q_ASSERT(hostValue != nullptr);
+		qint64 first = hostValue->firstTime_;
 		qint64 elapsed = now - first;
 
 		qint64 days = elapsed / 86400;
@@ -325,3 +300,4 @@ void HostAnalyzer::propLoad(QJsonObject jo) {
 void HostAnalyzer::propSave(QJsonObject& jo) {
 	GProp::propSave(jo);
 }
+

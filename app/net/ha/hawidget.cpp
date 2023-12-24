@@ -187,7 +187,7 @@ void HaWidget::tbDb_clicked(bool checked) {
 
 	jo["dbDialog"] << dbDialog;
 
-	// Change default name because alias can be chaned
+	// Change default name because alias can be changed
 	int count = treeWidget_->topLevelItemCount();
 	for (int i = 0; i < count; i++) {
 		GTreeWidgetItem *twi = dynamic_cast<GTreeWidgetItem *>(treeWidget_->topLevelItem(i));

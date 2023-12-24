@@ -69,7 +69,7 @@ public:
 	QTimer updateHostsTimer_;
 	QTimer updateElapsedTimer_;
 
-protected:
+public:
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
@@ -80,10 +80,8 @@ protected:
 			NotChanged
 		} state_{Created};
 		GTreeWidgetItem* treeWidgetItem_{nullptr};
-		GMac mac_{GMac::nullMac()};
-		GIp ip_{0};
-		QString defaultName_;
-		time_t blockTime_;
+		GHostMgr::Value* hostValue_{nullptr};
+		time_t blockTime_{0};
 	};
 	typedef Item *PItem;
 
