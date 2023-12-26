@@ -144,9 +144,9 @@ DbDialog::DbDialog(QWidget* parent, GHostDb* hostDb) : QDialog(parent), hostDb_(
 			logHLayout_ = new QHBoxLayout;
 			logHLayout_->setContentsMargins(0, 0, 0, 0);
 			logVLayout_->setSpacing(0);
-				dteBegin_ = new QDateTimeEdit(this);
-				dteBegin_->setDisplayFormat("yy/MM/dd hh:mm");
-				logHLayout_->addWidget(dteBegin_);
+			dteStart_ = new QDateTimeEdit(this);
+			dteStart_->setDisplayFormat("yy/MM/dd hh:mm");
+			logHLayout_->addWidget(dteStart_);
 				dteEnd_ = new QDateTimeEdit(this);
 				dteEnd_->setDisplayFormat("yy/MM/dd hh:mm");
 				logHLayout_->addWidget(dteEnd_);
@@ -186,7 +186,7 @@ void DbDialog::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	tabWidget_->setCurrentIndex(jo["tabIndex"].toInt(0));
 	leSearchHost_->setText(jo["searchHost"].toString());
-	dteBegin_->setDateTime(QDateTime::fromString(jo["sttTime"].toString(), "yy/MM/dd hh:mm"));
+	dteStart_->setDateTime(QDateTime::fromString(jo["sttTime"].toString(), "yy/MM/dd hh:mm"));
 	dteEnd_->setDateTime(QDateTime::fromString(jo["endTime"].toString(), "yy/MM/dd hh:mm"));
 	leSearchLog_->setText(jo["searchLog"].toString());
 	cbPeriod_->setCurrentIndex(jo["searchPeriod"].toInt(int(Today)));
@@ -196,7 +196,7 @@ void DbDialog::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["tabIndex"] = tabWidget_->currentIndex();
 	jo["searchHost"] = leSearchHost_->text();
-	jo["sttTime"] = dteBegin_->dateTime().toString("yy/MM/dd hh:mm");
+	jo["sttTime"] = dteStart_->dateTime().toString("yy/MM/dd hh:mm");
 	jo["endTime"] = dteEnd_->dateTime().toString("yy/MM/dd hh:mm");
 	jo["searchLog"] = leSearchLog_->text();
 	jo["searchPeriod"] = cbPeriod_->currentIndex();
@@ -268,7 +268,7 @@ void DbDialog::setPeriod() {
 		case Custom:
 			return;
 	}
-	dteBegin_->setDateTime(sttTime);
+	dteStart_->setDateTime(sttTime);
 	dteEnd_->setDateTime(endTime);
 }
 
@@ -333,7 +333,7 @@ void DbDialog::tbSearchLog_clicked() {
 		QMessageBox::warning(this, "Error", query.lastError().text());
 		return;
 	}
-	query.bindValue(":sttTime", dteBegin_->dateTime().toSecsSinceEpoch());
+	query.bindValue(":sttTime", dteStart_->dateTime().toSecsSinceEpoch());
 	query.bindValue(":endTime", dteEnd_->dateTime().toSecsSinceEpoch());
 	if (searchStr != "") {
 		searchStr = "%" + searchStr + "%";

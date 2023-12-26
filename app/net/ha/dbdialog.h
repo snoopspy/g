@@ -42,7 +42,7 @@ public:
 	QWidget* logWidget_{nullptr};
 	QVBoxLayout* logVLayout_{nullptr};
 	QHBoxLayout* logHLayout_{nullptr};
-	QDateTimeEdit* dteBegin_{nullptr};
+	QDateTimeEdit* dteStart_{nullptr};
 	QDateTimeEdit* dteEnd_{nullptr};
 	QComboBox* cbPeriod_{nullptr};
 	QLineEdit* leSearchLog_{nullptr};
