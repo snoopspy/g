@@ -88,11 +88,11 @@ HostAnalyzer::~HostAnalyzer() {
 }
 
 bool HostAnalyzer::doOpen() {
-	bool res = GGraph::doOpen();
-	if (!res) return false;
-
 	itemOffset_ = hostMgr_.requestItems_.request(this, sizeof(Item));
 	hostMgr_.managables_.insert(this);
+
+	bool res = GGraph::doOpen();
+	if (!res) return false;
 
 	updateHostsTimer_.start(updateHostsTimeoutSec_ * 1000);
 	updateElapsedTimer_.start(updateElapsedTimeoutSec_ * 1000);
@@ -115,6 +115,7 @@ bool HostAnalyzer::doClose() {
 		toolButton->setText("A");
 		toolButton->setIcon(QIcon(":/img/play.png"));
 		toolButton->setChecked(false);
+		toolButton->setEnabled(false);
 	}
 
 	return res;
@@ -163,6 +164,7 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 	twi->setText(ColumnIp, QString(dbItem->ip_));
 	QString defaultName = dbItem->getDefaultName();
 	twi->setText(HostAnalyzer::ColumnName, defaultName);
+	GHostDb::Mode mode = dbItem->mode_;
 
 	GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
 	Q_ASSERT(arpBlockItem != nullptr);
@@ -171,16 +173,35 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 	QToolButton* toolButton = dynamic_cast<QToolButton*>(twi->treeWidget()->itemWidget(twi, ColumnAttack));
 	Q_ASSERT(toolButton != nullptr);
 	QObject::disconnect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
-	if (policy == GArpBlock::Block) {
+
+	bool prevBlock = policy == GArpBlock::Block;
+	bool block;
+	switch(mode) {
+		case GHostDb::Default :
+			block = policy == GArpBlock::Block;
+			break;
+		case GHostDb::Allow :
+			block = false;
+			break;
+		case GHostDb::Block :
+			block = true;
+			break;
+	}
+
+	if (block) {
+		if (!prevBlock)
+			arpBlock_.infect(arpBlockItem, GArpHdr::Request);
 		toolButton->setText("B");
 		toolButton->setIcon(QIcon(":/img/pause.png"));
 		toolButton->setChecked(true);
 	} else {
+		if (prevBlock)
+			arpBlock_.recover(arpBlockItem, GArpHdr::Request);
 		toolButton->setText("A");
 		toolButton->setIcon(QIcon(":/img/play.png"));
 		toolButton->setChecked(false);
 	}
-	toolButton->setEnabled(dbItem->mode_ == GHostDb::Default);
+	toolButton->setEnabled(mode == GHostDb::Default);
 	QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 }
 

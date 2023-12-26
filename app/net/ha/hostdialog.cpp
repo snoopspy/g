@@ -75,16 +75,11 @@ void HostDialog::setControl2(int index) {
 }
 
 void HostDialog::pbOk_clicked() {
-	GHostDb::Item dbItem;
-	bool res = ha_->hostDb_.selectHost(mac_, &dbItem);
-	if (!res) {
-		qWarning() << QString("hostDb_.selectHost(%1) return false").arg(QString(mac_));
-		return;
-	}
+	GHostDb::Item* dbItem = ha_->hostDb_.getItem(hv_);
 
-	dbItem.alias_ = leAlias_->text();
-	dbItem.mode_ = GHostDb::Mode(cbMode_->currentIndex());
-	res = ha_->hostDb_.updateHost(mac_, &dbItem);
+	dbItem->alias_ = leAlias_->text();
+	dbItem->mode_ = GHostDb::Mode(cbMode_->currentIndex());
+	bool res = ha_->hostDb_.updateHost(mac_, dbItem);
 	if (!res) {
 		qWarning() << QString("hostDb_.updateHost(%1) return false").arg(QString(mac_));
 		return;
