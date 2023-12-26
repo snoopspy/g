@@ -189,14 +189,18 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 	}
 
 	if (block) {
-		if (!prevBlock)
+		if (!prevBlock) {
 			arpBlock_.infect(arpBlockItem, GArpHdr::Request);
+			arpBlockItem->policy_ = GArpBlock::Block;
+		}
 		toolButton->setText("B");
 		toolButton->setIcon(QIcon(":/img/pause.png"));
 		toolButton->setChecked(true);
 	} else {
-		if (prevBlock)
+		if (prevBlock) {
 			arpBlock_.recover(arpBlockItem, GArpHdr::Request);
+			arpBlockItem->policy_ = GArpBlock::Allow;
+		}
 		toolButton->setText("A");
 		toolButton->setIcon(QIcon(":/img/play.png"));
 		toolButton->setChecked(false);
