@@ -210,7 +210,7 @@ GTraceRoute::ProbeThread::ProbeThread(GTraceRoute* tr, GPacket* packet, Key key)
 	sendPacket_.buf_ = buf;
 	sendPacket_.ipHdr_ = sendIpHdr;
 
-	logTime_ = QDateTime::fromTime_t(packet->ts_.tv_sec);
+	logTime_ = QDateTime::fromSecsSinceEpoch(packet->ts_.tv_sec);
 	QObject::connect(this, &QThread::finished, this, &QObject::deleteLater);
 }
 

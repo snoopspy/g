@@ -99,7 +99,7 @@ void GHostWatch::WatchThread::run() {
 		long now;
 #ifdef Q_OS_WIN
 		QDateTime dt = QDateTime::currentDateTime();
-		now = long(dt.toTime_t());
+		now = long(dt.toSecsSinceEpoch());
 #else
 		struct timeval ts;
 		gettimeofday(&ts, nullptr);
