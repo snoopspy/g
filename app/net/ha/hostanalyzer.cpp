@@ -16,8 +16,8 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 			case HostAnalyzer::ColumnElapsed: {
 				const GTreeWidgetItem* twi1 = PTreeWidgetItem(this);
 				const GTreeWidgetItem* twi2 = PTreeWidgetItem(&other);
-				GHostMgr::HostValue* hostValue1 = GHostMgr::PHostValue(twi1->property("hostValue").toLongLong());
-				GHostMgr::HostValue* hostValue2 = GHostMgr::PHostValue(twi2->property("hostValue").toLongLong());
+				GHostMgr::HostValue* hostValue1 = GHostMgr::PHostValue(twi1->property("hostValue").toULongLong());
+				GHostMgr::HostValue* hostValue2 = GHostMgr::PHostValue(twi2->property("hostValue").toULongLong());
 				quint64 firstTs1 = hostValue1->firstTime_;
 				quint64 firstTs2 = hostValue2->firstTime_;
 				return firstTs1 < firstTs2;
@@ -108,12 +108,13 @@ bool HostAnalyzer::doClose() {
 
 	int count = treeWidget_->topLevelItemCount();
 	for (int i = 0; i < count; i++) {
-		GTreeWidgetItem* treeWidgetItem = PTreeWidgetItem(treeWidget_->topLevelItem(i));
-		QToolButton* toolButton = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(treeWidgetItem, ColumnAttack));
+		GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->topLevelItem(i));
+		QToolButton* toolButton = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(twi, ColumnAttack));
 		Q_ASSERT(toolButton != nullptr);
+		QObject::disconnect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 		toolButton->setText("A");
 		toolButton->setIcon(QIcon(":/img/play.png"));
-		toolButton->setEnabled(false);
+		toolButton->setChecked(false);
 	}
 
 	return res;
@@ -166,8 +167,10 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 	GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
 	Q_ASSERT(arpBlockItem != nullptr);
 	GArpBlock::Policy policy = arpBlockItem->policy_;
+
 	QToolButton* toolButton = dynamic_cast<QToolButton*>(twi->treeWidget()->itemWidget(twi, ColumnAttack));
 	Q_ASSERT(toolButton != nullptr);
+	QObject::disconnect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 	if (policy == GArpBlock::Block) {
 		toolButton->setText("B");
 		toolButton->setIcon(QIcon(":/img/pause.png"));
@@ -178,6 +181,7 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 		toolButton->setChecked(false);
 	}
 	toolButton->setEnabled(dbItem->mode_ == GHostDb::Default);
+	QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 }
 
 #include "hawidget.h"
@@ -190,6 +194,7 @@ void HostAnalyzer::processClosed() {
 }
 
 void HostAnalyzer::toolButton_toggled(bool checked) {
+	qDebug() << ""; // gilgil temp 2023.12.26
 	(void)checked;
 	QToolButton* toolButton = dynamic_cast<QToolButton*>(sender());
 	Q_ASSERT(toolButton != nullptr);
@@ -271,11 +276,11 @@ void HostAnalyzer::updateElapsedTime() {
 	for (int i = 0; i < count; i++) {
 		GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->topLevelItem(i));
 		Q_ASSERT(twi != nullptr);
-		quintptr uip = twi->property("hostValue").toLongLong();
+		quintptr uip = twi->property("hostValue").toULongLong();
 		GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(uip);
 		Q_ASSERT(hostValue != nullptr);
-		qint64 first = hostValue->firstTime_;
-		qint64 elapsed = now - first;
+		qint64 firstTime = hostValue->firstTime_;
+		qint64 elapsed = now - firstTime;
 
 		qint64 days = elapsed / 86400;
 		elapsed %= 86400;
@@ -290,6 +295,16 @@ void HostAnalyzer::updateElapsedTime() {
 		if (minutes != 0) s += QString("%1m ").arg(minutes);
 		s += QString("%1s").arg(seconds);
 		twi->setText(ColumnElapsed, s);
+
+		GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
+		if (dbItem->mode_ == GHostDb::Default) {
+			Item* haItem = getItem(hostValue);
+			if (firstTime + elapsed > haItem->blockTime_) {
+				haItem->state_ = Item::Changed;
+				updateHost(twi);
+				haItem->state_ = Item::NotChanged;
+			}
+		}
 	}
 }
 

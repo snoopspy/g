@@ -105,7 +105,7 @@ void HaWidget::setControl() {
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
-	tbHost_->setEnabled(treeWidget_->selectedItems().count() > 0);
+	tbHost_->setEnabled(active && treeWidget_->selectedItems().count() > 0);
 	tbScreenSaver_->setEnabled(active);
 }
 
@@ -205,8 +205,10 @@ void HaWidget::tbHost_clicked(bool checked) {
 
 	if (treeWidget_->selectedItems().count() == 0) return;
 	GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
-	GMac mac = twi->property("mac").toString();
-	HostDialog hostDialog(this, &hostAnalyzer_.hostDb_, mac);
+	GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(twi->property("hostValue").toULongLong());
+	Q_ASSERT(hostValue != nullptr);
+	GMac mac = hostAnalyzer_.hostDb_.getItem(hostValue)->mac_;
+	HostDialog hostDialog(this, mac, &hostAnalyzer_, hostValue);
 	hostDialog.setModal(true);
 
 	QJsonObject& jo = GJson::instance();

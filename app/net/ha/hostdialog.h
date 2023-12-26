@@ -1,24 +1,26 @@
 #pragma once
 
 #include <QComboBox>
+#include <QDateTimeEdit>
 #include <QDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 
-#include <GHostDb>
 #include <GProp>
+#include "hostanalyzer.h"
 
 struct HostDialog : QDialog, GProp {
 	Q_OBJECT
 
 public:
-	HostDialog(QWidget* parent, GHostDb* hostDb, GMac mac);
+	HostDialog(QWidget* parent, GMac mac, HostAnalyzer* hostAnalyzer, GHostMgr::HostValue* hostValue);
 	~HostDialog() override;
 
 public:
-	GHostDb* hostDb_;
 	GMac mac_;
+	HostAnalyzer* ha_;
+	GHostMgr::HostValue* hv_;
 
 protected:
 	QLineEdit* leMac_{nullptr};
@@ -27,6 +29,7 @@ protected:
 	QLineEdit* leHost_{nullptr};
 	QLineEdit* leVendor_{nullptr};
 	QComboBox* cbMode_{nullptr};
+	QDateTimeEdit* dteBlockTime_{nullptr};
 
 	QPushButton* pbOk_{nullptr};
 	QPushButton* pbCancel_{nullptr};
