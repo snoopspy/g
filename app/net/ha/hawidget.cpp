@@ -135,6 +135,7 @@ void HaWidget::tbOption_clicked(bool checked) {
 	(void)checked;
 
 	GPropDialog propDialog;
+	propDialog.setModal(true);
 	propDialog.setWindowTitle("Option");
 	propDialog.widget_.setObject(&hostAnalyzer_);
 
