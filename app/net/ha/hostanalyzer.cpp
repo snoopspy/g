@@ -323,11 +323,21 @@ void HostAnalyzer::updateElapsedTime() {
 
 		GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
 		if (dbItem->mode_ == GHostDb::Default) {
+			GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
 			Item* haItem = getItem(hostValue);
-			if (firstTime + elapsed > haItem->blockTime_) {
-				haItem->state_ = Item::Changed;
-				updateHost(twi);
-				haItem->state_ = Item::NotChanged;
+			qDebug() << "firstTime + elspaed=" << firstTime + elapsed << "blockTime=" << haItem->blockTime_;
+			if (arpBlockItem->policy_ == GArpBlock::Allow) {
+				if (now > haItem->blockTime_) {
+					arpBlock_.infect(arpBlockItem, GArpHdr::Request);
+					arpBlockItem->policy_ = GArpBlock::Block;
+					updateHost(twi);
+				}
+			} else { // arpBlockItem->policy_ == GArpBlock::Block
+				if (now < haItem->blockTime_) {
+					arpBlock_.recover(arpBlockItem, GArpHdr::Request);
+					arpBlockItem->policy_ = GArpBlock::Allow;
+					updateHost(twi);
+				}
 			}
 		}
 	}
