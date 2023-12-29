@@ -88,6 +88,7 @@ void HostDialog::pbOk_clicked() {
 	HostAnalyzer::Item* haItem = ha_->getItem(hv_);
 	haItem->state_ = HostAnalyzer::Item::Changed;
 	haItem->blockTime_ = dteBlockTime_->dateTime().toSecsSinceEpoch();
+	ha_->checkBlockTime(hv_);
 
 	accept();
 }

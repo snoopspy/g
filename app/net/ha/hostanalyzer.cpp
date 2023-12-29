@@ -209,6 +209,29 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 	QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 }
 
+void HostAnalyzer::checkBlockTime(GHostMgr::HostValue* hostValue) {
+	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
+	if (dbItem->mode_ != GHostDb::Default) return;
+
+	GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
+	Item* haItem = getItem(hostValue);
+	qint64 now = QDateTime::currentDateTime().toSecsSinceEpoch();
+
+	if (arpBlockItem->policy_ == GArpBlock::Allow) {
+		if (now >= haItem->blockTime_) {
+			arpBlock_.infect(arpBlockItem, GArpHdr::Request);
+			arpBlockItem->policy_ = GArpBlock::Block;
+			updateHost(haItem->treeWidgetItem_);
+		}
+	} else { // arpBlockItem->policy_ == GArpBlock::Block
+		if (now < haItem->blockTime_) {
+			arpBlock_.recover(arpBlockItem, GArpHdr::Request);
+			arpBlockItem->policy_ = GArpBlock::Allow;
+			updateHost(haItem->treeWidgetItem_);
+		}
+	}
+}
+
 #include "hawidget.h"
 void HostAnalyzer::processClosed() {
 	qDebug() << "bef call close()"; // gilgil temp 2023.10.18
@@ -321,25 +344,7 @@ void HostAnalyzer::updateElapsedTime() {
 		s += QString("%1s").arg(seconds);
 		twi->setText(ColumnElapsed, s);
 
-		GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
-		if (dbItem->mode_ == GHostDb::Default) {
-			GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
-			Item* haItem = getItem(hostValue);
-			qDebug() << "firstTime + elspaed=" << firstTime + elapsed << "blockTime=" << haItem->blockTime_;
-			if (arpBlockItem->policy_ == GArpBlock::Allow) {
-				if (now > haItem->blockTime_) {
-					arpBlock_.infect(arpBlockItem, GArpHdr::Request);
-					arpBlockItem->policy_ = GArpBlock::Block;
-					updateHost(twi);
-				}
-			} else { // arpBlockItem->policy_ == GArpBlock::Block
-				if (now < haItem->blockTime_) {
-					arpBlock_.recover(arpBlockItem, GArpHdr::Request);
-					arpBlockItem->policy_ = GArpBlock::Allow;
-					updateHost(twi);
-				}
-			}
-		}
+		checkBlockTime(hostValue);
 	}
 }
 

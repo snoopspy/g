@@ -14,9 +14,9 @@
 
 struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_OBJECT
+	Q_PROPERTY(int extendTimeoutSec MEMBER extendTimeoutSec_)
 	Q_PROPERTY(int updateHostsTimeoutSec MEMBER updateHostsTimeoutSec_)
 	Q_PROPERTY(int updateElapsedTimeoutSec MEMBER updateElapsedTimeoutSec_)
-	Q_PROPERTY(int extendTimeoutSec MEMBER extendTimeoutSec_)
 	Q_PROPERTY(GObjRef pcapDevice READ getPcapDevice)
 	Q_PROPERTY(GObjRef hostMgr READ getHostMgr)
 	Q_PROPERTY(GObjRef hostWatch READ getHostWatch)
@@ -28,9 +28,9 @@ struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_PROPERTY(GObjRef screenSaver READ getScreenSaver)
 
 public:
+	int extendTimeoutSec_{3600}; // 1 hour
 	int updateHostsTimeoutSec_{1}; // 1 seconds
 	int updateElapsedTimeoutSec_{10}; // 10 seconds
-	int extendTimeoutSec_{3600}; // 1 hour
 	GObjRef getPcapDevice() { return &pcapDevice_; }
 	GObjRef getHostMgr() { return &hostMgr_; }
 	GObjRef getHostWatch() { return &hostWatch_; }
@@ -99,6 +99,7 @@ public:
 public:
 	GTreeWidget* treeWidget_{nullptr}; // reference
 	void updateHost(GTreeWidgetItem* twi);
+	void checkBlockTime(GHostMgr::HostValue* hostValue);
 
 public slots:
 	void processClosed();
