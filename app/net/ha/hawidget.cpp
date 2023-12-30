@@ -223,7 +223,6 @@ void HaWidget::tbHost_clicked(bool checked) {
 	hostDialog.exec();
 
 	int res = hostDialog.result();
-	qDebug() << res;
 	if (res == QDialog::Accepted)
 		hostAnalyzer_.updateHost(twi);
 

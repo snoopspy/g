@@ -148,7 +148,6 @@ bool GHostDb::selectHost(GMac mac, Item* item) {
 		item->host_ = selectHostQuery_->value("host").toString();
 		item->vendor_ = selectHostQuery_->value("vendor").toString();
 		int i = Mode(selectHostQuery_->value("mode").toInt());
-		qDebug() << "mode is " << i;
 		item->mode_ = Mode(i);
 		return true;
 	}

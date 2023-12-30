@@ -129,7 +129,10 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->state_ = Item::Created;
 	item->treeWidgetItem_ = nullptr;
 	item->hostValue_ = hostValue;
-	item->blockTime_ = hostValue->firstTime_ + extendTimeoutSec_;
+	if (extendTimeoutSec_ == 0)
+		item->blockTime_ = 0;
+	else
+		item->blockTime_ = hostValue->firstTime_ + extendTimeoutSec_;
 
 	{
 		QMutexLocker ml(&itemMap_);
@@ -213,8 +216,10 @@ void HostAnalyzer::checkBlockTime(GHostMgr::HostValue* hostValue) {
 	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
 	if (dbItem->mode_ != GHostDb::Default) return;
 
-	GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
 	Item* haItem = getItem(hostValue);
+	if (haItem->blockTime_ == 0) return;
+
+	GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
 	qint64 now = QDateTime::currentDateTime().toSecsSinceEpoch();
 
 	if (arpBlockItem->policy_ == GArpBlock::Allow) {
@@ -256,16 +261,24 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 	Q_ASSERT(arpBlockItem != nullptr);
 	bool block = arpBlockItem->policy_ == GArpBlock::Block;
 	bool nextBlock = !block;
+
+	Item* haItem = getItem(hostValue);
+	Q_ASSERT(haItem != nullptr);
+	qint64 now = QDateTime::currentDateTime().toSecsSinceEpoch();
+
 	if (nextBlock) {
 		arpBlock_.infect(arpBlockItem, GArpHdr::Request);
 		arpBlockItem->policy_ = GArpBlock::Block;
+		if (haItem->blockTime_ != 0)
+			haItem->blockTime_ = now;
 	} else {
 		arpBlock_.recover(arpBlockItem, GArpHdr::Request);
 		arpBlockItem->policy_ = GArpBlock::Allow;
+		if (haItem->blockTime_ != 0)
+			haItem->blockTime_ = now + extendTimeoutSec_;
 	}
 
-	Item* item = getItem(hostValue);
-	updateHost(item->treeWidgetItem_);
+	updateHost(haItem->treeWidgetItem_);
 }
 
 void HostAnalyzer::updateHosts() {
