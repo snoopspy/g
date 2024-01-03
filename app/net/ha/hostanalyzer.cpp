@@ -129,10 +129,10 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->state_ = Item::Created;
 	item->treeWidgetItem_ = nullptr;
 	item->hostValue_ = hostValue;
-	if (extendTimeoutSec_ == 0)
+	if (adminTimeoutSec_ == 0)
 		item->blockTime_ = 0;
 	else
-		item->blockTime_ = hostValue->firstTime_ + extendTimeoutSec_;
+		item->blockTime_ = hostValue->firstTime_ + adminTimeoutSec_;
 
 	{
 		QMutexLocker ml(&itemMap_);
@@ -275,7 +275,7 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 		arpBlock_.recover(arpBlockItem, GArpHdr::Request);
 		arpBlockItem->policy_ = GArpBlock::Allow;
 		if (haItem->blockTime_ != 0)
-			haItem->blockTime_ = now + extendTimeoutSec_;
+			haItem->blockTime_ = now + adminTimeoutSec_;
 	}
 
 	updateHost(haItem->treeWidgetItem_);
