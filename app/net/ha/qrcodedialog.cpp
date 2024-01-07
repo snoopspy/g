@@ -32,7 +32,7 @@ QrCodeDialog::~QrCodeDialog() {
 void QrCodeDialog::pbGenerate_clicked(bool checked) {
 	(void)checked;
 
-	QString text = "10.1.1.3/12345678";
+	QString text = "10.1.1.3/12345678"; // gilgil temp 2024.01.08
 	int size = std::min(lblQrCode_->width(), lblQrCode_->height());
 	QImage image = generator_->generateQr(text, size);
 	lblQrCode_->setPixmap(QPixmap::fromImage(image));
