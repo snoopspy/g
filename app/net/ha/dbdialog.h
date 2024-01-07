@@ -19,6 +19,7 @@ struct HostModel;
 struct LogModel;
 struct DbDialog : QDialog, GProp {
 	Q_OBJECT
+
 public:
 	explicit DbDialog(QWidget* parent, GHostDb* hostDb);
 	~DbDialog() override;

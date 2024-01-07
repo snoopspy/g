@@ -3,6 +3,7 @@
 		<file>img/db.png</file>
 		<file>img/pause.png</file>
 		<file>img/play.png</file>
+		<file>img/qrcode.png</file>
 		<file>img/search.png</file>
 	</qresource>
 </RCC>

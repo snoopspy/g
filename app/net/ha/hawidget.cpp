@@ -54,13 +54,13 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tbHost_->setIconSize(tbStart_->iconSize());
 	toolButtonLayout_->addWidget(tbHost_);
 
-	tbScreenSaver_ = new QToolButton(this);
-	tbScreenSaver_->setText("ScreenSaver");
-	tbScreenSaver_->setToolTip("ScreenSaver");
-	tbScreenSaver_->setIcon(QIcon(":/img/screensaver.png"));
-	tbScreenSaver_->setAutoRaise(true);
-	tbScreenSaver_->setIconSize(tbStart_->iconSize());
-	toolButtonLayout_->addWidget(tbScreenSaver_);
+	tbQrCode_ = new QToolButton(this);
+	tbQrCode_->setText("QrCode");
+	tbQrCode_->setToolTip("QrCode");
+	tbQrCode_->setIcon(QIcon(":/img/qrcode.png"));
+	tbQrCode_->setAutoRaise(true);
+	tbQrCode_->setIconSize(tbStart_->iconSize());
+	toolButtonLayout_->addWidget(tbQrCode_);
 
 	mainLayout_->addWidget(treeWidget_);
 
@@ -74,7 +74,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &HaWidget::tbOption_clicked);
 	QObject::connect(tbDb_, &QToolButton::clicked, this, &HaWidget::tbDb_clicked);
 	QObject::connect(tbHost_, &QToolButton::clicked, this, &HaWidget::tbHost_clicked);
-	QObject::connect(tbScreenSaver_, &QToolButton::clicked, this, &HaWidget::tbScreenSaver_clicked);
+	QObject::connect(tbQrCode_, &QToolButton::clicked, this, &HaWidget::tbQrCode_clicked);
 
 	hostAnalyzer_.treeWidget_ = treeWidget_;
 
@@ -106,7 +106,7 @@ void HaWidget::setControl() {
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
 	tbHost_->setEnabled(active && treeWidget_->selectedItems().count() > 0);
-	tbScreenSaver_->setEnabled(active);
+	tbQrCode_->setEnabled(active);
 }
 
 void HaWidget::tbStart_clicked(bool checked) {
@@ -229,12 +229,23 @@ void HaWidget::tbHost_clicked(bool checked) {
 	jo["hostDialog"] << hostDialog;
 }
 
-void HaWidget::tbScreenSaver_clicked(bool checked) {
+void HaWidget::tbQrCode_clicked(bool checked) {
 	(void)checked;
-	GScreenSaver* screenSaver = &hostAnalyzer_.screenSaver_;
-	if (screenSaver->active())
-		screenSaver->close();
-	screenSaver->open();
+
+	QrCodeDialog qrCodeDialog(this);
+	qrCodeDialog.setModal(true);
+
+	QJsonObject& jo = GJson::instance();
+	jo["qrCodeDialog"] >> qrCodeDialog;
+
+#ifdef Q_OS_ANDROID
+	qrCodeDialog.showMaximized();
+#else
+	qrCodeDialog.show();
+#endif
+	qrCodeDialog.exec();
+
+	jo["qrCodeDialog"] << qrCodeDialog;
 }
 
 void HaWidget::processClosed() {

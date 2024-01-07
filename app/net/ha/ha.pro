@@ -1,4 +1,4 @@
-QT += widgets
+QT += widgets svg network
 include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
 
@@ -9,13 +9,20 @@ SOURCES += \
 	ha.cpp \
 	hawidget.cpp \
 	hostanalyzer.cpp \
-	hostdialog.cpp
+	hostdialog.cpp \
+	QrCodeGenerator.cpp \
+	qrcodedialog.cpp \
+	qrcodegen/qrcodegen.cpp
+
 
 HEADERS += \
 	dbdialog.h \
 	hawidget.h \
 	hostanalyzer.h \
-	hostdialog.h
+	hostdialog.h \
+	QrCodeGenerator.h \
+	qrcodedialog.h \
+	qrcodegen/qrcodegen.h
 
 DISTFILES += \
 	android/AndroidManifest.xml \

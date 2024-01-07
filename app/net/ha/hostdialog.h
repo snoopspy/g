@@ -3,9 +3,12 @@
 #include <QComboBox>
 #include <QDateTimeEdit>
 #include <QDialog>
+#include <QGridLayout>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QVBoxLayout>
 
 #include <GProp>
 #include "hostanalyzer.h"

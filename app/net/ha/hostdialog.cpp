@@ -1,7 +1,4 @@
 #include "hostdialog.h"
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 
 #include <GJson>
 

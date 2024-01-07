@@ -3,6 +3,7 @@
 #include <GDefaultWidget>
 #include <GTreeWidget>
 #include "hostanalyzer.h"
+#include "qrcodedialog.h"
 
 struct G_EXPORT HaWidget : GDefaultWidget, GProp {
 	Q_OBJECT
@@ -22,7 +23,7 @@ public:
 public:
 	QToolButton* tbDb_{nullptr};
 	QToolButton* tbHost_{nullptr};
-	QToolButton* tbScreenSaver_{nullptr};
+	QToolButton* tbQrCode_{nullptr};
 
 public slots:
 	void setControl();
@@ -33,7 +34,7 @@ private slots:
 	void tbOption_clicked(bool checked = false);
 	void tbDb_clicked(bool checked = false);
 	void tbHost_clicked(bool checked = false);
-	void tbScreenSaver_clicked(bool checked = false);
+	void tbQrCode_clicked(bool checked = false);
 
 	void processClosed();
 };
