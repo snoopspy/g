@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTcpServer>
+#include <QTcpSocket>
 #include <QVBoxLayout>
 
 #include <GProp>
@@ -15,9 +16,12 @@
 struct QrCodeDialog : QDialog, GProp {
 	Q_OBJECT
 	Q_PROPERTY(int port MEMBER port_)
+	Q_PROPERTY(int sessionTimeOutSec MEMBER sessionTimeOutSec_)
 
 public:
-	int port_{1234};
+	static const int Port = 1234;
+	int port_{Port};
+	int sessionTimeOutSec_{60};
 
 public:
 	QrCodeDialog(QWidget* parent);
@@ -28,8 +32,24 @@ public:
 	QTcpServer* tcpServer_;
 	QrCodeGenerator* generator_;
 
+protected:
+	struct Session {
+		static const int SessionSize = 2;
+		Session();
+		QString bytesToString();
+		time_t created_;
+		gbyte bytes_[SessionSize];
+	};
+
+	struct SessionList : QList<Session> {
+		SessionList(QrCodeDialog* qrCodeDialog) : qrCodeDialog_(qrCodeDialog) {}
+		QrCodeDialog* qrCodeDialog_;
+		void deleteOldSession();
+	} sessionList_{this};
+
 public slots:
 	void pbGenerate_clicked(bool checked = false);
+	void tcpServer_newConnection();
 
 public:
 	void propLoad(QJsonObject jo) override;
