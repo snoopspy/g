@@ -11,6 +11,7 @@ QrCodeDialog::QrCodeDialog(QWidget* parent) : QDialog(parent) {
 	tcpServer_ = new QTcpServer(this);
 	generator_ = new QrCodeGenerator(this);
 
+	lblQrCode_->setAlignment(Qt::AlignCenter);
 	pbGenerate_->setText("Generate QR Code");
 	if (!tcpServer_->listen(QHostAddress("127.0.0.1"), port_)) {
 		QMessageBox mb;
