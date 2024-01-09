@@ -10,9 +10,9 @@ SOURCES += \
 	hawidget.cpp \
 	hostanalyzer.cpp \
 	hostdialog.cpp \
-	QrCodeGenerator.cpp \
 	qrcodedialog.cpp \
-	qrcodegen/qrcodegen.cpp
+	qrcode/QrCodeGenerator.cpp \
+	qrcode/qrcodegen/qrcodegen.cpp
 
 
 HEADERS += \
@@ -20,9 +20,9 @@ HEADERS += \
 	hawidget.h \
 	hostanalyzer.h \
 	hostdialog.h \
-	QrCodeGenerator.h \
 	qrcodedialog.h \
-	qrcodegen/qrcodegen.h
+	qrcode/QrCodeGenerator.h \
+	qrcode/qrcodegen/qrcodegen.h
 
 DISTFILES += \
 	android/AndroidManifest.xml \

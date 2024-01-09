@@ -10,7 +10,7 @@
 
 #include <GProp>
 
-#include "QrCodeGenerator.h"
+#include "qrcode/QrCodeGenerator.h"
 
 struct QrCodeDialog : QDialog, GProp {
 	Q_OBJECT
