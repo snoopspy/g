@@ -78,6 +78,7 @@ HostAnalyzer::HostAnalyzer(QObject* parent) : GGraph(parent) {
 	nodes_.append(&hostScan_);
 	nodes_.append(&hostDb_);
 	nodes_.append(&arpBlock_);
+	nodes_.append(&webServer_);
 
 	QObject::connect(&updateHostsTimer_, &QTimer::timeout, this, &HostAnalyzer::updateHosts);
 	QObject::connect(&updateElapsedTimer_, &QTimer::timeout, this, &HostAnalyzer::updateElapsedTime);

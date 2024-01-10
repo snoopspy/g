@@ -11,6 +11,7 @@ SOURCES += \
 	hostanalyzer.cpp \
 	hostdialog.cpp \
 	qrcodedialog.cpp \
+	webserver.cpp \
 	qrcode/QrCodeGenerator.cpp \
 	qrcode/qrcodegen/qrcodegen.cpp
 
@@ -21,6 +22,7 @@ HEADERS += \
 	hostanalyzer.h \
 	hostdialog.h \
 	qrcodedialog.h \
+	webserver.h \
 	qrcode/QrCodeGenerator.h \
 	qrcode/qrcodegen/qrcodegen.h
 

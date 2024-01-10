@@ -12,6 +12,8 @@
 #include <GScreenSaver>
 #include <GTreeWidget>
 
+#include "webserver.h"
+
 struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_OBJECT
 	Q_PROPERTY(int adminTimeoutSec MEMBER adminTimeoutSec_)
@@ -27,6 +29,7 @@ struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_PROPERTY(GObjRef command READ getCommand)
 	Q_PROPERTY(GObjRef screenKeeper READ getScreenKeeper)
 	Q_PROPERTY(GObjRef screenSaver READ getScreenSaver)
+	Q_PROPERTY(GObjRef webServer READ getWebServer)
 
 public:
 	int adminTimeoutSec_{7200}; // 2 hour
@@ -42,6 +45,7 @@ public:
 	GObjRef getCommand() { return &command_; }
 	GObjRef getScreenKeeper() { return &screenKeeper_; }
 	GObjRef getScreenSaver() { return &screenSaver_; }
+	GObjRef getWebServer() { return &webServer_; }
 
 public:
 	Q_INVOKABLE HostAnalyzer(QObject* parent = nullptr);
@@ -61,6 +65,7 @@ public:
 	GCommand command_{this};
 	GScreenKeeper screenKeeper_{this};
 	GScreenSaver screenSaver_{this};
+	WebServer webServer_{this};
 
 public:
 	const static int ColumnIp = 0;
