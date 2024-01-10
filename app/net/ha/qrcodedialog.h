@@ -34,11 +34,11 @@ public:
 
 protected:
 	struct Session {
-		static const int SessionSize = 2;
+		static const int SessionSize = 8;
 		Session();
 		QString bytesToString();
 		time_t created_;
-		gbyte bytes_[SessionSize];
+		QByteArray bytes_;
 	};
 
 	struct SessionList : QList<Session> {
@@ -50,6 +50,7 @@ protected:
 public slots:
 	void pbGenerate_clicked(bool checked = false);
 	void tcpServer_newConnection();
+	void tcpServer_ReadyRead();
 
 public:
 	void propLoad(QJsonObject jo) override;

@@ -36,13 +36,14 @@ QrCodeDialog::~QrCodeDialog() {
 
 QrCodeDialog::Session::Session() {
 	created_ = QDateTime::currentSecsSinceEpoch();
-	for (int i = 0; i < Session::SessionSize; i++)
+	bytes_.resize(SessionSize);
+	for (int i = 0; i < SessionSize; i++)
 		bytes_[i] = std::rand() % 10 + '0';
 }
 
 QString QrCodeDialog::Session::bytesToString() {
 	QString res;
-	for (int i = 0; i < Session::SessionSize; i++)
+	for (int i = 0; i < SessionSize; i++)
 		res += bytes_[i];
 	return res;
 }
@@ -64,8 +65,6 @@ void QrCodeDialog::SessionList::deleteOldSession() {
 void QrCodeDialog::pbGenerate_clicked(bool checked) {
 	(void)checked;
 
-	sessionList_.deleteOldSession();
-
 	Session session;
 	qDebug() << session.bytesToString(); // gilgil temp 2024.01.10
 	sessionList_.push_back(session);
@@ -84,11 +83,82 @@ void QrCodeDialog::pbGenerate_clicked(bool checked) {
 
 void QrCodeDialog::tcpServer_newConnection() {
 	QTcpSocket *socket = tcpServer_->nextPendingConnection();
-	socket->waitForReadyRead();
-	QByteArray ba = socket->readAll();
-	qDebug() << ba;
+	QObject::connect(socket, SIGNAL(readyRead()), SLOT(tcpServer_ReadyRead()));
+}
 
-	socket->write("HTTP/1.1 200 Ok\r\n\r\nOk");
+#include "hostanalyzer.h"
+void QrCodeDialog::tcpServer_ReadyRead() {
+	QTcpSocket* socket = dynamic_cast<QTcpSocket*>(sender());
+	Q_ASSERT(socket != nullptr);
+
+	QByteArray ba = socket->readAll();
+	if (ba.startsWith("GET /favicon.ico")) {
+		socket->close();
+		return;
+	}
+
+	QByteArray bytes;
+	int count = ba.count();
+	for (int i = 4; i < count; i++) { // 4 is sizeof "GET "
+		char c = ba.at(i);
+		if (std::isdigit(c)) {
+			bytes += c;
+			continue;
+		}
+		if (c == ' ') break;
+	}
+
+	sessionList_.deleteOldSession();
+	bool sessionFound = false;
+	for (Session& session: sessionList_) {
+		if (session.bytes_ == bytes) {
+			qDebug() << "matched" << bytes;
+			sessionFound = true;
+			break;
+		}
+	}
+	if (!sessionFound) {
+		qWarning() << QString("can not find session %1").arg(QString(bytes));
+		socket->write("HTTP/1.1 200 OK\r\n\r\n<br><br><br><br><h1><center>Can not find session</center><h1>");
+		socket->close();
+		return;
+	}
+
+	GIp peerIp = socket->peerAddress().toIPv4Address();
+	qDebug() << QString("peerIp = %1").arg(QString(peerIp));
+
+	HaWidget* haWidget = dynamic_cast<HaWidget*>(parent());
+	Q_ASSERT(haWidget != nullptr);
+	HostAnalyzer* hostAnalyzer = &haWidget->hostAnalyzer_;
+	GTreeWidget* treeWidget = hostAnalyzer->treeWidget_;
+	int count2 = treeWidget->topLevelItemCount();
+
+	bool found = false;
+	for (int i = 0; i < count2; i++) {
+		GTreeWidgetItem* twi = dynamic_cast<GTreeWidgetItem*>(treeWidget->topLevelItem(i));
+		Q_ASSERT(twi != nullptr);
+		QToolButton* toolButton = dynamic_cast<QToolButton*>(treeWidget->itemWidget(twi, HostAnalyzer::ColumnAttack));
+		Q_ASSERT(toolButton != nullptr);
+
+		quintptr uip = toolButton->property("hostValue").toULongLong();
+		Q_ASSERT(uip != 0);
+		GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(uip);
+		Q_ASSERT(hostValue != nullptr);
+		if (hostValue->ip_ == peerIp) {
+			found = true;
+			qDebug() << QString("found toolButton for %1").arg(QString(peerIp));
+			if (toolButton->text() == "B") // block state
+				toolButton->click();
+			break;
+		}
+	}
+
+	if (found) {
+		socket->write("HTTP/1.1 200 OK\r\n\r\n<br><br><br><br><h1><center>Internet connection admitted</center><h1>");
+	} else {
+		qWarning() << QString("can not find %1").arg(QString(peerIp));
+		socket->write("HTTP/1.1 503 Service Unavailable\r\n\r\n<br><br><br><br><h1><center>Can not find session</center><h1>");
+	}
 	socket->close();
 }
 
