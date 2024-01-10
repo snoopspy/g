@@ -275,7 +275,7 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 		arpBlock_.recover(arpBlockItem, GArpHdr::Request);
 		arpBlockItem->policy_ = GArpBlock::Allow;
 		if (haItem->blockTime_ != 0)
-			haItem->blockTime_ = now + adminTimeoutSec_;
+			haItem->blockTime_ = now + extendTimeoutSec_;
 	}
 
 	updateHost(haItem->treeWidgetItem_);

@@ -15,6 +15,7 @@
 struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_OBJECT
 	Q_PROPERTY(int adminTimeoutSec MEMBER adminTimeoutSec_)
+	Q_PROPERTY(int extendTimeoutSec MEMBER extendTimeoutSec_)
 	Q_PROPERTY(int updateHostsTimeoutSec MEMBER updateHostsTimeoutSec_)
 	Q_PROPERTY(int updateElapsedTimeoutSec MEMBER updateElapsedTimeoutSec_)
 	Q_PROPERTY(GObjRef pcapDevice READ getPcapDevice)
@@ -28,7 +29,8 @@ struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_PROPERTY(GObjRef screenSaver READ getScreenSaver)
 
 public:
-	int adminTimeoutSec_{3600}; // 1 hour
+	int adminTimeoutSec_{7200}; // 2 hour
+	int extendTimeoutSec_{3600}; // 1 hour
 	int updateHostsTimeoutSec_{1}; // 1 seconds
 	int updateElapsedTimeoutSec_{10}; // 10 seconds
 	GObjRef getPcapDevice() { return &pcapDevice_; }
