@@ -62,6 +62,14 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tbQrCode_->setIconSize(tbStart_->iconSize());
 	toolButtonLayout_->addWidget(tbQrCode_);
 
+	tbScreenSaver_ = new QToolButton(this);
+	tbScreenSaver_->setText("ScreenSaver");
+	tbScreenSaver_->setToolTip("ScreenSaver");
+	tbScreenSaver_->setIcon(QIcon(":/img/screensaver.png"));
+	tbScreenSaver_->setAutoRaise(true);
+	tbScreenSaver_->setIconSize(tbStart_->iconSize());
+	toolButtonLayout_->addWidget(tbScreenSaver_);
+
 	mainLayout_->addWidget(treeWidget_);
 
 	int left, top, right, bottom;
@@ -75,6 +83,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	QObject::connect(tbDb_, &QToolButton::clicked, this, &HaWidget::tbDb_clicked);
 	QObject::connect(tbHost_, &QToolButton::clicked, this, &HaWidget::tbHost_clicked);
 	QObject::connect(tbQrCode_, &QToolButton::clicked, this, &HaWidget::tbQrCode_clicked);
+	QObject::connect(tbScreenSaver_, &QToolButton::clicked, this, &HaWidget::tbScreenSaver_clicked);
 
 	hostAnalyzer_.treeWidget_ = treeWidget_;
 
@@ -107,6 +116,7 @@ void HaWidget::setControl() {
 	tbOption_->setEnabled(!active);
 	tbHost_->setEnabled(active && treeWidget_->selectedItems().count() > 0);
 	tbQrCode_->setEnabled(active);
+	tbScreenSaver_->setEnabled(active);
 }
 
 void HaWidget::tbStart_clicked(bool checked) {
@@ -229,6 +239,7 @@ void HaWidget::tbHost_clicked(bool checked) {
 	jo["hostDialog"] << hostDialog;
 }
 
+#include "qrcodedialog.h"
 void HaWidget::tbQrCode_clicked(bool checked) {
 	(void)checked;
 
@@ -246,6 +257,14 @@ void HaWidget::tbQrCode_clicked(bool checked) {
 	qrCodeDialog.exec();
 
 	jo["qrCodeDialog"] << qrCodeDialog;
+}
+
+void HaWidget::tbScreenSaver_clicked(bool checked) {
+	(void)checked;
+	GScreenSaver* screenSaver = &hostAnalyzer_.screenSaver_;
+	if (screenSaver->active())
+		screenSaver->close();
+	screenSaver->open();
 }
 
 void HaWidget::processClosed() {
