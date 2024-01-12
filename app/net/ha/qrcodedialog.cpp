@@ -26,10 +26,23 @@ QrCodeDialog::QrCodeDialog(QWidget* parent) : QDialog(parent) {
 
 	QObject::connect(pbGenerate_, &QPushButton::clicked, this, &QrCodeDialog::pbGenerate_clicked);
 
-	std::srand(QDateTime::currentSecsSinceEpoch());
+	static bool srandCalled = false;
+	if (!srandCalled) {
+		std::srand(QDateTime::currentSecsSinceEpoch());
+		srandCalled = true;
+	}
 }
 
 QrCodeDialog::~QrCodeDialog() {
+}
+
+void QrCodeDialog::resizeEvent(QResizeEvent* event) {
+	(void)event;
+
+	if (autoClickGenerateButton_) {
+		pbGenerate_->click();
+		autoClickGenerateButton_ = false;
+	}
 }
 
 #include "hawidget.h"
