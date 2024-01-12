@@ -39,9 +39,9 @@ QrCodeDialog::~QrCodeDialog() {
 void QrCodeDialog::resizeEvent(QResizeEvent* event) {
 	(void)event;
 
-	if (firstResize_) {
+	if (firstResizeEvent_) {
 		pbGenerate_->click();
-		firstResize_ = false;
+		firstResizeEvent_ = false;
 	}
 }
 

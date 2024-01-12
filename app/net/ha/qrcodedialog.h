@@ -21,7 +21,7 @@ public:
 	QLabel* lblQrCode_;
 	QPushButton* pbGenerate_;
 	QrCodeGenerator* generator_;
-	bool firstResize_{true};
+	bool firstResizeEvent_{true};
 
 	void resizeEvent(QResizeEvent* event) override;
 
