@@ -25,6 +25,9 @@ public:
 	QToolButton* tbQrCode_{nullptr};
 	QToolButton* tbScreenSaver_{nullptr};
 
+public:
+	void closeEvent(QCloseEvent* event) override;
+
 public slots:
 	void setControl();
 

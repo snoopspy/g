@@ -63,6 +63,9 @@ public:
 	Devices devices_;
 	QTimer* timer_{nullptr};
 
+public:
+	void closeEvent(QCloseEvent* event) override;
+
 private slots:
 	void tbStart_clicked(bool checked = false);
 	void tbStop_clicked(bool checked = false);

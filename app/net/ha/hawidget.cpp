@@ -109,6 +109,20 @@ void HaWidget::propSave(QJsonObject& jo) {
 	jo["ha"] << hostAnalyzer_;
 }
 
+#include <QCloseEvent>
+void HaWidget::closeEvent(QCloseEvent* event) {
+#ifdef Q_OS_ANDROID
+	QMessageBox::StandardButton reply = QMessageBox::question(this, "Confirm", "Are you sure want to exit?", QMessageBox::Yes | QMessageBox::No);
+	qDebug() << "qCloseEvent" << reply;
+	if (reply == QMessageBox::Yes)
+		event->accept();
+	else
+		event->ignore();
+#else
+	event->accept();
+#endif // Q_OS_ANDROID
+}
+
 void HaWidget::setControl() {
 	bool active = hostAnalyzer_.active();
 	tbStart_->setEnabled(!active);

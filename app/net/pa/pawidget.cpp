@@ -10,7 +10,9 @@ PaWidget::PaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("Probe Analyzer");
 
 	tableWidget_ = new GTableWidget(this);
+#ifdef Q_OS_ANDROID
 	tableWidget_->horizontalHeader()->setFixedHeight(120);
+#endif // Q_OS_ANDROID
 	tableWidget_->setColumnCount(2);
 	tableWidget_->setHorizontalHeaderItem(0, new QTableWidgetItem("Mac"));
 	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("Signal"));
@@ -54,6 +56,20 @@ void PaWidget::setControl() {
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
+}
+
+#include <QCloseEvent>
+void PaWidget::closeEvent(QCloseEvent* event) {
+#ifdef Q_OS_ANDROID
+	QMessageBox::StandardButton reply = QMessageBox::question(this, "Confirm", "Are you sure want to exit?", QMessageBox::Yes | QMessageBox::No);
+	qDebug() << "qCloseEvent" << reply;
+	if (reply == QMessageBox::Yes)
+		event->accept();
+	else
+		event->ignore();
+#else
+	event->accept();
+#endif // Q_OS_ANDROID
 }
 
 void PaWidget::tbStart_clicked(bool checked) {
