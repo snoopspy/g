@@ -82,6 +82,12 @@ void WebServer::tcpServer_ReadyRead() {
 		if (c == ' ') break;
 	}
 
+	if (bytes.count() != Session::SessionSize) {
+		socket->write("HTTP/1.1 200 OK\r\n\r\n<br><br><br><br><h1><center>Invalid session</center><h1>");
+		socket->close();
+		return;
+	}
+
 	sessionList_.deleteOldSession();
 	bool sessionFound = false;
 	for (Session& session: sessionList_) {
@@ -92,8 +98,7 @@ void WebServer::tcpServer_ReadyRead() {
 		}
 	}
 	if (!sessionFound) {
-		qWarning() << QString("can not find session %1").arg(QString(bytes));
-		socket->write("HTTP/1.1 200 OK\r\n\r\n<br><br><br><br><h1><center>Can not find session</center><h1>");
+		socket->write("HTTP/1.1 200 OK\r\n\r\n<br><br><br><br><h1><center>Session expired</center><h1>");
 		socket->close();
 		return;
 	}
@@ -126,7 +131,7 @@ void WebServer::tcpServer_ReadyRead() {
 	}
 
 	if (found) {
-		socket->write("HTTP/1.1 200 OK\r\n\r\n<br><br><br><br><h1><center>Internet connection admitted</center><h1>");
+		socket->write("HTTP/1.1 200 OK\r\n\r\n<br><br><br><br><h1><center>Internet connection granted</center><h1>");
 	} else {
 		qWarning() << QString("can not find %1").arg(QString(peerIp));
 		socket->write("HTTP/1.1 503 Service Unavailable\r\n\r\n<br><br><br><br><h1><center>Can not find toolButton</center><h1>");
