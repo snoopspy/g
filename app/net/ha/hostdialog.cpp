@@ -19,8 +19,6 @@ HostDialog::HostDialog(QWidget* parent, GMac mac, HostAnalyzer* hostAnalyzer, GH
 		QLabel* lblMode = new QLabel("Mode", this); cbMode_ = new QComboBox(this); cbMode_->addItems(QStringList{"Default", "Allow", "Block"});
 		cbMode_->setCurrentIndex(int(dbItem->mode_));
 		QLabel* lblBlockTime = new QLabel("BlockTime", this); dteBlockTime_ = new QDateTimeEdit(this);
-		dteBlockTime_->setDisplayFormat("MM/dd hh:mm");
-		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(ha_->getItem(hv_)->blockTime_));
 
 		leMac_->setEnabled(false);
 		leIp_->setEnabled(false);
@@ -50,25 +48,41 @@ HostDialog::HostDialog(QWidget* parent, GMac mac, HostAnalyzer* hostAnalyzer, GH
 
 	setLayout(vLayout);
 
-	QObject::connect(leAlias_, &QLineEdit::textChanged, this, &HostDialog::setControl);
-	QObject::connect(cbMode_, SIGNAL(currentIndexChanged(int)), this, SLOT(setControl2(int)));
-	QObject::connect(dteBlockTime_, &QDateTimeEdit::dateTimeChanged, this, &HostDialog::setControl);
+	QObject::connect(leAlias_, &QLineEdit::textChanged, this, &HostDialog::leAlias_TextChanged);
+	QObject::connect(cbMode_, SIGNAL(currentIndexChanged(int)), this, SLOT(cdMode_currentIndexChanged(int)));
 	QObject::connect(pbOk_, &QPushButton::clicked, this, &HostDialog::pbOk_clicked);
 	QObject::connect(pbCancel_, &QPushButton::clicked, this, &HostDialog::pbCancel_clicked);
 
 	pbOk_->setEnabled(false);
+
+	setControl();
 }
 
 HostDialog::~HostDialog() {
 }
 
 void HostDialog::setControl() {
-	pbOk_->setEnabled(true);
+	GHostDb::Mode mode = GHostDb::Mode(cbMode_->currentIndex());
+	if (ha_->adminTimeoutSec_ == 0 || mode == GHostDb::Allow) {
+		dteBlockTime_->setEnabled(false);
+		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(0));
+		dteBlockTime_->setDisplayFormat("m");
+	} else {
+		dteBlockTime_->setEnabled(true);
+		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(hv_->firstTime_ + ha_->adminTimeoutSec_));
+		dteBlockTime_->setDisplayFormat("MM/dd hh:mm");
+	}
 }
 
-void HostDialog::setControl2(int index) {
+void HostDialog::leAlias_TextChanged() {
+	pbOk_->setEnabled(true);
+	setControl();
+}
+
+void HostDialog::cdMode_currentIndexChanged(int index) {
 	(void)index;
 	pbOk_->setEnabled(true);
+	setControl();
 }
 
 void HostDialog::pbOk_clicked() {

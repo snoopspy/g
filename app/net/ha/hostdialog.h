@@ -37,9 +37,12 @@ protected:
 	QPushButton* pbOk_{nullptr};
 	QPushButton* pbCancel_{nullptr};
 
-public slots:
+public:
 	void setControl();
-	void setControl2(int index);
+
+public slots:
+	void leAlias_TextChanged();
+	void cdMode_currentIndexChanged(int index);
 	void pbOk_clicked();
 	void pbCancel_clicked();
 
