@@ -137,7 +137,6 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		item->blockTime_ = hostValue->firstTime_ + adminTimeoutSec_;
 	else
 		item->blockTime_ = 0;
-	qDebug() << (int)mode << item->blockTime_;
 
 	{
 		QMutexLocker ml(&itemMap_);
@@ -252,8 +251,8 @@ void HostAnalyzer::processClosed() {
 }
 
 void HostAnalyzer::toolButton_toggled(bool checked) {
-	qDebug() << ""; // gilgil temp 2023.12.26
 	(void)checked;
+
 	QToolButton* toolButton = dynamic_cast<QToolButton*>(sender());
 	Q_ASSERT(toolButton != nullptr);
 
