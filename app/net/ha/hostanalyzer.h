@@ -33,7 +33,7 @@ struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 
 public:
 	int adminTimeoutSec_{7200}; // 2 hour
-	int extendTimeoutSec_{3600}; // 1 hour
+	int extendTimeoutSec_{7200}; // 2 hour
 	int updateHostsTimeoutSec_{1}; // 1 seconds
 	int updateElapsedTimeoutSec_{10}; // 10 seconds
 	GObjRef getPcapDevice() { return &pcapDevice_; }
