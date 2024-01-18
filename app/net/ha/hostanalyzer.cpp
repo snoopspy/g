@@ -302,6 +302,11 @@ void HostAnalyzer::updateHosts() {
 			twi->setProperty("hostValue", uip);
 			treeWidget_->addTopLevelItem(twi);
 			QToolButton *toolButton = new QToolButton(treeWidget_);
+#ifdef Q_OS_ANDROID
+			int iconSize = toolButton->iconSize().height();
+			iconSize = iconSize * 3 / 2;
+			toolButton->setIconSize(QSize(iconSize, iconSize));
+#endif // Q_OS_ANDROID
 			toolButton->setProperty("hostValue", uip);
 			toolButton->setAutoRaise(true);
 			toolButton->setCheckable(true);
