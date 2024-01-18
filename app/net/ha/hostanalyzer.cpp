@@ -89,11 +89,11 @@ HostAnalyzer::~HostAnalyzer() {
 }
 
 bool HostAnalyzer::doOpen() {
-	itemOffset_ = hostMgr_.requestItems_.request(this, sizeof(Item));
-	hostMgr_.managables_.insert(this);
-
 	bool res = GGraph::doOpen();
 	if (!res) return false;
+
+	itemOffset_ = hostMgr_.requestItems_.request(this, sizeof(Item));
+	hostMgr_.managables_.insert(this);
 
 	updateHostsTimer_.start(updateHostsTimeoutSec_ * 1000);
 	updateElapsedTimer_.start(updateElapsedTimeoutSec_ * 1000);
@@ -130,10 +130,14 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->state_ = Item::Created;
 	item->treeWidgetItem_ = nullptr;
 	item->hostValue_ = hostValue;
-	if (adminTimeoutSec_ == 0)
-		item->blockTime_ = 0;
-	else
+
+	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
+	GHostDb::Mode mode = dbItem->mode_;
+	if (adminTimeoutSec_ != 0 && mode == GHostDb::Default)
 		item->blockTime_ = hostValue->firstTime_ + adminTimeoutSec_;
+	else
+		item->blockTime_ = 0;
+	qDebug() << (int)mode << item->blockTime_;
 
 	{
 		QMutexLocker ml(&itemMap_);

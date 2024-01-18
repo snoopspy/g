@@ -53,15 +53,13 @@ HostDialog::HostDialog(QWidget* parent, GMac mac, HostAnalyzer* hostAnalyzer, GH
 	QObject::connect(pbOk_, &QPushButton::clicked, this, &HostDialog::pbOk_clicked);
 	QObject::connect(pbCancel_, &QPushButton::clicked, this, &HostDialog::pbCancel_clicked);
 
-	pbOk_->setEnabled(false);
-
-	setDateTimeEdit(true);
+	setDateTimeEdit();
 }
 
 HostDialog::~HostDialog() {
 }
 
-void HostDialog::setDateTimeEdit(bool showBlockTime) {
+void HostDialog::setDateTimeEdit() {
 	GHostDb::Mode mode = GHostDb::Mode(cbMode_->currentIndex());
 	if (ha_->adminTimeoutSec_ == 0 || mode == GHostDb::Allow) {
 		dteBlockTime_->setEnabled(false);
@@ -69,23 +67,21 @@ void HostDialog::setDateTimeEdit(bool showBlockTime) {
 		dteBlockTime_->setDisplayFormat("m");
 	} else {
 		dteBlockTime_->setEnabled(true);
-		if (showBlockTime) {
-			HostAnalyzer::Item* haItem = ha_->getItem(hv_);
-			dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(haItem->blockTime_));
-		} else
-			dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(hv_->firstTime_ + ha_->adminTimeoutSec_));
+		HostAnalyzer::Item* haItem = ha_->getItem(hv_);
+		time_t blockTime = haItem->blockTime_;
+		if (blockTime == 0)
+			blockTime = hv_->firstTime_ + ha_->adminTimeoutSec_;
+		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(blockTime));
 		dteBlockTime_->setDisplayFormat("MM/dd hh:mm");
 	}
 }
 
 void HostDialog::leAlias_TextChanged() {
-	pbOk_->setEnabled(true);
 }
 
 void HostDialog::cdMode_currentIndexChanged(int index) {
 	(void)index;
-	pbOk_->setEnabled(true);
-	setDateTimeEdit(false);
+	setDateTimeEdit();
 }
 
 void HostDialog::pbOk_clicked() {

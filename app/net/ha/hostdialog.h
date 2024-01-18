@@ -38,7 +38,7 @@ protected:
 	QPushButton* pbCancel_{nullptr};
 
 public:
-	void setDateTimeEdit(bool showBlockTime);
+	void setDateTimeEdit();
 
 public slots:
 	void leAlias_TextChanged();
