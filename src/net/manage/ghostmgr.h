@@ -52,10 +52,10 @@ public:
 		}
 
 		static void deallocate(HostValue* hostValue) {
-			hostValue->~HostValue();
 #ifdef _DEBUG
 			memset(pbyte(hostValue) + sizeof(HostValue), 'B', hostValue->totalMemSize_);
 #endif // _DEBUG
+			hostValue->~HostValue();
 			free(static_cast<void*>(hostValue));
 		}
 

@@ -41,13 +41,16 @@ public:
 			UdpFlowValue* udpFlowValue = PUdpFlowValue(malloc(sizeof(UdpFlowValue) + totalMemSize));
 #ifdef _DEBUG
 			udpFlowValue->totalMemSize_ = totalMemSize;
-			memset(pbyte(udpFlowValue) + sizeof(UdpFlowValue), 'A', totalMemSize);
+			memset(pbyte(udpFlowValue) + sizeof(udpFlowValue), 'A', totalMemSize);
 #endif // _DEBUG
 			new (udpFlowValue) UdpFlowValue;
 			return udpFlowValue;
 		}
 
 		static void deallocate(UdpFlowValue* udpFlowValue) {
+#ifdef _DEBUG
+			memset(pbyte(udpFlowValue) + sizeof(udpFlowValue), 'B', udpFlowValue->totalMemSize_);
+#endif // _DEBUG
 			udpFlowValue->~UdpFlowValue();
 			free(static_cast<void*>(udpFlowValue));
 		}

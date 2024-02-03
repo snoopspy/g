@@ -59,10 +59,10 @@ public:
 		}
 
 		static void deallocate(IpValue* ipValue) {
-			ipValue->~IpValue();
 #ifdef _DEBUG
 			memset(pbyte(ipValue) + sizeof(IpValue), 'B', ipValue->totalMemSize_);
 #endif // _DEBUG
+			ipValue->~IpValue();
 			free(static_cast<void*>(ipValue));
 		}
 

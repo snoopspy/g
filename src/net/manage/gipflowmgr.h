@@ -48,10 +48,10 @@ public:
 		}
 
 		static void deallocate(IpFlowValue* ipFlowValue) {
-			ipFlowValue->~IpFlowValue();
 #ifdef _DEBUG
 			memset(pbyte(ipFlowValue) + sizeof(IpFlowValue), 'B', ipFlowValue->totalMemSize_);
 #endif // _DEBUG
+			ipFlowValue->~IpFlowValue();
 			free(static_cast<void*>(ipFlowValue));
 		}
 

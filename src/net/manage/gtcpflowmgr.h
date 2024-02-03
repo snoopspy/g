@@ -54,10 +54,10 @@ public:
 		}
 
 		static void deallocate(TcpFlowValue* tcpFlowValue) {
-			tcpFlowValue->~TcpFlowValue();
 #ifdef _DEBUG
 			memset(pbyte(tcpFlowValue) + sizeof(TcpFlowValue), 'B', tcpFlowValue->totalMemSize_);
 #endif // _DEBUG
+			tcpFlowValue->~TcpFlowValue();
 			free(static_cast<void*>(tcpFlowValue));
 		}
 

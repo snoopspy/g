@@ -63,10 +63,10 @@ public:
 		}
 
 		static void deallocate(Value* value) {
-			value->~Value();
 #ifdef _DEBUG
 			memset(pbyte(value) + sizeof(Value), 'B', value->totalMemSize_);
 #endif // _DEBUG
+			value->~Value();
 			free(static_cast<void*>(value));
 		}
 
