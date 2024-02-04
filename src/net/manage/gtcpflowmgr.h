@@ -39,17 +39,14 @@ public:
 			Rst,
 			Fin
 		} state_;
-#ifdef _DEBUG
-		size_t totalMemSize_{0};
-#endif // _DEBUG
 
 		static struct TcpFlowValue* allocate(size_t totalMemSize) {
 			TcpFlowValue* res = reinterpret_cast<TcpFlowValue*>(malloc(sizeof(TcpFlowValue) + totalMemSize));
+			new (res) TcpFlowValue;
 #ifdef _DEBUG
 			res->totalMemSize_ = totalMemSize;
 			memset(pbyte(res) + sizeof(TcpFlowValue), 'A', totalMemSize);
 #endif // _DEBUG
-			new (res) TcpFlowValue;
 			return res;
 		}
 

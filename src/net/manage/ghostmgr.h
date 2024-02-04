@@ -37,17 +37,14 @@ public:
 		GIp ip_{0};
 		QString host_;
 		QString vendor_;
-#ifdef _DEBUG
-		size_t totalMemSize_{0};
-#endif // _DEBUG
 
 		static struct HostValue* allocate(size_t totalMemSize) {
 			HostValue* hostValue = PHostValue(malloc(sizeof(HostValue) + totalMemSize));
+			new (hostValue) HostValue;
 #ifdef _DEBUG
 			hostValue->totalMemSize_ = totalMemSize;
 			memset(pbyte(hostValue) + sizeof(HostValue), 'A', totalMemSize);
 #endif // _DEBUG
-			new (hostValue) HostValue;
 			return hostValue;
 		}
 

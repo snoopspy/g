@@ -54,11 +54,11 @@ public:
 
 		static struct Value* allocate(size_t totalMemSize) {
 			Value* value = reinterpret_cast<Value*>(malloc(sizeof(Value) + totalMemSize));
+			new (value) Value;
 #ifdef _DEBUG
 			value->totalMemSize_ = totalMemSize;
 			memset(pbyte(value) + sizeof(Value), 'A', totalMemSize);
 #endif // _DEBUG
-			new (value) Value;
 			return value;
 		}
 

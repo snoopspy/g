@@ -52,7 +52,7 @@ public:
 
 	// GTcpFlowMgr::Managable
 	size_t tcpFlowOffset_{0};
-	Item* getItem(GTcpFlowMgr::Value* tcpFlowValue) { return PItem(tcpFlowValue->mem(tcpFlowOffset_)); }
+	Item* getItem(GTcpFlowMgr::TcpFlowValue* tcpFlowValue) { return PItem(tcpFlowValue->mem(tcpFlowOffset_)); }
 	void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 

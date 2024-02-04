@@ -33,23 +33,20 @@ public:
 			Half,
 			Full
 		} state_;
-#ifdef _DEBUG
-		size_t totalMemSize_{0};
-#endif // _DEBUG
 
 		static struct UdpFlowValue* allocate(size_t totalMemSize) {
 			UdpFlowValue* udpFlowValue = PUdpFlowValue(malloc(sizeof(UdpFlowValue) + totalMemSize));
+			new (udpFlowValue) UdpFlowValue;
 #ifdef _DEBUG
 			udpFlowValue->totalMemSize_ = totalMemSize;
-			memset(pbyte(udpFlowValue) + sizeof(udpFlowValue), 'A', totalMemSize);
+			memset(pbyte(udpFlowValue) + sizeof(UdpFlowValue), 'A', totalMemSize);
 #endif // _DEBUG
-			new (udpFlowValue) UdpFlowValue;
 			return udpFlowValue;
 		}
 
 		static void deallocate(UdpFlowValue* udpFlowValue) {
 #ifdef _DEBUG
-			memset(pbyte(udpFlowValue) + sizeof(udpFlowValue), 'B', udpFlowValue->totalMemSize_);
+			memset(pbyte(udpFlowValue) + sizeof(UdpFlowValue), 'B', udpFlowValue->totalMemSize_);
 #endif // _DEBUG
 			udpFlowValue->~UdpFlowValue();
 			free(static_cast<void*>(udpFlowValue));
