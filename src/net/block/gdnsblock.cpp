@@ -77,7 +77,6 @@ void GDnsBlock::block(GPacket* packet) {
 	for (MyBlockItem& mbi: myBlockItems_) {
 		QRegularExpressionMatch match = mbi.re_.match(queryName);
 		if (match.hasMatch()) {
-			qDebug() << "matched" << queryName;
 
 			QByteArray msg;
 			msg.resize(sizeof(GDnsHdr));
@@ -162,6 +161,8 @@ void GDnsBlock::block(GPacket* packet) {
 
 			// write
 			writer_.write(&blockIpPacket_);
+			qDebug() << QString("dns changed %1 %2").arg(queryName).arg(QString(mbi.ip_));
+
 
 			packet->ctrl_.block_ = true;
 
