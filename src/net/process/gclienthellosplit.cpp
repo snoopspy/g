@@ -11,6 +11,11 @@ bool GClientHelloSplit::doOpen() {
 	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request(this, sizeof(Item));
 	tcpFlowMgr_->managables_.insert(this);
 
+	if (!writer_.open()) {
+		err = writer_.err;
+		return false;
+	}
+
 	Q_ASSERT(splittedTcpDataBuf_ == nullptr);
 	splittedTcpDataBuf_ = new gbyte[bufSize_];
 
@@ -22,6 +27,9 @@ bool GClientHelloSplit::doClose() {
 		delete[] splittedTcpDataBuf_;
 		splittedTcpDataBuf_ = nullptr;
 	}
+
+	writer_.close();
+
 	return true;
 }
 
@@ -89,7 +97,10 @@ void GClientHelloSplit::split(GPacket* packet) {
 		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
 		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
 		packet->buf_.size_ += ipHdrLenDiff;
-		emit writeNeeded(packet);
+		GPacket::Result res = writer_.write(packet);
+		if (res != GPacket::Ok) {
+			qWarning() << "writer_.write return" << int(res);
+		}
 		packet->buf_ = backup;
 	}
 
@@ -107,7 +118,10 @@ void GClientHelloSplit::split(GPacket* packet) {
 		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
 		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
 		packet->buf_.size_ += ipHdrLenDiff;
-		emit writeNeeded(packet);
+		GPacket::Result res = writer_.write(packet);
+		if (res != GPacket::Ok) {
+			qWarning() << "writer_.write return" << int(res);
+		}
 		packet->buf_ = backup;
 	}
 

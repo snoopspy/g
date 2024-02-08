@@ -12,7 +12,7 @@
 
 #include "base/gstateobj.h"
 #include "net/manage/gtcpflowmgr.h"
-#include "net/write/gwrite.h"
+#include "net/write/grawipsocketwrite.h"
 
 // ----------------------------------------------------------------------------
 // GClientHelloSplit
@@ -21,13 +21,16 @@ struct G_EXPORT GClientHelloSplit : GStateObj, GTcpFlowMgr::Managable {
 	Q_OBJECT
 	Q_PROPERTY(int bufSize MEMBER bufSize_)
 	Q_PROPERTY(GObjPtr tcpFlowMgr READ getTcpFlowMgr WRITE setTcpFlowMgr)
+	Q_PROPERTY(GObjRef writer READ getWriter)
 
 	GObjPtr getTcpFlowMgr() { return tcpFlowMgr_; }
 	void setTcpFlowMgr(GObjPtr value) { tcpFlowMgr_ = dynamic_cast<GTcpFlowMgr*>(value.data()); }
+	GObjRef getWriter() { return &writer_; }
 
 public:
-	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 	int bufSize_{GPacket::MaxBufSize};
+	GTcpFlowMgr* tcpFlowMgr_{nullptr};
+	GRawIpSocketWrite writer_{this};
 
 public:
 	Q_INVOKABLE GClientHelloSplit(QObject* parent = nullptr) : GStateObj(parent) {}
@@ -58,7 +61,4 @@ public:
 
 public slots:
 	void split(GPacket* packet);
-
-signals:
-	void writeNeeded(GPacket* packet);
 };
