@@ -91,7 +91,7 @@ void GHostWatch::WatchThread::run() {
 	}
 
 	GHostMgr::HostMap* hm = &hw->hostMgr_->hostMap_;
-	class QVector<SendInfo> sendInfos;
+    class QList<SendInfo> sendInfos;
 
 	while (true) {
 		if (swe_.wait(hw->checkInterval_)) break;

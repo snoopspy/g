@@ -56,7 +56,7 @@ bool GTraceRoute::doClose() {
 	quint64 start = timer.elapsed();
 	while (true) {
 		int count;
-		{ QMutexLocker ml(&threadMgr_); count = threadMgr_.count(); }
+        { QMutexLocker ml(&threadMgr_); count = threadMgr_.size(); }
 		if (count == 0) break;
 		qDebug() << QString("thread count %1").arg(count);
 
@@ -65,7 +65,7 @@ bool GTraceRoute::doClose() {
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
 			QMutexLocker ml(&threadMgr_);
-			qCritical() << QString("thread count %1").arg(threadMgr_.count());
+            qCritical() << QString("thread count %1").arg(threadMgr_.size());
 			break;
 		}
 	}
