@@ -10,13 +10,7 @@
 
 #pragma once
 
-#include <QDebug>
 #include <QList>
-#ifdef Q_OS_ANDROID
-#include <QProcess>
-#endif
-
-#include "iwlib.h"
 
 // ----------------------------------------------------------------------------
 // GIw
@@ -28,11 +22,11 @@ public:
 	virtual ~GIw();
 
 protected:
-	int skfd_{-1};
 	QString intfName_;
 
 public:
 	static const int BufSize = 256;
+	static const int InvalidChannel = 0;
 	QString error_;
 
 public:
@@ -41,11 +35,11 @@ public:
 
 	int channel();
 	bool setChannel(int channel);
-	QList<int> channelList();
+	QList<int> channelList() { return channelList_; }
 
 protected:
-	QList<int> internalChannelList_;
+	QList<int> channelList_;
 
-protected:
-	int ieee80211_frequency_to_channel(int freq);
+public:
+	static int ieee80211_frequency_to_channel(int freq);
 };

@@ -308,7 +308,6 @@ SOURCES += \
 	$${PWD}/../src/net/process/gbeaconflood.cpp \
 	$${PWD}/../src/net/process/gchannelhop.cpp \
 	$${PWD}/../src/net/iw/giw.cpp \
-	$${PWD}/../src/net/iw/iwlib.c \
 	$${PWD}/../src/net/write/gmonitordevicewrite.cpp
 HEADERS += \
 	$${PWD}/../src/net/capture/gasyncnetfilter.h \
@@ -319,8 +318,6 @@ HEADERS += \
 	$${PWD}/../src/net/process/gbeaconflood.h \
 	$${PWD}/../src/net/process/gchannelhop.h \
 	$${PWD}/../src/net/iw/giw.h \
-	$${PWD}/../src/net/iw/iwlib.h \
-	$${PWD}/../src/net/iw/wireless.h \
 	$${PWD}/../src/net/write/gmonitordevicewrite.h
 }
 win32 {

@@ -1,6 +1,7 @@
 #include "giw.h"
-#include <errno.h>
-#include <string.h>
+
+#include <QProcess>
+#include <QDebug>
 
 // ----------------------------------------------------------------------------
 // GIw
@@ -17,88 +18,8 @@ GIw::~GIw() {
 }
 
 bool GIw::open(QString intfName) {
-	error_ = "";
-	if (skfd_ != -1) {
-		char buf[BufSize];
-		sprintf(buf, "skfd_ is already opened\n");
-		error_ = buf;
-		return false;
-	}
-
-	skfd_ = iw_sockets_open();
-	if (skfd_ < 0) {
-		char buf[BufSize];
-		sprintf(buf, "iw_sockets_open return %d(%s)\n", skfd_, strerror(errno));
-		error_ = buf;
-		return false;
-	}
-
 	intfName_ = intfName;
-	return true;
-}
-
-bool GIw::close() {
-	if (skfd_ != -1) {
-		iw_sockets_close(skfd_);
-		skfd_ = -1;
-	}
-	return true;
-}
-
-int GIw::channel() {
-	struct iwreq wrq;
-	int res = iw_get_ext(skfd_, qPrintable(intfName_), SIOCGIWFREQ, &wrq);
-	if (res < 0) {
-		char buf[256];
-		sprintf(buf, "iw_get_ext(%s) return %d(%s)\n", qPrintable(intfName_), res, strerror(errno));
-		error_ = buf;
-		return -1;
-	}
-
-	double freq = iw_freq2float(&(wrq.u.freq));
-	int channel = ieee80211_frequency_to_channel(freq / 1000000);
-	return channel;
-}
-
-bool GIw::setChannel(int channel) {
-#ifdef Q_OS_ANDROID
-	QString command = QString("nexutil -k%1").arg(channel);
-
-	QString program = "su";
-	QStringList arguments {
-		"-c",
-		command
-	};
-	int res = QProcess::execute(program, arguments);
-	// qDebug() << program << arguments << res; // gilgil temp 2022.01.26
-	if (res != 0) {
-		char buf[BufSize];
-		sprintf(buf, "QProcess::execute(%s) return %d for channel %d", qPrintable(command), res, channel);
-		error_ = buf;
-		return false;
-	}
-	return true;
-#else
-	double freq = channel;
-	struct iwreq wrq;
-	iw_float2freq(freq, &(wrq.u.freq));
-	wrq.u.freq.flags = IW_FREQ_FIXED;
-	int res = iw_set_ext(skfd_, qPrintable(intfName_), SIOCSIWFREQ, &wrq);
-	if (res < 0) {
-		char buf[BufSize];
-		sprintf(buf, "iw_set_ext(%s) return %d(%s) for channel %d", qPrintable(intfName_), res, strerror(errno), channel);
-		error_ = buf;
-		return false;
-	}
-	return true;
-#endif
-}
-
-QList<int> GIw::channelList() {
-	if (internalChannelList_.count() != 0)
-		return internalChannelList_;
-
-	QList<int> result;
+	channelList_.clear();
 
 	char buf[BufSize];
 	QString command = "iw " + intfName_ + " info";
@@ -108,7 +29,7 @@ QList<int> GIw::channelList() {
 	FILE* p = popen(qPrintable(command), "r");
 	if (p == nullptr) {
 		error_ = QString("fail to call %1").arg(command);
-	return result;
+		return false;
 	}
 
 	int phyNo = -1;
@@ -124,9 +45,9 @@ QList<int> GIw::channelList() {
 	pclose(p);
 
 	if (phyNo == -1) {
-			error_ = "can not get phyNo";
-			return result;
-		}
+		error_ = "can not get phyNo";
+		return false;
+	}
 
 	command = "iw phy" + QString::number(phyNo)+ " info";
 #ifdef Q_OS_ANDROID
@@ -135,25 +56,77 @@ QList<int> GIw::channelList() {
 	p = popen(qPrintable(command), "r");
 	if (p == nullptr) {
 		error_ = QString("fail to call %1").arg(command);
-		return result;
+		return false;
 	}
 
 	while (true) {
-		if (std::fgets(buf, 256, p) == nullptr) break;
+		if (std::fgets(buf, BufSize, p) == nullptr) break;
 		int freq, channel;
 		char additional[BufSize];
 		int res = sscanf(buf, "\t\t* %d MHz [%d] (%s)", &freq, &channel, additional);
 		if (res >= 2) {
 			if (res >= 3 && strncmp(additional, "disabled", strlen("disabled")) == 0)
 				continue;
-			result.push_back(channel);
+			channelList_.push_back(channel);
 		}
 	}
 	pclose(p);
 
-	internalChannelList_ = result;
-	qDebug() << result;
+	return true;
+}
+
+bool GIw::close() {
+	return true;
+}
+
+int GIw::channel() {
+	QString command = QString("iw %1 info").arg(intfName_);
+	FILE* p = popen(qPrintable(command), "r");
+	if (p == nullptr) {
+		error_ = QString("fail to call %1").arg(command);
+		return InvalidChannel;
+	}
+
+	int result = InvalidChannel;
+	char buf[BufSize];
+	while (true) {
+		if (std::fgets(buf, BufSize, p) == nullptr) break;
+		int channel, freq;
+		int res = sscanf(buf, "\tchannel %d (%d MHz)", &channel, &freq);
+		if (res == 2) {
+			if (ieee80211_frequency_to_channel(freq) == channel) {
+				result = channel;
+				break;
+			}
+			qWarning() << QString("Invalid channel(%1) and freq(%2) %3").arg(channel).arg(freq).arg(buf);
+		}
+	}
+	pclose(p);
 	return result;
+}
+
+bool GIw::setChannel(int channel) {
+#ifdef Q_OS_LINUX
+	QString command = QString("iw %1 set channel %2").arg(intfName_).arg(channel);
+#endif
+#ifdef Q_OS_ANDROID
+	QString command = QString("nexutil -k%1").arg(channel);
+#endif
+
+	QString program = "su";
+	QStringList arguments {
+		"-c",
+		command
+	};
+
+	int res = QProcess::execute(program, arguments);
+	if (res != 0) {
+		char buf[BufSize];
+		sprintf(buf, "QProcess::execute(%s) return %d for channel %d", qPrintable(command), res, channel);
+		error_ = buf;
+		return false;
+	}
+	return true;
 }
 
 int GIw::ieee80211_frequency_to_channel(int freq) {
