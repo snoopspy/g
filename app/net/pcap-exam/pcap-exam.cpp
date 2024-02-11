@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 	QObject::connect(&device, &GPcapDevice::closed, &obj, &Obj::processClose);
 
 	if (!device.open()) {
-		cout << device.err;
+		cout << device.err.data();
 		return EXIT_FAILURE;
 	}
 

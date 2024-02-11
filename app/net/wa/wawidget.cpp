@@ -134,7 +134,7 @@ void WaWidget::processDetected(GMac mac, QString ssid, int channel, int signal) 
 	// qDebug() << QString("%1 %2 %3").arg(QString(mac)).arg(ssid).arg(signal); // gilgil temp 2022.01.19
 
 	{
-		QMutexLocker(&devices_.m_);
+		QMutexLocker ml(&devices_.m_);
 		Devices::iterator it = devices_.find(mac);
 		if (it == devices_.end()) {
 			Device item;
@@ -153,7 +153,7 @@ void WaWidget::processClosed() {
 }
 
 void WaWidget::updateDevices() {
-	QMutexLocker(&devices_.m_);
+	QMutexLocker ml(&devices_.m_);
 	for (Devices::iterator it = devices_.begin(); it != devices_.end(); it++) {
 		Device& device = it.value();
 		if (device.signals_.count() == 0) continue;
