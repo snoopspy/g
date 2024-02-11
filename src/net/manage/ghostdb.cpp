@@ -82,24 +82,24 @@ bool GHostDb::doOpen() {
 }
 
 bool GHostDb::doClose() {
-    QMutexLocker ml(this);
+	QMutexLocker ml(this);
 	db_.close();
 
 	if (selectHostQuery_ != nullptr) {
 		delete selectHostQuery_ ;
-		selectHostQuery_  = nullptr;
+		selectHostQuery_ = nullptr;
 	}
 	if (insertHostQuery_ != nullptr) {
 		delete insertHostQuery_ ;
-		insertHostQuery_  = nullptr;
+		insertHostQuery_ = nullptr;
 	}
 	if (updateHostQuery_ != nullptr) {
 		delete updateHostQuery_ ;
-		updateHostQuery_  = nullptr;
+		updateHostQuery_ = nullptr;
 	}
 	if (insertLogQuery_ != nullptr) {
 		delete insertLogQuery_ ;
-		insertLogQuery_  = nullptr;
+		insertLogQuery_ = nullptr;
 	}
 
 	return true;
@@ -132,7 +132,7 @@ void GHostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 bool GHostDb::selectHost(GMac mac, Item* item) {
-    QMutexLocker ml(this);
+	QMutexLocker ml(this);
 
 	Q_ASSERT(selectHostQuery_ != nullptr);
 	selectHostQuery_->bindValue(":mac", quint64(mac));
@@ -155,7 +155,7 @@ bool GHostDb::selectHost(GMac mac, Item* item) {
 }
 
 bool GHostDb::insertHost(GMac mac, Item* item) {
-    QMutexLocker ml(this);
+	QMutexLocker ml(this);
 
 	Q_ASSERT(insertHostQuery_ != nullptr);
 	insertHostQuery_->bindValue(":mac", quint64(mac));
@@ -172,7 +172,7 @@ bool GHostDb::insertHost(GMac mac, Item* item) {
 }
 
 bool GHostDb::updateHost(GMac mac, Item *item) {
-    QMutexLocker ml(this);
+	QMutexLocker ml(this);
 
 	Q_ASSERT(updateHostQuery_ != nullptr);
 	updateHostQuery_->bindValue(":ip", uint32_t(item->ip_));
@@ -189,7 +189,7 @@ bool GHostDb::updateHost(GMac mac, Item *item) {
 }
 
 bool GHostDb::insertOrUpdateDevice(GMac mac, Item* item) {
-    QMutexLocker ml(this);
+	QMutexLocker ml(this);
 
 	Item dbItem;
 	if (selectHost(mac, &dbItem)) {
@@ -204,7 +204,7 @@ bool GHostDb::insertOrUpdateDevice(GMac mac, Item* item) {
 }
 
 bool GHostDb::insertLog(GMac mac, GIp ip, time_t sttTime, time_t endTime) {
-    QMutexLocker ml(this);
+	QMutexLocker ml(this);
 
 	Q_ASSERT(insertLogQuery_ != nullptr);
 	insertLogQuery_->bindValue(":mac", quint64(mac));

@@ -38,7 +38,7 @@ ScreenSaverWidget::~ScreenSaverWidget() {
 		screenSaver_->close();
 }
 
-void ScreenSaverWidget::mousePressEvent(QMouseEvent *event)  {
+void ScreenSaverWidget::mousePressEvent(QMouseEvent *event) {
 	QWidget::mousePressEvent(event);
 	close();
 }

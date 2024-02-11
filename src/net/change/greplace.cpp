@@ -79,7 +79,7 @@ void GReplace::processFound(int itemIndex, int foundIndex, QString& foundStr) {
 
 	if (log_) {
 		QString logFoundStr = printableStr(foundStr);
-		QString logReplaceStr  = printableStr(replaceStr);
+		QString logReplaceStr = printableStr(replaceStr);
 		qInfo() << QString("replaced('%1'>'%2' %3 0x%4)").arg(logFoundStr).arg(logReplaceStr).arg(foundIndex).arg(QString::number(foundIndex, 16));
 	}
 }

@@ -88,7 +88,7 @@ bool GAutoArpSpoof::doClose() {
 	while (true) {
 		{
 			QMutexLocker ml(&floodingThreadMap_);
-            int count = floodingThreadMap_.size();
+			int count = floodingThreadMap_.size();
 			if (count == 0) break;
 			qDebug() << QString("flooding map thread count = %1").arg(count); // gilgil temp 2021.11.05
 		}
@@ -97,7 +97,7 @@ bool GAutoArpSpoof::doClose() {
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
 			QMutexLocker ml(&floodingThreadMap_);
-            int count = floodingThreadMap_.size();
+			int count = floodingThreadMap_.size();
 			qCritical() << QString("flooding map thread count = %1").arg(count);
 			break;
 		}
@@ -107,7 +107,7 @@ bool GAutoArpSpoof::doClose() {
 	while (true) {
 		{
 			QMutexLocker ml(&recoverThreadMap_);
-            int count = recoverThreadMap_.size();
+			int count = recoverThreadMap_.size();
 			if (count == 0) break;
 			qDebug() << QString("recover map thread count = %1").arg(count); // gilgil temp 2021.11.05
 		}
@@ -116,7 +116,7 @@ bool GAutoArpSpoof::doClose() {
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
 			QMutexLocker ml(&recoverThreadMap_);
-            int count = recoverThreadMap_.size();
+			int count = recoverThreadMap_.size();
 			qCritical() << QString("recover map thread count =%1").arg(count);
 			break;
 		}

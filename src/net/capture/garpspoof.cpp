@@ -262,7 +262,7 @@ GPacket::Result GArpSpoof::relay(GPacket* packet) {
 }
 
 void GArpSpoof::runArpRecover(FlowList* flowList) {
-    QMutexLocker ml(&flowList_.m_);
+	QMutexLocker ml(&flowList_.m_);
 	if (flowList->count() > 0) {
 		QString flowString;
 		for (Flow& flow: *flowList)
@@ -344,7 +344,7 @@ void GArpSpoof::InfectThread::run() {
 }
 
 bool GArpSpoof::sendArpInfectAll(uint16_t operation) {
-    QMutexLocker ml(&flowList_.m_);
+	QMutexLocker ml(&flowList_.m_);
 	for (Flow& flow: flowList_) {
 		if (!sendArpInfect(&flow, operation))
 			return false;
@@ -360,7 +360,7 @@ bool GArpSpoof::sendArpInfect(Flow* flow, uint16_t operation) {
 }
 
 bool GArpSpoof::sendArpRecoverAll(uint16_t operation) {
-    QMutexLocker ml(&flowList_.m_);
+	QMutexLocker ml(&flowList_.m_);
 	for (Flow& flow: flowList_) {
 		if (!sendArpRecover(&flow, operation))
 			return false;

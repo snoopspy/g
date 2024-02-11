@@ -129,7 +129,7 @@ void GPacketMgrDebug::debugTcp(GPacket* packet) {
 	if (!enabled_) return;
 
 	Q_ASSERT(tcpFlowMgr_ != nullptr);
-	Q_ASSERT(tcpFlowMgr_->currentTcpFlowVal_  != nullptr);
+	Q_ASSERT(tcpFlowMgr_->currentTcpFlowVal_ != nullptr);
 
 	Item* item = getItem(tcpFlowMgr_->currentTcpFlowVal_);
 	item->packets++;

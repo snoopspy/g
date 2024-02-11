@@ -95,7 +95,7 @@ struct G_EXPORT GScreenSaver : GStateObj {
 	~GScreenSaver() override { close(); }
 
 protected:
-	bool doOpen();
-	bool doClose();
+	bool doOpen() override;
+	bool doClose() override;;
 };
 #endif // QT_GUI_LIB

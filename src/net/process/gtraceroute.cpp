@@ -56,7 +56,7 @@ bool GTraceRoute::doClose() {
 	quint64 start = timer.elapsed();
 	while (true) {
 		int count;
-        { QMutexLocker ml(&threadMgr_); count = threadMgr_.size(); }
+		{ QMutexLocker ml(&threadMgr_); count = threadMgr_.size(); }
 		if (count == 0) break;
 		qDebug() << QString("thread count %1").arg(count);
 
@@ -65,7 +65,7 @@ bool GTraceRoute::doClose() {
 		quint64 now = timer.elapsed();
 		if (now - start > G::Timeout) {
 			QMutexLocker ml(&threadMgr_);
-            qCritical() << QString("thread count %1").arg(threadMgr_.size());
+			qCritical() << QString("thread count %1").arg(threadMgr_.size());
 			break;
 		}
 	}
@@ -188,7 +188,7 @@ void GTraceRoute::probe(GPacket* packet) {
 // ----------------------------------------------------------------------------
 GTraceRoute::ProbeThread::ProbeThread(GTraceRoute* tr, GPacket* packet, Key key) : GThread(tr) {
 	key_ = key;
-	ipHdr_  = packet->ipHdr_;
+	ipHdr_ = packet->ipHdr_;
 	Q_ASSERT(ipHdr_ != nullptr);
 
 	uint16_t tlen = ipHdr_->tlen();
