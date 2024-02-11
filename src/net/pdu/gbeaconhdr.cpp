@@ -25,6 +25,9 @@ void* GBeaconHdr::findFirstTag(le8_t num, uint32_t size) {
 	return nullptr;
 }
 
+// ----------------------------------------------------------------------------
+// GTEST
+// ----------------------------------------------------------------------------
 #ifdef GTEST
 #include <gtest/gtest.h>
 
