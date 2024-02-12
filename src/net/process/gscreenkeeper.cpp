@@ -1,8 +1,9 @@
 #include "gscreenkeeper.h"
 
 #ifdef Q_OS_ANDROID
-#include <QtAndroid>
-#include <QAndroidJniEnvironment>
+#include <QCoreApplication>
+#include <QJniEnvironment>
+#include <QJniObject>
 #endif // Q_OS_ANDROID
 
 // ----------------------------------------------------------------------------
@@ -19,17 +20,17 @@ bool GScreenKeeper::doClose() {
 
 bool GScreenKeeper::keepScreen(bool on) {
 	bool res = true;
-	QtAndroid::runOnAndroidThread([this, on, &res] {
+	QNativeInterface::QAndroidApplication::runOnAndroidMainThread([this, on, &res] {
 		qDebug() << "";
 
-		QAndroidJniObject activity = QtAndroid::androidActivity();
+		QJniObject activity = QNativeInterface::QAndroidApplication::context();
 		if (!activity.isValid()) {
 			SET_ERR(GErr::Fail, "activity is not valid");
 			res = false;
 			return;
 		}
 
-		QAndroidJniObject window = activity.callObjectMethod("getWindow", "()Landroid/view/Window;");
+		QJniObject window = activity.callObjectMethod("getWindow", "()Landroid/view/Window;");
 		if (!window.isValid()) {
 			SET_ERR(GErr::Fail, "window is not valid");
 			res = false;
@@ -42,7 +43,7 @@ bool GScreenKeeper::keepScreen(bool on) {
 		else
 			window.callMethod<void>("clearFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
 
-		QAndroidJniEnvironment env;
+		QJniEnvironment env;
 		if (env->ExceptionCheck())
 			env->ExceptionClear();
 	});
