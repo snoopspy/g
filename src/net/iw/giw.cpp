@@ -106,10 +106,9 @@ int GIw::channel() {
 }
 
 bool GIw::setChannel(int channel) {
-#ifdef Q_OS_LINUX
+#ifndef Q_OS_ANDROID
 	QString command = QString("iw %1 set channel %2").arg(intfName_).arg(channel);
-#endif
-#ifdef Q_OS_ANDROID
+#else
 	QString command = QString("nexutil -k%1").arg(channel);
 #endif
 

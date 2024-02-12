@@ -98,7 +98,7 @@ bool GObj::disconnect(QObject *sender, const QMetaMethod &signal, QObject *recei
 GObj* GObj::createInstance(QString className, QObject* parent) {
 	if (!className.endsWith('*'))
 		className += "*";
-    int id = QMetaType::fromName(qPrintable(className)).id();
+	int id = QMetaType::fromName(qPrintable(className)).id();
 	if (id == QMetaType::UnknownType) {
 		qWarning() << QString("can not find class type for (%1)").arg(className);
 		return nullptr;
