@@ -1,9 +1,3 @@
-export QT_BIN_DIR=/opt/Qt/5.15.2/android/bin
-export MAKEDIR=$ANDROID_NDK_ROOT/prebuilt/linux-x86_64/bin
-export ANDROID_SDK_ROOT=/root/android/sdk
-export ANDROID_HOME=/root/sdk
-export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-
 #
 # arprecover
 #
@@ -11,7 +5,7 @@ if true; then
 	cd app/net/arprecover
 	make clean
 	make -j$(nproc)
-	$ANDROID_STRIP_DIR/strip ../../../bin/arprecover
+	llvm-strip ../../../bin/arprecover
 	cd ../../..
 fi
 
@@ -22,7 +16,7 @@ if true; then
 	cd app/net/corepcap
 	make clean
 	make -j$(nproc)
-	$ANDROID_STRIP_DIR/strip ../../../bin/corepcap
+	llvm-strip ../../../bin/corepcap
 	cd ../../..
 fi
 
@@ -33,9 +27,14 @@ if true; then
 	cd app/net/ssdemon
 	make clean
 	make -j$(nproc)
-	$ANDROID_STRIP_DIR/strip ../../../bin/ssdemon
+	llvm-strip ../../../bin/ssdemon
 	cd ../../..
 fi
+
+export QT_BIN_DIR=/opt/Qt/6.5.3/gcc_64/bin
+export MAKEDIR=$ANDROID_NDK_ROOT/prebuilt/linux-x86_64/bin
+export ANDROID_SDK_ROOT=/root/Android/Sdk
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 #
 # lib
