@@ -19,7 +19,7 @@ DEFINES *= QT_MESSAGELOGCONTEXT
 G_NAME = g
 CONFIG(qt): contains(QT, gui) G_NAME = $${G_NAME}-gui
 CONFIG(debug, debug|release) G_NAME = $${G_NAME}-d
-android: G_NAME = $${G_NAME}-android
+android: G_NAME = $${G_NAME}-android_armeabi-v7a
 
 #------------------------------------------------------------------------------
 # G_DIR
@@ -70,7 +70,6 @@ CONFIG(qt): contains(QT, gui) {
 # android
 #------------------------------------------------------------------------------
 android {
-	QT += androidextras
 	deployment.files += $${G_DIR}/bin/arprecover
 	deployment.files += $${G_DIR}/bin/corepcap
 	deployment.files += $${G_DIR}/bin/ssdemon
