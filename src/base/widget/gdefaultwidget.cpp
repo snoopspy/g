@@ -38,7 +38,7 @@ GDefaultWidget::GDefaultWidget(QWidget* parent) : QWidget(parent) {
 	this->setLayout(mainLayout_);
 
 #ifdef Q_OS_ANDROID
-	tbStart_->setIconSize(QSize(160, 160));
+	tbStart_->setIconSize(QSize(40, 40));
 #else
 	tbStart_->setIconSize(QSize(32, 32));
 #endif

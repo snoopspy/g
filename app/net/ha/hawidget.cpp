@@ -13,14 +13,6 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("HostAnalyzer");
 
 	treeWidget_ = new GTreeWidget(this);
-#ifdef Q_OS_ANDROID
-	treeWidget_->header()->setFixedHeight(120);
-#endif // Q_OS_ANDROID
-	GItemDelegate* itemDelegate = new GItemDelegate(this);
-	treeWidget_->setItemDelegate(itemDelegate);
-#ifdef Q_OS_ANDROID
-	itemDelegate->setHeight(140);
-#endif // Q_OS_ANDROID
 	treeWidget_->setHeaderLabels(QStringList{"IP", "Name", "Elapsed", ""});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
@@ -28,7 +20,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
 #ifdef Q_OS_ANDROID
-	treeWidget_->setColumnWidth(3, 140);
+	treeWidget_->setColumnWidth(3, GItemDelegate::DefaultItemHeight);
 #else
 	treeWidget_->setColumnWidth(3, treeWidget_->header()->sizeHint().height());
 #endif // Q_OS_ANDROID

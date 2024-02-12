@@ -12,6 +12,8 @@
 // ----------------------------------------------------------------------------
 GTreeWidget::GTreeWidget(QWidget *parent) : QTreeWidget(parent) {
 	init();
+	GItemDelegate* itemDelegate = new GItemDelegate(this);
+	setItemDelegate(itemDelegate);
 }
 
 void GTreeWidget::init() {

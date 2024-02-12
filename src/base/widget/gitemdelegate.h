@@ -20,7 +20,7 @@ protected:
 	int height_{0};
 
 public:
-	static const int DefaultItemHeight = 90;
+	static const int DefaultItemHeight = 32;
 
 	GItemDelegate(QObject *parent, int height = 0) : QItemDelegate(parent), height_(height) {
 		height_ = height;
