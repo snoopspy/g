@@ -300,7 +300,7 @@ void DbDialog::tbSearchHost_clicked() {
 
 	if (hostModel_ == nullptr)
 		hostModel_ = new HostModel(this, hostDb_);
-	hostModel_->setQuery(query);
+	hostModel_->setQuery(std::move(query));
 	hostModel_->setHeaderData(ColumnHostMac, Qt::Horizontal, "Mac");
 	hostModel_->setHeaderData(ColumnHostIp, Qt::Horizontal, "IP");
 	hostModel_->setHeaderData(ColumnHostAlias, Qt::Horizontal, "Alias");
@@ -346,7 +346,7 @@ void DbDialog::tbSearchLog_clicked() {
 
 	if (logModel_ == nullptr)
 		logModel_ = new LogModel(this, hostDb_);
-	logModel_->setQuery(query);
+	logModel_->setQuery(std::move(query));
 	logModel_->setHeaderData(ColumnLogName, Qt::Horizontal, "Name");
 	logModel_->setHeaderData(ColumnLogIp, Qt::Horizontal, "IP");
 	logModel_->setHeaderData(ColumnLogSttTime, Qt::Horizontal, "Start");
