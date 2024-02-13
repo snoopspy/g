@@ -131,10 +131,10 @@ void WebServer::tcpServer_ReadyRead() {
 	}
 
 	if (found) {
-		socket->write("HTTP/1.1 200 OK\r\n\r\n<br><br><br><br><h1><center>Internet connection granted</center><h1>");
+		socket->write("HTTP/1.1 200 OK\r\n\r\n<br><br><br><br><h1><center>Internet is connected</center><h1>");
 	} else {
 		qWarning() << QString("can not find %1").arg(QString(peerIp));
-		socket->write("HTTP/1.1 503 Service Unavailable\r\n\r\n<br><br><br><br><h1><center>Can not find toolButton</center><h1>");
+		socket->write("HTTP/1.1 503 Service Unavailable\r\n\r\n<br><br><br><br><h1><center>Can not find session</center><h1>");
 	}
 	socket->close();
 }
