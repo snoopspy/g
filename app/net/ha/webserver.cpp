@@ -70,19 +70,19 @@ void WebServer::tcpServer_ReadyRead() {
 	}
 
 	QByteArray bytes;
-	int count = ba.count();
+	int count = ba.length();
 	for (int i = 4; i < count; i++) { // 4 is sizeof "GET "
 		char c = ba.at(i);
 		if (std::isdigit(c)) {
 			bytes += c;
-			if (bytes.count() >= Session::SessionSize)
+			if (bytes.length() >= Session::SessionSize)
 				break;
 			continue;
 		}
 		if (c == ' ') break;
 	}
 
-	if (bytes.count() != Session::SessionSize) {
+	if (bytes.length() != Session::SessionSize) {
 		socket->write("HTTP/1.1 200 OK\r\n\r\n<br><br><br><br><h1><center>Invalid session</center><h1>");
 		socket->close();
 		return;
