@@ -143,6 +143,7 @@ bool GHostDb::selectHost(GMac mac, Item* item) {
 
 	if (selectHostQuery_->next()) {
 		Q_ASSERT(quint64(mac) == selectHostQuery_->value("mac").toULongLong());
+		item->mac_ = mac;
 		item->ip_ = selectHostQuery_->value("ip").toUInt();
 		item->alias_ = selectHostQuery_->value("alias").toString();
 		item->host_ = selectHostQuery_->value("host").toString();
