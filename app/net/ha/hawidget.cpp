@@ -222,10 +222,8 @@ void HaWidget::tbHost_clicked(bool checked) {
 
 	if (treeWidget_->selectedItems().count() == 0) return;
 	GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
-	GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(twi->property("hostValue").toULongLong());
-	Q_ASSERT(hostValue != nullptr);
-	GMac mac = hostAnalyzer_.hostDb_.getItem(hostValue)->mac_;
-	HostDialog hostDialog(this, mac, &hostAnalyzer_, hostValue);
+	GMac mac = twi->property("mac").toString();
+	HostDialog hostDialog(this, mac, &hostAnalyzer_);
 	hostDialog.setModal(true);
 
 	QJsonObject& jo = GJson::instance();

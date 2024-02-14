@@ -2,22 +2,23 @@
 
 #include <GJson>
 
-HostDialog::HostDialog(QWidget* parent, GMac mac, HostAnalyzer* hostAnalyzer, GHostMgr::HostValue* hostValue)
-	: QDialog(parent), mac_(mac), ha_(hostAnalyzer), hv_(hostValue) {
+HostDialog::HostDialog(QWidget* parent, GMac mac, HostAnalyzer* hostAnalyzer)
+	: QDialog(parent), mac_(mac), ha_(hostAnalyzer) {
 	resize(QSize(640, 480));
 	setWindowTitle("Host");
 
-	GHostDb::Item* dbItem = ha_->hostDb_.getItem(hv_);
+	GHostDb::Item dbItem;
+	Q_ASSERT(ha_->hostDb_.selectHost(mac, &dbItem));
 
 	QGridLayout* gLayout = new QGridLayout();
 	{
 		QLabel* lblMac = new QLabel("Mac", this); leMac_ = new QLineEdit(QString(mac), this);
-		QLabel* lblIp = new QLabel("IP", this); leIp_ = new QLineEdit(QString(dbItem->ip_), this);
-		QLabel* lblAlias  = new QLabel("Alias", this); leAlias_ = new QLineEdit(dbItem->alias_, this);
-		QLabel* lblHost = new QLabel("Host", this); leHost_ = new QLineEdit(dbItem->host_, this);
-		QLabel* lblVendor = new QLabel("Vendor", this); leVendor_ = new QLineEdit(dbItem->vendor_, this);
+		QLabel* lblIp = new QLabel("IP", this); leIp_ = new QLineEdit(QString(dbItem.ip_), this);
+		QLabel* lblAlias  = new QLabel("Alias", this); leAlias_ = new QLineEdit(dbItem.alias_, this);
+		QLabel* lblHost = new QLabel("Host", this); leHost_ = new QLineEdit(dbItem.host_, this);
+		QLabel* lblVendor = new QLabel("Vendor", this); leVendor_ = new QLineEdit(dbItem.vendor_, this);
 		QLabel* lblMode = new QLabel("Mode", this); cbMode_ = new QComboBox(this); cbMode_->addItems(QStringList{"Default", "Allow", "Block"});
-		cbMode_->setCurrentIndex(int(dbItem->mode_));
+		cbMode_->setCurrentIndex(int(dbItem.mode_));
 		QLabel* lblBlockTime = new QLabel("BlockTime", this); dteBlockTime_ = new QDateTimeEdit(this);
 
 		leMac_->setEnabled(false);
@@ -61,16 +62,23 @@ HostDialog::~HostDialog() {
 
 void HostDialog::setDateTimeEdit() {
 	GHostDb::Mode mode = GHostDb::Mode(cbMode_->currentIndex());
-	if (ha_->adminTimeoutSec_ == 0 || mode == GHostDb::Allow) {
+	if (!ha_->active() || ha_->adminTimeoutSec_ == 0 || mode == GHostDb::Allow) {
 		dteBlockTime_->setEnabled(false);
 		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(0));
 		dteBlockTime_->setDisplayFormat("m");
 	} else {
 		dteBlockTime_->setEnabled(true);
-		HostAnalyzer::Item* haItem = ha_->getItem(hv_);
+		GHostMgr::HostMap* hostMap = &ha_->hostMgr_.hostMap_;
+		QMutexLocker ml(hostMap);
+		GHostMgr::HostMap::iterator it = hostMap->find(mac_);
+		Q_ASSERT(it != hostMap->end());
+		GHostMgr::HostValue* hostValue = it.value();
+		Q_ASSERT(hostValue != nullptr);
+		HostAnalyzer::Item* haItem = ha_->getItem(hostValue);
+		Q_ASSERT(haItem != nullptr);
 		time_t blockTime = haItem->blockTime_;
 		if (blockTime == 0)
-			blockTime = hv_->firstTime_ + ha_->adminTimeoutSec_;
+			blockTime = hostValue->firstTime_ + ha_->adminTimeoutSec_;
 		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(blockTime));
 		dteBlockTime_->setDisplayFormat("MM/dd hh:mm");
 	}
@@ -85,20 +93,27 @@ void HostDialog::cdMode_currentIndexChanged(int index) {
 }
 
 void HostDialog::pbOk_clicked() {
-	GHostDb::Item* dbItem = ha_->hostDb_.getItem(hv_);
+	GHostDb::Item dbItem;
+	Q_ASSERT(ha_->hostDb_.selectHost(mac_, &dbItem));
 
-	dbItem->alias_ = leAlias_->text();
-	dbItem->mode_ = GHostDb::Mode(cbMode_->currentIndex());
-	bool res = ha_->hostDb_.updateHost(mac_, dbItem);
+	dbItem.alias_ = leAlias_->text();
+	dbItem.mode_ = GHostDb::Mode(cbMode_->currentIndex());
+	bool res = ha_->hostDb_.updateHost(mac_, &dbItem);
 	if (!res) {
 		qWarning() << QString("hostDb_.updateHost(%1) return false").arg(QString(mac_));
 		return;
 	}
 
-	HostAnalyzer::Item* haItem = ha_->getItem(hv_);
+	GHostMgr::HostMap* hostMap = &ha_->hostMgr_.hostMap_;
+	QMutexLocker ml(hostMap);
+	GHostMgr::HostMap::iterator it = hostMap->find(mac_);
+	Q_ASSERT(it != hostMap->end());
+	GHostMgr::HostValue* hostValue = it.value();
+	Q_ASSERT(hostValue != nullptr);
+	HostAnalyzer::Item* haItem = ha_->getItem(hostValue);
 	haItem->state_ = HostAnalyzer::Item::Changed;
 	haItem->blockTime_ = dteBlockTime_->dateTime().toSecsSinceEpoch();
-	ha_->checkBlockTime(hv_);
+	ha_->checkBlockTime(hostValue);
 
 	accept();
 }

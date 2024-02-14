@@ -17,13 +17,12 @@ struct HostDialog : QDialog, GProp {
 	Q_OBJECT
 
 public:
-	HostDialog(QWidget* parent, GMac mac, HostAnalyzer* hostAnalyzer, GHostMgr::HostValue* hostValue);
+	HostDialog(QWidget* parent, GMac mac, HostAnalyzer* hostAnalyzer);
 	~HostDialog() override;
 
 public:
 	GMac mac_;
 	HostAnalyzer* ha_;
-	GHostMgr::HostValue* hv_;
 
 protected:
 	QLineEdit* leMac_{nullptr};
