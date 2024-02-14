@@ -110,6 +110,8 @@ void WebServer::tcpServer_ReadyRead() {
 	GTreeWidget* treeWidget = hostAnalyzer->treeWidget_;
 	int count2 = treeWidget->topLevelItemCount();
 
+	GHostMgr::HostMap* hostMap = &hostAnalyzer->hostMgr_.hostMap_;
+	QMutexLocker ml(hostMap);
 	bool found = false;
 	for (int i = 0; i < count2; i++) {
 		GTreeWidgetItem* twi = dynamic_cast<GTreeWidgetItem*>(treeWidget->topLevelItem(i));
@@ -117,9 +119,10 @@ void WebServer::tcpServer_ReadyRead() {
 		QToolButton* toolButton = dynamic_cast<QToolButton*>(treeWidget->itemWidget(twi, HostAnalyzer::ColumnAttack));
 		Q_ASSERT(toolButton != nullptr);
 
-		quintptr uip = toolButton->property("hostValue").toULongLong();
-		Q_ASSERT(uip != 0);
-		GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(uip);
+		GMac mac = toolButton->property("mac").toString();
+		GHostMgr::HostMap::iterator it = hostMap->find(mac);
+		if (it == hostMap->end()) continue;
+		GHostMgr::HostValue* hostValue = it.value();
 		Q_ASSERT(hostValue != nullptr);
 		if (hostValue->ip_ == peerIp) {
 			found = true;

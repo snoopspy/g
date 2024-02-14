@@ -16,10 +16,8 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 			case HostAnalyzer::ColumnElapsed: {
 				const GTreeWidgetItem* twi1 = PTreeWidgetItem(this);
 				const GTreeWidgetItem* twi2 = PTreeWidgetItem(&other);
-				GHostMgr::HostValue* hostValue1 = GHostMgr::PHostValue(twi1->property("hostValue").toULongLong());
-				GHostMgr::HostValue* hostValue2 = GHostMgr::PHostValue(twi2->property("hostValue").toULongLong());
-				quint64 firstTs1 = hostValue1->firstTime_;
-				quint64 firstTs2 = hostValue2->firstTime_;
+				quint64 firstTs1 = twi1->property("firstTime").toULongLong();
+				quint64 firstTs2 = twi2->property("firstTime").toULongLong();
 				return firstTs1 < firstTs2;
 			}
 			case HostAnalyzer::ColumnAttack: {
@@ -162,8 +160,12 @@ void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
-	quintptr uip = twi->property("hostValue").toULongLong();
-	GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(uip);
+	GMac mac = twi->property("mac").toString();
+	GHostMgr::HostMap* hostMap = &hostMgr_.hostMap_;
+	QMutexLocker ml(hostMap);
+	GHostMgr::HostMap::iterator it = hostMap->find(mac);
+	Q_ASSERT(it != hostMap->end());
+	GHostMgr::HostValue* hostValue = it.value();
 	Q_ASSERT(hostValue != nullptr);
 
 	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
@@ -256,9 +258,12 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 	QToolButton* toolButton = dynamic_cast<QToolButton*>(sender());
 	Q_ASSERT(toolButton != nullptr);
 
-	quintptr uip = toolButton->property("hostValue").toULongLong();
-	Q_ASSERT(uip != 0);
-	GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(uip);
+	GMac mac = toolButton->property("mac").toString();
+	GHostMgr::HostMap* hostMap = &hostMgr_.hostMap_;
+	QMutexLocker ml(hostMap);
+	GHostMgr::HostMap::iterator it = hostMap->find(mac);
+	Q_ASSERT(it != hostMap->end());
+	GHostMgr::HostValue* hostValue = it.value();
 	Q_ASSERT(hostValue != nullptr);
 
 	GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
@@ -294,6 +299,7 @@ void HostAnalyzer::updateHosts() {
 
 	QMutexLocker ml(&hostMgr_.hostMap_);
 	for (GHostMgr::HostMap::iterator it = hostMgr_.hostMap_.begin(); it != hostMgr_.hostMap_.end(); it++) {
+		GMac mac = it.key();
 		GHostMgr::HostValue* hostValue = it.value();
 		Item* item = getItem(hostValue);
 
@@ -301,8 +307,8 @@ void HostAnalyzer::updateHosts() {
 		if (twi == nullptr) {
 			twi = new MyTreeWidgetItem(treeWidget_);
 			item->treeWidgetItem_ = twi;
-			quintptr uip = quintptr(hostValue);
-			twi->setProperty("hostValue", uip);
+			twi->setProperty("mac", QString(mac));
+			twi->setProperty("firstTime", quint64(hostValue->firstTime_));
 			treeWidget_->addTopLevelItem(twi);
 			QToolButton *toolButton = new QToolButton(treeWidget_);
 #ifdef Q_OS_ANDROID
@@ -310,7 +316,7 @@ void HostAnalyzer::updateHosts() {
 			iconSize = iconSize * 3 / 2;
 			toolButton->setIconSize(QSize(iconSize, iconSize));
 #endif // Q_OS_ANDROID
-			toolButton->setProperty("hostValue", uip);
+			toolButton->setProperty("mac", QString(mac));
 			toolButton->setAutoRaise(true);
 			toolButton->setCheckable(true);
 			treeWidget_->setItemWidget(twi, ColumnAttack, toolButton);
@@ -343,11 +349,15 @@ void HostAnalyzer::updateHosts() {
 void HostAnalyzer::updateElapsedTime() {
 	qint64 now = QDateTime::currentDateTime().toSecsSinceEpoch();
 	int count = treeWidget_->topLevelItemCount();
+	GHostMgr::HostMap* hostMap = &hostMgr_.hostMap_;
+	QMutexLocker ml(hostMap);
 	for (int i = 0; i < count; i++) {
 		GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->topLevelItem(i));
 		Q_ASSERT(twi != nullptr);
-		quintptr uip = twi->property("hostValue").toULongLong();
-		GHostMgr::HostValue* hostValue = GHostMgr::PHostValue(uip);
+		GMac mac = twi->property("mac").toString();
+		GHostMgr::HostMap::iterator it = hostMap->find(mac);
+		Q_ASSERT(it != hostMap->end());
+		GHostMgr::HostValue* hostValue = it.value();
 		Q_ASSERT(hostValue != nullptr);
 		qint64 firstTime = hostValue->firstTime_;
 		qint64 elapsed = now - firstTime;
