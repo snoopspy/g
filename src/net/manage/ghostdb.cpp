@@ -15,7 +15,6 @@ bool GHostDb::doOpen() {
 		SET_ERR(GErr::ObjectIsNull, "hostMgr is null");
 		return false;
 	}
-	itemOffset_ = hostMgr_->requestItems_.request(this, sizeof(Item));
 	hostMgr_->managables_.insert(this);
 
 	static bool first = true;
@@ -106,29 +105,25 @@ bool GHostDb::doClose() {
 }
 
 void GHostDb::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = getItem(hostValue);
-	new (item) Item;
-	item->mac_ = mac;
-	item->ip_ = hostValue->ip_;
-	item->host_ = hostValue->host_;
-	item->vendor_ = hostValue->vendor_;
-	insertOrUpdateDevice(mac, item);
+	Item item;
+	item.mac_ = mac;
+	item.ip_ = hostValue->ip_;
+	item.host_ = hostValue->host_;
+	item.vendor_ = hostValue->vendor_;
+	insertOrUpdateDevice(mac, &item);
 }
 
 void GHostDb::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
-	(void)mac;
-	Item* item = getItem(hostValue);
-	item->~Item();
 	insertLog(mac, hostValue->ip_, hostValue->firstTime_, hostValue->lastTime_);
 }
 
 void GHostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
-	Item* item = getItem(hostValue);
-	Q_ASSERT(item->mac_ == mac);
-	item->ip_ = hostValue->ip_;
-	item->host_ = hostValue->host_;
-	item->vendor_ = hostValue->vendor_;
-	insertOrUpdateDevice(mac, item);
+	Item item;
+	item.mac_ = mac;
+	item.ip_ = hostValue->ip_;
+	item.host_ = hostValue->host_;
+	item.vendor_ = hostValue->vendor_;
+	insertOrUpdateDevice(mac, &item);
 }
 
 bool GHostDb::selectHost(GMac mac, Item* item) {

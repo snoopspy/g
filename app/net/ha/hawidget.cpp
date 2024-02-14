@@ -120,7 +120,7 @@ void HaWidget::setControl() {
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
-	tbHost_->setEnabled(active && treeWidget_->selectedItems().count() > 0);
+	tbHost_->setEnabled(treeWidget_->selectedItems().count() > 0);
 	tbQrCode_->setEnabled(active);
 	tbScreenSaver_->setEnabled(active);
 }
@@ -205,11 +205,14 @@ void HaWidget::tbDb_clicked(bool checked) {
 	jo["dbDialog"] << dbDialog;
 
 	// Change default name because alias can be changed
+	GHostMgr* hostMgr = &hostAnalyzer_.hostMgr_;
+	GHostMgr::HostMap* hostMap = &hostMgr->hostMap_;
+	QMutexLocker ml(hostMap);
 	int count = treeWidget_->topLevelItemCount();
 	for (int i = 0; i < count; i++) {
 		GTreeWidgetItem *twi = dynamic_cast<GTreeWidgetItem *>(treeWidget_->topLevelItem(i));
 		Q_ASSERT(twi != nullptr);
-		hostAnalyzer_.updateHost(twi);
+		hostAnalyzer_.updateWidgetItem(twi);
 	}
 
 	if (!dbOpened)
@@ -223,6 +226,17 @@ void HaWidget::tbHost_clicked(bool checked) {
 	if (treeWidget_->selectedItems().count() == 0) return;
 	GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
 	GMac mac = twi->property("mac").toString();
+
+	GHostDb* hostDb = &hostAnalyzer_.hostDb_;
+	bool dbOpened = hostDb->active();
+	if (!dbOpened) {
+		if (!hostDb->open()) {
+			QMessageBox::warning(this, "Error", hostDb->err->msg());
+			hostDb->close();
+			return;
+		}
+	}
+
 	HostDialog hostDialog(this, mac, &hostAnalyzer_);
 	hostDialog.setModal(true);
 
@@ -238,9 +252,12 @@ void HaWidget::tbHost_clicked(bool checked) {
 
 	int res = hostDialog.result();
 	if (res == QDialog::Accepted)
-		hostAnalyzer_.updateHost(twi);
+		hostAnalyzer_.updateWidgetItem(twi);
 
 	jo["hostDialog"] << hostDialog;
+
+	if (!dbOpened)
+		hostDb->close();
 }
 
 #include "qrcodedialog.h"

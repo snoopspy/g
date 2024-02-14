@@ -104,8 +104,11 @@ void GArpBlock::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->mac_ = mac;
 	item->ip_ = hostValue->ip_;
 	Policy policy = defaultPolicy_;
-	GHostDb::Item* dbItem = hostDb_->getItem(hostValue);
-	switch (dbItem->mode_) {
+	GHostDb::Item dbItem;
+	if (!hostDb_->selectHost(mac, &dbItem)) {
+		qWarning() << QString("selectHost(%1) return false").arg(QString(mac_));
+	}
+	switch (dbItem.mode_) {
 		case GHostDb::Default :
 			break;
 		case GHostDb::Allow :

@@ -121,7 +121,6 @@ bool HostAnalyzer::doClose() {
 }
 
 void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
-	(void)mac;
 	Item* item = getItem(hostValue);
 	new (item) Item;
 
@@ -129,8 +128,11 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->treeWidgetItem_ = nullptr;
 	item->hostValue_ = hostValue;
 
-	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
-	GHostDb::Mode mode = dbItem->mode_;
+	GHostDb::Item dbItem;
+	if (!hostDb_.selectHost(mac, &dbItem)) {
+		qWarning() << QString("selectHost(%1) return false").arg(QString(mac));
+	}
+	GHostDb::Mode mode = dbItem.mode_;
 	if (adminTimeoutSec_ != 0 && mode == GHostDb::Default)
 		item->blockTime_ = hostValue->firstTime_ + adminTimeoutSec_;
 	else
@@ -159,21 +161,25 @@ void HostAnalyzer::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
 	item->state_ = Item::Changed;
 }
 
-void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
+void HostAnalyzer::updateWidgetItem(GTreeWidgetItem* twi) {
 	GMac mac = twi->property("mac").toString();
+
+	GHostDb::Item dbItem;
+	if (!hostDb_.selectHost(mac, &dbItem)) {
+		qWarning() << QString("selectHost(%1) return false").arg(QString(mac));
+	}
+	twi->setText(ColumnIp, QString(dbItem.ip_));
+	QString defaultName = dbItem.getDefaultName();
+	twi->setText(HostAnalyzer::ColumnName, defaultName);
+	GHostDb::Mode mode = dbItem.mode_;
+
 	GHostMgr::HostMap* hostMap = &hostMgr_.hostMap_;
 	QMutexLocker ml(hostMap);
 	GHostMgr::HostMap::iterator it = hostMap->find(mac);
-	Q_ASSERT(it != hostMap->end());
+	if (it == hostMap->end()) return;
+
 	GHostMgr::HostValue* hostValue = it.value();
 	Q_ASSERT(hostValue != nullptr);
-
-	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
-	Q_ASSERT(dbItem != nullptr);
-	twi->setText(ColumnIp, QString(dbItem->ip_));
-	QString defaultName = dbItem->getDefaultName();
-	twi->setText(HostAnalyzer::ColumnName, defaultName);
-	GHostDb::Mode mode = dbItem->mode_;
 
 	GArpBlock::Item* arpBlockItem = arpBlock_.getItem(hostValue);
 	Q_ASSERT(arpBlockItem != nullptr);
@@ -199,16 +205,16 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 
 	if (block) {
 		if (!prevBlock) {
-			arpBlock_.infect(arpBlockItem, GArpHdr::Request);
 			arpBlockItem->policy_ = GArpBlock::Block;
+			arpBlock_.infect(arpBlockItem, GArpHdr::Request);
 		}
 		toolButton->setText("B");
 		toolButton->setIcon(QIcon(":/img/pause.png"));
 		toolButton->setChecked(true);
 	} else {
 		if (prevBlock) {
-			arpBlock_.recover(arpBlockItem, GArpHdr::Request);
 			arpBlockItem->policy_ = GArpBlock::Allow;
+			arpBlock_.recover(arpBlockItem, GArpHdr::Request);
 		}
 		toolButton->setText("A");
 		toolButton->setIcon(QIcon(":/img/play.png"));
@@ -219,9 +225,6 @@ void HostAnalyzer::updateHost(GTreeWidgetItem* twi) {
 }
 
 void HostAnalyzer::checkBlockTime(GHostMgr::HostValue* hostValue) {
-	GHostDb::Item* dbItem = hostDb_.getItem(hostValue);
-	if (dbItem->mode_ != GHostDb::Default) return;
-
 	Item* haItem = getItem(hostValue);
 	if (haItem->blockTime_ == 0) return;
 
@@ -230,15 +233,15 @@ void HostAnalyzer::checkBlockTime(GHostMgr::HostValue* hostValue) {
 
 	if (arpBlockItem->policy_ == GArpBlock::Allow) {
 		if (now >= haItem->blockTime_) {
-			arpBlock_.infect(arpBlockItem, GArpHdr::Request);
 			arpBlockItem->policy_ = GArpBlock::Block;
-			updateHost(haItem->treeWidgetItem_);
+			arpBlock_.infect(arpBlockItem, GArpHdr::Request);
+			updateWidgetItem(haItem->treeWidgetItem_);
 		}
 	} else { // arpBlockItem->policy_ == GArpBlock::Block
 		if (now < haItem->blockTime_) {
-			arpBlock_.recover(arpBlockItem, GArpHdr::Request);
 			arpBlockItem->policy_ = GArpBlock::Allow;
-			updateHost(haItem->treeWidgetItem_);
+			arpBlock_.recover(arpBlockItem, GArpHdr::Request);
+			updateWidgetItem(haItem->treeWidgetItem_);
 		}
 	}
 }
@@ -276,18 +279,18 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 	qint64 now = QDateTime::currentDateTime().toSecsSinceEpoch();
 
 	if (nextBlock) {
-		arpBlock_.infect(arpBlockItem, GArpHdr::Request);
 		arpBlockItem->policy_ = GArpBlock::Block;
+		arpBlock_.infect(arpBlockItem, GArpHdr::Request);
 		if (haItem->blockTime_ != 0)
 			haItem->blockTime_ = now;
 	} else {
-		arpBlock_.recover(arpBlockItem, GArpHdr::Request);
 		arpBlockItem->policy_ = GArpBlock::Allow;
+		arpBlock_.recover(arpBlockItem, GArpHdr::Request);
 		if (haItem->blockTime_ != 0)
 			haItem->blockTime_ = now + extendTimeoutSec_;
 	}
 
-	updateHost(haItem->treeWidgetItem_);
+	updateWidgetItem(haItem->treeWidgetItem_);
 }
 
 void HostAnalyzer::updateHosts() {
@@ -323,13 +326,13 @@ void HostAnalyzer::updateHosts() {
 
 			QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 
-			updateHost(twi);
+			updateWidgetItem(twi);
 			item->state_ = Item::NotChanged;
 		}
 
 		Q_ASSERT(twi != nullptr);
 		if (item->state_ != Item::NotChanged) {
-			updateHost(twi);
+			updateWidgetItem(twi);
 			item->state_ = Item::NotChanged;
 		}
 		twi->setProperty("shouldBeDeleted", false);

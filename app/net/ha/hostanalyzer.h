@@ -105,7 +105,7 @@ public:
 
 public:
 	GTreeWidget* treeWidget_{nullptr}; // reference
-	void updateHost(GTreeWidgetItem* twi);
+	void updateWidgetItem(GTreeWidgetItem* twi);
 	void checkBlockTime(GHostMgr::HostValue* hostValue);
 
 public slots:

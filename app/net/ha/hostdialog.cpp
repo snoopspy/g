@@ -8,7 +8,9 @@ HostDialog::HostDialog(QWidget* parent, GMac mac, HostAnalyzer* hostAnalyzer)
 	setWindowTitle("Host");
 
 	GHostDb::Item dbItem;
-	Q_ASSERT(ha_->hostDb_.selectHost(mac, &dbItem));
+	if (!ha_->hostDb_.selectHost(mac, &dbItem)) {
+		qWarning() << QString("selectHost(%1) return false").arg(QString(mac));
+	}
 
 	QGridLayout* gLayout = new QGridLayout();
 	{
@@ -62,7 +64,7 @@ HostDialog::~HostDialog() {
 
 void HostDialog::setDateTimeEdit() {
 	GHostDb::Mode mode = GHostDb::Mode(cbMode_->currentIndex());
-	if (!ha_->active() || ha_->adminTimeoutSec_ == 0 || mode == GHostDb::Allow) {
+	if (!ha_->active() || ha_->adminTimeoutSec_ == 0 || mode != GHostDb::Default) {
 		dteBlockTime_->setEnabled(false);
 		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(0));
 		dteBlockTime_->setDisplayFormat("m");
@@ -94,26 +96,31 @@ void HostDialog::cdMode_currentIndexChanged(int index) {
 
 void HostDialog::pbOk_clicked() {
 	GHostDb::Item dbItem;
-	Q_ASSERT(ha_->hostDb_.selectHost(mac_, &dbItem));
+	if (!ha_->hostDb_.selectHost(mac_, &dbItem)) {
+		qWarning() << QString("selectHost(%1) return false").arg(QString(mac_));
+	}
 
 	dbItem.alias_ = leAlias_->text();
 	dbItem.mode_ = GHostDb::Mode(cbMode_->currentIndex());
-	bool res = ha_->hostDb_.updateHost(mac_, &dbItem);
-	if (!res) {
+	if (!ha_->hostDb_.updateHost(mac_, &dbItem)) {
 		qWarning() << QString("hostDb_.updateHost(%1) return false").arg(QString(mac_));
-		return;
 	}
 
 	GHostMgr::HostMap* hostMap = &ha_->hostMgr_.hostMap_;
 	QMutexLocker ml(hostMap);
 	GHostMgr::HostMap::iterator it = hostMap->find(mac_);
-	Q_ASSERT(it != hostMap->end());
-	GHostMgr::HostValue* hostValue = it.value();
-	Q_ASSERT(hostValue != nullptr);
-	HostAnalyzer::Item* haItem = ha_->getItem(hostValue);
-	haItem->state_ = HostAnalyzer::Item::Changed;
-	haItem->blockTime_ = dteBlockTime_->dateTime().toSecsSinceEpoch();
-	ha_->checkBlockTime(hostValue);
+	if (it != hostMap->end()) {
+		GHostMgr::HostValue* hostValue = it.value();
+		Q_ASSERT(hostValue != nullptr);
+		HostAnalyzer::Item* haItem = ha_->getItem(hostValue);
+		haItem->state_ = HostAnalyzer::Item::Changed;
+
+		if (dbItem.mode_ == GHostDb::Default)
+			haItem->blockTime_ = dteBlockTime_->dateTime().toSecsSinceEpoch();
+		else
+			haItem->blockTime_ = 0;
+		ha_->checkBlockTime(hostValue);
+	}
 
 	accept();
 }
