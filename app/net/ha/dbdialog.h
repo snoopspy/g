@@ -11,9 +11,10 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include <GHostDb>
 #include <GTableView>
 #include <GProp>
+
+#include "hostanalyzer.h"
 
 struct HostModel;
 struct LogModel;

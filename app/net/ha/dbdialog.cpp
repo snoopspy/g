@@ -43,8 +43,7 @@ struct HostModel : QSqlQueryModel {
 		GMac mac = macIndex.data().toString();
 
 		GHostDb::Item dbItem;
-		bool res = hostDb_->selectHost(mac, &dbItem);
-		if (!res) {
+		if (!hostDb_->selectHost(mac, &dbItem)) {
 			qWarning() << QString("hostDb_.selectHost(%1) return false").arg(QString(mac));
 			return false;
 		}
@@ -58,18 +57,34 @@ struct HostModel : QSqlQueryModel {
 				dbItem.mode_ = GHostDb::Mode(value.toInt());
 				break;
 		}
-
-		res = hostDb_->updateHost(mac, &dbItem);
-		if (!res) {
+		if (!hostDb_->updateHost(mac, &dbItem)) {
 			qWarning() << QString("hostDb_.updateHost(%1) return false").arg(QString(mac));
 			return false;
+		}
+
+		HostAnalyzer* hostAnalyzer = dynamic_cast<HostAnalyzer*>(hostDb_->parent());
+		Q_ASSERT(hostAnalyzer != nullptr);
+		GHostMgr::HostMap* hostMap = &hostAnalyzer->hostMgr_.hostMap_;
+		Q_ASSERT(hostMap != nullptr);
+		QMutexLocker ml(hostMap);
+		GHostMgr::HostMap::iterator it = hostMap->find(mac);
+		if (it != hostMap->end()) {
+			GHostMgr::HostValue* hostValue = it.value();
+			Q_ASSERT(hostValue != nullptr);
+			HostAnalyzer::Item* haItem = hostAnalyzer->getItem(hostValue);
+			haItem->state_ = HostAnalyzer::Item::Changed;
+			if (dbItem.mode_ == GHostDb::Default)
+				haItem->blockTime_ = hostValue->firstTime_ + hostAnalyzer->adminTimeoutSec_;
+			else
+				haItem->blockTime_ = 0;
+			hostAnalyzer->checkBlockTime(hostValue);
 		}
 
 		// Refresh updated data
 		DbDialog* dbDialog = dynamic_cast<DbDialog*>(parent());
 		Q_ASSERT(dbDialog != nullptr);
 		dbDialog->tbSearchHost_->click();
-		return res;
+		return true;
 	}
 };
 

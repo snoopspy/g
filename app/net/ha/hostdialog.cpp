@@ -114,7 +114,6 @@ void HostDialog::pbOk_clicked() {
 		Q_ASSERT(hostValue != nullptr);
 		HostAnalyzer::Item* haItem = ha_->getItem(hostValue);
 		haItem->state_ = HostAnalyzer::Item::Changed;
-
 		if (dbItem.mode_ == GHostDb::Default)
 			haItem->blockTime_ = dteBlockTime_->dateTime().toSecsSinceEpoch();
 		else
