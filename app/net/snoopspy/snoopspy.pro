@@ -1,7 +1,9 @@
 QT += widgets
 include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
-SOURCES += snoopspy.cpp
+
+SOURCES += \
+	snoopspy.cpp
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
 	ANDROID_PACKAGE_SOURCE_DIR = \
@@ -16,4 +18,10 @@ DISTFILES += \
 	android/gradle/wrapper/gradle-wrapper.properties \
 	android/gradlew \
 	android/gradlew.bat \
+	android/res/drawable-hdpi/icon.png \
+	android/res/drawable-ldpi/icon.png \
+	android/res/drawable-mdpi/icon.png \
+	android/res/drawable-xhdpi/icon.png \
+	android/res/drawable-xxhdpi/icon.png \
+	android/res/drawable-xxxhdpi/icon.png \
 	android/res/values/libs.xml
