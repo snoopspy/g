@@ -40,7 +40,7 @@ void ProbeAnalyzer::processCaptured(GPacket* packet) {
 	if (radioHdr == nullptr) return;
 
 	int8_t signal = radioHdr->getSignal();
-	if (signal != 0) return;
+	if (signal == 0) return;
 	if (signal < minSignal_) return;
 
 	GMac mac = dot11Hdr->ta();
