@@ -10,9 +10,9 @@
 |Qt|6.5.3|https://download.qt.io|
 |g++|13.2.0|sudo apt install g++|
 
-* Run ./deps.sh in command line.
 
 ```
+./deps.sh
 ./build-linux.sh
 ```
 
