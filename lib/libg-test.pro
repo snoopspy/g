@@ -11,8 +11,5 @@ DEFINES *= GTEST
 win32 {
 	INCLUDEPATH *= $${PWD}/../../googletest/googletest/include
 	LIBS *= -L$${PWD}/../../googletest/googletest/lib
-	LIBS *= -lgtest_main -lgtest
 }
-linux {
-	LIBS *= -lgtest_main -lgtest
-}
+LIBS *= -lgtest_main -lgtest
