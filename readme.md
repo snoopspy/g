@@ -4,24 +4,42 @@
 ## Build
 
 ### Linux
+
+|Tool|Version|Setup|
+|---|---|---|
+|Qt|6.5.3|https://download.qt.io|
+|g++|13.2.0|sudo apt install g++|
+
 * Run ./deps.sh in command line.
-* Run the following command.
-* Install Qt.
+
 ```
 ./build-linux.sh
 ```
 
 ### Windows
-* Install Qt(MinGW).
-* Run the following command.
+
+|Tool|Version|Setup|
+|---|---|---|
+|Qt|6.5.3|https://download.qt.io|
+|mingw|11.2.0|automatically installed with Qt|
+|cmake|3.29.0-rc1|https://cmake.org/download|
+
 ```
 build-win.bat
 ```
 
 ### Android
-* Install Qt supporting android.
-* Run the following commands.
+
+|Tool|Version|Setup|
+|---|---|---|
+|Qt|6.5.3|https://download.qt.io|
+|JDK|17.0.10|sudo apt install openjdk-17-jdk|
+|SDK|12.0|automatically installed with Qt|
+|NDK|25.1.8937393|automatically installed with Qt|
+
 ```
+git clone https://gitlab.com/gilgil/android-build.git ../android-build
 source ../android-build/android.profile
 ./build-android.sh
 ```
+
