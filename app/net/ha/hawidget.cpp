@@ -204,17 +204,6 @@ void HaWidget::tbDb_clicked(bool checked) {
 
 	jo["dbDialog"] << dbDialog;
 
-	// Change default name because alias can be changed
-	GHostMgr* hostMgr = &hostAnalyzer_.hostMgr_;
-	GHostMgr::HostMap* hostMap = &hostMgr->hostMap_;
-	QMutexLocker ml(hostMap);
-	int count = treeWidget_->topLevelItemCount();
-	for (int i = 0; i < count; i++) {
-		GTreeWidgetItem *twi = dynamic_cast<GTreeWidgetItem *>(treeWidget_->topLevelItem(i));
-		Q_ASSERT(twi != nullptr);
-		hostAnalyzer_.updateWidgetItem(twi);
-	}
-
 	if (!dbOpened)
 		hostDb->close();
 }
