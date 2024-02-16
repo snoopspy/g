@@ -31,7 +31,7 @@ if true; then
 	cd ../../..
 fi
 
-export QT_BIN_DIR=/opt/Qt/6.5.3/gcc_64/bin
+export QTDIR=/opt/Qt/6.5.3/android_armv7
 export MAKEDIR=$ANDROID_NDK_ROOT/prebuilt/linux-x86_64/bin
 export ANDROID_SDK_ROOT=/root/Android/Sdk
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
@@ -44,9 +44,9 @@ if true; then
 	# lib
 	#
 	cd lib
-	mkdir -p temp-build
-	cd temp-build
-	$QT_BIN_DIR/qmake ../libg-gui.pro -spec android-clang CONFIG+=release ANDROID_ABIS=armeabi-v7a
+	mkdir -p build-
+	cd build-
+	$QTDIR/bin/qmake ../libg-gui.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
 	cd ../..
 fi
@@ -55,13 +55,13 @@ fi
 # snoopspy
 #
 if true; then
-	mkdir -p app/net/snoopspy/temp-build
-	cd app/net/snoopspy/temp-build
-	$QT_BIN_DIR/qmake ../snoopspy.pro -spec android-clang CONFIG+=release ANDROID_ABIS=armeabi-v7a
+	mkdir -p app/net/snoopspy/build-
+	cd app/net/snoopspy/build-
+	$QTDIR/bin/qmake ../snoopspy.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
-	$MAKEDIR/make INSTALL_ROOT=./temp-build install
-	$QT_BIN_DIR/androiddeployqt --input android-snoopspy-deployment-settings.json --output ./temp-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/snoopspy-$(sed 's/"//g' ../../../../version.txt).apk
+	$MAKEDIR/make INSTALL_ROOT=./android-build install
+	$QTDIR/../gcc_64/bin/androiddeployqt --input android-snoopspy-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle --release
+	cp android-build/build/outputs/apk/release/android-build-release-unsigned.apk ../../../../setup/snoopspy-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
 
@@ -69,13 +69,13 @@ fi
 # bf
 #
 if true; then
-	mkdir -p app/net/bf/temp-build
-	cd app/net/bf/temp-build
-	$QT_BIN_DIR/qmake ../bf.pro -spec android-clang CONFIG+=release ANDROID_ABIS=armeabi-v7a
+	mkdir -p app/net/bf/build-
+	cd app/net/bf/build-
+	$QTDIR/bin/qmake ../bf.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
-	$MAKEDIR/make INSTALL_ROOT=./temp-build install
-	$QT_BIN_DIR/androiddeployqt --input android-bf-deployment-settings.json --output ./temp-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/bf-$(sed 's/"//g' ../../../../version.txt).apk
+	$MAKEDIR/make INSTALL_ROOT=./android-build install
+	$QTDIR/../gcc_64/bin/androiddeployqt --input android-bf-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle --release
+	cp android-build/build/outputs/apk/release/android-build-release-unsigned.apk ../../../../setup/bf-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
 
@@ -83,13 +83,13 @@ fi
 # ha
 #
 if true; then
-	mkdir -p app/net/ha/temp-build
-	cd app/net/ha/temp-build
-	$QT_BIN_DIR/qmake ../ha.pro -spec android-clang CONFIG+=release ANDROID_ABIS=armeabi-v7a
+	mkdir -p app/net/ha/build-
+	cd app/net/ha/build-
+	$QTDIR/bin/qmake ../ha.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
-	$MAKEDIR/make INSTALL_ROOT=./temp-build install
-	$QT_BIN_DIR/androiddeployqt --input android-ha-deployment-settings.json --output ./temp-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/ha-$(sed 's/"//g' ../../../../version.txt).apk
+	$MAKEDIR/make INSTALL_ROOT=./android-build install
+	$QTDIR/../gcc_64/bin/androiddeployqt --input android-ha-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle --release
+	cp android-build/build/outputs/apk/release/android-build-release-unsigned.apk ../../../../setup/ha-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
 
@@ -97,13 +97,13 @@ fi
 # pa
 #
 if true; then
-	mkdir -p app/net/pa/temp-build
-	cd app/net/pa/temp-build
-	$QT_BIN_DIR/qmake ../pa.pro -spec android-clang CONFIG+=release ANDROID_ABIS=armeabi-v7a
+	mkdir -p app/net/pa/build-
+	cd app/net/pa/build-
+	$QTDIR/bin/qmake ../pa.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
-	$MAKEDIR/make INSTALL_ROOT=./temp-build install
-	$QT_BIN_DIR/androiddeployqt --input android-pa-deployment-settings.json --output ./temp-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/pa-$(sed 's/"//g' ../../../../version.txt).apk
+	$MAKEDIR/make INSTALL_ROOT=././android-build install
+	$QTDIR/../gcc_64/bin/androiddeployqt --input android-pa-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle --release
+	cp android-build/build/outputs/apk/release/android-build-release-unsigned.apk ../../../../setup/pa-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
 
@@ -111,13 +111,13 @@ fi
 # wa
 #
 if true; then
-	mkdir -p app/net/wa/temp-build
-	cd app/net/wa/temp-build
-	$QT_BIN_DIR/qmake ../wa.pro -spec android-clang CONFIG+=release ANDROID_ABIS=armeabi-v7a
+	mkdir -p app/net/wa/build-
+	cd app/net/wa/build-
+	$QTDIR/bin/qmake ../wa.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
-	$MAKEDIR/make INSTALL_ROOT=./temp-build install
-	$QT_BIN_DIR/androiddeployqt --input android-wa-deployment-settings.json --output ./temp-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp temp-build/build/outputs/apk/debug/temp-build-debug.apk ../../../../setup/wa-$(sed 's/"//g' ../../../../version.txt).apk
+	$MAKEDIR/make INSTALL_ROOT=./android-build install
+	$QTDIR/../gcc_64/bin/androiddeployqt --input android-wa-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle --release
+	cp android-build/build/outputs/apk/release/android-build-release-unsigned.apk ../../../../setup/wa-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
 

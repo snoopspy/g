@@ -1,3 +1,4 @@
+android-build/
 build-*/
 bin/
 lib/g-d-test/
@@ -10,7 +11,6 @@ lib/libg-gui/
 lib/libg-gui-d/
 setup/linux/
 setup/win/
-temp-build/
 *.stash
 *.a
 *.autosave
