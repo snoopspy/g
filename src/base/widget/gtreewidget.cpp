@@ -20,7 +20,6 @@ void GTreeWidget::init() {
 	header()->setFixedHeight(GItemDelegate::DefaultItemHeight);
 	setItemDelegate(&itemDelegate_);
 	QScroller::scroller(this)->grabGesture(this, QScroller::LeftMouseButtonGesture);
-	setIndentation(indentation() * 3 / 2);
 	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
