@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+        echo "syntax : sudo ./run <command>"
+        echo "sample : sudo ./run snoopspy"
+        exit 1
+fi
+
+export LD_LIBRARY_PATH=$PWD;./$@
+

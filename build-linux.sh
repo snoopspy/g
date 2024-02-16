@@ -23,31 +23,32 @@ cp ../../bin/sscon .; strip sscon
 cp ../../bin/sslog .; strip sslog
 cp ../../bin/wa .; strip wa
 cp ../../setup/setup-linux.sh .
+cp ../../setup/run .
 mkdir -p ss
 cp ../../bin/ss/* ss/
 
 #
 # qt files
 #
-export QT_DIR=/opt/Qt/5.15.2/gcc_64
-cp $QT_DIR/lib/libicudata.so.56 .
-cp $QT_DIR/lib/libicui18n.so.56 .
-cp $QT_DIR/lib/libicuuc.so.56 .
-cp $QT_DIR/lib/libQt5Core.so.5 .
-cp $QT_DIR/lib/libQt5DBus.so.5 .
-cp $QT_DIR/lib/libQt5Gui.so.5 .
-cp $QT_DIR/lib/libQt5Network.so.5 .
-cp $QT_DIR/lib/libQt5Sql.so.5 .
-cp $QT_DIR/lib/libQt5Widgets.so.5 .
-cp $QT_DIR/lib/libQt5XcbQpa.so.5 .
+export QTDIR=/opt/Qt/6.5.3/gcc_64
+cp $QTDIR/lib/libicudata.so.56 .
+cp $QTDIR/lib/libicui18n.so.56 .
+cp $QTDIR/lib/libicuuc.so.56 .
+cp $QTDIR/lib/libQt6Core.so.6 .
+cp $QTDIR/lib/libQt6DBus.so.6 .
+cp $QTDIR/lib/libQt6Gui.so.6 .
+cp $QTDIR/lib/libQt6Network.so.6 .
+cp $QTDIR/lib/libQt6Sql.so.6 .
+cp $QTDIR/lib/libQt6Widgets.so.6 .
+cp $QTDIR/lib/libQt6XcbQpa.so.6 .
 
 #
 # platforms files
 #
 mkdir -p platforms
-cp $QT_DIR/plugins/platforms/* platforms/
+cp $QTDIR/plugins/platforms/* platforms/
 mkdir -p plugins/sqldrivers
-cp $QT_DIR/plugins/sqldrivers/libqsqlite.so plugins/sqldrivers/
+cp $QTDIR/plugins/sqldrivers/libqsqlite.so plugins/sqldrivers/
 
 #
 # compress
