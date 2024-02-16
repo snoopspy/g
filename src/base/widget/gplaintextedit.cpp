@@ -8,8 +8,12 @@ struct MyScrollBar : public QScrollBar {
 	MyScrollBar(QWidget * parent): QScrollBar(parent) {}
 
 protected:
-	QSize sizeHint() const override { return QSize(64, 64); }
-	QSize minimumSizeHint() const override { return QSize(64, 64); }
+	QSize sizeHint() const override {
+		return QSize(20, 20);
+	}
+	QSize minimumSizeHint() const override {
+		return QSize(20, 20);
+	}
 };
 
 // ----------------------------------------------------------------------------
