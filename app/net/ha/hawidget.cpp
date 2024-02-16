@@ -239,10 +239,6 @@ void HaWidget::tbHost_clicked(bool checked) {
 #endif
 	hostDialog.exec();
 
-	int res = hostDialog.result();
-	if (res == QDialog::Accepted)
-		hostAnalyzer_.updateWidgetItem(twi);
-
 	jo["hostDialog"] << hostDialog;
 
 	if (!dbOpened)
