@@ -11,7 +11,7 @@ PaWidget::PaWidget(QWidget* parent) : GDefaultWidget(parent) {
 
 	tableWidget_ = new GTableWidget(this);
 #ifdef Q_OS_ANDROID
-	tableWidget_->horizontalHeader()->setFixedHeight(120);
+	tableWidget_->horizontalHeader()->setFixedHeight(GItemDelegate::DefaultItemHeight);
 #endif // Q_OS_ANDROID
 	tableWidget_->setColumnCount(2);
 	tableWidget_->setHorizontalHeaderItem(0, new QTableWidgetItem("Mac"));
