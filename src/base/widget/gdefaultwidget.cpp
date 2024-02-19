@@ -47,7 +47,7 @@ GDefaultWidget::GDefaultWidget(QWidget* parent) : QWidget(parent) {
 
 #ifndef Q_OS_WIN
 		GSignal& signal = GSignal::instance();
-		QObject::connect(&signal, &GSignal::signaled, this, &GDefaultWidget::processSignal);
+		QObject::connect(&signal, &GSignal::signaled, this, &GDefaultWidget::processSignal, Qt::DirectConnection);
 		signal.setupAll();
 #endif // Q_OS_WIN
 }
@@ -61,7 +61,7 @@ void GDefaultWidget::processSignal(int signo) {
 #else // Q_OS_WIN
 		QString str1 = GSignal::getString(signo);
 		QString str2 = strsignal(signo);
-		qWarning() << QString("signo=%1 signal=%2 msg=%3").arg(signo).arg(str1, str2);
+		qWarning() << QString("signo=%1 signal=%2 msg=%3 _debug_gilgil=%4 _thread_gilgil=%5").arg(signo).arg(str1).arg(str2).arg(_debug_gilgil).arg(_thread_gilgil);
 		close();
 #endif
 }
