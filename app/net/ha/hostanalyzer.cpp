@@ -265,7 +265,13 @@ void HostAnalyzer::toolButton_toggled(bool checked) {
 	GHostMgr::HostMap* hostMap = &hostMgr_.hostMap_;
 	QMutexLocker ml(hostMap);
 	GHostMgr::HostMap::iterator it = hostMap->find(mac);
-	Q_ASSERT(it != hostMap->end());
+	if (it == hostMap->end()) {
+		toolButton->setText("A");
+		toolButton->setIcon(QIcon(":/img/play.png"));
+		toolButton->setChecked(false);
+		toolButton->setEnabled(false);
+		return;
+	}
 	GHostMgr::HostValue* hostValue = it.value();
 	Q_ASSERT(hostValue != nullptr);
 
@@ -359,7 +365,10 @@ void HostAnalyzer::updateElapsedTime() {
 		Q_ASSERT(twi != nullptr);
 		GMac mac = twi->property("mac").toString();
 		GHostMgr::HostMap::iterator it = hostMap->find(mac);
-		Q_ASSERT(it != hostMap->end());
+		if (it == hostMap->end()) {
+			twi->setText(ColumnElapsed, "");
+			continue;
+		}
 		GHostMgr::HostValue* hostValue = it.value();
 		Q_ASSERT(hostValue != nullptr);
 		qint64 firstTime = hostValue->firstTime_;
