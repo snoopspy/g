@@ -15,9 +15,9 @@ bool GDemon::recvAll(int sd, pvoid buffer, int32_t size) {
 	pchar buf = pchar(buffer);
 	int32_t remain = size;
 	while (remain > 0) {
-		ssize_t recvLen = ::recv(sd, buf, remain, 0);
+		int recvLen = ::recv(sd, buf, remain, 0);
 		if (recvLen == 0 || recvLen == -1) {
-			GTRACE("recvLen=%zd remain=%d errno=%d %s", recvLen, remain, errno, strerror(errno));
+			GTRACE("recvLen=%d remain=%d errno=%d %s", recvLen, remain, errno, strerror(errno));
 			return false;
 		}
 		buf += recvLen;
