@@ -47,10 +47,6 @@ public:
 protected:
 	QObject* object_{nullptr};
 
-public:
-	void propLoad(QJsonObject jo) override;
-	void propSave(QJsonObject& jo) override;
-
 public slots:
 	void setControl();
 	// ----- gilgil temp 2020.05.21 -----
@@ -60,6 +56,10 @@ public slots:
 	void actionCloseTriggered(bool);
 	*/
 	// ----------------------------------
+
+public:
+	void propLoad(QJsonObject jo) override;
+	void propSave(QJsonObject& jo) override;
 };
 
 #endif // QT_GUI_LIB

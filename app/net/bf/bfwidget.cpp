@@ -30,16 +30,6 @@ BfWidget::~BfWidget() {
 	setControl();
 }
 
-void BfWidget::propLoad(QJsonObject jo) {
-	jo["rect"] >> GJson::rect(this);
-	jo["bf"] >> beaconFlood_;
-}
-
-void BfWidget::propSave(QJsonObject& jo) {
-	jo["rect"] << GJson::rect(this);
-	jo["bf"] << beaconFlood_;
-}
-
 void BfWidget::setControl() {
 	bool active = beaconFlood_.active();
 	tbStart_->setEnabled(!active);
@@ -110,4 +100,14 @@ void BfWidget::tbOption_clicked(bool checked) {
 void BfWidget::processClosed() {
 	if (beaconFlood_.active())
 		tbStop_->click();
+}
+
+void BfWidget::propLoad(QJsonObject jo) {
+	jo["rect"] >> GJson::rect(this);
+	jo["bf"] >> beaconFlood_;
+}
+
+void BfWidget::propSave(QJsonObject& jo) {
+	jo["rect"] << GJson::rect(this);
+	jo["bf"] << beaconFlood_;
 }

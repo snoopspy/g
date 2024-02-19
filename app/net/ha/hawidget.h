@@ -12,10 +12,6 @@ public:
 	~HaWidget() override;
 
 public:
-	void propLoad(QJsonObject jo) override;
-	void propSave(QJsonObject& jo) override;
-
-public:
 	GTreeWidget* treeWidget_;
 	HostAnalyzer hostAnalyzer_{this};
 
@@ -41,4 +37,8 @@ private slots:
 	void tbScreenSaver_clicked(bool checked = false);
 
 	void processClosed();
+
+public:
+	void propLoad(QJsonObject jo) override;
+	void propSave(QJsonObject& jo) override;
 };

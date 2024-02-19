@@ -12,10 +12,6 @@ public:
 	~BfWidget() override;
 
 public:
-	void propLoad(QJsonObject jo) override;
-	void propSave(QJsonObject& jo) override;
-
-public:
 	void setControl();
 
 public:
@@ -31,4 +27,8 @@ private slots:
 	void tbOption_clicked(bool checked = false);
 
 	void processClosed();
+
+public:
+	void propLoad(QJsonObject jo) override;
+	void propSave(QJsonObject& jo) override;
 };

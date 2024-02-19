@@ -85,16 +85,6 @@ void GPropWidget::clear() {
 	setControl();
 }
 
-void GPropWidget::propLoad(QJsonObject jo) {
-	jo["rect"] >> GJson::rect(this);
-	jo["sizes"] >> GJson::columnSizes(treeWidget_);
-}
-
-void GPropWidget::propSave(QJsonObject& jo) {
-	jo["rect"] << GJson::rect(this);
-	jo["sizes"] << GJson::columnSizes(treeWidget_);
-}
-
 void GPropWidget::setControl() {
 	GStateObj* stateObj = object_ == nullptr ? nullptr : dynamic_cast<GStateObj*>(object_);
 	// toolBar_->setEnabled(stateObj != nullptr); // gilgil temp 2020.05.21
@@ -128,5 +118,15 @@ void GPropWidget::actionCloseTriggered(bool) {
 }
 */
 // ----------------------------------
+
+void GPropWidget::propLoad(QJsonObject jo) {
+	jo["rect"] >> GJson::rect(this);
+	jo["sizes"] >> GJson::columnSizes(treeWidget_);
+}
+
+void GPropWidget::propSave(QJsonObject& jo) {
+	jo["rect"] << GJson::rect(this);
+	jo["sizes"] << GJson::columnSizes(treeWidget_);
+}
 
 #endif // QT_GUI_LIB

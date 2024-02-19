@@ -89,18 +89,6 @@ HaWidget::~HaWidget() {
 	setControl();
 }
 
-void HaWidget::propLoad(QJsonObject jo) {
-	jo["rect"] >> GJson::rect(this);
-	jo["sizes"] >> GJson::columnSizes(treeWidget_);
-	jo["ha"] >> hostAnalyzer_;
-}
-
-void HaWidget::propSave(QJsonObject& jo) {
-	jo["rect"] << GJson::rect(this);
-	jo["sizes"] << GJson::columnSizes(treeWidget_);
-	jo["ha"] << hostAnalyzer_;
-}
-
 #include <QCloseEvent>
 void HaWidget::closeEvent(QCloseEvent* event) {
 #ifdef Q_OS_ANDROID
@@ -276,4 +264,16 @@ void HaWidget::tbScreenSaver_clicked(bool checked) {
 void HaWidget::processClosed() {
 	if (hostAnalyzer_.active())
 		tbStop_->click();
+}
+
+void HaWidget::propLoad(QJsonObject jo) {
+	jo["rect"] >> GJson::rect(this);
+	jo["sizes"] >> GJson::columnSizes(treeWidget_);
+	jo["ha"] >> hostAnalyzer_;
+}
+
+void HaWidget::propSave(QJsonObject& jo) {
+	jo["rect"] << GJson::rect(this);
+	jo["sizes"] << GJson::columnSizes(treeWidget_);
+	jo["ha"] << hostAnalyzer_;
 }

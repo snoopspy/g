@@ -301,58 +301,6 @@ GObj* GGraphWidget::createNodeIfItemNodeSelected() {
 	return node;
 }
 
-void GGraphWidget::propLoad(QJsonObject jo) {
-	jo["rect"] >> GJson::rect(this);
-
-	QJsonObject splitter = jo["splitter"].toObject();
-	splitter["mid"] >> GJson::splitterSizes(midSplitter_);
-	splitter["left"] >> GJson::splitterSizes(midLeftSplitter_);
-	splitter["prop"] >> *propWidget_;
-
-	QString treeExpanded = jo["treeExpanded"].toString();
-	for (int i = 0; i < factoryWidget_->topLevelItemCount(); i++) {
-		QTreeWidgetItem* twi = factoryWidget_->topLevelItem(i);
-		if (treeExpanded.length() <= i) break;
-		QChar e = treeExpanded.at(i);
-		twi->setExpanded(e == 'E');
-	}
-	tabWidget_->setCurrentIndex(jo["tabIndex"].toInt());
-
-	toLowerFirstCharacter_ = jo["toLowerFirstCharacter"].toBool();
-	removePrefixNames_ = jo["removePrefixNames"].toString().split(",");
-	ignoreSignalNames_ = jo["ignoreSignalNames"].toString().split(",");
-	ignoreSlotNames_ = jo["ignoreSlotNames"].toString().split(",");
-
-	loadGraph(jo["graph"].toObject());
-}
-
-void GGraphWidget::propSave(QJsonObject& jo) {
-	jo["rect"] << GJson::rect(this);
-
-	QJsonObject splitter;
-	splitter["mid"] << GJson::splitterSizes(midSplitter_);
-	splitter["left"] << GJson::splitterSizes(midLeftSplitter_);
-	splitter["prop"] << *propWidget_;
-	jo["splitter"] = splitter;
-
-	QString treeExpanded;
-	for (int i = 0; i < factoryWidget_->topLevelItemCount(); i++) {
-		QTreeWidgetItem* twi = factoryWidget_->topLevelItem(i);
-		treeExpanded += twi->isExpanded() ? 'E' : 'C';
-	}
-	jo["treeExpanded"] = treeExpanded;
-	jo["tabIndex"] = tabWidget_->currentIndex();
-
-	jo["toLowerFirstCharacter"] = toLowerFirstCharacter_;
-	jo["removePrefixNames"] = removePrefixNames_.join(",");
-	jo["ignoreSignalNames"] = ignoreSignalNames_.join(",");
-	jo["ignoreSlotNames"] = ignoreSlotNames_.join(",");
-
-	QJsonObject graphJo;
-	saveGraph(graphJo);
-	jo["graph"] = graphJo;
-}
-
 void GGraphWidget::setControl() {
 	QString title = "SnoopSpy";
 	if (fileName_ != "") {
@@ -532,6 +480,58 @@ QRect GGraphWidget::getScreenRect() {
 	QRect rect = screen->geometry();
 	return rect;
 	rect = screen->geometry();
+}
+
+void GGraphWidget::propLoad(QJsonObject jo) {
+	jo["rect"] >> GJson::rect(this);
+
+	QJsonObject splitter = jo["splitter"].toObject();
+	splitter["mid"] >> GJson::splitterSizes(midSplitter_);
+	splitter["left"] >> GJson::splitterSizes(midLeftSplitter_);
+	splitter["prop"] >> *propWidget_;
+
+	QString treeExpanded = jo["treeExpanded"].toString();
+	for (int i = 0; i < factoryWidget_->topLevelItemCount(); i++) {
+		QTreeWidgetItem* twi = factoryWidget_->topLevelItem(i);
+		if (treeExpanded.length() <= i) break;
+		QChar e = treeExpanded.at(i);
+		twi->setExpanded(e == 'E');
+	}
+	tabWidget_->setCurrentIndex(jo["tabIndex"].toInt());
+
+	toLowerFirstCharacter_ = jo["toLowerFirstCharacter"].toBool();
+	removePrefixNames_ = jo["removePrefixNames"].toString().split(",");
+	ignoreSignalNames_ = jo["ignoreSignalNames"].toString().split(",");
+	ignoreSlotNames_ = jo["ignoreSlotNames"].toString().split(",");
+
+	loadGraph(jo["graph"].toObject());
+}
+
+void GGraphWidget::propSave(QJsonObject& jo) {
+	jo["rect"] << GJson::rect(this);
+
+	QJsonObject splitter;
+	splitter["mid"] << GJson::splitterSizes(midSplitter_);
+	splitter["left"] << GJson::splitterSizes(midLeftSplitter_);
+	splitter["prop"] << *propWidget_;
+	jo["splitter"] = splitter;
+
+	QString treeExpanded;
+	for (int i = 0; i < factoryWidget_->topLevelItemCount(); i++) {
+		QTreeWidgetItem* twi = factoryWidget_->topLevelItem(i);
+		treeExpanded += twi->isExpanded() ? 'E' : 'C';
+	}
+	jo["treeExpanded"] = treeExpanded;
+	jo["tabIndex"] = tabWidget_->currentIndex();
+
+	jo["toLowerFirstCharacter"] = toLowerFirstCharacter_;
+	jo["removePrefixNames"] = removePrefixNames_.join(",");
+	jo["ignoreSignalNames"] = ignoreSignalNames_.join(",");
+	jo["ignoreSlotNames"] = ignoreSlotNames_.join(",");
+
+	QJsonObject graphJo;
+	saveGraph(graphJo);
+	jo["graph"] = graphJo;
 }
 
 #endif // QT_GUI_LIB

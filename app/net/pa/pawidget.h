@@ -12,10 +12,6 @@ public:
 	~PaWidget() override;
 
 public:
-	void propLoad(QJsonObject jo) override;
-	void propSave(QJsonObject& jo) override;
-
-public:
 	void setControl();
 
 public:
@@ -32,4 +28,8 @@ private slots:
 
 	void processProbeDetected(GMac mac, int signal);
 	void processClosed();
+
+public:
+	void propLoad(QJsonObject jo) override;
+	void propSave(QJsonObject& jo) override;
 };

@@ -44,6 +44,16 @@ bool GHostScan::doClose() {
 	return res;
 }
 
+bool GHostScan::propLoad(QJsonObject jo, QMetaProperty mpro) {
+	// qDebug() << mpro.name(); // gilgil temp 2021.11.11
+	if (QString(mpro.name()) == "pcapDevice") {
+		QObject* p = parent();
+		if (p != nullptr && QString(p->metaObject()->className()) == "GAutoArpSpoof")
+			return true;
+	}
+	return GStateObj::propLoad(jo, mpro);
+}
+
 #include "net/pdu/getharppacket.h"
 
 void GHostScan::run() {
@@ -115,14 +125,4 @@ void GHostScan::run() {
 		}
 	}
 	qDebug() << "end";
-}
-
-bool GHostScan::propLoad(QJsonObject jo, QMetaProperty mpro) {
-	// qDebug() << mpro.name(); // gilgil temp 2021.11.11
-	if (QString(mpro.name()) == "pcapDevice") {
-		QObject* p = parent();
-		if (p != nullptr && QString(p->metaObject()->className()) == "GAutoArpSpoof")
-			return true;
-	}
-	return GStateObj::propLoad(jo, mpro);
 }

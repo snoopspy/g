@@ -49,9 +49,10 @@ protected:
 	bool doOpen() override;
 	bool doClose() override;
 
-protected:
-	void run();
+public:
+	bool propLoad(QJsonObject jo, QMetaProperty mpro) override;
 
+protected:
 	struct ScanThread: GThread {
 		ScanThread(QObject *parent) : GThread(parent) {}
 		~ScanThread() {}
@@ -61,6 +62,6 @@ protected:
 		}
 	} scanThread_{this};
 
-public:
-	bool propLoad(QJsonObject jo, QMetaProperty mpro) override;
+	void run();
+
 };

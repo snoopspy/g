@@ -55,10 +55,6 @@ public:
 	LogModel* logModel_{nullptr};
 
 public:
-	void propLoad(QJsonObject jo) override;
-	void propSave(QJsonObject& jo) override;
-
-public:
 	const static int ColumnHostMac = 0;
 	const static int ColumnHostIp = 1;
 	const static int ColumnHostAlias = 2;
@@ -95,4 +91,8 @@ public slots:
 	void tbSearchHost_clicked();
 	void tbSearchLog_clicked();
 	void cbPeriod_currentIndexChanged(int index);
+
+public:
+	void propLoad(QJsonObject jo) override;
+	void propSave(QJsonObject& jo) override;
 };

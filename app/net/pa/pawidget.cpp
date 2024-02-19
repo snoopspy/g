@@ -39,18 +39,6 @@ PaWidget::~PaWidget() {
 	setControl();
 }
 
-void PaWidget::propLoad(QJsonObject jo) {
-	jo["rect"] >> GJson::rect(this);
-	jo["pa"] >> probeAnalyzer_;
-	jo["sizes"] >> GJson::columnSizes(tableWidget_);
-}
-
-void PaWidget::propSave(QJsonObject& jo) {
-	jo["rect"] << GJson::rect(this);
-	jo["pa"] << probeAnalyzer_;
-	jo["sizes"] << GJson::columnSizes(tableWidget_);
-}
-
 void PaWidget::setControl() {
 	bool active = probeAnalyzer_.active();
 	tbStart_->setEnabled(!active);
@@ -142,4 +130,16 @@ void PaWidget::processProbeDetected(GMac mac, int signal) {
 void PaWidget::processClosed() {
 	if (probeAnalyzer_.active())
 		tbStop_->click();
+}
+
+void PaWidget::propLoad(QJsonObject jo) {
+	jo["rect"] >> GJson::rect(this);
+	jo["pa"] >> probeAnalyzer_;
+	jo["sizes"] >> GJson::columnSizes(tableWidget_);
+}
+
+void PaWidget::propSave(QJsonObject& jo) {
+	jo["rect"] << GJson::rect(this);
+	jo["pa"] << probeAnalyzer_;
+	jo["sizes"] << GJson::columnSizes(tableWidget_);
 }

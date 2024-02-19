@@ -73,10 +73,6 @@ public:
 		"close()"};
 
 public:
-	void propLoad(QJsonObject jo) override;
-	void propSave(QJsonObject& jo) override;
-
-public:
 	QAction* actionNewFile_;
 	QAction* actionOpenFile_;
 	QAction* actionSaveFile_;
@@ -119,6 +115,10 @@ public slots:
 
 protected:
 	static QRect getScreenRect();
+
+public:
+	void propLoad(QJsonObject jo) override;
+	void propSave(QJsonObject& jo) override;
 };
 
 #endif // QT_GUI_LIB

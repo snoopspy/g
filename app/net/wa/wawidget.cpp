@@ -48,18 +48,6 @@ WaWidget::~WaWidget() {
 	setControl();
 }
 
-void WaWidget::propLoad(QJsonObject jo) {
-	jo["rect"] >> GJson::rect(this);
-	jo["pa"] >> wifiAnalyzer_;
-	jo["sizes"] >> GJson::columnSizes(tableWidget_);
-}
-
-void WaWidget::propSave(QJsonObject& jo) {
-	jo["rect"] << GJson::rect(this);
-	jo["pa"] << wifiAnalyzer_;
-	jo["sizes"] << GJson::columnSizes(tableWidget_);
-}
-
 void WaWidget::setControl() {
 	bool active = wifiAnalyzer_.active();
 	tbStart_->setEnabled(!active);
@@ -210,4 +198,16 @@ void WaWidget::updateDevices() {
 		device.signals_.clear();
 		// qDebug() << QString("%1 %2 %3").arg(QString(device.mac_)).arg(device.ssid_).arg(value); // gilgil temp 2022.01.19
 	}
+}
+
+void WaWidget::propLoad(QJsonObject jo) {
+	jo["rect"] >> GJson::rect(this);
+	jo["wa"] >> wifiAnalyzer_;
+	jo["sizes"] >> GJson::columnSizes(tableWidget_);
+}
+
+void WaWidget::propSave(QJsonObject& jo) {
+	jo["rect"] << GJson::rect(this);
+	jo["wa"] << wifiAnalyzer_;
+	jo["sizes"] << GJson::columnSizes(tableWidget_);
 }

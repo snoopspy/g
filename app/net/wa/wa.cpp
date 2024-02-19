@@ -9,8 +9,8 @@ int main(int argc, char *argv[])
 	WaWidget wa;
 
 	QJsonObject& jo = GJson::instance();
-	bool isFirst = jo.find("wa") == jo.end();
-	jo["wa"] >> wa;
+	bool isFirst = jo.find("ww") == jo.end();
+	jo["ww"] >> wa;
 
 	wa.show();
 	if (isFirst) {
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
 	command->close();
 
-	jo["wa"] << wa;
+	jo["ww"] << wa;
 
 	return res;
 }

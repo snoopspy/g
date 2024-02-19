@@ -197,26 +197,6 @@ DbDialog::DbDialog(QWidget* parent, GHostDb* hostDb) : QDialog(parent), hostDb_(
 DbDialog::~DbDialog() {
 }
 
-void DbDialog::propLoad(QJsonObject jo) {
-	jo["rect"] >> GJson::rect(this);
-	tabWidget_->setCurrentIndex(jo["tabIndex"].toInt(0));
-	leSearchHost_->setText(jo["searchHost"].toString());
-	dteStart_->setDateTime(QDateTime::fromString(jo["sttTime"].toString(), "yy/MM/dd hh:mm"));
-	dteEnd_->setDateTime(QDateTime::fromString(jo["endTime"].toString(), "yy/MM/dd hh:mm"));
-	leSearchLog_->setText(jo["searchLog"].toString());
-	cbPeriod_->setCurrentIndex(jo["searchPeriod"].toInt(int(Today)));
-}
-
-void DbDialog::propSave(QJsonObject& jo) {
-	jo["rect"] << GJson::rect(this);
-	jo["tabIndex"] = tabWidget_->currentIndex();
-	jo["searchHost"] = leSearchHost_->text();
-	jo["sttTime"] = dteStart_->dateTime().toString("yy/MM/dd hh:mm");
-	jo["endTime"] = dteEnd_->dateTime().toString("yy/MM/dd hh:mm");
-	jo["searchLog"] = leSearchLog_->text();
-	jo["searchPeriod"] = cbPeriod_->currentIndex();
-}
-
 void DbDialog::setPeriod() {
 	SearchPeriod period = SearchPeriod(cbPeriod_->currentIndex());
 	QDateTime sttTime = QDateTime::currentDateTime();
@@ -378,4 +358,24 @@ void DbDialog::tbSearchLog_clicked() {
 void DbDialog::cbPeriod_currentIndexChanged(int index) {
 	(void)index;
 	setPeriod();
+}
+
+void DbDialog::propLoad(QJsonObject jo) {
+	jo["rect"] >> GJson::rect(this);
+	tabWidget_->setCurrentIndex(jo["tabIndex"].toInt(0));
+	leSearchHost_->setText(jo["searchHost"].toString());
+	dteStart_->setDateTime(QDateTime::fromString(jo["sttTime"].toString(), "yy/MM/dd hh:mm"));
+	dteEnd_->setDateTime(QDateTime::fromString(jo["endTime"].toString(), "yy/MM/dd hh:mm"));
+	leSearchLog_->setText(jo["searchLog"].toString());
+	cbPeriod_->setCurrentIndex(jo["searchPeriod"].toInt(int(Today)));
+}
+
+void DbDialog::propSave(QJsonObject& jo) {
+	jo["rect"] << GJson::rect(this);
+	jo["tabIndex"] = tabWidget_->currentIndex();
+	jo["searchHost"] = leSearchHost_->text();
+	jo["sttTime"] = dteStart_->dateTime().toString("yy/MM/dd hh:mm");
+	jo["endTime"] = dteEnd_->dateTime().toString("yy/MM/dd hh:mm");
+	jo["searchLog"] = leSearchLog_->text();
+	jo["searchPeriod"] = cbPeriod_->currentIndex();
 }

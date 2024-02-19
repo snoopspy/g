@@ -51,10 +51,6 @@ public:
 	~WaWidget() override;
 
 public:
-	void propLoad(QJsonObject jo) override;
-	void propSave(QJsonObject& jo) override;
-
-public:
 	void setControl();
 
 public:
@@ -75,4 +71,8 @@ private slots:
 	void processClosed();
 
 	void updateDevices();
+
+public:
+	void propLoad(QJsonObject jo) override;
+	void propSave(QJsonObject& jo) override;
 };
