@@ -9,7 +9,7 @@
 #include <GJson>
 
 WaWidget::WaWidget(QWidget* parent) : GDefaultWidget(parent) {
-	setWindowTitle("WiFi Analyzer");
+	setWindowTitle("WiFiAnalyzer");
 
 	tableWidget_ = new GTableWidget(this);
 #ifdef Q_OS_ANDROID

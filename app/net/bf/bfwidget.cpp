@@ -7,7 +7,7 @@
 #include <GJson>
 
 BfWidget::BfWidget(QWidget* parent) : GDefaultWidget(parent) {
-	setWindowTitle("Beacon Flood");
+	setWindowTitle("BeaconFlood");
 
 	plainTextEdit_ = new GPlainTextEdit(this);
 	mainLayout_->addWidget(plainTextEdit_);

@@ -7,7 +7,7 @@
 #include <GJson>
 
 PaWidget::PaWidget(QWidget* parent) : GDefaultWidget(parent) {
-	setWindowTitle("Probe Analyzer");
+	setWindowTitle("ProbeAnalyzer");
 
 	tableWidget_ = new GTableWidget(this);
 #ifdef Q_OS_ANDROID
