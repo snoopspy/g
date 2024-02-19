@@ -20,6 +20,7 @@
 struct GEthArpPacket final {
 	GEthHdr ethHdr_;
 	GArpHdr arpHdr_;
+	uint16_t padding_{0};
 
 	void init(GMac dmac, GMac smac, uint16_t operation, GMac senderMac, GIp senderIp, GMac targetMac, GIp targetIp);
 };
