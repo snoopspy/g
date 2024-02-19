@@ -59,7 +59,6 @@ void WaWidget::setControl() {
 void WaWidget::closeEvent(QCloseEvent* event) {
 #ifdef Q_OS_ANDROID
 	QMessageBox::StandardButton reply = QMessageBox::question(this, "Confirm", "Are you sure want to exit?", QMessageBox::Yes | QMessageBox::No);
-	qDebug() << "qCloseEvent" << reply;
 	if (reply == QMessageBox::Yes)
 		event->accept();
 	else
