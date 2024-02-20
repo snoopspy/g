@@ -25,6 +25,8 @@ setup/win/
 *.exe
 *.user
 *.apk
+*.tar.gz
+*.zip
 Makefile
 Makefile.*
 makefile-win
