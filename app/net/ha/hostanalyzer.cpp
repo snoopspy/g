@@ -41,11 +41,6 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 typedef MyTreeWidgetItem *PMyTreeWidgetItem;
 
 HostAnalyzer::HostAnalyzer(QObject* parent) : GGraph(parent) {
-#ifdef Q_OS_ANDROID
-	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
-	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\""}));
-#endif
-
 	hostMgr_.pcapDevice_ = &pcapDevice_;
 	QObject::connect(&pcapDevice_, &GPcapDevice::captured, &hostMgr_, &GHostMgr::manage, Qt::DirectConnection);
 
