@@ -133,6 +133,7 @@ SOURCES += \
 	$${PWD}/../src/net/pdu/gudphdr.cpp \
 	$${PWD}/../src/net/process/gclienthellosplit.cpp \
 	$${PWD}/../src/net/process/gcommand.cpp \
+	$${PWD}/../src/net/process/gcookiehijack.cpp \
 	$${PWD}/../src/net/process/gcorrectchecksum.cpp \
 	$${PWD}/../src/net/process/gdnsprocessor.cpp \
 	$${PWD}/../src/net/process/gpacketdebug.cpp \
@@ -285,6 +286,7 @@ HEADERS += \
 	$${PWD}/../src/net/pdu/gudphdr.h \
 	$${PWD}/../src/net/process/gclienthellosplit.h \
 	$${PWD}/../src/net/process/gcommand.h \
+	$${PWD}/../src/net/process/gcookiehijack.h \
 	$${PWD}/../src/net/process/gcorrectchecksum.h \
 	$${PWD}/../src/net/process/gdnsprocessor.h \
 	$${PWD}/../src/net/process/gpacketdebug.h \

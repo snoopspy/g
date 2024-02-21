@@ -30,7 +30,7 @@ bool GFind::doOpen() {
 				break;
 			}
 			case GFindItem::RegularExpression :
-				findItem->findRe_.setPattern(findItem->pattern_);
+				findItem->reFind_.setPattern(findItem->pattern_);
 				break;
 		}
 	}
@@ -93,7 +93,7 @@ void GFind::find(GPacket* packet) {
 					if (foundIndex != -1) foundStr = findItem->findHexPattern_;
 					break;
 				case GFindItem::RegularExpression :
-					QRegularExpressionMatch m = findItem->findRe_.match(heystack_, index);
+					QRegularExpressionMatch m = findItem->reFind_.match(heystack_, index);
 					if (m.hasMatch()) {
 						foundIndex = m.capturedStart(0);
 						foundStr = m.captured(0);

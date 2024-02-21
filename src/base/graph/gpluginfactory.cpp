@@ -229,6 +229,7 @@ void GPluginFactory::loadManage() {
 #include <GChannelHop>
 #include <GClientHelloSplit>
 #include <GCommand>
+#include <GCookieHijack>
 #include <GCorrectChecksum>
 #include <GDnsProcessor>
 #include <GPacketDebug>
@@ -245,6 +246,7 @@ void GPluginFactory::loadProcess() {
 	qRegisterMetaType<GClientHelloSplit*>();
 	qRegisterMetaType<GCorrectChecksum*>();
 	qRegisterMetaType<GCommand*>();
+	qRegisterMetaType<GCookieHijack*>();
 	qRegisterMetaType<GDnsProcessor*>();
 	qRegisterMetaType<GPacketDebug*>();
 	qRegisterMetaType<GPacketMgrDebug*>();
@@ -257,6 +259,7 @@ void GPluginFactory::loadProcess() {
 	category->items_.push_back(new ItemNode("GChannelHop"));
 	category->items_.push_back(new ItemNode("GClientHelloSplit"));
 	category->items_.push_back(new ItemNode("GCommand"));
+	category->items_.push_back(new ItemNode("GCookieHijack"));
 	category->items_.push_back(new ItemNode("GCorrectChecksum"));
 	category->items_.push_back(new ItemNode("GDnsProcessor"));
 	category->items_.push_back(new ItemNode("GPacketDebug"));

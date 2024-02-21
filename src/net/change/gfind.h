@@ -43,7 +43,7 @@ public:
 
 public:
 	QString findHexPattern_;
-	QRegularExpression findRe_;
+	QRegularExpression reFind_;
 };
 typedef GFindItem *PFindItem;
 
