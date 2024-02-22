@@ -213,3 +213,18 @@ bool GHostDb::insertLog(GMac mac, GIp ip, time_t sttTime, time_t endTime) {
 	}
 	return res;
 }
+
+#ifdef QT_GUI_LIB
+
+#include "base/prop/gpropitem-filepath.h"
+GPropItem* GHostDb::propCreateItem(GPropItemParam* param) {
+	if (QString(param->mpro_.name()) == "fileName") {
+		GPropItemFilePath* res = new GPropItemFilePath(param);
+		QStringList filters{"db files - *.db(*.db)", "any files - *(*)"};
+		res->fd_->setNameFilters(filters);
+		return res;
+	}
+	return GObj::propCreateItem(param);
+}
+
+#endif // QT_GUI_LIB

@@ -13,7 +13,8 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <GHostMgr>
+
+#include "ghostmgr.h"
 
 // ----------------------------------------------------------------------------
 // GHostDb
@@ -70,7 +71,7 @@ public:
 	void hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) override;
 	void hostChanged(GMac mac, GHostMgr::HostValue* hostValue) override;
 
-public:
+protected:
 	QSqlDatabase db_;
 
 protected:
@@ -85,4 +86,9 @@ public:
 	bool updateHost(GMac mac, Item* item);
 	bool insertOrUpdateDevice(GMac mac, Item* item);
 	bool insertLog(GMac mac, GIp ip, time_t sttTime, time_t endTime);
+
+#ifdef QT_GUI_LIB
+public:
+	GPropItem* propCreateItem(GPropItemParam* param) override;
+#endif // QT_GUI_LIB
 };
