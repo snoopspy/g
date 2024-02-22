@@ -35,16 +35,23 @@ void GPropItemFilePath::myEditingFinished() {
 	update();
 }
 
-QString _absolutePath;
+QString _prevDirectory;
 void GPropItemFilePath::myToolButtonClicked(bool checked) {
 	(void)checked;
 	fd_->setFileMode(QFileDialog::AnyFile);
-	if (_absolutePath != "")
-		fd_->setDirectory(_absolutePath);
+	if (_prevDirectory != "")
+		fd_->setDirectory(_prevDirectory);
+	else {
+		QString filePath = object_->property(mpro_.name()).toString();
+		if (filePath != "") {
+			QFileInfo fi = QFileInfo(filePath);
+			fd_->setDirectory(fi.absolutePath());
+		}
+	}
 	if (fd_->exec()) {
-		QFileInfo filePath = QFileInfo(fd_->selectedFiles().at(0));
-		_absolutePath = filePath.absolutePath();
-		bool res = object_->setProperty(mpro_.name(), filePath.filePath());
+		QFileInfo fi = QFileInfo(fd_->selectedFiles().at(0));
+		_prevDirectory = fi.absolutePath();
+		bool res = object_->setProperty(mpro_.name(), fi.filePath());
 		if (!res) {
 			qWarning() << QString("object->setProperty(%1, %2) return false").arg(mpro_.name(), lineEdit_->text());
 		}
