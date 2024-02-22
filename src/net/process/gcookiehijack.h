@@ -39,28 +39,22 @@ protected:
 	bool doClose() override;
 
 protected:
-	QRegularExpression reFindCookie_;
-
-public:
-	// --------------------------------------------------------------------------
-	// Cookie
-	// --------------------------------------------------------------------------
-	struct Cookie {
-		QString name_;
-		QString value_;
-	};
-	typedef QList<Cookie> CookieList;
+	QRegularExpression reHost_;
+	QRegularExpression reCookie_;
 
 public:
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
 	struct Item {
-		typedef QMap<uint32_t /*seq*/ , QString /*segment*/> Map;
-		Map segments_;
+		Item(GCookieHijack* ch) : ch_(ch) {}
+		~Item() {}
+		GCookieHijack* ch_;
+		struct Map : QMap<uint32_t /*seq*/, QString /*segment*/> {
+		} segments_;
 
-		void insertSegment(uint32_t seq, QString segment, int maxMergeCount);
-		bool extract(QString& host, CookieList& cookies, QRegularExpression& findCookieRe_);
+		void insertSegment(uint32_t seq, QString segment);
+		bool extract(QString& host, QString &cookie);
 	};
 	typedef Item *PItem;
 	// --------------------------------------------------------------------------
@@ -75,5 +69,5 @@ public slots:
 	void hijack(GPacket* packet);
 
 signals:
-	void hijacked(GPacket* packet, QString* host, CookieList *cookies);
+	void hijacked(GPacket* packet, QString host, QString cookie);
 };
