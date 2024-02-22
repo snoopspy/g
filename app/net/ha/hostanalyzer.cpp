@@ -185,7 +185,7 @@ void HostAnalyzer::updateWidgetItem(GTreeWidgetItem* twi) {
 	QObject::disconnect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 
 	bool prevBlock = policy == GArpBlock::Block;
-	bool block;
+	bool block = false; // remove warning
 	switch(mode) {
 		case GHostDb::Default :
 			block = policy == GArpBlock::Block;
