@@ -14,6 +14,45 @@ bool GCookieHijack::doOpen() {
 	reHost_.setPattern("Host: ([^\\r]*)\\r");
 	reCookie_.setPattern("Cookie: ([^\\r]*)\\r");
 
+	static bool first = true;
+	if (first) {
+		db_ = QSqlDatabase::addDatabase("QSQLITE");
+		first = false;
+	}
+
+	db_.setDatabaseName(fileName_);
+	if (!db_.open()) {
+		SET_ERR(GErr::Fail, QString("%1 %2").arg(db_.lastError().text()).arg(fileName_));
+		return false;
+	}
+
+	QSqlQuery query(db_);
+	if (!query.exec(
+			"CREATE TABLE IF NOT EXISTS cookie ("
+			"	mac INTEGER PRIMARY KEY,"
+			"	ip INTEGER,"
+			"	alias TEXT,"
+			"	host TEXT,"
+			"	vendor TEXT,"
+			"	mode INTEGER"
+			");"
+			)) {
+		SET_ERR(GErr::Fail, query.lastError().text());
+		return false;
+	}
+
+	if (!query.exec(
+			"CREATE TABLE IF NOT EXISTS log ("\
+			"	mac INTEGER,"\
+			"	ip INTEGER,"\
+			"	stt_time INTEGER,"\
+			"	end_time INTEGER"\
+			");"
+			)) {
+		SET_ERR(GErr::Fail, query.lastError().text());
+		return false;
+	}
+
 	return true;
 
 }
@@ -39,6 +78,7 @@ void GCookieHijack::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tc
 void GCookieHijack::hijack(GPacket* packet) {
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr == nullptr) return;
+
 	GTcpHdr* tcpHdr = packet->tcpHdr_;
 	if (tcpHdr == nullptr) return;
 
@@ -92,3 +132,18 @@ bool GCookieHijack::Item::extract(QString& host, QString &cookie) {
 	segments_.clear();
 	return true;
 }
+
+#ifdef QT_GUI_LIB
+
+#include "base/prop/gpropitem-filepath.h"
+GPropItem* GCookieHijack::propCreateItem(GPropItemParam* param) {
+	if (QString(param->mpro_.name()) == "fileName") {
+		GPropItemFilePath* res = new GPropItemFilePath(param);
+		QStringList filters{"db files - *.db(*.db)", "any files - *(*)"};
+		res->fd_->setNameFilters(filters);
+		return res;
+	}
+	return GObj::propCreateItem(param);
+}
+
+#endif // QT_GUI_LIB

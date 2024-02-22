@@ -11,6 +11,9 @@
 #pragma once
 
 #include <QRegularExpression>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
 
 #include "base/gstateobj.h"
 #include "net/manage/gtcpflowmgr.h"
@@ -18,8 +21,9 @@
 // ----------------------------------------------------------------------------
 // GCookieHijack
 // ----------------------------------------------------------------------------
-struct G_EXPORT GCookieHijack : GStateObj, GTcpFlowMgr::Managable {
+struct G_EXPORT GCookieHijack : GStateObj, GTcpFlowMgr::Managable, QRecursiveMutex {
 	Q_OBJECT
+	Q_PROPERTY(QString fileName MEMBER fileName_)
 	Q_PROPERTY(int maxMergeCount MEMBER maxMergeCount_)
 	Q_PROPERTY(GObjPtr tcpFlowMgr READ getTcpFlowMgr WRITE setTcpFlowMgr)
 
@@ -27,6 +31,7 @@ struct G_EXPORT GCookieHijack : GStateObj, GTcpFlowMgr::Managable {
 	void setTcpFlowMgr(GObjPtr value) { tcpFlowMgr_ = dynamic_cast<GTcpFlowMgr*>(value.data()); }
 
 public:
+	QString fileName_{"cookie.db"};
 	int maxMergeCount_{3};
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 
@@ -37,10 +42,6 @@ public:
 protected:
 	bool doOpen() override;
 	bool doClose() override;
-
-protected:
-	QRegularExpression reHost_;
-	QRegularExpression reCookie_;
 
 public:
 	// --------------------------------------------------------------------------
@@ -65,9 +66,27 @@ public:
 	void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 
+protected:
+	QRegularExpression reHost_;
+	QRegularExpression reCookie_;
+
+protected:
+	QSqlDatabase db_;
+
+protected:
+	QSqlQuery* selectHostQuery_{nullptr};
+	QSqlQuery* insertHostQuery_{nullptr};
+	QSqlQuery* updateHostQuery_{nullptr};
+	QSqlQuery* insertLogQuery_{nullptr};
+
 public slots:
 	void hijack(GPacket* packet);
 
 signals:
 	void hijacked(GPacket* packet, QString host, QString cookie);
+
+#ifdef QT_GUI_LIB
+public:
+	GPropItem* propCreateItem(GPropItemParam* param) override;
+#endif // QT_GUI_LIB
 };
