@@ -85,19 +85,19 @@ bool GHostDb::doClose() {
 	db_.close();
 
 	if (selectHostQuery_ != nullptr) {
-		delete selectHostQuery_ ;
+		delete selectHostQuery_;
 		selectHostQuery_ = nullptr;
 	}
 	if (insertHostQuery_ != nullptr) {
-		delete insertHostQuery_ ;
+		delete insertHostQuery_;
 		insertHostQuery_ = nullptr;
 	}
 	if (updateHostQuery_ != nullptr) {
-		delete updateHostQuery_ ;
+		delete updateHostQuery_;
 		updateHostQuery_ = nullptr;
 	}
 	if (insertLogQuery_ != nullptr) {
-		delete insertLogQuery_ ;
+		delete insertLogQuery_;
 		insertLogQuery_ = nullptr;
 	}
 

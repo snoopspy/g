@@ -666,13 +666,13 @@ GDemon::PcapOpenRes GDemonPcap::open(PcapOpenReq req) {
 		uNetMask = 0xFFFFFFFF;
 		if (pcap_compile(pcap_, &code, req.filter_.data(),  1, uNetMask) < 0) {
 			res.errBuf_ = pcap_geterr(pcap_);
-			GTRACE("error in pcap_compile(%s)", res.errBuf_.data()) ;
+			GTRACE("error in pcap_compile(%s)", res.errBuf_.data());
 			close();
 			return res;
 		}
 		if (pcap_setfilter(pcap_, &code) < 0) {
 			res.errBuf_ = pcap_geterr(pcap_);
-			GTRACE("error in pcap_setfilter(%s)", res.errBuf_.data()) ;
+			GTRACE("error in pcap_setfilter(%s)", res.errBuf_.data());
 			close();
 			return res;
 		}
@@ -941,7 +941,7 @@ void GDemonNetFilter::close() {
 	}
 
 	if (nfRecvBuf_ != nullptr) {
-		delete[] nfRecvBuf_ ;
+		delete[] nfRecvBuf_;
 		nfRecvBuf_ = nullptr;
 	}
 }

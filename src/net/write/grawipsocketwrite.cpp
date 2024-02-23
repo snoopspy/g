@@ -111,7 +111,7 @@ GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
 	GPacket::Result res;
 	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->tlen() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr) {
 		GBuf backupBuf = packet->buf_;
-		GIpHdr* ipHdr = packet->ipHdr_ ;
+		GIpHdr* ipHdr = packet->ipHdr_;
 		packet->buf_.data_ = pbyte(ipHdr);
 		packet->buf_.size_ = ipHdr->tlen();
 		res = writeMtuSplit(packet, mtu_, GPacket::Ip);

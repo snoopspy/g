@@ -43,8 +43,8 @@ bool GTraceRoute::doOpen() {
 		return false;
 	}
 
-	{ QMutexLocker ml(&threadMgr_); threadMgr_.clear() ;}
-	{ QMutexLocker ml(&nextProbeMgr_); nextProbeMgr_.clear() ;}
+	{ QMutexLocker ml(&threadMgr_); threadMgr_.clear(); }
+	{ QMutexLocker ml(&nextProbeMgr_); nextProbeMgr_.clear(); }
 
 	return true;
 }
