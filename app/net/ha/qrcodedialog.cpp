@@ -63,7 +63,7 @@ void QrCodeDialog::pbGenerate_clicked(bool checked) {
 	QString url = QString("http://%1:%2/%3").arg(QString(myIp)).arg(webServer->port_).arg(session.bytesToString());
 	lblUrl_->setText(url);
 	int size = std::min(lblQrCode_->width(), lblQrCode_->height());
-	QImage image = generator_->generateQr(url, size);
+	QImage image = generator_->generateQr(url, size * 2 / 3);
 	lblQrCode_->setPixmap(QPixmap::fromImage(image));
 }
 
