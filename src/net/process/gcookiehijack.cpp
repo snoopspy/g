@@ -29,35 +29,36 @@ bool GCookieHijack::doOpen() {
 	QSqlQuery query(db_);
 	if (!query.exec(
 			"CREATE TABLE IF NOT EXISTS cookie ("
-			"	mac INTEGER PRIMARY KEY,"
+			"	id INTEGER PRIMARY KEY AUTOINCREMENT,"
+			"	created INTEGER,"
+			"	mac INTEGER,"
 			"	ip INTEGER,"
-			"	alias TEXT,"
 			"	host TEXT,"
-			"	vendor TEXT,"
-			"	mode INTEGER"
+			"	cookie TEXT"
 			");"
 			)) {
 		SET_ERR(GErr::Fail, query.lastError().text());
 		return false;
 	}
 
-	if (!query.exec(
-			"CREATE TABLE IF NOT EXISTS log ("\
-			"	mac INTEGER,"\
-			"	ip INTEGER,"\
-			"	stt_time INTEGER,"\
-			"	end_time INTEGER"\
-			");"
-			)) {
-		SET_ERR(GErr::Fail, query.lastError().text());
+	insertQuery_ = new QSqlQuery(db_);
+	if (!insertQuery_->prepare("INSERT INTO cookie (created, mac, ip, host, cookie) VALUES (:created, :mac, :ip, :host, :cookie)")) {
+		SET_ERR(GErr::Fail, insertQuery_->lastError().text());
 		return false;
 	}
 
 	return true;
-
 }
 
 bool GCookieHijack::doClose() {
+	QMutexLocker ml(this);
+	db_.close();
+
+	if (insertQuery_ != nullptr) {
+		delete insertQuery_;
+		insertQuery_ = nullptr;
+	}
+
 	return true;
 }
 
@@ -73,6 +74,23 @@ void GCookieHijack::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tc
 	Item* item = getItem(tcpFlowValue);
 	item->~Item();
 	// qDebug() << QString("_tcpFlowDeleted %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
+}
+
+bool GCookieHijack::insert(time_t created, GMac mac, GIp ip, QString host, QString cookie) {
+	QMutexLocker ml(this);
+
+	Q_ASSERT(insertQuery_ != nullptr);
+	insertQuery_->bindValue(":created", quint64(created));
+	insertQuery_->bindValue(":mac", quint64(mac));
+	insertQuery_->bindValue(":ip", quint32(ip));
+	insertQuery_->bindValue(":host", host);
+	insertQuery_->bindValue(":cookie", cookie);
+
+	bool res = insertQuery_->exec();
+	if (!res) {
+		qWarning() << insertQuery_->lastError().text();
+	}
+	return res;
 }
 
 void GCookieHijack::hijack(GPacket* packet) {
@@ -95,6 +113,13 @@ void GCookieHijack::hijack(GPacket* packet) {
 	if (!item->extract(host, cookie))
 		return;
 
+	time_t created = packet->ts_.tv_sec;
+	GMac mac(GMac::nullMac());
+	GEthHdr* ethHdr = packet->ethHdr_;
+	if (ethHdr != nullptr)
+		mac = ethHdr->smac();
+	GIp ip = ipHdr->sip();
+	insert(created, mac, ip, host, cookie);
 	qDebug() << host << cookie; // gilgil temp
 	emit hijacked(packet, host, cookie);
 }

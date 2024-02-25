@@ -74,10 +74,10 @@ protected:
 	QSqlDatabase db_;
 
 protected:
-	QSqlQuery* selectHostQuery_{nullptr};
-	QSqlQuery* insertHostQuery_{nullptr};
-	QSqlQuery* updateHostQuery_{nullptr};
-	QSqlQuery* insertLogQuery_{nullptr};
+	QSqlQuery* insertQuery_{nullptr};
+
+public:
+	bool insert(time_t created, GMac mac, GIp ip, QString host, QString cookie);
 
 public slots:
 	void hijack(GPacket* packet);
