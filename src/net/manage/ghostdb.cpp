@@ -204,7 +204,7 @@ bool GHostDb::insertLog(GMac mac, GIp ip, time_t sttTime, time_t endTime) {
 
 	Q_ASSERT(insertLogQuery_ != nullptr);
 	insertLogQuery_->bindValue(":mac", quint64(mac));
-	insertLogQuery_->bindValue(":ip", uint32_t(ip));
+	insertLogQuery_->bindValue(":ip", quint32(ip));
 	insertLogQuery_->bindValue(":stt_time", quint64(sttTime));
 	insertLogQuery_->bindValue(":end_time", quint64(endTime));
 	bool res = insertLogQuery_->exec();
