@@ -30,11 +30,13 @@ struct G_EXPORT GApp : QCoreApplication {
 #endif // QT_GUI_LIB
 
 public:
-	GApp(int &argc, char** argv, bool demon = true, bool nexmonDemon = true);
+	GApp(int &argc, char** argv, bool demon = true, bool nexmonDemon = true, bool screenKeep = true);
 	~GApp() override;
 
 	QProcess demon_;
 	QProcess nexmonDemon_;
+
+	bool screenKeep_;
 	GScreenKeeper screenKeeper_;
 
 	static void initLogger();

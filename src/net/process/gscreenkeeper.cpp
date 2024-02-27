@@ -21,8 +21,6 @@ bool GScreenKeeper::doClose() {
 bool GScreenKeeper::keepScreen(bool on) {
 	bool res = true;
 	QNativeInterface::QAndroidApplication::runOnAndroidMainThread([this, on, &res] {
-		qDebug() << "";
-
 		QJniObject activity = QNativeInterface::QAndroidApplication::context();
 		if (!activity.isValid()) {
 			SET_ERR(GErr::Fail, "activity is not valid");

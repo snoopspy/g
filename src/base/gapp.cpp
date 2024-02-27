@@ -27,9 +27,9 @@ std::string getDir(std::string argv) {
 // GApp
 // ----------------------------------------------------------------------------
 #ifdef QT_GUI_LIB
-GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon) : QApplication(argc, argv) {
+GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon, bool screenKeep) : QApplication(argc, argv) {
 #else
-GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon) : QCoreApplication(argc, argv) {
+GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon, bool screenKeep) : QCoreApplication(argc, argv) {
 #endif // QT_GUI_LIB
 
 #ifndef Q_OS_ANDROID
@@ -62,7 +62,9 @@ GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon) : QCoreApplicat
 		launchDemon(&nexmonDemon_, GDemon::NexmonPort, soFileName);
 	}
 
-	screenKeeper_.open();
+	screenKeep_ = screenKeep;
+	if (screenKeep_)
+		screenKeeper_.open();
 }
 
 GApp::~GApp() {
@@ -80,7 +82,8 @@ GApp::~GApp() {
 	system("su -c '/data/data/com.termux/files/usr/bin/termux-wake-unlock'");
 #endif // Q_OS_ANDROID
 
-	screenKeeper_.close();
+	if (screenKeep_)
+		screenKeeper_.close();
 
 	QString appName = QCoreApplication::applicationName();
 	qInfo() << appName << "terminated successfully";
