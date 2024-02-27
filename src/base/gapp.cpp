@@ -1,6 +1,5 @@
 #include "gapp.h"
 #include "base/gjson.h"
-#include "base/graph/ggraphwidget.h"
 #include "base/log/glogmanager.h"
 #include "base/log/glogdbwin32.h"
 #include "base/log/glogfile.h"
@@ -62,6 +61,8 @@ GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon) : QCoreApplicat
 		QString soFileName = GNexmon::soFileName();
 		launchDemon(&nexmonDemon_, GDemon::NexmonPort, soFileName);
 	}
+
+	screenKeeper_.open();
 }
 
 GApp::~GApp() {
@@ -78,6 +79,8 @@ GApp::~GApp() {
 	system("su -c 'pkill ssdemon'"); // ssdemon is not terminated properly on android
 	system("su -c '/data/data/com.termux/files/usr/bin/termux-wake-unlock'");
 #endif // Q_OS_ANDROID
+
+	screenKeeper_.close();
 
 	QString appName = QCoreApplication::applicationName();
 	qInfo() << appName << "terminated successfully";

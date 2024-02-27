@@ -18,6 +18,7 @@
 #include <QFile>
 #include <QProcess>
 #include "base/gbase.h"
+#include "net/process/gscreenkeeper.h"
 
 // ----------------------------------------------------------------------------
 // GApp
@@ -34,6 +35,7 @@ public:
 
 	QProcess demon_;
 	QProcess nexmonDemon_;
+	GScreenKeeper screenKeeper_;
 
 	static void initLogger();
 	void launchDemon(QProcess* demon, int port, QString soFileName = "");

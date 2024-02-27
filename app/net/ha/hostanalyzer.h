@@ -27,7 +27,6 @@ struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_PROPERTY(GObjRef hostDb READ getHostDb)
 	Q_PROPERTY(GObjRef arpBlock READ getArpBlock)
 	Q_PROPERTY(GObjRef command READ getCommand)
-	Q_PROPERTY(GObjRef screenKeeper READ getScreenKeeper)
 	Q_PROPERTY(GObjRef screenSaver READ getScreenSaver)
 	Q_PROPERTY(GObjRef webServer READ getWebServer)
 
@@ -43,7 +42,6 @@ public:
 	GObjRef getHostDb() { return &hostDb_; }
 	GObjRef getArpBlock() { return &arpBlock_; }
 	GObjRef getCommand() { return &command_; }
-	GObjRef getScreenKeeper() { return &screenKeeper_; }
 	GObjRef getScreenSaver() { return &screenSaver_; }
 	GObjRef getWebServer() { return &webServer_; }
 
@@ -63,7 +61,6 @@ public:
 	GHostDb hostDb_{this};
 	GArpBlock arpBlock_{this};
 	GCommand command_{this};
-	GScreenKeeper screenKeeper_{this};
 	GScreenSaver screenSaver_{this};
 	WebServer webServer_{this};
 
