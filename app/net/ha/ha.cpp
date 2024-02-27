@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-	GApp a(argc, argv);
+	GApp a(argc, argv, true, false);
 	HaWidget hw;
 
 	QJsonObject& jo = GJson::instance();

@@ -118,7 +118,6 @@ void GApp::launchDemon(QProcess* demon, int port, QString soFileName) {
 		QString run = QString("%1/%2").arg(path, ssdemonFile);
 #endif // Q_OS_ANDROID
 		arguments.append(run);
-		qDebug() << arguments;
 		demon->start("su", arguments);
 	}
 }
