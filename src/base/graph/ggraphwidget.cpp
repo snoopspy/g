@@ -324,7 +324,6 @@ void GGraphWidget::setControl() {
 	actionStop_->setEnabled(active);
 	actionEdit_->setEnabled(!active && mode != GGScene::MoveItem);
 	actionLink_->setEnabled(!active && mode != GGScene::InsertLine);
-	actionAbout_->setEnabled(!active);
 
 	factoryWidget_->setEnabled(!active);
 	propWidget_->setEnabled(!active);
