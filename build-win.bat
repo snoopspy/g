@@ -64,6 +64,7 @@ copy %QTDIR%\bin\Qt6Core.dll .
 copy %QTDIR%\bin\Qt6Gui.dll .
 copy %QTDIR%\bin\Qt6Network.dll .
 copy %QTDIR%\bin\Qt6Sql.dll .
+copy %QTDIR%\bin\Qt6Svg.dll .
 copy %QTDIR%\bin\Qt6Widgets.dll .
 mkdir platforms
 copy %QTDIR%\plugins\platforms\*.dll platforms\
