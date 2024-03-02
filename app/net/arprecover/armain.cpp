@@ -55,10 +55,8 @@ struct Param {
 	}
 
 	void usage() {
-		cerr << "arprecover version "
-#include "../../../version.txt"
-			 << endl;
-		cerr << "" << endl;
+		cerr << "arprecover version " << GAux::getVersion() << endl;
+		cerr << endl;
 		cerr << "syntax: arprecover [-i <interval>] <interface> gwip mask myip mymac sip smac tip tmac[sip2 smac2 tip2 tmac2...]\n";
 		cerr << "sample: arprecover -i 60 wlan0 10.1.1.1 255.255.255.0 10.1.1.3 00:33:33:33:33:33:33 10.1.1.2 00:22:22:22:22:22 10.1.1.1 00:11:11:11:11:11\n";
 	}

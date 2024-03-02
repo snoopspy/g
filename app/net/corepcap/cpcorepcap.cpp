@@ -1,3 +1,4 @@
+#include "gaux.h"
 #include "cpcorepcap.h"
 #include "cppcapdevice.h"
 #include "cppcapdevicewrite.h"
@@ -41,10 +42,8 @@ bool CCorePcap::doClose() {
 }
 
 void CCorePcap::usage() {
-	cerr << "corepcap version "
-#include "../../../version.txt"
-	<< endl;
-	cerr << "" << endl;
+	cerr << "corepcap version " << GAux::getVersion() << endl;
+	cerr << endl;
 	cerr << "syntax" << endl;
 	cerr << "  corepcap <input> <output>[<output>...]" << endl;
 	cerr << "    * Input must be specified just once, meanwhile, output could be multiple instance." << endl;

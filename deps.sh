@@ -8,6 +8,8 @@ sudo apt install libpcap-dev
 sudo apt install libssl-dev
 
 # libnetfilter-queue
+sudo apt install libmnl-dev
+sudo apt install libnfnetlink-dev
 sudo apt install libnetfilter-queue-dev
 
 # opengl

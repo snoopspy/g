@@ -1,5 +1,7 @@
-QT -= qt gui
-CONFIG += console
+TEMPLATE = app
+CONFIG += console c++17
+CONFIG -= app_bundle
+CONFIG -= qt
 DESTDIR = $${PWD}/../../../bin
 INCLUDEPATH += $${PWD}/..
 linux: LIBS += -lpcap
@@ -8,5 +10,11 @@ win32 {
 	LIBS += -L$${PWD}/../../../../npcap/Lib/x64
 	LIBS += -lws2_32 -lwpcap -lpacket
 }
-SOURCES += *.cpp $${PWD}/../gaux.cpp
-HEADERS += *.h
+
+SOURCES += \
+	*.cpp \
+	$${PWD}/../gaux.cpp
+
+HEADERS += \
+	*.h \
+	$${PWD}/../gaux.h

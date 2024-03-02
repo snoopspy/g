@@ -1,5 +1,5 @@
 TARGET=../../../bin/ssdemon
-SRCS=$(wildcard *.cpp) ../../../src/net/demon/gdemon.cpp ../gaux.cpp
+SRCS=$(wildcard *.cpp) ../gaux.cpp ../../../src/net/demon/gdemon.cpp
 OBJS=$(SRCS:%.cpp=%.o)
 
 CPPFLAGS+=-g -I.. -I../../../src

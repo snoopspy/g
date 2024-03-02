@@ -1,14 +1,17 @@
-QT -= qt gui
-CONFIG += console
+TEMPLATE = app
+CONFIG += console c++17
+CONFIG -= app_bundle
+CONFIG -= qt
 DESTDIR = $${PWD}/../../../bin
-INCLUDEPATH += $${PWD}/../../../src $${PWD}/..
+INCLUDEPATH += $${PWD}/.. $${PWD}/../../../src
 LIBS += -lpcap -lnetfilter_queue
+
 SOURCES += \
 	*.cpp \
-	$${PWD}/../../../src/net/demon/gdemon.cpp \
-	$${PWD}/../gaux.cpp
+	$${PWD}/../gaux.cpp \
+	$${PWD}/../../../src/net/demon/gdemon.cpp
 
 HEADERS += \
 	*.h \
-	$${PWD}/../../../src/net/demon/gdemon.h \
-	$${PWD}/../gaux.h
+	$${PWD}/../gaux.h \
+	$${PWD}/../../../src/net/demon/gdemon.h

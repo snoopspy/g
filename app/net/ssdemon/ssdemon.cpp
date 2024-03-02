@@ -22,10 +22,8 @@ struct Param {
 	}
 
 	void usage() {
-		cerr << "ssdemon version "
-#include "../../../version.txt"
-			 << endl;
-		cerr << "" << endl;
+		cerr << "ssdemon version " << GAux::getVersion() << endl;
+		cerr << endl;
 		cerr << "syntax: ssdemon <port>\n";
 		cerr << "sample: ssdemon 8908\n";
 	}

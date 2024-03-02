@@ -1,5 +1,6 @@
 #include <csignal>
 #include <unistd.h>
+#include "gaux.h"
 #include "cpcorepcap.h"
 
 CCorePcap cp;
@@ -78,9 +79,6 @@ std::string getDir(std::string argv) {
 int main(int argc, char* argv[]) {
 	gtrace_default("127.0.0.1", 8908, false, "corepcap.log");
 
-	const char* version =
-#include "../../../version.txt"
-	;
 	char wd[BUFSIZ];
 	memset(wd, 0, BUFSIZ);
 	if (getcwd(wd, BUFSIZ) == nullptr)
@@ -88,7 +86,7 @@ int main(int argc, char* argv[]) {
 	int res = chdir(getDir(argv[0]).data());
 	if (res != 0)
 		GTRACE("chdir return %d", res);
-	GTRACE("corepcap %s started login=%s dir=%s %s %s", version, getlogin(), wd, __DATE__, __TIME__);
+	GTRACE("corepcap %s started login=%s dir=%s %s %s", GAux::getVersion(), getlogin(), wd, __DATE__, __TIME__);
 
 	std::string arguments;
 	for (int i = 0; i < argc; i++)
