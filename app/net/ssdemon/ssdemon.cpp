@@ -5,24 +5,28 @@
 #include "gaux.h"
 #include "gdemonserver.h"
 
+using namespace std;
+
 GDemonServer server;
 
 struct Param {
 	uint16_t port_{GDemon::DefaultPort};
 
 	bool parse(int argc, char* argv[]) {
-		if (argc == 2)
-			port_ = std::stoi(argv[1]);
-		if (argc > 2) {
+		if (argc != 2) {
 			usage();
 			return false;
 		}
+		port_ = stoi(argv[1]);
 		return true;
 	}
 
 	void usage() {
-		std::cerr << "syntax: ssdemon [<port>]\n";
-		std::cerr << "sample: ssdemon 8908\n";
+		cerr << "ssdemon version "
+#include "../../../version.txt"
+			 << endl;
+		cerr << "syntax: ssdemon <port>\n";
+		cerr << "sample: ssdemon 8908\n";
 	}
 } param;
 
@@ -58,9 +62,9 @@ int main(int argc, char* argv[]) {
 		GTRACE("chdir return %d", res);
 	GTRACE("ssdemon %s started login=%s dir=%s %s %s", GAux::getVersion(), getlogin(), wd, __DATE__, __TIME__);
 
-	std::string arguments;
+	string arguments;
 	for (int i = 0; i < argc; i++)
-		arguments += argv[i] + std::string(" ");
+		arguments += argv[i] + string(" ");
 	GTRACE("argv=%s", arguments.data());
 
 	GAux::prepareSignal(signalHandler);

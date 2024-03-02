@@ -5,6 +5,8 @@
 #include "gaux.h"
 #include "arprecover.h"
 
+using namespace std;
+
 ArpRecover recover;
 
 struct Param {
@@ -16,7 +18,7 @@ struct Param {
 
 		int i = 1;
 		if (strcmp(argv[i], "-i") == 0) {
-			recover.interval_ = std::stoi(argv[i + 1]);
+			recover.interval_ = stoi(argv[i + 1]);
 			i += 2;
 		}
 		recover.intfName_ = argv[i++];
@@ -30,10 +32,10 @@ struct Param {
 
 		GTRACE("interval=%d", recover.interval_);
 		GTRACE("intfName=%s", recover.intfName_.data());
-		GTRACE("gateway=%s", std::string(recover.network_.gateway_).data());
-		GTRACE("mask=%s", std::string(recover.network_.mask_).data());
-		GTRACE("ip=%s", std::string(recover.network_.ip_).data());
-		GTRACE("mac=%s", std::string(recover.myMac_).data());
+		GTRACE("gateway=%s", string(recover.network_.gateway_).data());
+		GTRACE("mask=%s", string(recover.network_.mask_).data());
+		GTRACE("ip=%s", string(recover.network_.ip_).data());
+		GTRACE("mac=%s", string(recover.myMac_).data());
 
 		while (i < argc) {
 			Flow flow;
@@ -42,10 +44,10 @@ struct Param {
 			flow.targetIp_ = Ip(argv[i++]);
 			flow.targetMac_ = Mac(argv[i++]);
 			GTRACE("sip=%s smac=%s tip=%s tmac=%s",
-				std::string(flow.senderIp_).data(),
-				std::string(flow.senderMac_).data(),
-				std::string(flow.targetIp_).data(),
-				std::string(flow.targetMac_).data());
+				string(flow.senderIp_).data(),
+				string(flow.senderMac_).data(),
+				string(flow.targetIp_).data(),
+				string(flow.targetMac_).data());
 			IpFlowKey key(flow.senderIp_, flow.targetIp_);
 			recover.flowMap_[key] = flow;
 		}
@@ -53,8 +55,11 @@ struct Param {
 	}
 
 	void usage() {
-		std::cerr << "syntax: arprecover [-i <interval>] <interface> gwip mask myip mymac sip smac tip tmac[sip2 smac2 tip2 tmac2...]\n";
-		std::cerr << "sample: arprecover -i 60 wlan0 10.1.1.1 255.255.255.0 10.1.1.3 00:33:33:33:33:33:33 10.1.1.2 00:22:22:22:22:22 10.1.1.1 00:11:11:11:11:11\n";
+		cerr << "arprecover version "
+#include "../../../version.txt"
+			 << endl;
+		cerr << "syntax: arprecover [-i <interval>] <interface> gwip mask myip mymac sip smac tip tmac[sip2 smac2 tip2 tmac2...]\n";
+		cerr << "sample: arprecover -i 60 wlan0 10.1.1.1 255.255.255.0 10.1.1.3 00:33:33:33:33:33:33 10.1.1.2 00:22:22:22:22:22 10.1.1.1 00:11:11:11:11:11\n";
 	}
 } param;
 
@@ -89,9 +94,9 @@ int main(int argc, char* argv[]) {
 	GTRACE("arprecover %s started dir=%s %s %s", GAux::getVersion(), wd, __DATE__, __TIME__);
 #endif // WIN32
 
-	std::string arguments;
+	string arguments;
 	for (int i = 0; i < argc; i++)
-		arguments += argv[i] + std::string(" ");
+		arguments += argv[i] + string(" ");
 	GTRACE("argv=%s", arguments.data());
 
 #ifdef __linux__
