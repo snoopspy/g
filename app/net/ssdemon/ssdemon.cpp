@@ -25,6 +25,7 @@ struct Param {
 		cerr << "ssdemon version "
 #include "../../../version.txt"
 			 << endl;
+		cerr << "" << endl;
 		cerr << "syntax: ssdemon <port>\n";
 		cerr << "sample: ssdemon 8908\n";
 	}
