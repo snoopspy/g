@@ -13,10 +13,12 @@ PaWidget::PaWidget(QWidget* parent) : GDefaultWidget(parent) {
 #ifdef Q_OS_ANDROID
 	tableWidget_->horizontalHeader()->setFixedHeight(GItemDelegate::DefaultItemHeight);
 #endif // Q_OS_ANDROID
-	tableWidget_->setColumnCount(2);
-	tableWidget_->setHorizontalHeaderItem(0, new QTableWidgetItem("Mac"));
-	tableWidget_->setHorizontalHeaderItem(1, new QTableWidgetItem("Signal"));
-	tableWidget_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+	tableWidget_->setColumnCount(ProbeAnalyzer::ColumnSignal + 1);
+	tableWidget_->setHorizontalHeaderItem(ProbeAnalyzer::ColumnMac, new QTableWidgetItem("Mac"));
+	tableWidget_->setHorizontalHeaderItem(ProbeAnalyzer::ColumnType, new QTableWidgetItem("TY"));
+	tableWidget_->setHorizontalHeaderItem(ProbeAnalyzer::ColumnChannel, new QTableWidgetItem("CH"));
+	tableWidget_->setHorizontalHeaderItem(ProbeAnalyzer::ColumnSignal, new QTableWidgetItem("Signal"));
+	tableWidget_->horizontalHeader()->setSectionResizeMode(ProbeAnalyzer::ColumnSignal, QHeaderView::Stretch);
 	tableWidget_->verticalHeader()->hide();
 	mainLayout_->addWidget(tableWidget_);
 
@@ -106,22 +108,22 @@ void PaWidget::tbOption_clicked(bool checked) {
 	jo["propDialog"] << propDialog;
 }
 
-void PaWidget::processProbeDetected(GMac mac, int signal) {
-	qDebug() << QString(mac) << signal;
+void PaWidget::processProbeDetected(GMac mac, QString type, int channel, int signal) {
+	qDebug() << QString(mac) << type << channel << signal;
 	int row = tableWidget_->rowCount();
 	tableWidget_->insertRow(row);
 
 	QLineEdit* lineEdit = new QLineEdit(this);
 	lineEdit->setFrame(false);
 	lineEdit->setText(QString(mac));
-	tableWidget_->setCellWidget(row, 0, lineEdit);
+	tableWidget_->setCellWidget(row, ProbeAnalyzer::ColumnMac, lineEdit);
 
 	QProgressBar* progressBar = new QProgressBar(this);
 	progressBar->setMinimum(probeAnalyzer_.minSignal_);
 	progressBar->setMaximum(0);
 	progressBar->setFormat("%v dBm");
 	progressBar->setValue(signal);
-	tableWidget_->setCellWidget(row, 1, progressBar);
+	tableWidget_->setCellWidget(row, ProbeAnalyzer::ColumnSignal, progressBar);
 
 	tableWidget_->scrollToBottom();
 }

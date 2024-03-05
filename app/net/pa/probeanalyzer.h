@@ -26,9 +26,15 @@ public:
 	GMonitorDevice monitorDevice_{this};
 	GCommand command_{this};
 
+public:
+	const static int ColumnMac = 0;
+	const static int ColumnType = 1;
+	const static int ColumnChannel = 2;
+	const static int ColumnSignal = 3;
+
 public slots:
 	void processCaptured(GPacket* packet);
 
 signals:
-	void probeDetected(GMac mac, int signal);
+	void probeDetected(GMac mac, QString type, int channel, int signal);
 };
