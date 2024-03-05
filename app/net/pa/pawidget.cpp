@@ -9,18 +9,13 @@
 PaWidget::PaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("ProbeAnalyzer");
 
-	tableWidget_ = new GTableWidget(this);
+	treeWidget_ = new GTreeWidget(this);
 #ifdef Q_OS_ANDROID
 	tableWidget_->horizontalHeader()->setFixedHeight(GItemDelegate::DefaultItemHeight);
 #endif // Q_OS_ANDROID
-	tableWidget_->setColumnCount(ProbeAnalyzer::ColumnSignal + 1);
-	tableWidget_->setHorizontalHeaderItem(ProbeAnalyzer::ColumnMac, new QTableWidgetItem("Mac"));
-	tableWidget_->setHorizontalHeaderItem(ProbeAnalyzer::ColumnType, new QTableWidgetItem("TY"));
-	tableWidget_->setHorizontalHeaderItem(ProbeAnalyzer::ColumnChannel, new QTableWidgetItem("CH"));
-	tableWidget_->setHorizontalHeaderItem(ProbeAnalyzer::ColumnSignal, new QTableWidgetItem("Signal"));
-	tableWidget_->horizontalHeader()->setSectionResizeMode(ProbeAnalyzer::ColumnSignal, QHeaderView::Stretch);
-	tableWidget_->verticalHeader()->hide();
-	mainLayout_->addWidget(tableWidget_);
+	treeWidget_->setColumnCount(ProbeAnalyzer::ColumnSignal + 1);
+	treeWidget_->setHeaderLabels(QStringList{"Mac", "TY", "CH", "Signal"});
+	mainLayout_->addWidget(treeWidget_);
 
 	int left, top, right, bottom;
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
@@ -64,7 +59,7 @@ void PaWidget::closeEvent(QCloseEvent* event) {
 void PaWidget::tbStart_clicked(bool checked) {
 	(void)checked;
 
-	tableWidget_->setRowCount(0);
+	treeWidget_->clear();
 
 	if (!probeAnalyzer_.open()) {
 		tbStop_->click();
@@ -110,22 +105,21 @@ void PaWidget::tbOption_clicked(bool checked) {
 
 void PaWidget::processProbeDetected(GMac mac, QString type, int channel, int signal) {
 	qDebug() << QString(mac) << type << channel << signal;
-	int row = tableWidget_->rowCount();
-	tableWidget_->insertRow(row);
-
-	QLineEdit* lineEdit = new QLineEdit(this);
-	lineEdit->setFrame(false);
-	lineEdit->setText(QString(mac));
-	tableWidget_->setCellWidget(row, ProbeAnalyzer::ColumnMac, lineEdit);
+	GTreeWidgetItem* twi = new GTreeWidgetItem(treeWidget_);
+	twi->setText(ProbeAnalyzer::ColumnMac, QString(mac));
+	twi->setText(ProbeAnalyzer::ColumnType, type);
+	twi->setText(ProbeAnalyzer::ColumnChannel, QString::number(channel));
 
 	QProgressBar* progressBar = new QProgressBar(this);
 	progressBar->setMinimum(probeAnalyzer_.minSignal_);
 	progressBar->setMaximum(0);
 	progressBar->setFormat("%v dBm");
 	progressBar->setValue(signal);
-	tableWidget_->setCellWidget(row, ProbeAnalyzer::ColumnSignal, progressBar);
+	treeWidget_->setItemWidget(twi, ProbeAnalyzer::ColumnSignal, progressBar);
 
-	tableWidget_->scrollToBottom();
+	treeWidget_->addTopLevelItem(twi);
+
+	treeWidget_->scrollToBottom();
 }
 
 void PaWidget::processClosed() {
@@ -136,11 +130,11 @@ void PaWidget::processClosed() {
 void PaWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	jo["pa"] >> probeAnalyzer_;
-	jo["sizes"] >> GJson::columnSizes(tableWidget_);
+	jo["sizes"] >> GJson::columnSizes(treeWidget_);
 }
 
 void PaWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["pa"] << probeAnalyzer_;
-	jo["sizes"] << GJson::columnSizes(tableWidget_);
+	jo["sizes"] << GJson::columnSizes(treeWidget_);
 }

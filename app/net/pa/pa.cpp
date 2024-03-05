@@ -15,10 +15,10 @@ int main(int argc, char *argv[])
 	pw.show();
 	if (isFirst) {
 		int width = pw.width();
-		pw.tableWidget_->setColumnWidth(ProbeAnalyzer::ColumnMac, width * 4 / 10);
-		pw.tableWidget_->setColumnWidth(ProbeAnalyzer::ColumnType, width * 1 / 10);
-		pw.tableWidget_->setColumnWidth(ProbeAnalyzer::ColumnChannel, width * 1 / 10);
-		pw.tableWidget_->setColumnWidth(ProbeAnalyzer::ColumnSignal, width * 4 / 10);
+		pw.treeWidget_->setColumnWidth(ProbeAnalyzer::ColumnMac, width * 4 / 10);
+		pw.treeWidget_->setColumnWidth(ProbeAnalyzer::ColumnType, width * 1 / 10);
+		pw.treeWidget_->setColumnWidth(ProbeAnalyzer::ColumnChannel, width * 1 / 10);
+		pw.treeWidget_->setColumnWidth(ProbeAnalyzer::ColumnSignal, width * 4 / 10);
 	}
 
 	GCommand* command = &pw.probeAnalyzer_.command_;

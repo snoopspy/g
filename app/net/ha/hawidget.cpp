@@ -20,14 +20,14 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
 #ifdef Q_OS_ANDROID
-	treeWidget_->setColumnWidth(3, GItemDelegate::DefaultItemHeight);
+	treeWidget_->setColumnWidth(HostAnalyzer::ColumnAttack, GItemDelegate::DefaultItemHeight);
 #else
-	treeWidget_->setColumnWidth(3, treeWidget_->header()->sizeHint().height());
+	treeWidget_->setColumnWidth(HostAnalyzer::ColumnAttack, treeWidget_->header()->sizeHint().height());
 #endif // Q_OS_ANDROID
 
 	QHeaderView* hv = treeWidget_->header();
-	hv->setSectionResizeMode(2, QHeaderView::Stretch);
-	hv->setSectionResizeMode(3, QHeaderView::Fixed);
+	hv->setSectionResizeMode(HostAnalyzer::ColumnElapsed, QHeaderView::Stretch);
+	hv->setSectionResizeMode(HostAnalyzer::ColumnAttack, QHeaderView::Fixed);
 	hv->setStretchLastSection(false);
 
 	tbDb_ = new QToolButton(this);

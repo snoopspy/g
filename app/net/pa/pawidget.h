@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GDefaultWidget>
-#include <GTableWidget>
+#include <GTreeWidget>
 #include "probeanalyzer.h"
 
 struct G_EXPORT PaWidget : GDefaultWidget, GProp {
@@ -15,7 +15,7 @@ public:
 	void setControl();
 
 public:
-	GTableWidget* tableWidget_{nullptr};
+	GTreeWidget* treeWidget_{nullptr};
 	ProbeAnalyzer probeAnalyzer_;
 
 public:
