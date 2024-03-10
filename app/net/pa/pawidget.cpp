@@ -118,7 +118,6 @@ void PaWidget::processProbeDetected(GMac mac, QString type, int channel, int sig
 	treeWidget_->setItemWidget(twi, ProbeAnalyzer::ColumnSignal, progressBar);
 
 	treeWidget_->addTopLevelItem(twi);
-
 	treeWidget_->scrollToBottom();
 }
 
