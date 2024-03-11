@@ -5,6 +5,8 @@
 #include "gtrace.h"
 #include "gaux.h"
 
+#include "cookieedit.h"
+
 using namespace std;
 
 struct Param {
@@ -25,7 +27,7 @@ struct Param {
 	}
 
 	void usage() {
-		cerr << "firefox cookie editor version " << GAux::getVersion() << endl;
+		cerr << "firefox cookie edit version " << GAux::getVersion() << endl;
 		cerr << endl;
 		cerr << "syntax: ffce [profiles.ini dir] [host] [cookies]\n";
 		cerr << "sample: ffce ~/.mozilla/firefox .snoopspy.com \"PHPSESSID=11223344; sso=aabbccdd\"\n";
@@ -60,12 +62,33 @@ int main(int argc, char* argv[]) {
 	GTRACE("arprecover %s started dir=%s %s %s", GAux::getVersion(), wd, __DATE__, __TIME__);
 #endif // WIN32
 
+	// ----- gilgil temp 2024.03.11 -----
+	/*
 	string arguments;
 	for (int i = 0; i < argc; i++)
 		arguments += argv[i] + string(" ");
 	GTRACE("argv=%s", arguments.data());
+	*/
+	// ----------------------------------
 
 	if (!param.parse(argc, argv)) return -1;
+
+	string fileName = CookieEdit::findSqliteFileName(param.profiles_);
+	GTRACE("fiieName=%s", fileName.data());
+
+	CookieEdit ce;
+	if (!ce.open(fileName)) {
+		GTRACE("ce.open(%s) return false", fileName.data());
+		return EXIT_FAILURE;
+	}
+
+	if (!ce.insert(param.host_, param.cookies_)) {
+		GTRACE("ce.insert(%s %s) return false", param.host_.data(), param.cookies_.data());
+		ce.close();
+		return EXIT_FAILURE;
+	}
+
+	ce.close();
 
 	GTRACE("ffce terminated successfully");
 }
