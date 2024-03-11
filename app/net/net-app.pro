@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 SUBDIRS += \
 	arprecover \
+	ffce \
 	ha \
 	netclient \
 	netinfo \
