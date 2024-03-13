@@ -73,7 +73,7 @@ bool CookieEdit::insert(std::string host, std::string cookies) {
 			GTRACE("std::getline(%s) return false", cookie.data());
 			return false;
 		}
-		if (!std::getline(oneStream, value, '=')) { // no value
+		if (!std::getline(oneStream, value, '\0')) { // no value
 			// GTRACE("std::getline(%s) return false", cookie.data());
 			value = "";
 		}
