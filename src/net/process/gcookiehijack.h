@@ -31,7 +31,7 @@ struct G_EXPORT GCookieHijack : GStateObj, GTcpFlowMgr::Managable, QRecursiveMut
 	void setTcpFlowMgr(GObjPtr value) { tcpFlowMgr_ = dynamic_cast<GTcpFlowMgr*>(value.data()); }
 
 public:
-	QString fileName_{"cookie.db"};
+	QString fileName_{"cookiehijack.db"};
 	int maxMergeCount_{3};
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 

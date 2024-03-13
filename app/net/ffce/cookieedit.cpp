@@ -63,10 +63,9 @@ bool CookieEdit::insert(std::string host, std::string cookies) {
 	struct timeval now;
 	gettimeofday(&now, NULL);
 
+	int index = 0;
 	while (std::getline(stream, cookie, ';')) {
 		trim(cookie);
-		GTRACE("'%s'", cookie.data());
-
 		std::istringstream oneStream(cookie);
 		std::string name;
 		std::string value;
@@ -75,12 +74,12 @@ bool CookieEdit::insert(std::string host, std::string cookies) {
 			return false;
 		}
 		if (!std::getline(oneStream, value, '=')) { // no value
-			GTRACE("std::getline(%s) return false", cookie.data());
+			// GTRACE("std::getline(%s) return false", cookie.data());
 			value = "";
 		}
 		trim(name);
 		trim(value);
-		GTRACE("%s %s", name.data(), value.data());
+		GTRACE("%d \n%s\n%s\n", ++index, name.data(), value.data());
 		if (!insert(++maxId, host, name, value, now.tv_sec + 31536000))
 			return false;
 	}
@@ -110,7 +109,7 @@ CREATE TABLE moz_cookies (
 
 bool CookieEdit::insert(int id, std::string host, std::string name, std::string value, time_t now, std::string path, std::string originAttributes) {
 	std::string sql = "SELECT id FROM moz_cookies WHERE name='" + name + "' AND host='"+ host + "'AND path='" + path + "' AND originAttributes='" + originAttributes + "'";
-	GTRACE("%s", sql.data());
+	// GTRACE("%s", sql.data());
 	sqlite3_stmt* stmt;
 	int res = sqlite3_prepare(db_, sql.data(), sql.size(), &stmt, nullptr);
 	if (res != SQLITE_OK) {
@@ -137,8 +136,9 @@ bool CookieEdit::insert(int id, std::string host, std::string name, std::string 
 	}
 
 	std::string nowStr = std::to_string(now);
+	std::string nowMicroStr = std::to_string(now * 1000000);
 	sql = std::string("INSERT INTO moz_cookies (id, name, value, host, path, originAttributes, expiry, lastAccessed, creationTime) ") +
-		"VALUES (" + std::to_string(id) + ", '" + name + "', '" + value + "', '" + host + "', '" + path + "', '" + originAttributes + "', " + nowStr + "," + nowStr + "," + nowStr + ")";
+		"VALUES (" + std::to_string(id) + ", '" + name + "', '" + value + "', '" + host + "', '" + path + "', '" + originAttributes + "', " + nowStr + "," + nowMicroStr + "," + nowMicroStr + ")";
 	res = sqlite3_prepare(db_, sql.data(), sql.size(), &stmt, nullptr);
 	if (res != SQLITE_OK) {
 		GTRACE("sqlite3_prepare(%s) return %d %s", sql.data(), res, sqlite3_errmsg(db_));

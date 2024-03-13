@@ -15,7 +15,7 @@ struct Param {
 	string cookies_;
 
 	bool parse(int argc, char* argv[]) {
-		if (argc < 4) {
+		if (argc != 4) {
 			usage();
 			return false;
 		}
@@ -45,7 +45,7 @@ void signalHandler(int signo) {
 #endif // __linux__
 
 int main(int argc, char* argv[]) {
-	gtrace_default("127.0.0.1", 8908, false, "ffce.log");
+	gtrace_default("127.0.0.1", 8908, true, "ffce.log");
 
 	char wd[BUFSIZ];
 	memset(wd, 0, BUFSIZ);

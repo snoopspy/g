@@ -120,7 +120,7 @@ void GCookieHijack::hijack(GPacket* packet) {
 		mac = ethHdr->smac();
 	GIp ip = ipHdr->sip();
 	insert(created, mac, ip, host, cookie);
-	qDebug() << host << cookie; // gilgil temp
+	qDebug() << "\n" << host << "\n" << cookie;
 	emit hijacked(packet, host, cookie);
 }
 
