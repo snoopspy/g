@@ -10,9 +10,6 @@ PaWidget::PaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("ProbeAnalyzer");
 
 	treeWidget_ = new GTreeWidget(this);
-#ifdef Q_OS_ANDROID
-	tableWidget_->horizontalHeader()->setFixedHeight(GItemDelegate::DefaultItemHeight);
-#endif // Q_OS_ANDROID
 	treeWidget_->setColumnCount(ProbeAnalyzer::ColumnSignal + 1);
 	treeWidget_->setHeaderLabels(QStringList{"Mac", "TY", "CH", "Signal"});
 	mainLayout_->addWidget(treeWidget_);
