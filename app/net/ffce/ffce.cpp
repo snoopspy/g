@@ -63,12 +63,10 @@ int main(int argc, char* argv[]) {
 #endif // WIN32
 
 	// ----- gilgil temp 2024.03.11 -----
-	/*
 	string arguments;
 	for (int i = 0; i < argc; i++)
 		arguments += argv[i] + string(" ");
 	GTRACE("argv=%s", arguments.data());
-	*/
 	// ----------------------------------
 
 	if (!param.parse(argc, argv)) return -1;
