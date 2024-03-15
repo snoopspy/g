@@ -32,7 +32,7 @@ struct G_EXPORT GCookieHijack : GStateObj, GTcpFlowMgr::Managable, QRecursiveMut
 
 public:
 	QString fileName_{"cookiehijack.db"};
-	int maxMergeCount_{3};
+	int maxMergeCount_{5};
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 
 public:
