@@ -17,11 +17,22 @@ bool CookieEdit::open(std::string fileName) {
 		GTRACE("can not open database: %s", sqlite3_errmsg(db_));
 		return false;
 	}
+
+	res = sqlite3_exec(db_, "BEGIN TRANSACTION", 0, 0, 0);
+	if (res != SQLITE_OK) {
+		GTRACE("sqlite3_exec(BEGIN TRANSACTION) return %d %s", res, sqlite3_errmsg(db_));
+		return false;
+	}
 	return true;
 }
 
 void CookieEdit::close() {
 	if (db_ != nullptr) {
+		int res = sqlite3_exec(db_, "END TRANSACTION", 0, 0, 0);
+		if (res != SQLITE_OK) {
+			GTRACE("sqlite3_exec(END TRANSACTION) return %d %s", res, sqlite3_errmsg(db_));
+		}
+
 		sqlite3_close(db_);
 		db_ = nullptr;
 	}
@@ -45,7 +56,7 @@ bool CookieEdit::insert(std::string host, std::string cookies) {
 	std::istringstream stream(cookies);
 	std::string cookie;
 
-	std::string sql = "select max(id) as max_id from moz_cookies";
+	std::string sql = "SELECT MAX(id) AS max_id FROM moz_cookies";
 	sqlite3_stmt* stmt;
 	int res = sqlite3_prepare(db_, sql.data(), sql.size(), &stmt, nullptr);
 	if (res != SQLITE_OK) {
@@ -60,6 +71,8 @@ bool CookieEdit::insert(std::string host, std::string cookies) {
 			maxId = std::atoi(reinterpret_cast<const char*>(maxIdStr));
 	}
 	GTRACE("maxId=%d", maxId);
+	sqlite3_finalize(stmt);
+
 	struct timeval now;
 	gettimeofday(&now, NULL);
 
@@ -108,25 +121,33 @@ CREATE TABLE moz_cookies (
 */
 
 bool CookieEdit::insert(int id, std::string host, std::string name, std::string value, time_t now, std::string path, std::string originAttributes) {
-	std::string sql = "SELECT id FROM moz_cookies WHERE name='" + name + "' AND host='"+ host + "'AND path='" + path + "' AND originAttributes='" + originAttributes + "'";
-	// GTRACE("%s", sql.data());
+	std::string sql = "SELECT id FROM moz_cookies WHERE name=? AND host=? AND path=? AND originAttributes=?";
 	sqlite3_stmt* stmt;
 	int res = sqlite3_prepare(db_, sql.data(), sql.size(), &stmt, nullptr);
 	if (res != SQLITE_OK) {
 		GTRACE("sqlite3_prepare(%s) return %d %s", sql.data(), res, sqlite3_errmsg(db_));
 		return false;
 	}
+	sqlite3_bind_text(stmt, 1, name.data(), name.size(), nullptr);
+	sqlite3_bind_text(stmt, 2, host.data(), host.size(), nullptr);
+	sqlite3_bind_text(stmt, 3, path.data(), path.size(), nullptr);
+	sqlite3_bind_text(stmt, 4, originAttributes.data(), originAttributes.size(), nullptr);
 
-	if (sqlite3_step(stmt) == SQLITE_ROW) {
+	res = sqlite3_step(stmt);
+	if (res == SQLITE_ROW) {
 		const unsigned char* currendItStr = sqlite3_column_text(stmt, 0);
 		assert(currendItStr != nullptr);
 		int currentId = std::atoi(reinterpret_cast<const char*>(currendItStr));
-		sql = "UPDATE moz_cookies SET value='" + value + "' WHERE id=" + std::to_string(currentId);
+		sql = "UPDATE moz_cookies SET value=? WHERE id=?";
 		int res = sqlite3_prepare(db_, sql.data(), sql.size(), &stmt, nullptr);
 		if (res != SQLITE_OK) {
 			GTRACE("sqlite3_prepare(%s) return %d %s", sql.data(), res, sqlite3_errmsg(db_));
 			return false;
 		}
+
+		sqlite3_bind_text(stmt, 1, value.data(), value.size(), nullptr);
+		sqlite3_bind_int(stmt, 2, currentId);
+
 		res = sqlite3_step(stmt);
 		if (res != SQLITE_DONE) {
 			GTRACE("sqlite3_step(%s) return %d %s", sql.data(), res, sqlite3_errmsg(db_));
@@ -135,15 +156,23 @@ bool CookieEdit::insert(int id, std::string host, std::string name, std::string 
 		return true;
 	}
 
-	std::string nowStr = std::to_string(now);
-	std::string nowMicroStr = std::to_string(now * 1000000);
-	sql = std::string("INSERT INTO moz_cookies (id, name, value, host, path, originAttributes, expiry, lastAccessed, creationTime) ") +
-		"VALUES (" + std::to_string(id) + ", '" + name + "', '" + value + "', '" + host + "', '" + path + "', '" + originAttributes + "', " + nowStr + "," + nowMicroStr + "," + nowMicroStr + ")";
+	sql = "INSERT INTO moz_cookies (id, name, value, host, path, originAttributes, expiry, lastAccessed, creationTime) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	res = sqlite3_prepare(db_, sql.data(), sql.size(), &stmt, nullptr);
 	if (res != SQLITE_OK) {
 		GTRACE("sqlite3_prepare(%s) return %d %s", sql.data(), res, sqlite3_errmsg(db_));
 		return false;
 	}
+
+	sqlite3_bind_int(stmt, 1, id);
+	sqlite3_bind_text(stmt, 2, name.data(), name.size(), nullptr);
+	sqlite3_bind_text(stmt, 3, value.data(), value.size(), nullptr);
+	sqlite3_bind_text(stmt, 4, host.data(), host.size(), nullptr);
+	sqlite3_bind_text(stmt, 5, path.data(), path.size(), nullptr);
+	sqlite3_bind_text(stmt, 6, originAttributes.data(), originAttributes.size(), nullptr);
+	sqlite3_bind_int64(stmt, 7, now);
+	sqlite3_bind_int64(stmt, 8, now * 1000000);
+	sqlite3_bind_int64(stmt, 9, now * 1000000);
+
 	res = sqlite3_step(stmt);
 	if (res != SQLITE_DONE) {
 		GTRACE("sqlite3_step(%s) return %d %s", sql.data(), res, sqlite3_errmsg(db_));
