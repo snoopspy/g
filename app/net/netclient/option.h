@@ -36,24 +36,18 @@ struct SslClient : NetClient {
 
 public:
 	enum SslProtocol {
-		SslV3,
-		SslV2,
-		TlsV1_0,
-#if QT_DEPRECATED_SINCE(5,0)
-		TlsV1 = TlsV1_0,
-#endif
-		TlsV1_1,
+		TlsV1_0 QT_DEPRECATED_VERSION_X_6_3("Use TlsV1_2OrLater instead."),
+		TlsV1_1 QT_DEPRECATED_VERSION_X_6_3("Use TlsV1_2OrLater instead."),
 		TlsV1_2,
 		AnyProtocol,
-		TlsV1SslV3,
 		SecureProtocols,
 
-		TlsV1_0OrLater,
-		TlsV1_1OrLater,
+		TlsV1_0OrLater QT_DEPRECATED_VERSION_X_6_3("Use TlsV1_2OrLater instead."),
+		TlsV1_1OrLater QT_DEPRECATED_VERSION_X_6_3("Use TlsV1_2OrLater instead."),
 		TlsV1_2OrLater,
 
-		DtlsV1_0,
-		DtlsV1_0OrLater,
+		DtlsV1_0 QT_DEPRECATED_VERSION_X_6_3("Use DtlsV1_2OrLater instead."),
+		DtlsV1_0OrLater QT_DEPRECATED_VERSION_X_6_3("Use DtlsV1_2OrLater instead."),
 		DtlsV1_2,
 		DtlsV1_2OrLater,
 
@@ -67,7 +61,7 @@ public:
 	//void setProtocol(int protocol) { protocol_ = (QSsl::SslProtocol)protocol; }
 
 public:
-	SslProtocol protocol_;
+	SslProtocol protocol_{TlsV1_2};
 };
 
 struct Option : GObj {

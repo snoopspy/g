@@ -155,6 +155,7 @@ void Widget::on_pbOpen_clicked() {
 			break;
 		case 2:
 			netClient_ = &sslSocket_;
+			sslSocket_.setProtocol(QSsl::SslProtocol(option_.sslClient_.protocol_));
 			sslSocket_.bind(QHostAddress(option_.sslClient_.localHost_), option_.sslClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint);
 			sslSocket_.connectToHostEncrypted(ui->leSslHost->text(), ui->leSslPort->text().toUShort());
 			break;
