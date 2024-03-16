@@ -54,71 +54,52 @@
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QPushButton" name="pbOpen">
-        <property name="geometry">
-         <rect>
-          <x>3</x>
-          <y>3</y>
-          <width>75</width>
-          <height>27</height>
-         </rect>
+       <layout class="QGridLayout" name="gridLayout_2" rowstretch="0">
+        <property name="topMargin">
+         <number>0</number>
         </property>
-        <property name="text">
-         <string>&amp;Open</string>
+        <property name="bottomMargin">
+         <number>0</number>
         </property>
-       </widget>
-       <widget class="QPushButton" name="pbClose">
-        <property name="geometry">
-         <rect>
-          <x>80</x>
-          <y>3</y>
-          <width>75</width>
-          <height>27</height>
-         </rect>
+        <property name="spacing">
+         <number>6</number>
         </property>
-        <property name="text">
-         <string>C&amp;lose</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pbClear">
-        <property name="geometry">
-         <rect>
-          <x>157</x>
-          <y>3</y>
-          <width>75</width>
-          <height>27</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>&amp;Clear</string>
-        </property>
-       </widget>
-       <widget class="QCheckBox" name="chkShowHexa">
-        <property name="geometry">
-         <rect>
-          <x>239</x>
-          <y>2</y>
-          <width>105</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Show Hexa</string>
-        </property>
-       </widget>
-       <widget class="QCheckBox" name="chkSendHexa">
-        <property name="geometry">
-         <rect>
-          <x>239</x>
-          <y>16</y>
-          <width>105</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Send Hexa</string>
-        </property>
-       </widget>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="pbOpen">
+          <property name="text">
+           <string>&amp;Open</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="pbClose">
+          <property name="text">
+           <string>C&amp;lose</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="pbClear">
+          <property name="text">
+           <string>&amp;Clear</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QCheckBox" name="chkShowHexa">
+          <property name="text">
+           <string>Show Hexa</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QCheckBox" name="chkSendHexa">
+          <property name="text">
+           <string>Send Hexa</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
