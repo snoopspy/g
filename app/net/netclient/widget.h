@@ -38,7 +38,7 @@ public:
 private slots:
 	void connected();
 	void disconnected();
-	void error(QAbstractSocket::SocketError);
+	void errorOccurred(QAbstractSocket::SocketError socketError);
 	void stateChanged(QAbstractSocket::SocketState socketState);
 	void readyRead();
 

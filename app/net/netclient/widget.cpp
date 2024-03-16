@@ -32,14 +32,14 @@ void Widget::initControl() {
 
 	QObject::connect(&tcpSocket_, &QTcpSocket::connected, this, &Widget::connected);
 	QObject::connect(&tcpSocket_, &QTcpSocket::disconnected, this, &Widget::disconnected);
-	QObject::connect(&tcpSocket_, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)));
-	QObject::connect(&tcpSocket_, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(stateChanged(QAbstractSocket::SocketState)));
+	QObject::connect(&tcpSocket_, &QTcpSocket::errorOccurred, this, &Widget::errorOccurred);
+	QObject::connect(&tcpSocket_, &QTcpSocket::stateChanged, this, &Widget::stateChanged);
 	QObject::connect(&tcpSocket_, &QTcpSocket::readyRead, this, &Widget::readyRead);
 	QObject::connect(&udpSocket_, &QUdpSocket::readyRead, this, &Widget::readyRead);
 	QObject::connect(&sslSocket_, &QTcpSocket::connected, this, &Widget::connected);
 	QObject::connect(&sslSocket_, &QTcpSocket::disconnected, this, &Widget::disconnected);
-	QObject::connect(&sslSocket_, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)));
-	QObject::connect(&sslSocket_, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(stateChanged(QAbstractSocket::SocketState)));
+	QObject::connect(&sslSocket_, &QSslSocket::errorOccurred, this, &Widget::errorOccurred);
+	QObject::connect(&sslSocket_, &QSslSocket::stateChanged, this, &Widget::stateChanged);
 	QObject::connect(&sslSocket_, &QTcpSocket::readyRead, this, &Widget::readyRead);
 }
 
@@ -113,8 +113,9 @@ void Widget::disconnected() {
 	ui->pteRecv->insertPlainText(msg);
 }
 
-void Widget::error(QAbstractSocket::SocketError socketError) {
+void Widget::errorOccurred(QAbstractSocket::SocketError socketError) {
 	Q_UNUSED(socketError)
+	qDebug() << socketError;
 	QString msg = "[error] " + netClient_->errorString() + "\r\n";
 	ui->pteRecv->insertPlainText(msg);
 	setControl();
