@@ -115,7 +115,6 @@ void Widget::disconnected() {
 
 void Widget::errorOccurred(QAbstractSocket::SocketError socketError) {
 	Q_UNUSED(socketError)
-	qDebug() << socketError;
 	QString msg = "[error] " + netClient_->errorString() + "\r\n";
 	ui->pteRecv->insertPlainText(msg);
 	setControl();
@@ -146,14 +145,17 @@ void Widget::on_pbOpen_clicked() {
 	switch (currentIndex) {
 		case 0:
 			netClient_ = &tcpSocket_;
+			tcpSocket_.bind(QHostAddress(option_.tcpClient_.localHost_), option_.tcpClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint);
 			tcpSocket_.connectToHost(ui->leTcpHost->text(), ui->leTcpPort->text().toUShort());
 			break;
 		case 1:
 			netClient_ = &udpSocket_;
+			udpSocket_.bind(QHostAddress(option_.udpClient_.localHost_), option_.udpClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint);
 			udpSocket_.connectToHost(ui->leUdpHost->text(), ui->leUdpPort->text().toUShort());
 			break;
 		case 2:
 			netClient_ = &sslSocket_;
+			sslSocket_.bind(QHostAddress(option_.sslClient_.localHost_), option_.sslClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint);
 			sslSocket_.connectToHostEncrypted(ui->leSslHost->text(), ui->leSslPort->text().toUShort());
 			break;
 	}
