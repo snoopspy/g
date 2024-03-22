@@ -30,7 +30,6 @@ struct UdpClient : NetClient {
 
 struct SslClient : NetClient {
 	Q_OBJECT
-	//Q_PROPERTY(SslProtocol protocol READ protocol() WRITE setProtocol)
 	Q_PROPERTY(SslProtocol protocol MEMBER protocol_)
 	Q_ENUMS(SslProtocol)
 
@@ -56,9 +55,6 @@ public:
 
 		UnknownProtocol = -1
 	};
-
-	//int protocol() { return (int) protocol_; }
-	//void setProtocol(int protocol) { protocol_ = (QSsl::SslProtocol)protocol; }
 
 public:
 	SslProtocol protocol_{TlsV1_2};

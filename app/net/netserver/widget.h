@@ -1,9 +1,9 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include <QSslSocket>
-#include <QTcpSocket>
+#include <QTcpServer>
 #include <QUdpSocket>
+#include <QSslServer>
 #include <QWidget>
 #include "option.h"
 
@@ -29,21 +29,23 @@ public:
 	void setControl();
 
 public:
-	QTcpSocket tcpSocket_;
+	QTcpServer tcpServer_;
 	QUdpSocket udpSocket_;
-	QSslSocket sslSocket_;
+	QSslServer sslServer_;
 	QAbstractSocket* netClient_{nullptr};
 	Option option_;
 
 private slots:
-	void connected();
-	void disconnected();
-	void error(QAbstractSocket::SocketError);
-	void stateChanged(QAbstractSocket::SocketState socketState);
-	void readyRead();
+	void doNewConnection();
+
+	void doConnected();
+	void doDisconnected();
+	void doErrorOccured(QAbstractSocket::SocketError socketError);
+	void doStateChanged(QAbstractSocket::SocketState socketState);
+	void doReadyRead();
 
 public:
-	void showOption(NetClient* netClient);
+	void showOption(NetServer* netServer);
 
 private slots:
 	void on_pbOpen_clicked();

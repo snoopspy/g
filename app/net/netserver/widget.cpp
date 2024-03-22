@@ -30,7 +30,8 @@ void Widget::initControl() {
 	ui->pteRecv->setWordWrapMode(QTextOption::NoWrap);
 	ui->pteSend->setWordWrapMode(QTextOption::NoWrap);
 
-	QObject::connect(&tcpSocket_, &QTcpSocket::connected, this, &Widget::connected);
+	QObject::connect(&tcpServer_, &QTcpServer::newConnection, this, &Widget::doNewConnection);
+
 	QObject::connect(&tcpSocket_, &QTcpSocket::disconnected, this, &Widget::disconnected);
 	QObject::connect(&tcpSocket_, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)));
 	QObject::connect(&tcpSocket_, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(stateChanged(QAbstractSocket::SocketState)));
@@ -103,24 +104,28 @@ void Widget::setControl() {
 	ui->pbSend->setEnabled(netClient_ == nullptr ? false : netClient_->state() == QAbstractSocket::ConnectedState);
 }
 
-void Widget::connected() {
+void Widget::doNewConnection() {
+	qDebug() << "new connection";
+}
+
+void Widget::doConnected() {
 	QString msg = "[connected] " + netClient_->peerAddress().toString() + "\r\n";
 	ui->pteRecv->insertPlainText(msg);
 }
 
-void Widget::disconnected() {
+void Widget::doDisconnected() {
 	QString msg = "[disconnected] " + netClient_->peerAddress().toString() + "\r\n";
 	ui->pteRecv->insertPlainText(msg);
 }
 
-void Widget::error(QAbstractSocket::SocketError socketError) {
+void Widget::doErrorOccured(QAbstractSocket::SocketError socketError) {
 	Q_UNUSED(socketError)
 	QString msg = "[error] " + netClient_->errorString() + "\r\n";
 	ui->pteRecv->insertPlainText(msg);
 	setControl();
 }
 
-void Widget::stateChanged(QAbstractSocket::SocketState socketState) {
+void Widget::doStateChanged(QAbstractSocket::SocketState socketState) {
 	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
 	QMetaEnum menum = mobj.enumerator(mobj.indexOfEnumerator("SocketState"));
 	QString key = menum.valueToKey(socketState);
@@ -128,13 +133,15 @@ void Widget::stateChanged(QAbstractSocket::SocketState socketState) {
 	setControl();
 }
 
-void Widget::readyRead() {
+void Widget::doReadyRead() {
 	QByteArray ba = netClient_->readAll();
 	if (ui->chkShowHexa->isChecked())
 		ba = ba.toHex();
 	ba += "\r\n";
 	ui->pteRecv->insertPlainText(ba);
 }
+
+void doNewConnection();
 
 void Widget::showOption(NetClient* netClient) {
 	GProp::showDialog(netClient);
