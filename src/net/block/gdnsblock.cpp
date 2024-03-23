@@ -163,7 +163,6 @@ void GDnsBlock::block(GPacket* packet) {
 			writer_.write(&blockIpPacket_);
 			qDebug() << QString("dns changed %1 %2").arg(queryName).arg(QString(mbi.ip_));
 
-
 			packet->ctrl_.block_ = true;
 
 			emit blocked(packet);
