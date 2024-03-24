@@ -30,8 +30,9 @@ void Widget::initControl() {
 	ui->pteRecv->setWordWrapMode(QTextOption::NoWrap);
 	ui->pteSend->setWordWrapMode(QTextOption::NoWrap);
 
-	QObject::connect(&tcpServer_, &QTcpServer::newConnection, this, &Widget::doNewConnection);
-	QObject::connect(&sslServer_, &QSslServer::newConnection, this, &Widget::doNewConnection);
+	prepareTcpServer(&tcpServer_);
+	prepareAbstractSocket(&udpSocket_);
+	prepareTcpServer(&sslServer_);
 }
 
 void Widget::finiControl() {
@@ -96,7 +97,10 @@ void Widget::addText(QString msg) {
 }
 
 void Widget::showError(QString error) {
-	QString msg = "[error] " + error + "\r\n";
+	QString msg = "[error] " + error + "\n";
+	QString last = ui->pteRecv->toPlainText().last(1);
+	if (last != "\n")
+		msg = "\n" + msg;
 	addText(msg);
 }
 
@@ -116,6 +120,12 @@ void Widget::prepareAbstractSocket(QAbstractSocket* socket) {
 	QObject::connect(socket, &QAbstractSocket::hostFound, this, &Widget::doHostFound);
 	QObject::connect(socket, &QAbstractSocket::proxyAuthenticationRequired, this, &Widget::doProxyAuthenticationRequired);
 	QObject::connect(socket, &QAbstractSocket::stateChanged, this, &Widget::doStateChanged);
+}
+
+void Widget::prepareTcpServer(QTcpServer* server) {
+	QObject::connect(server, &QTcpServer::acceptError, this, &Widget::doAcceptError);
+	QObject::connect(server, &QTcpServer::newConnection, this, &Widget::doNewConnection);
+	QObject::connect(server, &QTcpServer::pendingConnectionAvailable, this, &Widget::doPendingConnectionAvailable);
 }
 
 void Widget::doAboutToClose() {
@@ -139,17 +149,21 @@ void Widget::doReadChannelFinished() {
 }
 
 void Widget::doReadyRead() {
+	qDebug() << "";
+
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
+	Q_ASSERT(socket != nullptr);
+
 	QByteArray ba = socket->readAll();
 	if (ui->chkShowHexa->isChecked())
 		ba = ba.toHex();
-	ba += "\r\n";
 	addText(ba);
 }
 
 void Widget::doConnected() {
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 	Q_ASSERT(socket != nullptr);
+
 	QString msg = "[connected] " + socket->peerAddress().toString() + "\r\n";
 	addText(msg);
 }
@@ -157,6 +171,7 @@ void Widget::doConnected() {
 void Widget::doDisconnected() {
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 	Q_ASSERT(socket != nullptr);
+
 	QString msg = "[disconnected] " + socket->peerAddress().toString() + "\r\n";
 	addText(msg);
 }
@@ -189,17 +204,25 @@ void Widget::doAcceptError(QAbstractSocket::SocketError socketError) {
 	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
 	QMetaEnum menum = mobj.enumerator(mobj.indexOfEnumerator("SocketError"));
 	QString key = menum.valueToKey(socketError);
-	QString msg = "[error] " + key + "\r\n";
+	QString msg = "[accept error] " + key + "\r\n";
 	addText(msg);
 	setControl();
 }
 
 void Widget::doNewConnection() {
-	//tcpServer_.hasPendingConnections()
+	QTcpServer* server = dynamic_cast<QTcpServer*>(sender());
+	Q_ASSERT(server != nullptr);
+
+	while (server->hasPendingConnections()) {
+		QAbstractSocket* socket = server->nextPendingConnection();
+		QString msg = "[connected] " + socket->peerAddress().toString() + "\r\n";
+		addText(msg);
+		prepareAbstractSocket(socket);
+	}
 }
 
 void Widget::doPendingConnectionAvailable() {
-
+qDebug() << "";
 }
 
 void Widget::showOption(NetServer* netServer) {

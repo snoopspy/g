@@ -99,6 +99,9 @@ void Widget::addText(QString msg) {
 
 void Widget::showError(QString error) {
 	QString msg = "[error] " + error + "\r\n";
+	QString last = ui->pteRecv->toPlainText().last(1);
+	if (last != "\n")
+		msg = "\n" + msg;
 	addText(msg);
 }
 
@@ -141,18 +144,21 @@ void Widget::doReadChannelFinished() {
 }
 
 void Widget::doReadyRead() {
+	qDebug() << "";
+
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 	Q_ASSERT(socket != nullptr);
+
 	QByteArray ba = socket->readAll();
 	if (ui->chkShowHexa->isChecked())
 		ba = ba.toHex();
-	ba += "\r\n";
 	addText(ba);
 }
 
 void Widget::doConnected() {
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 	Q_ASSERT(socket != nullptr);
+
 	QString msg = "[connected] " + socket->peerAddress().toString() + "\r\n";
 	addText(msg);
 }
@@ -160,6 +166,7 @@ void Widget::doConnected() {
 void Widget::doDisconnected() {
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 	Q_ASSERT(socket != nullptr);
+
 	QString msg = "[disconnected] " + socket->peerAddress().toString() + "\r\n";
 	addText(msg);
 }
