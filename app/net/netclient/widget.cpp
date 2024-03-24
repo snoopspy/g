@@ -30,20 +30,11 @@ void Widget::initControl() {
 	ui->pteRecv->setWordWrapMode(QTextOption::NoWrap);
 	ui->pteSend->setWordWrapMode(QTextOption::NoWrap);
 
-	QObject::connect(&tcpSocket_, &QTcpSocket::connected, this, &Widget::doConnected);
-	QObject::connect(&tcpSocket_, &QTcpSocket::disconnected, this, &Widget::doDisconnected);
-	QObject::connect(&tcpSocket_, &QTcpSocket::errorOccurred, this, &Widget::doErrorOccurred);
-	QObject::connect(&tcpSocket_, &QTcpSocket::stateChanged, this, &Widget::doStateChanged);
-	QObject::connect(&tcpSocket_, &QTcpSocket::readyRead, this, &Widget::doReadyRead);
-
-	QObject::connect(&udpSocket_, &QUdpSocket::readyRead, this, &Widget::doReadyRead);
-
-	QObject::connect(&sslSocket_, &QTcpSocket::connected, this, &Widget::doConnected);
-	QObject::connect(&sslSocket_, &QTcpSocket::disconnected, this, &Widget::doDisconnected);
-	QObject::connect(&sslSocket_, &QSslSocket::errorOccurred, this, &Widget::doErrorOccurred);
-	QObject::connect(&sslSocket_, &QSslSocket::stateChanged, this, &Widget::doStateChanged);
-	QObject::connect(&sslSocket_, &QTcpSocket::readyRead, this, &Widget::doReadyRead);
+	prepareAbstractSocket(&tcpSocket_);
+	prepareAbstractSocket(&udpSocket_);
+	prepareAbstractSocket(&sslSocket_);
 }
+
 
 void Widget::finiControl() {
 	on_pbClose_clicked();
@@ -88,21 +79,16 @@ void Widget::saveControl() {
 }
 
 void Widget::setControl() {
-	bool active = false;
-	if (netSocket_) {
-		switch (netSocket_->state()) {
-			case QAbstractSocket::UnconnectedState: active = false; break;
-			case QAbstractSocket::HostLookupState: active = true; break;
-			case QAbstractSocket::ConnectingState: active = true; break;
-			case QAbstractSocket::ConnectedState: active = true; break;
-			case QAbstractSocket::BoundState: active = true; break;
-			case QAbstractSocket::ListeningState: active = true; break;
-			case QAbstractSocket::ClosingState: active = true; break;
-		}
+	if (netSocket_ == nullptr) {
+		ui->pbOpen->setEnabled(true);
+		ui->pbClose->setEnabled(false);
+		ui->pbSend->setEnabled(false);
+	} else {
+		QAbstractSocket::SocketState state = netSocket_->state();
+		ui->pbOpen->setEnabled(state == QAbstractSocket::UnconnectedState);
+		ui->pbClose->setEnabled(state != QAbstractSocket::UnconnectedState);
+		ui->pbSend->setEnabled(state == QAbstractSocket::ConnectedState);
 	}
-	ui->pbOpen->setEnabled(!active);
-	ui->pbClose->setEnabled(active);
-	ui->pbSend->setEnabled(netSocket_ == nullptr ? false : netSocket_->state() == QAbstractSocket::ConnectedState);
 }
 
 void Widget::addText(QString msg) {
@@ -111,37 +97,94 @@ void Widget::addText(QString msg) {
 	ui->pteRecv->moveCursor(QTextCursor::End);
 }
 
-void Widget::doConnected() {
-	QString msg = "[connected] " + netSocket_->peerAddress().toString() + "\r\n";
+void Widget::showError(QString error) {
+	QString msg = "[error] " + error + "\r\n";
 	addText(msg);
 }
 
-void Widget::doDisconnected() {
-	QString msg = "[disconnected] " + netSocket_->peerAddress().toString() + "\r\n";
-	addText(msg);
+void Widget::prepareAbstractSocket(QAbstractSocket* socket) {
+	// QIODevice
+	QObject::connect(socket, &QIODevice::aboutToClose, this, &Widget::doAboutToClose);
+	QObject::connect(socket, &QIODevice::bytesWritten, this, &Widget::doBytesWritten);
+	QObject::connect(socket, &QIODevice::channelBytesWritten, this, &Widget::doChannelBytesWritten);
+	QObject::connect(socket, &QIODevice::channelReadyRead, this, &Widget::doChannelReadyRead);
+	QObject::connect(socket, &QIODevice::readChannelFinished, this, &Widget::doReadChannelFinished);
+	QObject::connect(socket, &QIODevice::readyRead, this, &Widget::doReadyRead);
+
+	// QAbstractSocket
+	QObject::connect(socket, &QAbstractSocket::connected, this, &Widget::doConnected);
+	QObject::connect(socket, &QAbstractSocket::disconnected, this, &Widget::doDisconnected);
+	QObject::connect(socket, &QAbstractSocket::errorOccurred, this, &Widget::doErrorOccurred);
+	QObject::connect(socket, &QAbstractSocket::hostFound, this, &Widget::doHostFound);
+	QObject::connect(socket, &QAbstractSocket::proxyAuthenticationRequired, this, &Widget::doProxyAuthenticationRequired);
+	QObject::connect(socket, &QAbstractSocket::stateChanged, this, &Widget::doStateChanged);
 }
 
-void Widget::doErrorOccurred(QAbstractSocket::SocketError socketError) {
-	Q_UNUSED(socketError)
-	QString msg = "[error] " + netSocket_->errorString() + "\r\n";
-	addText(msg);
-	setControl();
+void Widget::doAboutToClose() {
+	qDebug() << "";
 }
 
-void Widget::doStateChanged(QAbstractSocket::SocketState socketState) {
-	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
-	QMetaEnum menum = mobj.enumerator(mobj.indexOfEnumerator("SocketState"));
-	QString key = menum.valueToKey(socketState);
-	qDebug() << "[stateChanged]" << QString::number(socketState) << key;
-	setControl();
+void Widget::doBytesWritten(qint64 bytes) {
+	qDebug() << bytes;
+}
+
+void Widget::doChannelBytesWritten(int channel, qint64 bytes) {
+	qDebug() << channel << bytes;
+}
+
+void Widget::doChannelReadyRead(int channel) {
+	qDebug() << channel;
+}
+
+void Widget::doReadChannelFinished() {
+	qDebug() << "";
 }
 
 void Widget::doReadyRead() {
-	QByteArray ba = netSocket_->readAll();
+	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
+	Q_ASSERT(socket != nullptr);
+	QByteArray ba = socket->readAll();
 	if (ui->chkShowHexa->isChecked())
 		ba = ba.toHex();
 	ba += "\r\n";
 	addText(ba);
+}
+
+void Widget::doConnected() {
+	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
+	Q_ASSERT(socket != nullptr);
+	QString msg = "[connected] " + socket->peerAddress().toString() + "\r\n";
+	addText(msg);
+}
+
+void Widget::doDisconnected() {
+	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
+	Q_ASSERT(socket != nullptr);
+	QString msg = "[disconnected] " + socket->peerAddress().toString() + "\r\n";
+	addText(msg);
+}
+
+void Widget::doErrorOccurred(QAbstractSocket::SocketError socketError) {
+	if (socketError == QAbstractSocket::UnknownSocketError) return;
+	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
+	QString value = mobj.enumerator(mobj.indexOfEnumerator("SocketError")).valueToKey(socketError);
+	showError(value);
+	setControl();
+}
+
+void Widget::doHostFound() {
+	qDebug() << "";
+}
+
+void Widget::doProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator) {
+	qDebug() << proxy << authenticator->user(); // gilgil temp 2024.03.24
+}
+
+void Widget::doStateChanged(QAbstractSocket::SocketState socketState) {
+	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
+	QString value = mobj.enumerator(mobj.indexOfEnumerator("SocketState")).valueToKey(socketState);
+	qDebug() << QString::number(socketState) << value;
+	setControl();
 }
 
 void Widget::showOption(NetClient* netClient) {
@@ -151,20 +194,29 @@ void Widget::showOption(NetClient* netClient) {
 void Widget::on_pbOpen_clicked() {
 	int currentIndex = ui->tabOption->currentIndex();
 	switch (currentIndex) {
-		case 0:
+		case TcpTab:
 			netSocket_ = &tcpSocket_;
-			tcpSocket_.bind(QHostAddress(option_.tcpClient_.localHost_), option_.tcpClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint);
+			if (!tcpSocket_.bind(QHostAddress(option_.tcpClient_.localHost_), option_.tcpClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint)) {
+				showError(tcpSocket_.errorString());
+				break;
+			}
 			tcpSocket_.connectToHost(ui->leTcpHost->text(), ui->leTcpPort->text().toUShort());
 			break;
-		case 1:
+		case UdpTab:
 			netSocket_ = &udpSocket_;
-			udpSocket_.bind(QHostAddress(option_.udpClient_.localHost_), option_.udpClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint);
+			if (!udpSocket_.bind(QHostAddress(option_.udpClient_.localHost_), option_.udpClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint)) {
+				showError(udpSocket_.errorString());
+				break;
+			}
 			udpSocket_.connectToHost(ui->leUdpHost->text(), ui->leUdpPort->text().toUShort());
 			break;
-		case 2:
+		case SslTab:
 			netSocket_ = &sslSocket_;
 			sslSocket_.setProtocol(QSsl::SslProtocol(option_.sslClient_.protocol_));
-			sslSocket_.bind(QHostAddress(option_.sslClient_.localHost_), option_.sslClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint);
+			if (!sslSocket_.bind(QHostAddress(option_.sslClient_.localHost_), option_.sslClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint))  {
+				showError(sslSocket_.errorString());
+				break;
+			}
 			sslSocket_.connectToHostEncrypted(ui->leSslHost->text(), ui->leSslPort->text().toUShort());
 			break;
 	}
@@ -173,8 +225,8 @@ void Widget::on_pbOpen_clicked() {
 
 void Widget::on_pbClose_clicked() {
 	if (netSocket_ != nullptr) {
-		netSocket_->disconnectFromHost();
 		netSocket_->abort();
+		netSocket_->close();
 	}
 	setControl();
 }

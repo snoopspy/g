@@ -4,6 +4,8 @@
 #include <QTcpServer>
 #include <QUdpSocket>
 #include <QSslServer>
+#include <QNetworkProxy>
+#include <QAuthenticator>
 #include <QWidget>
 #include "option.h"
 
@@ -27,22 +29,44 @@ public:
 	void loadControl();
 	void saveControl();
 	void setControl();
+	void addText(QString msg);
+	void showError(QString error);
+	void prepareAbstractSocket(QAbstractSocket* socket);
+	void prepareTcpServer(QTcpServer* server);
+
+public:
+	const static int TcpTab = 0;
+	const static int UdpTab = 1;
+	const static int SslTab = 2;
 
 public:
 	QTcpServer tcpServer_;
 	QUdpSocket udpSocket_;
 	QSslServer sslServer_;
-	QAbstractSocket* netClient_{nullptr};
+	QObject* netServer_{nullptr};
 	Option option_;
 
-private slots:
-	void doNewConnection();
+public slots:
+	// QIODevice
+	void doAboutToClose();
+	void doBytesWritten(qint64 bytes);
+	void doChannelBytesWritten(int channel, qint64 bytes);
+	void doChannelReadyRead(int channel);
+	void doReadChannelFinished();
+	void doReadyRead();
 
+	// QAbstractSocket
 	void doConnected();
 	void doDisconnected();
-	void doErrorOccured(QAbstractSocket::SocketError socketError);
+	void doErrorOccurred(QAbstractSocket::SocketError socketError);
+	void doHostFound();
+	void doProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
 	void doStateChanged(QAbstractSocket::SocketState socketState);
-	void doReadyRead();
+
+	// QTcpServer
+	void doAcceptError(QAbstractSocket::SocketError socketError);
+	void doNewConnection();
+	void doPendingConnectionAvailable();
 
 public:
 	void showOption(NetServer* netServer);

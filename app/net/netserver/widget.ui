@@ -64,10 +64,10 @@
         <property name="spacing">
          <number>6</number>
         </property>
-        <item row="0" column="0">
-         <widget class="QPushButton" name="pbOpen">
+        <item row="0" column="5">
+         <widget class="QCheckBox" name="chkEcho">
           <property name="text">
-           <string>&amp;Open</string>
+           <string>Echo</string>
           </property>
          </widget>
         </item>
@@ -85,6 +85,13 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="4">
+         <widget class="QCheckBox" name="chkSendHexa">
+          <property name="text">
+           <string>Send Hexa</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="3">
          <widget class="QCheckBox" name="chkShowHexa">
           <property name="text">
@@ -92,10 +99,17 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="4">
-         <widget class="QCheckBox" name="chkSendHexa">
+        <item row="0" column="0">
+         <widget class="QPushButton" name="pbOpen">
           <property name="text">
-           <string>Send Hexa</string>
+           <string>&amp;Open</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="6">
+         <widget class="QCheckBox" name="chkEchoBroadcast">
+          <property name="text">
+           <string>Echo Broadcast</string>
           </property>
          </widget>
         </item>
@@ -111,13 +125,13 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tabTcp">
         <attribute name="title">
          <string>TCP</string>
         </attribute>
-        <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,0,0,0">
+        <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
          <property name="spacing">
           <number>4</number>
          </property>
@@ -133,16 +147,6 @@
          <property name="bottomMargin">
           <number>4</number>
          </property>
-         <item>
-          <widget class="QLabel" name="lblTcpHost">
-           <property name="text">
-            <string>Host</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="leTcpHost"/>
-         </item>
          <item>
           <widget class="QLabel" name="lblTcpPort">
            <property name="text">
@@ -166,7 +170,7 @@
         <attribute name="title">
          <string>UDP</string>
         </attribute>
-        <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1,0,0,0">
+        <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
          <property name="spacing">
           <number>4</number>
          </property>
@@ -182,16 +186,6 @@
          <property name="bottomMargin">
           <number>4</number>
          </property>
-         <item>
-          <widget class="QLabel" name="lblUdpHost">
-           <property name="text">
-            <string>Host</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="leUdpHost"/>
-         </item>
          <item>
           <widget class="QLabel" name="lblUdpPort">
            <property name="text">
@@ -215,7 +209,7 @@
         <attribute name="title">
          <string>SSL</string>
         </attribute>
-        <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1,0,0,0">
+        <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0">
          <property name="spacing">
           <number>4</number>
          </property>
@@ -231,16 +225,6 @@
          <property name="bottomMargin">
           <number>4</number>
          </property>
-         <item>
-          <widget class="QLabel" name="lblSslHost">
-           <property name="text">
-            <string>Host</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="leSslHost"/>
-         </item>
          <item>
           <widget class="QLabel" name="lblSslPort">
            <property name="text">
@@ -313,13 +297,10 @@
   <tabstop>pbClear</tabstop>
   <tabstop>chkShowHexa</tabstop>
   <tabstop>chkSendHexa</tabstop>
-  <tabstop>leTcpHost</tabstop>
   <tabstop>leTcpPort</tabstop>
   <tabstop>tbTcpAdvance</tabstop>
-  <tabstop>leUdpHost</tabstop>
   <tabstop>leUdpPort</tabstop>
   <tabstop>tbUdpAdvance</tabstop>
-  <tabstop>leSslHost</tabstop>
   <tabstop>leSslPort</tabstop>
   <tabstop>tbSslAdvanced</tabstop>
  </tabstops>

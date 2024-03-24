@@ -4,6 +4,8 @@
 #include <QTcpSocket>
 #include <QUdpSocket>
 #include <QSslSocket>
+#include <QNetworkProxy>
+#include <QAuthenticator>
 #include <QWidget>
 #include "option.h"
 
@@ -28,6 +30,13 @@ public:
 	void saveControl();
 	void setControl();
 	void addText(QString msg);
+	void showError(QString error);
+	void prepareAbstractSocket(QAbstractSocket* socket);
+
+public:
+	const static int TcpTab = 0;
+	const static int UdpTab = 1;
+	const static int SslTab = 2;
 
 public:
 	QTcpSocket tcpSocket_;
@@ -36,12 +45,22 @@ public:
 	QAbstractSocket* netSocket_{nullptr};
 	Option option_;
 
-private slots:
+public slots:
+	// QIODevice
+	void doAboutToClose();
+	void doBytesWritten(qint64 bytes);
+	void doChannelBytesWritten(int channel, qint64 bytes);
+	void doChannelReadyRead(int channel);
+	void doReadChannelFinished();
+	void doReadyRead();
+
+	// QAbstractSocket
 	void doConnected();
 	void doDisconnected();
 	void doErrorOccurred(QAbstractSocket::SocketError socketError);
+	void doHostFound();
+	void doProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
 	void doStateChanged(QAbstractSocket::SocketState socketState);
-	void doReadyRead();
 
 public:
 	void showOption(NetClient* netClient);
