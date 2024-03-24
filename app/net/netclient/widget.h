@@ -27,6 +27,7 @@ public:
 	void loadControl();
 	void saveControl();
 	void setControl();
+	void addText(QString msg);
 
 public:
 	QTcpSocket tcpSocket_;

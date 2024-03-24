@@ -65,7 +65,7 @@ void Widget::loadControl() {
 	ui->leUdpPort->setText(jo["udpPort"].toString());
 	ui->leSslHost->setText(jo["sslHost"].toString());
 	ui->leSslPort->setText(jo["sslPort"].toString());
-	ui->pteSend->insertPlainText(jo["sendText"].toString());
+	ui->pteSend->setPlainText(jo["sendText"].toString());
 }
 
 void Widget::saveControl() {
@@ -105,20 +105,26 @@ void Widget::setControl() {
 	ui->pbSend->setEnabled(netSocket_ == nullptr ? false : netSocket_->state() == QAbstractSocket::ConnectedState);
 }
 
+void Widget::addText(QString msg) {
+	ui->pteRecv->moveCursor(QTextCursor::End);
+	ui->pteRecv->insertPlainText(msg);
+	ui->pteRecv->moveCursor(QTextCursor::End);
+}
+
 void Widget::doConnected() {
 	QString msg = "[connected] " + netSocket_->peerAddress().toString() + "\r\n";
-	ui->pteRecv->insertPlainText(msg);
+	addText(msg);
 }
 
 void Widget::doDisconnected() {
 	QString msg = "[disconnected] " + netSocket_->peerAddress().toString() + "\r\n";
-	ui->pteRecv->insertPlainText(msg);
+	addText(msg);
 }
 
 void Widget::doErrorOccurred(QAbstractSocket::SocketError socketError) {
 	Q_UNUSED(socketError)
 	QString msg = "[error] " + netSocket_->errorString() + "\r\n";
-	ui->pteRecv->insertPlainText(msg);
+	addText(msg);
 	setControl();
 }
 
@@ -135,7 +141,7 @@ void Widget::doReadyRead() {
 	if (ui->chkShowHexa->isChecked())
 		ba = ba.toHex();
 	ba += "\r\n";
-	ui->pteRecv->insertPlainText(ba);
+	addText(ba);
 }
 
 void Widget::showOption(NetClient* netClient) {
