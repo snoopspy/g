@@ -181,6 +181,7 @@ void Widget::doReadyRead() {
 }
 
 void Widget::doConnected() {
+	qDebug() << "";
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 	Q_ASSERT(socket != nullptr);
 
@@ -189,6 +190,7 @@ void Widget::doConnected() {
 }
 
 void Widget::doDisconnected() {
+	qDebug() << "";
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 	Q_ASSERT(socket != nullptr);
 
@@ -222,6 +224,7 @@ void Widget::doStateChanged(QAbstractSocket::SocketState socketState) {
 }
 
 void Widget::doAcceptError(QAbstractSocket::SocketError socketError) {
+	qDebug() << "";
 	if (socketError == QAbstractSocket::UnknownSocketError) return;
 	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
 	QMetaEnum menum = mobj.enumerator(mobj.indexOfEnumerator("SocketError"));
@@ -283,19 +286,25 @@ void Widget::on_pbOpen_clicked() {
 
 			QSslConfiguration sslConfiguration(QSslConfiguration::defaultConfiguration());
 
-			QFile crtFile("/root/gilgil/cert/foo.com.crt");
-			qDebug() << crtFile.open(QIODevice::ReadOnly);
-			QSslCertificate sslCertificate(&crtFile);
-			sslConfiguration.setLocalCertificate(sslCertificate);
-			crtFile.close();
+			sslConfiguration.setProtocol(QSsl::SslProtocol(option_.sslServer_.protocol_));
 
-			QFile keyFile("/root/gilgil/cert/foo.com.key");
-			qDebug() << keyFile.open(QIODevice::ReadOnly);
+			QFile keyFile(option_.sslServer_.keyFileName_);
+			if (!keyFile.open(QIODevice::ReadOnly)) {
+				showError(QString("can not open file %1").arg(option_.sslServer_.keyFileName_));
+				break;
+			}
 			QSslKey sslKey(&keyFile, QSsl::Rsa);
 			sslConfiguration.setPrivateKey(sslKey);
 			keyFile.close();
 
-			sslConfiguration.setProtocol(QSsl::SslProtocol(option_.sslServer_.protocol_));
+			QFile crtFile(option_.sslServer_.crtFileName_);
+			if (!crtFile.open(QIODevice::ReadOnly)) {
+				showError(QString("can not open file %1").arg(option_.sslServer_.crtFileName_));
+				break;
+			}
+			QSslCertificate sslCertificate(&crtFile);
+			sslConfiguration.setLocalCertificate(sslCertificate);
+			crtFile.close();
 
 			sslServer->setSslConfiguration(sslConfiguration);
 

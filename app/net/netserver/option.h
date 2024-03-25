@@ -29,7 +29,13 @@ struct UdpServer : NetServer {
 struct SslServer : NetServer {
 	Q_OBJECT
 	Q_PROPERTY(SslProtocol protocol MEMBER protocol_)
+	Q_PROPERTY(QString keyFileName MEMBER keyFileName_)
+	Q_PROPERTY(QString crtFileName MEMBER crtFileName_)
 	Q_ENUMS(SslProtocol)
+
+public:
+	QString keyFileName_{"mysite.key"};
+	QString crtFileName_{"mysite.crt"};
 
 public:
 	enum SslProtocol {

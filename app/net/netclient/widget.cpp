@@ -161,6 +161,7 @@ void Widget::doReadyRead() {
 }
 
 void Widget::doConnected() {
+	qDebug() << "";
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 	Q_ASSERT(socket != nullptr);
 
@@ -169,6 +170,7 @@ void Widget::doConnected() {
 }
 
 void Widget::doDisconnected() {
+	qDebug() << "";
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 	Q_ASSERT(socket != nullptr);
 
