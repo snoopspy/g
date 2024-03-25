@@ -6,6 +6,7 @@
 #include <QSslSocket>
 #include <QNetworkProxy>
 #include <QAuthenticator>
+#include <QNetworkDatagram>
 #include <QWidget>
 #include "option.h"
 
@@ -29,7 +30,7 @@ public:
 	void loadControl();
 	void saveControl();
 	void setControl();
-	void addText(QString msg);
+	void addText(QString msg, bool newLine);
 	void showError(QString error);
 	void prepareAbstractSocket(QAbstractSocket* socket);
 
@@ -39,10 +40,7 @@ public:
 	const static int SslTab = 2;
 
 public:
-	QTcpSocket tcpSocket_;
-	QUdpSocket udpSocket_;
-	QSslSocket sslSocket_;
-	QAbstractSocket* netSocket_{nullptr};
+	QAbstractSocket* currSocket_{nullptr};
 	Option option_;
 
 public slots:
