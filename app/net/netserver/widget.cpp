@@ -281,7 +281,7 @@ void Widget::on_pbOpen_clicked() {
 				showError(udpSocket->errorString());
 			break;
 		}
-		case SslTab:
+		case SslTab: {
 			QSslServer* sslServer = new QSslServer(this);
 
 			QSslConfiguration sslConfiguration(QSslConfiguration::defaultConfiguration());
@@ -313,6 +313,7 @@ void Widget::on_pbOpen_clicked() {
 			if (!sslServer->listen(QHostAddress(option_.sslServer_.localHost_), ui->leSslPort->text().toUShort()))
 				showError(sslServer->errorString());
 			break;
+		}
 	}
 	setControl();
 }
