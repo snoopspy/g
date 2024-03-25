@@ -290,7 +290,7 @@ void Widget::on_pbOpen_clicked() {
 
 			QFile keyFile(option_.sslServer_.keyFileName_);
 			if (!keyFile.open(QIODevice::ReadOnly)) {
-				showError(QString("can not open file %1").arg(option_.sslServer_.keyFileName_));
+				showError(QString("can not open key file %1").arg(option_.sslServer_.keyFileName_));
 				break;
 			}
 			QSslKey sslKey(&keyFile, QSsl::Rsa);
@@ -299,7 +299,7 @@ void Widget::on_pbOpen_clicked() {
 
 			QFile crtFile(option_.sslServer_.crtFileName_);
 			if (!crtFile.open(QIODevice::ReadOnly)) {
-				showError(QString("can not open file %1").arg(option_.sslServer_.crtFileName_));
+				showError(QString("can not open crt file %1").arg(option_.sslServer_.crtFileName_));
 				break;
 			}
 			QSslCertificate sslCertificate(&crtFile);
