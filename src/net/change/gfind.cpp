@@ -1,6 +1,19 @@
 #include "gfind.h"
 
 // ----------------------------------------------------------------------------
+// GFindItem
+// ----------------------------------------------------------------------------
+GFindItem::GFindItem(QObject* parent) : GObj(parent) {
+}
+
+GFindItem::GFindItem(QObject* parent, int offset, int endOffset, int count, QString pattern, Type type) :
+	GObj(parent), offset_(offset), endOffset_(endOffset), count_(count), pattern_(pattern), type_(type) {
+}
+
+GFindItem::~GFindItem() {
+}
+
+// ----------------------------------------------------------------------------
 // GFind
 // ----------------------------------------------------------------------------
 bool GFind::doOpen() {

@@ -125,7 +125,7 @@ void GTraceRoute::checkCreateThread(GPacket* packet) {
 	GIp dip = ipHdr->dip();
 	if (dip == myIp_ || dip.isBroadcast() || dip.isMulticast() || dip.isLocalHost()) return;
 
-	if (!bpFilter_.check(packet->buf_)) return;
+	if (!bpFilter_.filterBuf(packet->buf_)) return;
 
 
 	uint8_t p = ipHdr->p();

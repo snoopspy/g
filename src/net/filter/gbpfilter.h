@@ -38,10 +38,10 @@ protected:
 	bpf_program* code_{nullptr};
 
 public:
-	bool check(GBuf buf);
+	bool filterBuf(GBuf buf);
 
 public slots:
-	bool check(GPacket* packet);
+	bool filter(GPacket* packet);
 
 signals:
 	void filtered(GPacket* packet);

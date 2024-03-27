@@ -32,13 +32,16 @@ public:
 		StartDetach
 	};
 
+public:
 	QStringList commands_;
 	GCommandType commandType_{Execute};
 
+public:
 	Q_INVOKABLE GCommandItem(QObject* parent = nullptr);
 	Q_INVOKABLE GCommandItem(QObject* parent, QStringList commands, GCommandType commandType = Execute);
 	~GCommandItem() override;
 
+public:
 	QList<void*> processList_; // int64_t is pid_t or QProcess*
 };
 typedef GCommandItem* PCommandItem;

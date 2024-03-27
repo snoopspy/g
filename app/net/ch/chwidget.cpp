@@ -22,9 +22,6 @@ ChWidget::ChWidget(QWidget* parent) : GDefaultWidget(parent) {
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &ChWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &ChWidget::tbOption_clicked);
 
-	QObject::connect(&cookieHijack_, &CookieHijack::probeDetected, this, &ChWidget::processProbeDetected);
-	QObject::connect(&cookieHijack_.monitorDevice_, &GMonitorDevice::closed, this, &ChWidget::processClosed);
-
 	setControl();
 }
 
@@ -101,21 +98,10 @@ void ChWidget::tbOption_clicked(bool checked) {
 }
 
 void ChWidget::processProbeDetected(GMac mac, QString type, int channel, int signal) {
-	qDebug() << QString(mac) << type << channel << signal;
-	GTreeWidgetItem* twi = new GTreeWidgetItem(treeWidget_);
-	twi->setText(CookieHijack::ColumnMac, QString(mac));
-	twi->setText(CookieHijack::ColumnType, type);
-	twi->setText(CookieHijack::ColumnChannel, QString::number(channel));
-
-	QProgressBar* progressBar = new QProgressBar(this);
-	progressBar->setMinimum(cookieHijack_.minSignal_);
-	progressBar->setMaximum(0);
-	progressBar->setFormat("%v dBm");
-	progressBar->setValue(signal);
-	treeWidget_->setItemWidget(twi, CookieHijack::ColumnSignal, progressBar);
-
-	treeWidget_->addTopLevelItem(twi);
-	treeWidget_->scrollToBottom();
+	(void)mac;
+	(void)type;
+	(void)channel;
+	(void)signal;
 }
 
 void ChWidget::processClosed() {

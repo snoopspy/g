@@ -11,7 +11,6 @@ struct G_EXPORT ProbeAnalyzer : GStateObj {
 
 public:
 	GObjRef getMonitorDevice() { return &monitorDevice_; }
-	int minSignal_{-128};
 	GObjRef getCommand() { return &command_; }
 
 public:
@@ -23,6 +22,7 @@ protected:
 	bool doClose() override;
 
 public:
+	int minSignal_{-128};
 	GMonitorDevice monitorDevice_{this};
 	GCommand command_{this};
 

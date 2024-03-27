@@ -42,6 +42,11 @@ public:
 	Type type_{String};
 
 public:
+	Q_INVOKABLE GFindItem(QObject* parent = nullptr);
+	Q_INVOKABLE GFindItem(QObject* parent, int offset, int endOffset, int count, QString pattern, Type type = String);
+	~GFindItem() override;
+
+public:
 	QString findHexPattern_;
 	QRegularExpression reFind_;
 };

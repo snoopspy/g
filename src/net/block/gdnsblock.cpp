@@ -1,6 +1,19 @@
 #include "gdnsblock.h"
 
 // ----------------------------------------------------------------------------
+// GDnsBlockItem
+// ----------------------------------------------------------------------------
+GDnsBlockItem::GDnsBlockItem(QObject* parent) : GObj(parent) {
+}
+
+GDnsBlockItem::GDnsBlockItem(QObject* parent, QString domain, QString ip) :
+	GObj(parent), domain_(domain), ip_(ip) {
+}
+
+GDnsBlockItem::~GDnsBlockItem() {
+}
+
+// ----------------------------------------------------------------------------
 // GDnsBlock
 // ----------------------------------------------------------------------------
 bool GDnsBlock::doOpen() {

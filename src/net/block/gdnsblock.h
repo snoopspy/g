@@ -27,6 +27,11 @@ struct GDnsBlockItem : GObj {
 public:
 	QString domain_;
 	QString ip_{"127.0.0.1"};
+
+public:
+	Q_INVOKABLE GDnsBlockItem(QObject* parent = nullptr);
+	Q_INVOKABLE GDnsBlockItem(QObject* parent, QString domain, QString ip);
+	~GDnsBlockItem() override;
 };
 typedef GDnsBlockItem *PDnsBlockItem;
 

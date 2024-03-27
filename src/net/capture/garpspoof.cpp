@@ -1,5 +1,5 @@
 #include "garpspoof.h"
-#include "base/sys/gnexmon.h"
+// #include "base/sys/gnexmon.h" // gilgil temp 2024.03.27
 
 // ----------------------------------------------------------------------------
 // GArpSpoof
@@ -233,7 +233,7 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 				Flow& flow = it.value();
 				ethHdr->dmac_ = flow.targetMac_;
 				if (bpFilter_ != nullptr) {
-					if (!bpFilter_->check(packet->buf_)) {
+					if (!bpFilter_->filterBuf(packet->buf_)) {
 						relay(packet);
 						continue;
 					}
