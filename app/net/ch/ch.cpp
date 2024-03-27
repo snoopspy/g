@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 		pw.treeWidget_->setColumnWidth(CookieHijack::ColumnSignal, width * 4 / 10);
 	}
 
-	GCommand* command = &pw.probeAnalyzer_.command_;
+	GCommand* command = &pw.cookieHijack_.command_;
 	if (!command->open()) {
 		QMessageBox::warning(&pw, "Error", command->err->msg());
 	}
