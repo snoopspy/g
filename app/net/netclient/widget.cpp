@@ -179,7 +179,6 @@ void Widget::doDisconnected() {
 }
 
 void Widget::doErrorOccurred(QAbstractSocket::SocketError socketError) {
-	if (socketError == QAbstractSocket::UnknownSocketError) return;
 	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
 	QString value = mobj.enumerator(mobj.indexOfEnumerator("SocketError")).valueToKey(socketError);
 	showError(value);
