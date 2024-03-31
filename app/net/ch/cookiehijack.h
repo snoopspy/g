@@ -15,6 +15,8 @@ struct G_EXPORT CookieHijack : GGraph {
 	Q_OBJECT
 	Q_PROPERTY(QString hackingSite MEMBER hackingSite_)
 	Q_PROPERTY(QString prefix MEMBER prefix_)
+	Q_PROPERTY(int httpPort MEMBER httpPort_)
+	Q_PROPERTY(int httpsPort MEMBER httpsPort_)
 
 	Q_PROPERTY(GObjRef autoArpSpoof READ getGAutoArpSpoof)
 	Q_PROPERTY(GObjRef find READ getFind)
@@ -39,7 +41,9 @@ public:
 
 public:
 	QString hackingSite_{"naver.com"};
-	QString prefix_{"freewifi"};
+	QString prefix_{"wifi"};
+	int httpPort_{8080};
+	int httpsPort_{4433};
 
 	GAutoArpSpoof autoArpSpoof_{this};
 	GFind find_{this};
