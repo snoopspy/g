@@ -122,10 +122,35 @@ void Widget::prepareAbstractSocket(QAbstractSocket* socket) {
 	QObject::connect(socket, &QAbstractSocket::stateChanged, this, &Widget::doStateChanged);
 }
 
+void Widget::prepareSslSocket(QSslSocket* socket) {
+	// QSslSocket
+	QObject::connect(socket, &QSslSocket::alertReceived, this, &Widget::doAlertReceived);
+	QObject::connect(socket, &QSslSocket::alertSent, this, &Widget::doAlertSent);
+	QObject::connect(socket, &QSslSocket::encrypted, this, &Widget::doEncrypted);
+	QObject::connect(socket, &QSslSocket::encryptedBytesWritten, this, &Widget::doEncryptedBytesWritten);
+	QObject::connect(socket, &QSslSocket::handshakeInterruptedOnError, this, &Widget::doHandshakeInterruptedOnError);
+	QObject::connect(socket, &QSslSocket::modeChanged, this, &Widget::doModeChanged);
+	QObject::connect(socket, &QSslSocket::newSessionTicketReceived, this, &Widget::doNewSessionTicketReceived);
+	QObject::connect(socket, &QSslSocket::peerVerifyError, this, &Widget::doPeerVerifyError);
+	QObject::connect(socket, &QSslSocket::preSharedKeyAuthenticationRequired, this, &Widget::doPreSharedKeyAuthenticationRequired);
+	QObject::connect(socket, &QSslSocket::sslErrors, this, &Widget::doSslErrors);
+}
+
 void Widget::prepareTcpServer(QTcpServer* server) {
-	QObject::connect(server, &QTcpServer::acceptError, this, &Widget::doAcceptError);
-	QObject::connect(server, &QTcpServer::newConnection, this, &Widget::doNewConnection);
-	QObject::connect(server, &QTcpServer::pendingConnectionAvailable, this, &Widget::doPendingConnectionAvailable);
+	QObject::connect(server, &QTcpServer::acceptError, this, &Widget::serverAcceptError);
+	QObject::connect(server, &QTcpServer::newConnection, this, &Widget::serverNewConnection);
+	QObject::connect(server, &QTcpServer::pendingConnectionAvailable, this, &Widget::serverPendingConnectionAvailable);
+}
+
+void Widget::prepareSslServer(QSslServer* server) {
+	QObject::connect(server, &QSslServer::alertReceived, this, &Widget::serverAlertReceived);
+	QObject::connect(server, &QSslServer::alertSent, this, &Widget::serverAlertSent);
+	QObject::connect(server, &QSslServer::errorOccurred, this, &Widget::serverErrorOccurred);
+	QObject::connect(server, &QSslServer::handshakeInterruptedOnError, this, &Widget::serverHandshakeInterruptedOnError);
+	QObject::connect(server, &QSslServer::peerVerifyError, this, &Widget::serverPeerVerifyError);
+	QObject::connect(server, &QSslServer::preSharedKeyAuthenticationRequired, this, &Widget::serverPreSharedKeyAuthenticationRequired);
+	QObject::connect(server, &QSslServer::sslErrors, this, &Widget::serverSslErrors);
+	QObject::connect(server, &QSslServer::startedEncryptionHandshake, this, &Widget::serverStartedEncryptionHandshake);
 }
 
 void Widget::doAboutToClose() {
@@ -203,6 +228,7 @@ void Widget::doDisconnected() {
 void Widget::doErrorOccurred(QAbstractSocket::SocketError socketError) {
 	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
 	QString value = mobj.enumerator(mobj.indexOfEnumerator("SocketError")).valueToKey(socketError);
+	qDebug() << value;
 	showError(value);
 	setControl();
 }
@@ -222,7 +248,56 @@ void Widget::doStateChanged(QAbstractSocket::SocketState socketState) {
 	setControl();
 }
 
-void Widget::doAcceptError(QAbstractSocket::SocketError socketError) {
+void Widget::doAlertReceived(QSsl::AlertLevel level, QSsl::AlertType type, const QString& description) {
+	(void)level;
+	(void)type;
+	qDebug() << description;
+}
+
+void Widget::doAlertSent(QSsl::AlertLevel level, QSsl::AlertType type, const QString& description) {
+	(void)level;
+	(void)type;
+	qDebug() << description;
+}
+
+void Widget::doEncrypted() {
+	qDebug() << "";
+}
+
+void Widget::doEncryptedBytesWritten(qint64 written) {
+	qDebug() << written;
+}
+
+void Widget::doHandshakeInterruptedOnError(const QSslError& error) {
+	qDebug() << error.errorString();
+}
+
+void Widget::doModeChanged(QSslSocket::SslMode mode) {
+	switch (mode) {
+		case QSslSocket::UnencryptedMode: qDebug() << "UnencryptedMode"; break;
+		case QSslSocket::SslClientMode: qDebug() << "SslClientMode"; break;
+		case QSslSocket::SslServerMode: qDebug() << "SslServerMode"; break;
+	}
+}
+
+void Widget::doNewSessionTicketReceived()  {
+	qDebug() << "";
+}
+
+void Widget::doPeerVerifyError(const QSslError& error) {
+	qDebug() << error.errorString();
+}
+
+void Widget::doPreSharedKeyAuthenticationRequired(QSslPreSharedKeyAuthenticator* authenticator) {
+	qDebug() << authenticator->identity();
+}
+
+void Widget::doSslErrors(const QList<QSslError>& errors) {
+	for (const QSslError& error: errors)
+		qDebug() << error.errorString();
+}
+
+void Widget::serverAcceptError(QAbstractSocket::SocketError socketError) {
 	qDebug() << "";
 	if (socketError == QAbstractSocket::UnknownSocketError) return;
 	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
@@ -233,25 +308,72 @@ void Widget::doAcceptError(QAbstractSocket::SocketError socketError) {
 	setControl();
 }
 
-void Widget::doNewConnection() {
+void Widget::serverNewConnection() {
+	qDebug() << "";
+	serverPendingConnectionAvailable();
+}
+
+void Widget::serverPendingConnectionAvailable() {
 	qDebug() << "";
 	QTcpServer* server = dynamic_cast<QTcpServer*>(sender());
 	Q_ASSERT(server != nullptr);
 
 	while (server->hasPendingConnections()) {
-		qDebug() << "has!!!";
 		QAbstractSocket* socket = server->nextPendingConnection();
 		QString msg = QString("[connected] %1:%2\r\n").arg(socket->peerAddress().toString()).arg(QString::number(socket->peerPort()));
 		addText(msg, true);
 		prepareAbstractSocket(socket);
+		QSslSocket* sslSocket = dynamic_cast<QSslSocket*>(socket);
+		if (sslSocket != nullptr)
+			prepareSslSocket(sslSocket);
 
 		socketList_.push_back(socket);
 	}
 }
 
-void Widget::doPendingConnectionAvailable() {
+void Widget::serverAlertReceived(QSslSocket *socket, QSsl::AlertLevel level, QSsl::AlertType type, const QString &description) {
+	(void)socket;
+	(void)level;
+	(void)type;
+	qDebug() << description;
+}
+
+void Widget::serverAlertSent(QSslSocket *socket, QSsl::AlertLevel level, QSsl::AlertType type, const QString &description) {
+	(void)socket;
+	(void)level;
+	(void)type;
+	qDebug() << description;
+}
+
+void Widget::serverErrorOccurred(QSslSocket *socket, QAbstractSocket::SocketError socketError) {
+	(void)socket;
+	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
+	QString value = mobj.enumerator(mobj.indexOfEnumerator("SocketError")).valueToKey(socketError);
+	qDebug() << value;
+	showError(value);
+	setControl();
+}
+
+void Widget::serverHandshakeInterruptedOnError(QSslSocket *socket, const QSslError &error) {
+	qDebug() << error.errorString();
+}
+
+void Widget::serverPeerVerifyError(QSslSocket *socket, const QSslError &error) {
+	qDebug() << error.errorString();
+}
+
+void Widget::serverPreSharedKeyAuthenticationRequired(QSslSocket *socket, QSslPreSharedKeyAuthenticator *authenticator) {
+	qDebug() << authenticator->identity();
+}
+
+void Widget::serverSslErrors(QSslSocket *socket, const QList<QSslError> &errors) {
+	for (const QSslError& error: errors)
+		qDebug() << error.errorString();
+}
+
+void Widget::serverStartedEncryptionHandshake(QSslSocket *socket) {
+	(void)socket;
 	qDebug() << "";
-	doNewConnection();
 }
 
 void Widget::showOption(NetServer* netServer) {
@@ -308,6 +430,7 @@ void Widget::on_pbOpen_clicked() {
 			sslServer->setSslConfiguration(sslConfiguration);
 
 			prepareTcpServer(sslServer);
+			prepareSslServer(sslServer);
 			currServer_ = sslServer;
 			if (!sslServer->listen(QHostAddress(option_.sslServer_.localHost_), ui->leSslPort->text().toUShort()))
 				showError(sslServer->errorString());

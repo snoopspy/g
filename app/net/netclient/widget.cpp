@@ -121,6 +121,20 @@ void Widget::prepareAbstractSocket(QAbstractSocket* socket) {
 	QObject::connect(socket, &QAbstractSocket::stateChanged, this, &Widget::doStateChanged);
 }
 
+void Widget::prepareSslSocket(QSslSocket* socket) {
+	// QSslSocket
+	QObject::connect(socket, &QSslSocket::alertReceived, this, &Widget::doAlertReceived);
+	QObject::connect(socket, &QSslSocket::alertSent, this, &Widget::doAlertSent);
+	QObject::connect(socket, &QSslSocket::encrypted, this, &Widget::doEncrypted);
+	QObject::connect(socket, &QSslSocket::encryptedBytesWritten, this, &Widget::doEncryptedBytesWritten);
+	QObject::connect(socket, &QSslSocket::handshakeInterruptedOnError, this, &Widget::doHandshakeInterruptedOnError);
+	QObject::connect(socket, &QSslSocket::modeChanged, this, &Widget::doModeChanged);
+	QObject::connect(socket, &QSslSocket::newSessionTicketReceived, this, &Widget::doNewSessionTicketReceived);
+	QObject::connect(socket, &QSslSocket::peerVerifyError, this, &Widget::doPeerVerifyError);
+	QObject::connect(socket, &QSslSocket::preSharedKeyAuthenticationRequired, this, &Widget::doPreSharedKeyAuthenticationRequired);
+	QObject::connect(socket, &QSslSocket::sslErrors, this, &Widget::doSslErrors);
+}
+
 void Widget::doAboutToClose() {
 	qDebug() << "";
 }
@@ -181,6 +195,7 @@ void Widget::doDisconnected() {
 void Widget::doErrorOccurred(QAbstractSocket::SocketError socketError) {
 	const QMetaObject& mobj = QAbstractSocket::staticMetaObject;
 	QString value = mobj.enumerator(mobj.indexOfEnumerator("SocketError")).valueToKey(socketError);
+	qDebug() << value;
 	showError(value);
 	setControl();
 }
@@ -190,7 +205,7 @@ void Widget::doHostFound() {
 }
 
 void Widget::doProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator) {
-	qDebug() << proxy << authenticator->user(); // gilgil temp 2024.03.24
+	qDebug() << proxy << authenticator->user();
 }
 
 void Widget::doStateChanged(QAbstractSocket::SocketState socketState) {
@@ -198,6 +213,55 @@ void Widget::doStateChanged(QAbstractSocket::SocketState socketState) {
 	QString value = mobj.enumerator(mobj.indexOfEnumerator("SocketState")).valueToKey(socketState);
 	qDebug() << QString::number(socketState) << value;
 	setControl();
+}
+
+void Widget::doAlertReceived(QSsl::AlertLevel level, QSsl::AlertType type, const QString& description) {
+	(void)level;
+	(void)type;
+	qDebug() << description;
+}
+
+void Widget::doAlertSent(QSsl::AlertLevel level, QSsl::AlertType type, const QString& description) {
+	(void)level;
+	(void)type;
+	qDebug() << description;
+}
+
+void Widget::doEncrypted() {
+	qDebug() << "";
+}
+
+void Widget::doEncryptedBytesWritten(qint64 written) {
+	qDebug() << written;
+}
+
+void Widget::doHandshakeInterruptedOnError(const QSslError& error) {
+	qDebug() << error.errorString();
+}
+
+void Widget::doModeChanged(QSslSocket::SslMode mode) {
+	switch (mode) {
+		case QSslSocket::UnencryptedMode: qDebug() << "UnencryptedMode"; break;
+		case QSslSocket::SslClientMode: qDebug() << "SslClientMode"; break;
+		case QSslSocket::SslServerMode: qDebug() << "SslServerMode"; break;
+	}
+}
+
+void Widget::doNewSessionTicketReceived()  {
+	qDebug() << "";
+}
+
+void Widget::doPeerVerifyError(const QSslError& error) {
+	qDebug() << error.errorString();
+}
+
+void Widget::doPreSharedKeyAuthenticationRequired(QSslPreSharedKeyAuthenticator* authenticator) {
+	qDebug() << authenticator->identity();
+}
+
+void Widget::doSslErrors(const QList<QSslError>& errors) {
+	for (const QSslError& error: errors)
+		qDebug() << error.errorString();
 }
 
 void Widget::showOption(NetClient* netClient) {
@@ -233,6 +297,7 @@ void Widget::on_pbOpen_clicked() {
 			QSslSocket* sslSocket = new QSslSocket(this);
 			sslSocket->setProtocol(QSsl::SslProtocol(option_.sslClient_.protocol_));
 			prepareAbstractSocket(sslSocket);
+			prepareSslSocket(sslSocket);
 			currSocket_ = sslSocket;
 			if (!sslSocket->bind(QHostAddress(option_.sslClient_.localHost_), option_.sslClient_.localPort_, QAbstractSocket::DefaultForPlatform | QAbstractSocket::ReuseAddressHint))  {
 				showError(sslSocket->errorString());

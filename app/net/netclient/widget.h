@@ -1,13 +1,15 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include <QTcpSocket>
-#include <QUdpSocket>
-#include <QSslSocket>
-#include <QNetworkProxy>
 #include <QAuthenticator>
 #include <QNetworkDatagram>
+#include <QNetworkProxy>
+#include <QTcpSocket>
+#include <QUdpSocket>
+#include <QSslPreSharedKeyAuthenticator>
+#include <QSslSocket>
 #include <QWidget>
+
 #include "option.h"
 
 // ----------------------------------------------------------------------------
@@ -33,6 +35,7 @@ public:
 	void addText(QString msg, bool newLine);
 	void showError(QString error);
 	void prepareAbstractSocket(QAbstractSocket* socket);
+	void prepareSslSocket(QSslSocket* socket);
 
 public:
 	const static int TcpTab = 0;
@@ -59,6 +62,18 @@ public slots:
 	void doHostFound();
 	void doProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
 	void doStateChanged(QAbstractSocket::SocketState socketState);
+
+	// QSslSocket
+	void doAlertReceived(QSsl::AlertLevel level, QSsl::AlertType type, const QString &description);
+	void doAlertSent(QSsl::AlertLevel level, QSsl::AlertType type, const QString &description);
+	void doEncrypted();
+	void doEncryptedBytesWritten(qint64 written);
+	void doHandshakeInterruptedOnError(const QSslError &error);
+	void doModeChanged(QSslSocket::SslMode mode);
+	void doNewSessionTicketReceived();
+	void doPeerVerifyError(const QSslError &error);
+	void doPreSharedKeyAuthenticationRequired(QSslPreSharedKeyAuthenticator *authenticator);
+	void doSslErrors(const QList<QSslError> &errors);
 
 public:
 	void showOption(NetClient* netClient);
