@@ -355,18 +355,22 @@ void Widget::serverErrorOccurred(QSslSocket *socket, QAbstractSocket::SocketErro
 }
 
 void Widget::serverHandshakeInterruptedOnError(QSslSocket *socket, const QSslError &error) {
+	(void)socket;
 	qDebug() << error.errorString();
 }
 
 void Widget::serverPeerVerifyError(QSslSocket *socket, const QSslError &error) {
+	(void)socket;
 	qDebug() << error.errorString();
 }
 
 void Widget::serverPreSharedKeyAuthenticationRequired(QSslSocket *socket, QSslPreSharedKeyAuthenticator *authenticator) {
+	(void)socket;
 	qDebug() << authenticator->identity();
 }
 
 void Widget::serverSslErrors(QSslSocket *socket, const QList<QSslError> &errors) {
+	(void)socket;
 	for (const QSslError& error: errors)
 		qDebug() << error.errorString();
 }
