@@ -76,6 +76,18 @@ void GCookieHijack::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tc
 	// qDebug() << QString("_tcpFlowDeleted %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
 }
 
+bool GCookieHijack::extract(QString httpRequest, QString& host, QString& cookie) {
+	QRegularExpressionMatch m = reHost_.match(httpRequest);
+	if (!m.hasMatch()) return false;
+	host = m.captured(1);
+
+	m = reCookie_.match(httpRequest);
+	if (!m.hasMatch()) return false;
+	cookie = m.captured(1);
+
+	return true;
+}
+
 bool GCookieHijack::insert(time_t created, GMac mac, GIp ip, QString host, QString cookie) {
 	QMutexLocker ml(this);
 
@@ -106,12 +118,12 @@ void GCookieHijack::hijack(GPacket* packet) {
 
 	Q_ASSERT(tcpFlowMgr_->currentTcpFlowVal_ != nullptr);
 	Item* item = getItem(tcpFlowMgr_->currentTcpFlowVal_);
-	item->insertSegment(tcpHdr->seq(), segment);
+	QString http = item->insertSegment(tcpHdr->seq(), segment);
 
-	QString host;
-	QString cookie;
-	if (!item->extract(host, cookie))
+	QString host, cookie;
+	if (!extract(http, host, cookie))
 		return;
+	item->segments_.clear();
 
 	time_t created = packet->ts_.tv_sec;
 	GMac mac(GMac::nullMac());
@@ -127,14 +139,12 @@ void GCookieHijack::hijack(GPacket* packet) {
 // ----------------------------------------------------------------------------
 // GCookieHijack::Item
 // ----------------------------------------------------------------------------
-void GCookieHijack::Item::insertSegment(uint32_t seq, QString segment) {
+QString GCookieHijack::Item::insertSegment(uint32_t seq, QString segment) {
 	segments_.insert(seq, segment);
 	while (segments_.count() > ch_->maxMergeCount_) {
 		segments_.erase(segments_.begin());
 	}
-}
 
-bool GCookieHijack::Item::extract(QString& host, QString &cookie) {
 	QString http;
 	uint32_t nextSeq = 0;
 	for (Map::iterator it = segments_.begin(); it != segments_.end(); it++) {
@@ -145,17 +155,7 @@ bool GCookieHijack::Item::extract(QString& host, QString &cookie) {
 			http += segment;
 		}
 	}
-
-	QRegularExpressionMatch m = ch_->reHost_.match(http);
-	if (!m.hasMatch()) return false;
-	host = m.captured(1);
-
-	m = ch_->reCookie_.match(http);
-	if (!m.hasMatch()) return false;
-	cookie = m.captured(1);
-
-	segments_.clear();
-	return true;
+	return http;
 }
 
 #ifdef QT_GUI_LIB

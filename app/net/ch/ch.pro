@@ -1,15 +1,17 @@
-QT += widgets
+QT += widgets network
 include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
 
 SOURCES += \
 	ch.cpp \
 	chwidget.cpp \
-	cookiehijack.cpp
+	cookiehijack.cpp \
+	webserver.cpp
 
 HEADERS += \
 	chwidget.h \
-	cookiehijack.h
+	cookiehijack.h \
+	webserver.h
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
 	ANDROID_PACKAGE_SOURCE_DIR = \

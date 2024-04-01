@@ -310,7 +310,6 @@ void Widget::serverAcceptError(QAbstractSocket::SocketError socketError) {
 
 void Widget::serverNewConnection() {
 	qDebug() << "";
-	serverPendingConnectionAvailable();
 }
 
 void Widget::serverPendingConnectionAvailable() {

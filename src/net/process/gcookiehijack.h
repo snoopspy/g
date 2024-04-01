@@ -54,7 +54,7 @@ public:
 		struct Map : QMap<uint32_t /*seq*/, QString /*segment*/> {
 		} segments_;
 
-		void insertSegment(uint32_t seq, QString segment);
+		QString insertSegment(uint32_t seq, QString segment);
 		bool extract(QString& host, QString &cookie);
 	};
 	typedef Item *PItem;
@@ -77,6 +77,7 @@ protected:
 	QSqlQuery* insertQuery_{nullptr};
 
 public:
+	bool extract(QString httpRequest, QString& host, QString& cookie);
 	bool insert(time_t created, GMac mac, GIp ip, QString host, QString cookie);
 
 public slots:

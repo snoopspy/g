@@ -10,14 +10,14 @@
 #include <GBpFilter>
 #include <GBlock>
 #include <GCommand>
+#include "webserver.h"
 
 struct G_EXPORT CookieHijack : GGraph {
 	Q_OBJECT
 	Q_PROPERTY(QString hackingSite MEMBER hackingSite_)
 	Q_PROPERTY(QString prefix MEMBER prefix_)
-	Q_PROPERTY(int httpPort MEMBER httpPort_)
-	Q_PROPERTY(int httpsPort MEMBER httpsPort_)
 
+	Q_PROPERTY(GObjRef webServer READ getWebServer)
 	Q_PROPERTY(GObjRef autoArpSpoof READ getGAutoArpSpoof)
 	Q_PROPERTY(GObjRef find READ getFind)
 	Q_PROPERTY(GObjRef tcpBlock READ getTcpBlock)
@@ -29,6 +29,7 @@ struct G_EXPORT CookieHijack : GGraph {
 	Q_PROPERTY(GObjRef command READ getCommand)
 
 public:
+	GObjRef getWebServer() { return &webServer_; }
 	GObjRef getGAutoArpSpoof() { return &autoArpSpoof_; }
 	GObjRef getFind() { return &find_; }
 	GObjRef getTcpBlock() { return &tcpBlock_; }
@@ -42,9 +43,8 @@ public:
 public:
 	QString hackingSite_{"naver.com"};
 	QString prefix_{"wifi"};
-	int httpPort_{8080};
-	int httpsPort_{4433};
 
+	WebServer webServer_{this};
 	GAutoArpSpoof autoArpSpoof_{this};
 	GFind find_{this};
 	GTcpBlock tcpBlock_{this};
@@ -54,7 +54,6 @@ public:
 	GBpFilter bpFilter_{this};
 	GBlock block_{this};
 	GCommand command_{this};
-
 
 public:
 	Q_INVOKABLE CookieHijack(QObject* parent = nullptr);
