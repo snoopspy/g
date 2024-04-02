@@ -99,8 +99,8 @@ void WebServer::doReadyRead() {
 		segments_[socket] = "";
 	}
 
-	if (httpRequest.left(3) == "\u0016\u0003\u0001") {
-		qDebug() << "160301!!!";
+	if (httpRequest.startsWith("\u0016")) {
+		qDebug() << "TLS Handshake!!!(0x16)!!!";
 		socket->close();
 		return;
 	}
@@ -108,10 +108,6 @@ void WebServer::doReadyRead() {
 	qsizetype i = httpRequest.indexOf("\r\n\r\n");
 	if (i == -1) return;
 	qDebug() << "found \\r\\n\\r\\n";
-	GIntf* intf = ch_->autoArpSpoof_.intf();
-	Q_ASSERT(intf != nullptr);
-	GIp gateway = intf->gateway();
-	ch_->autoArpSpoof_.removeFlows(ip, gateway, gateway, ip);
 	if (hijackSsl_) {
 		QStringList httpResponse;
 		httpResponse += "HTTP/1.1 302 Redirect";
@@ -121,8 +117,13 @@ void WebServer::doReadyRead() {
 		httpResponse += "";
 		httpResponse += "";
 		socket->write(httpResponse.join("\r\n").toUtf8());
+		qDebug() << "Try " + locationStr;
 	} else {
 		socket->write(goodbyeMessage_.join("\r\n").toUtf8());
+		GIntf* intf = ch_->autoArpSpoof_.intf();
+		Q_ASSERT(intf != nullptr);
+		GIp gateway = intf->gateway();
+		ch_->autoArpSpoof_.removeFlows(ip, gateway, gateway, ip);
 	}
 	socket->close();
 }

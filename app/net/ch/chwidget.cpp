@@ -75,7 +75,7 @@ void ChWidget::tbStop_clicked(bool checked) {
 void ChWidget::tbOption_clicked(bool checked) {
 	(void)checked;
 
-	GPropDialog propDialog;
+	GPropDialog propDialog(this);
 	propDialog.widget_.setObject(&cookieHijack_);
 
 	QJsonObject& jo = GJson::instance();
