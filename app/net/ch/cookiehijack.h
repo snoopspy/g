@@ -41,7 +41,7 @@ public:
 	GObjRef getCommand() { return &command_; }
 
 public:
-	QString hackingSite_{"naver.com"};
+	QString hackingSite_{"daum.net"};
 	QString prefix_{"wifi"};
 
 	WebServer webServer_{this};
