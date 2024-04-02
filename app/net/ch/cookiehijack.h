@@ -64,12 +64,6 @@ protected:
 	bool doClose() override;
 
 public:
-	const static int ColumnMac = 0;
-	const static int ColumnType = 1;
-	const static int ColumnChannel = 2;
-	const static int ColumnSignal = 3;
-
-public:
 	void propLoad(QJsonObject jo) override;
 	void propSave(QJsonObject& jo) override;
 };

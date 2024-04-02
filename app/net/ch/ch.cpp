@@ -15,10 +15,7 @@ int main(int argc, char *argv[])
 	cw.show();
 	if (isFirst) {
 		int width = cw.width();
-		cw.treeWidget_->setColumnWidth(CookieHijack::ColumnMac, width * 4 / 10);
-		cw.treeWidget_->setColumnWidth(CookieHijack::ColumnType, width * 1 / 10);
-		cw.treeWidget_->setColumnWidth(CookieHijack::ColumnChannel, width * 1 / 10);
-		cw.treeWidget_->setColumnWidth(CookieHijack::ColumnSignal, width * 4 / 10);
+		cw.treeWidget_->setColumnWidth(ChWidget::ColumnHost, width * 3 / 10);
 	}
 
 	GCommand* command = &cw.cookieHijack_.command_;

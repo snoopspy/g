@@ -16,7 +16,17 @@ public:
 
 public:
 	GTreeWidget* treeWidget_{nullptr};
-	CookieHijack cookieHijack_;
+	CookieHijack cookieHijack_{this};
+
+public:
+	QToolButton* tbFirefox_{nullptr};
+
+public:
+	const static int ColumnHost = 0;
+	const static int ColumnCookie = 1;
+
+public:
+	void addItem(QString host, QString cookie);
 
 public:
 	void closeEvent(QCloseEvent* event) override;
@@ -25,6 +35,7 @@ private slots:
 	void tbStart_clicked(bool checked = false);
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
+	void tbFirefox_clicked(bool checked = false);
 
 	void processProbeDetected(GMac mac, QString type, int channel, int signal);
 	void processClosed();
