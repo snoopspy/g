@@ -15,6 +15,7 @@
 struct EthArpPacket {
 	EthHdr ethHdr_;
 	ArpHdr arpHdr_;
+	uint16_t padding_{0};
 };
 typedef EthArpPacket *PEthArpPacket;
 #pragma pack(pop)
