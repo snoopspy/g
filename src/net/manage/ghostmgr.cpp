@@ -152,14 +152,19 @@ void GHostMgr::manage(GPacket* packet) {
 	bool detected = false;
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr != nullptr && ipHdr->sip() != myIp_) {
-		if (processDhcp(packet, &mac, &ip, &host, &vendor) || processIp(ethHdr, ipHdr, &mac, &ip))
-		detected = true;
+		if (checkIp_ && processIp(ethHdr, ipHdr, &mac, &ip)) {
+			detected = true;
+		} else if (checkDhcp_ && processDhcp(packet, &mac, &ip, &host, &vendor)) {
+			detected = true;
+		}
 	}
 
-	GArpHdr* arpHdr = packet->arpHdr_;
-	if (arpHdr != nullptr && arpHdr->sip() != myIp_) {
-		if (processArp(ethHdr, arpHdr, &mac, &ip))
-			detected = true;
+	if (checkArp_) {
+		GArpHdr* arpHdr = packet->arpHdr_;
+		if (arpHdr != nullptr && arpHdr->sip() != myIp_) {
+			if (processArp(ethHdr, arpHdr, &mac, &ip))
+				detected = true;
+		}
 	}
 
 	if (!detected) return;

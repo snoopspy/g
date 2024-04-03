@@ -6,6 +6,10 @@
 GAutoArpSpoof::GAutoArpSpoof(QObject* parent) : GArpSpoof(parent) {
 	QObject::connect(this, &GArpSpoof::_preCaptured, &hostMgr_, &GHostMgr::manage, Qt::DirectConnection);
 
+	hostMgr_.checkIp_ = false;
+	hostMgr_.checkDhcp_ = true;
+	hostMgr_.checkArp_ = false;
+
 	hostScan_.enabled_ = false;
 	hostScan_.pcapDevice_ = this;
 }
