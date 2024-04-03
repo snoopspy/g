@@ -128,7 +128,10 @@ void ChWidget::tbFirefox_clicked(bool checked) {
 
 	QString program = QDir::currentPath() + "/ffce";
 	QStringList arguments;
-	arguments.push_back(QDir::homePath() +"/.mozilla/firefox");
+	QString firefoxDir = cookieHijack_.firefoxDir_;
+	if (firefoxDir == "")
+		firefoxDir = QDir::homePath() +"/.mozilla/firefox";
+	arguments.push_back(firefoxDir);
 	arguments.push_back(host);
 	arguments.push_back(cookie);
 	QProcess::execute(program, arguments);

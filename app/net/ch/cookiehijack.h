@@ -16,6 +16,7 @@ struct G_EXPORT CookieHijack : GGraph {
 	Q_OBJECT
 	Q_PROPERTY(QString hackingSite MEMBER hackingSite_)
 	Q_PROPERTY(QString prefix MEMBER prefix_)
+	Q_PROPERTY(QString firefoxDir MEMBER firefoxDir_)
 
 	Q_PROPERTY(GObjRef webServer READ getWebServer)
 	Q_PROPERTY(GObjRef autoArpSpoof READ getGAutoArpSpoof)
@@ -43,6 +44,7 @@ public:
 public:
 	QString hackingSite_{"daum.net"};
 	QString prefix_{"wifi"};
+	QString firefoxDir_;
 
 	WebServer webServer_{this};
 	GAutoArpSpoof autoArpSpoof_{this};
