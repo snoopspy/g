@@ -129,6 +129,7 @@ void WebServer::doReadyRead() {
 		GIntf* intf = ch_->autoArpSpoof_.intf();
 		Q_ASSERT(intf != nullptr);
 		GIp gateway = intf->gateway();
+		qDebug() << "Remove flows " + QString(ip);
 		ch_->autoArpSpoof_.removeFlows(ip, gateway, gateway, ip);
 	}
 	socket->close();
