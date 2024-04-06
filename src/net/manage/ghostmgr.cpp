@@ -152,9 +152,9 @@ void GHostMgr::manage(GPacket* packet) {
 	bool detected = false;
 	GIpHdr* ipHdr = packet->ipHdr_;
 	if (ipHdr != nullptr && ipHdr->sip() != myIp_) {
-		if (checkIp_ && processIp(ethHdr, ipHdr, &mac, &ip)) {
+		if (checkDhcp_ && processDhcp(packet, &mac, &ip, &host, &vendor)) {
 			detected = true;
-		} else if (checkDhcp_ && processDhcp(packet, &mac, &ip, &host, &vendor)) {
+		} else if (checkIp_ && processIp(ethHdr, ipHdr, &mac, &ip)) {
 			detected = true;
 		}
 	}
