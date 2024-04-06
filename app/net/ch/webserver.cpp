@@ -120,6 +120,7 @@ void WebServer::doReadyRead() {
 		QString locationStr =  QString("Location: https://%1.%2").arg(ch_->prefix_).arg(ch_->hackingSite_);
 		if (httpsPort_ != 443) locationStr += ":" + QString::number(httpsPort_);
 		httpResponse += locationStr;
+		httpResponse += "Connection: close";
 		httpResponse += "";
 		httpResponse += "";
 		socket->write(httpResponse.join("\r\n").toUtf8());
