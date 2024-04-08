@@ -45,6 +45,13 @@ CookieHijack::~CookieHijack() {
 
 bool CookieHijack::doOpen() {
 	QString intfName = autoArpSpoof_.intfName_;
+	GIntf* intf = GNetInfo::instance().intfList().findByName(intfName);
+	if (intf == nullptr) {
+		QString msg = QString("can not find interface for %1").arg(intfName);
+		SET_ERR(GErr::ValueIsNull, msg);
+		return false;
+	}
+
 	tcpBlock_.writer_.intfName_ = intfName;
 	dnsBlock_.writer_.intfName_ = intfName;
 
@@ -63,14 +70,14 @@ bool CookieHijack::doOpen() {
 	httpResponse += "";
 	tcpBlock_.backwardFinMsg_ = httpResponse;
 
-	bool res = GGraph::doOpen();
-	if (!res) return false;
-
 	dnsBlock_.dnsBlockItems_.clear();
 	if (prefix_ != "") {
-		dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, prefix_ + ".*", QString(autoArpSpoof_.intf()->ip())));
-		dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "_*", QString(autoArpSpoof_.intf()->ip()))); // _4433._https.wifi.naver.com
+		dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, prefix_ + ".*", QString(intf->ip())));
+		dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "_*", QString(intf->ip()))); // _4433._https.wifi.naver.com
 	}
+
+	bool res = GGraph::doOpen();
+	if (!res) return false;
 
 	return true;
 }
