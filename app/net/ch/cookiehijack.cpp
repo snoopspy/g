@@ -57,12 +57,17 @@ bool CookieHijack::doOpen() {
 	tcpBlock_.writer_.intfName_ = intfName;
 	dnsBlock_.writer_.intfName_ = intfName;
 
-	if (httpSiteList_.size() == 0) {
-		SET_ERR(GErr::ValueIsZero, "httpSiteList must have at least one site");
+	totalSiteList_.clear();
+	for (QString site: httpSiteList_)
+		if (site.trimmed() != "") totalSiteList_.push_back({site.trimmed(), false});
+	for (QString site: httpsSiteList_)
+		if (site.trimmed() != "") totalSiteList_.push_back({site.trimmed(), true});
+
+	if (totalSiteList_.size() == 0) {
+		SET_ERR(GErr::ValueIsZero, "site list must have at least one site");
 		return false;
 	}
 
-	QString hackingSite = httpSiteList_.at(0);
 	tcpBlock_.backwardFinMsg_ = getHttpResponse(0);
 
 	dnsBlock_.dnsBlockItems_.clear();
@@ -83,36 +88,25 @@ bool CookieHijack::doClose() {
 	return res;
 }
 
-QStringList CookieHijack::getHttpResponse(int siteNo)
-{
-	QString hackingSite;
-	bool ssl;
-	if (siteNo < httpSiteList_.size()) {
-		ssl = false;
-		hackingSite = httpSiteList_.at(siteNo);
-	} else {
-		ssl = true;
-		int sslIndex = siteNo - httpSiteList_.size();
-		if (sslIndex < httpsSiteList_.size()) {
-			hackingSite = httpsSiteList_.at(sslIndex);
-		}
-	}
-	if (hackingSite == "")
+QStringList CookieHijack::getHttpResponse(int siteNo) {
+	if (siteNo >= totalSiteList_.size())
 		return QStringList();
 
-	QString scheme = ssl ? "https" : "http";
-	QString status = ssl ? "ssl" : "tcp";
+	Site site = totalSiteList_.at(siteNo);
+
+	QString scheme = site.ssl ? "https" : "http";
+	QString status = QString("%1(%2)").arg(site.name).arg(site.ssl ? "ssl" : "tcp");
 
 	QStringList res;
 	res += "HTTP/1.1 302 " + status;
 	QString locationStr;
-	int port = ssl ? webServer_.httpsPort_ : webServer_.httpPort_;
+	int port = site.ssl ? webServer_.httpsPort_ : webServer_.httpPort_;
 	if (prefix_ == "")
-		locationStr = QString("Location: %1://%2").arg(scheme).arg(hackingSite);
+		locationStr = QString("Location: %1://%2").arg(scheme).arg(site.name);
 	else
-		locationStr = QString("Location: %1://%2.%3").arg(scheme).arg(prefix_).arg(hackingSite);
+		locationStr = QString("Location: %1://%2.%3").arg(scheme).arg(prefix_).arg(site.name);
 	if (port != 80 && port != 443) locationStr += ":" + QString::number(port);
-	locationStr += "/" + QString::number(siteNo) + "/" + status;
+	locationStr += "/" + QString::number(siteNo) + "/" + site.name;
 	res += locationStr;
 	res += "Connection: close";
 	res += "";

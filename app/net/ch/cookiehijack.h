@@ -68,6 +68,11 @@ protected:
 	bool doClose() override;
 
 public:
+	struct Site {
+		QString name;
+		bool ssl;
+	};
+	QList<Site> totalSiteList_;
 	QStringList getHttpResponse(int siteNo);
 
 public:
