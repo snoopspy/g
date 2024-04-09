@@ -84,7 +84,7 @@ public slots:
 	void hijack(GPacket* packet);
 
 signals:
-	void hijacked(GPacket* packet, QString host, QString cookie);
+	void hijacked(time_t created, GMac mac, GIp ip, QString host, QString cookie);
 
 #ifdef QT_GUI_LIB
 public:

@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 	cw.show();
 	if (isFirst) {
 		int width = cw.width();
-		cw.treeWidget_->setColumnWidth(ChWidget::ColumnHost, width * 3 / 10);
+		cw.treeWidget_->setColumnWidth(ChWidget::ColumnHost, width / 2);
 	}
 
 	GCommand* command = &cw.cookieHijack_.command_;

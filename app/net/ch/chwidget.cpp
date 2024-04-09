@@ -14,6 +14,9 @@ ChWidget::ChWidget(QWidget* parent) : GDefaultWidget(parent) {
 	treeWidget_->setHeaderLabels(QStringList{"Host", "Cookie"});
 	mainLayout_->addWidget(treeWidget_);
 
+	plainTextEdit_ = new QPlainTextEdit(this);
+	mainLayout_->addWidget(plainTextEdit_);
+
 	tbFirefox_ = new QToolButton(this);
 	tbFirefox_->setText("Go");
 	tbFirefox_->setToolTip("Go");
@@ -26,11 +29,11 @@ ChWidget::ChWidget(QWidget* parent) : GDefaultWidget(parent) {
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
 	mainLayout_->setContentsMargins(0, top, 0, 0);
 
-	QObject::connect(treeWidget_, &QTreeWidget::itemSelectionChanged, this, &ChWidget::setControl);
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &ChWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &ChWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &ChWidget::tbOption_clicked);
 	QObject::connect(tbFirefox_, &QToolButton::clicked, this, &ChWidget::tbFirefox_clicked);
+	QObject::connect(treeWidget_, &QTreeWidget::itemSelectionChanged, this, &ChWidget::treeWidget_itemSelectionChanged);
 
 	setControl();
 }
@@ -77,6 +80,8 @@ void ChWidget::tbStart_clicked(bool checked) {
 		return;
 	}
 
+	treeWidget_->clear();
+	plainTextEdit_->clear();
 	setControl();
 }
 
@@ -139,6 +144,14 @@ void ChWidget::tbFirefox_clicked(bool checked) {
 	if (host.startsWith("."))
 		host = host.mid(1);
 	QProcess::startDetached("firefox", QStringList{host});
+}
+
+void ChWidget::treeWidget_itemSelectionChanged() {
+	if (treeWidget_->selectedItems().count() > 0){
+		QTreeWidgetItem* twi = treeWidget_->selectedItems().at(0);
+		plainTextEdit_->setPlainText(twi->text(ColumnCookie));
+	}
+	setControl();
 }
 
 void ChWidget::processProbeDetected(GMac mac, QString type, int channel, int signal) {

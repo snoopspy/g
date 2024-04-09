@@ -14,7 +14,8 @@
 
 struct G_EXPORT CookieHijack : GGraph {
 	Q_OBJECT
-	Q_PROPERTY(QString hackingSite MEMBER hackingSite_)
+	Q_PROPERTY(QStringList httpSiteList MEMBER httpSiteList_)
+	Q_PROPERTY(QStringList httpsSiteList MEMBER httpsSiteList_)
 	Q_PROPERTY(QString prefix MEMBER prefix_)
 	Q_PROPERTY(QString firefoxDir MEMBER firefoxDir_)
 
@@ -42,8 +43,9 @@ public:
 	GObjRef getCommand() { return &command_; }
 
 public:
-	QString hackingSite_{"daum.net"};
-	QString prefix_{"wifi"};
+	QStringList httpSiteList_{"daum.net", "nate.com"};
+	QStringList httpsSiteList_{"naver.com"};
+	QString prefix_{"wwww"};
 	QString firefoxDir_;
 
 	WebServer webServer_{this};
@@ -64,6 +66,9 @@ public:
 protected:
 	bool doOpen() override;
 	bool doClose() override;
+
+public:
+	QStringList getHttpResponse(int siteNo);
 
 public:
 	void propLoad(QJsonObject jo) override;

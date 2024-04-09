@@ -133,7 +133,7 @@ void GCookieHijack::hijack(GPacket* packet) {
 	GIp ip = ipHdr->sip();
 	insert(created, mac, ip, host, cookie);
 	qDebug() << "\n" << host << "\n" << cookie;
-	emit hijacked(packet, host, cookie);
+	emit hijacked(packet->ts_.tv_sec, mac, ip, host, cookie);
 }
 
 // ----------------------------------------------------------------------------
