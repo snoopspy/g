@@ -1,5 +1,7 @@
 #include "garpspoof.h"
+#ifdef Q_OS_ANDROID
 #include "base/sys/gnexmon.h"
+#endif // Q_OS_ANDROID
 
 // ----------------------------------------------------------------------------
 // GArpSpoof
@@ -238,7 +240,6 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 						continue;
 					}
 				}
-
 			}
 			return GPacket::Ok;
 		}
@@ -264,43 +265,43 @@ GPacket::Result GArpSpoof::relay(GPacket* packet) {
 
 void GArpSpoof::runArpRecover(FlowList* flowList) {
 	QMutexLocker ml(&flowList_.m_);
-	if (flowList->count() > 0) {
-		QString flowString;
-		for (Flow& flow: *flowList)
-			flowString += QString("%1 %2 %3 %4 ").arg(QString(flow.senderIp_), QString(flow.senderMac_), QString(flow.targetIp_), QString(flow.targetMac_));
-		flowString = flowString.left(flowString.length() - 1);
+	if (flowList->count() == 0) return;
+
+	QString flowString;
+	for (Flow& flow: *flowList)
+		flowString += QString("%1 %2 %3 %4 ").arg(QString(flow.senderIp_), QString(flow.senderMac_), QString(flow.targetIp_), QString(flow.targetMac_));
+	flowString = flowString.left(flowString.length() - 1);
 
 #ifdef Q_OS_WIN
-		QString arprecoverFile = "arprecover.exe";
-		if (QFile::exists(arprecoverFile)) {
-			QString argument = QString("-i %1 %2 %3 %4 %5 %6 %7").
-					arg(10).arg(
-						intfName_, QString(intf_->gateway()), QString(intf_->mask()),
-						QString(intf_->ip()), QString(intf_->mac()), flowString);
-			QStringList arguments = argument.split(' ');
-			qDebug() << arguments;
-			QProcess::startDetached(arprecoverFile, arguments);
+	QString arprecoverFile = "arprecover.exe";
+	if (QFile::exists(arprecoverFile)) {
+		QString argument = QString("-i %1 %2 %3 %4 %5 %6 %7").
+				arg(10).arg(
+					intfName_, QString(intf_->gateway()), QString(intf_->mask()),
+					QString(intf_->ip()), QString(intf_->mac()), flowString);
+		QStringList arguments = argument.split(' ');
+		qDebug() << arguments;
+		QProcess::startDetached(arprecoverFile, arguments);
 #else // Q_OS_WIN
-		QString arprecoverFile = "arprecover";
-		if (QFile::exists(arprecoverFile)) {
-			QStringList arguments;
-			arguments.append("-c");
-			QString path = QDir::currentPath();
+	QString arprecoverFile = "arprecover";
+	if (QFile::exists(arprecoverFile)) {
+		QStringList arguments;
+		arguments.append("-c");
+		QString path = QDir::currentPath();
 #ifdef Q_OS_ANDROID
-			QString preloadStr = " ";
-			QString soFileName = GNexmon::soFileName();
-			if (soFileName != "")
-				preloadStr = "export LD_PRELOAD=" + soFileName + ";";
-			QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, arprecoverFile);
+		QString preloadStr = " ";
+		QString soFileName = GNexmon::soFileName();
+		if (soFileName != "")
+			preloadStr = "export LD_PRELOAD=" + soFileName + ";";
+		QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, arprecoverFile);
 #else // Q_OS_ANDROID
-			QString run = QString("%1/%2").arg(path, arprecoverFile);
+		QString run = QString("%1/%2").arg(path, arprecoverFile);
 #endif // Q_OS_ANDROID
-			arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").arg(run).arg(10).arg(
-				intfName_, QString(intf_->gateway()), QString(intf_->mask()),
-				QString(intf_->ip()), QString(intf_->mac()), flowString));
-			QProcess::startDetached("su", arguments);
+		arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").arg(run).arg(10).arg(
+			intfName_, QString(intf_->gateway()), QString(intf_->mask()),
+			QString(intf_->ip()), QString(intf_->mac()), flowString));
+		QProcess::startDetached("su", arguments);
 #endif // Q_OS_WIN
-		}
 	}
 }
 
