@@ -12,7 +12,6 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 
 	tcpBlock_.forwardBlockType_ = GTcpBlock::Rst;
 	tcpBlock_.backwardBlockType_ = GTcpBlock::Fin;
-	// tcpBlock_.backwardFinMsg_ // set in doOpen
 
 	cookieHijack_.tcpFlowMgr_ = &tcpFlowMgr_;
 
@@ -21,7 +20,7 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	bpFilter_.filter_ = "!(tcp port 80 or udp port 53)";
 
 	tcpBlockOther_.forwardBlockType_ = GTcpBlock::Rst;
-	tcpBlock_.backwardBlockType_ = GTcpBlock::Rst;
+	tcpBlockOther_.backwardBlockType_ = GTcpBlock::Rst;
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &find_, &GFind::find, Qt::DirectConnection);
 	QObject::connect(&find_, &GFind::found, &tcpBlock_, &GTcpBlock::block, Qt::DirectConnection);
