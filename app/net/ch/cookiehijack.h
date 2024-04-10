@@ -8,6 +8,7 @@
 #include <GTcpFlowMgr>
 #include <GCookieHijack>
 #include <GBpFilter>
+#include <GBlock>
 #include <GCommand>
 #include "webserver.h"
 
@@ -27,6 +28,7 @@ struct G_EXPORT CookieHijack : GGraph {
 	Q_PROPERTY(GObjRef tcpFlowMgr READ getTcpFlowMgr)
 	Q_PROPERTY(GObjRef cookieHijack READ getCookieHijack)
 	Q_PROPERTY(GObjRef bpFilter READ getBpFilter)
+	Q_PROPERTY(GObjRef blockOther READ getBlockOther)
 	Q_PROPERTY(GObjRef tcpBlockOther READ getTcpBlockOther)
 	Q_PROPERTY(GObjRef command READ getCommand)
 
@@ -40,6 +42,7 @@ public:
 	GObjRef getTcpFlowMgr() { return &tcpFlowMgr_; }
 	GObjRef getCookieHijack() { return &cookieHijack_; }
 	GObjRef getBpFilter() { return &bpFilter_; }
+	GObjRef getBlockOther() { return &blockOther_; }
 	GObjRef getTcpBlockOther() { return &tcpBlockOther_; }
 	GObjRef getCommand() { return &command_; }
 
@@ -58,6 +61,7 @@ public:
 	GTcpFlowMgr tcpFlowMgr_{this};
 	GCookieHijack cookieHijack_{this};
 	GBpFilter bpFilter_{this};
+	GBlock blockOther_{this};
 	GTcpBlock tcpBlockOther_{this};
 	GCommand command_{this};
 

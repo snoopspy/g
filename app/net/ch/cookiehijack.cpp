@@ -32,6 +32,7 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	QObject::connect(&tcpFlowMgr_, &GTcpFlowMgr::managed, &cookieHijack_, &GCookieHijack::hijack, Qt::DirectConnection);
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &bpFilter_, &GBpFilter::filter, Qt::DirectConnection);
+	QObject::connect(&bpFilter_, &GBpFilter::filtered, &blockOther_, &GBlock::block, Qt::DirectConnection);
 	QObject::connect(&bpFilter_, &GBpFilter::filtered, &tcpBlockOther_, &GTcpBlock::block, Qt::DirectConnection);
 
 	QObject::connect(&cookieHijack_, &GCookieHijack::hijacked, &webServer_, &WebServer::doHijacked);
@@ -45,6 +46,7 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	nodes_.append(&tcpFlowMgr_);
 	nodes_.append(&cookieHijack_);
 	nodes_.append(&bpFilter_);
+	nodes_.append(&blockOther_);
 	nodes_.append(&tcpBlockOther_);
 }
 
