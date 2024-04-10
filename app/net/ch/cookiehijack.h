@@ -47,8 +47,8 @@ public:
 	GObjRef getCommand() { return &command_; }
 
 public:
-	QStringList httpSiteList_{"daum.net", "nate.com"};
-	QStringList httpsSiteList_{"naver.com"};
+	QStringList httpSiteList_{"naver.com", "daum.net", "nate.com"};
+	QStringList httpsSiteList_{"twitter.com"};
 	QString prefix_{"wwww"};
 	QString firefoxDir_;
 
