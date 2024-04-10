@@ -8,6 +8,7 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	find_.findItems_.push_back(new GFindItem(this, 40, -1, 1, "GET /success.txt?ipv4 HTTP/1.")); // Firefox
 	find_.findItems_.push_back(new GFindItem(this, 40, -1, 1, "GET /connecttest.txt HTTP/1.")); // Windows
 	find_.findItems_.push_back(new GFindItem(this, 40, -1, 1, "GET /redirect HTTP/1.")); // Windows
+	find_.findItems_.push_back(new GFindItem(this, 40, -1, 1, "GET /hotspot-detect.html HTTP/1.")); // Apple
 
 	tcpBlock_.forwardBlockType_ = GTcpBlock::Rst;
 	tcpBlock_.backwardBlockType_ = GTcpBlock::Fin;
