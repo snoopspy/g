@@ -8,7 +8,6 @@
 #include <GTcpFlowMgr>
 #include <GCookieHijack>
 #include <GBpFilter>
-#include <GBlock>
 #include <GCommand>
 #include "webserver.h"
 
@@ -24,10 +23,11 @@ struct G_EXPORT CookieHijack : GGraph {
 	Q_PROPERTY(GObjRef find READ getFind)
 	Q_PROPERTY(GObjRef tcpBlock READ getTcpBlock)
 	Q_PROPERTY(GObjRef dnsBlock READ getDnsBlock)
+	Q_PROPERTY(GObjRef dnsBlockDnsServer READ getDnsBlockDnsServer)
 	Q_PROPERTY(GObjRef tcpFlowMgr READ getTcpFlowMgr)
 	Q_PROPERTY(GObjRef cookieHijack READ getCookieHijack)
 	Q_PROPERTY(GObjRef bpFilter READ getBpFilter)
-	Q_PROPERTY(GObjRef block READ getBlock)
+	Q_PROPERTY(GObjRef tcpBlockOther READ getTcpBlockOther)
 	Q_PROPERTY(GObjRef command READ getCommand)
 
 public:
@@ -36,10 +36,11 @@ public:
 	GObjRef getFind() { return &find_; }
 	GObjRef getTcpBlock() { return &tcpBlock_; }
 	GObjRef getDnsBlock() { return &dnsBlock_; }
+	GObjRef getDnsBlockDnsServer() { return &dnsBlockDnsServer_; }
 	GObjRef getTcpFlowMgr() { return &tcpFlowMgr_; }
 	GObjRef getCookieHijack() { return &cookieHijack_; }
 	GObjRef getBpFilter() { return &bpFilter_; }
-	GObjRef getBlock() { return &block_; }
+	GObjRef getTcpBlockOther() { return &tcpBlockOther_; }
 	GObjRef getCommand() { return &command_; }
 
 public:
@@ -53,10 +54,11 @@ public:
 	GFind find_{this};
 	GTcpBlock tcpBlock_{this};
 	GDnsBlock dnsBlock_{this};
+	GDnsBlock dnsBlockDnsServer_{this};
 	GTcpFlowMgr tcpFlowMgr_{this};
 	GCookieHijack cookieHijack_{this};
 	GBpFilter bpFilter_{this};
-	GBlock block_{this};
+	GTcpBlock tcpBlockOther_{this};
 	GCommand command_{this};
 
 public:
