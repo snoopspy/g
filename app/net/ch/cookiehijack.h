@@ -4,6 +4,7 @@
 #include <GAutoArpSpoof>
 #include <GFind>
 #include <GTcpBlock>
+#include <GUdpBlock>
 #include <GDnsBlock>
 #include <GTcpFlowMgr>
 #include <GCookieHijack>
@@ -28,8 +29,9 @@ struct G_EXPORT CookieHijack : GGraph {
 	Q_PROPERTY(GObjRef tcpFlowMgr READ getTcpFlowMgr)
 	Q_PROPERTY(GObjRef cookieHijack READ getCookieHijack)
 	Q_PROPERTY(GObjRef bpFilter READ getBpFilter)
-	Q_PROPERTY(GObjRef blockOther READ getBlockOther)
-	Q_PROPERTY(GObjRef tcpBlockOther READ getTcpBlockOther)
+	Q_PROPERTY(GObjRef blockExternal READ getBlockExternal)
+	Q_PROPERTY(GObjRef tcpBlockExternal READ getTcpBlockExternal)
+	Q_PROPERTY(GObjRef udpBlockExternal READ getUdpBlockExternal)
 	Q_PROPERTY(GObjRef command READ getCommand)
 
 public:
@@ -42,8 +44,9 @@ public:
 	GObjRef getTcpFlowMgr() { return &tcpFlowMgr_; }
 	GObjRef getCookieHijack() { return &cookieHijack_; }
 	GObjRef getBpFilter() { return &bpFilter_; }
-	GObjRef getBlockOther() { return &blockOther_; }
-	GObjRef getTcpBlockOther() { return &tcpBlockOther_; }
+	GObjRef getBlockExternal() { return &blockExternal_; }
+	GObjRef getTcpBlockExternal() { return &tcpBlockExternal_; }
+	GObjRef getUdpBlockExternal() { return &udpBlockExternal_; }
 	GObjRef getCommand() { return &command_; }
 
 public:
@@ -61,8 +64,9 @@ public:
 	GTcpFlowMgr tcpFlowMgr_{this};
 	GCookieHijack cookieHijack_{this};
 	GBpFilter bpFilter_{this};
-	GBlock blockOther_{this};
-	GTcpBlock tcpBlockOther_{this};
+	GBlock blockExternal_{this};
+	GTcpBlock tcpBlockExternal_{this};
+	GUdpBlock udpBlockExternal_{this};
 	GCommand command_{this};
 
 public:

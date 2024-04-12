@@ -15,12 +15,12 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 
 	cookieHijack_.tcpFlowMgr_ = &tcpFlowMgr_;
 
-	dnsBlockDnsServer_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "chrome.cloudflare-dns.com", "127.4.4.4"));
+	//dnsBlockDnsServer_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "chrome.cloudflare-dns.com", "127.4.4.4"));
 
 	bpFilter_.filter_ = "!(tcp port 80 or udp port 53)";
 
-	tcpBlockOther_.forwardBlockType_ = GTcpBlock::Rst;
-	tcpBlockOther_.backwardBlockType_ = GTcpBlock::Rst;
+	tcpBlockExternal_.forwardBlockType_ = GTcpBlock::Rst;
+	tcpBlockExternal_.backwardBlockType_ = GTcpBlock::Rst;
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &find_, &GFind::find, Qt::DirectConnection);
 	QObject::connect(&find_, &GFind::found, &tcpBlock_, &GTcpBlock::block, Qt::DirectConnection);
@@ -32,8 +32,9 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	QObject::connect(&tcpFlowMgr_, &GTcpFlowMgr::managed, &cookieHijack_, &GCookieHijack::hijack, Qt::DirectConnection);
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &bpFilter_, &GBpFilter::filter, Qt::DirectConnection);
-	QObject::connect(&bpFilter_, &GBpFilter::filtered, &blockOther_, &GBlock::block, Qt::DirectConnection);
-	QObject::connect(&bpFilter_, &GBpFilter::filtered, &tcpBlockOther_, &GTcpBlock::block, Qt::DirectConnection);
+	QObject::connect(&bpFilter_, &GBpFilter::filtered, &blockExternal_, &GBlock::block, Qt::DirectConnection);
+	QObject::connect(&bpFilter_, &GBpFilter::filtered, &tcpBlockExternal_, &GTcpBlock::block, Qt::DirectConnection);
+	QObject::connect(&bpFilter_, &GBpFilter::filtered, &udpBlockExternal_, &GUdpBlock::block, Qt::DirectConnection);
 
 	QObject::connect(&cookieHijack_, &GCookieHijack::hijacked, &webServer_, &WebServer::doHijacked);
 
@@ -46,8 +47,9 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	nodes_.append(&tcpFlowMgr_);
 	nodes_.append(&cookieHijack_);
 	nodes_.append(&bpFilter_);
-	nodes_.append(&blockOther_);
-	nodes_.append(&tcpBlockOther_);
+	nodes_.append(&blockExternal_);
+	nodes_.append(&tcpBlockExternal_);
+	nodes_.append(&udpBlockExternal_);
 }
 
 CookieHijack::~CookieHijack() {
