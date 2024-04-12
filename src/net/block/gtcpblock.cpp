@@ -4,6 +4,8 @@
 // GTcpBlock
 // ----------------------------------------------------------------------------
 bool GTcpBlock::doOpen() {
+	if (!enabled_) return true;
+
 	if (!writer_.open()) {
 		err = writer_.err;
 		return false;
@@ -16,6 +18,8 @@ bool GTcpBlock::doOpen() {
 }
 
 bool GTcpBlock::doClose() {
+	if (!enabled_) return true;
+
 	return writer_.close();
 }
 
@@ -27,6 +31,7 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	// blockIpPacket_
 	//
 	gbyte* data = pbyte(blockByteArray_.data());
+	blockIpPacket_.clear();
 	blockIpPacket_.buf_.data_ = data;
 	blockIpPacket_.buf_.size_ = blockLen;
 	blockIpPacket_.ipHdr_ = PIpHdr(data);
@@ -43,18 +48,19 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	//
 	GIpHdr* blockIpHdr = blockIpPacket_.ipHdr_;
 #ifndef Q_OS_ANDROID
-	GIpHdr* ipHdr = packet->ipHdr_;
+	GIpHdr* orgIpHdr = packet->ipHdr_;
 #else
-	GVolatileIpHdr* ipHdr = PVolatileIpHdr(packet->ipHdr_);
+	GVolatileIpHdr* orgIpHdr = PVolatileIpHdr(packet->ipHdr_);
 #endif
-	Q_ASSERT(ipHdr != nullptr);
-	memcpy(pvoid(blockIpHdr), pvoid(ipHdr), sizeof(GIpHdr));
+	Q_ASSERT(orgIpHdr != nullptr);
+	memcpy(pvoid(blockIpHdr), pvoid(orgIpHdr), sizeof(GIpHdr));
 	blockIpHdr->v_hlen_ = 0x45;
 	blockIpHdr->tos_ = 0x44;
 	if (blockType == Rst)
 		blockIpHdr->tlen_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr));
 	else
 		blockIpHdr->tlen_ = htons(sizeof(GIpHdr) + sizeof(GTcpHdr) + msg.size());
+	blockIpHdr->id_ = 0;
 	if (direction == Backward) {
 		blockIpHdr->ttl_ = 0x80;
 		std::swap(blockIpHdr->sip_, blockIpHdr->dip_);
@@ -64,9 +70,9 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	// TCP
 	//
 	GTcpHdr* blockTcpHdr = blockIpPacket_.tcpHdr_;
-	GTcpHdr* tcpHdr = packet->tcpHdr_;
-	Q_ASSERT(tcpHdr != nullptr);
-	memcpy(blockTcpHdr, tcpHdr, sizeof(GTcpHdr));
+	GTcpHdr* orgTcpHdr = packet->tcpHdr_;
+	Q_ASSERT(orgTcpHdr != nullptr);
+	memcpy(blockTcpHdr, orgTcpHdr, sizeof(GTcpHdr));
 	if (direction == Backward)
 		std::swap(blockTcpHdr->sport_, blockTcpHdr->dport_);
 	blockTcpHdr->seq_ = htonl(seq);
@@ -99,6 +105,7 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 
 void GTcpBlock::block(GPacket* packet) {
 	if (!enabled_) return;
+
 	if (packet->tcpHdr_ == nullptr) return;
 
 	GPacket::Dlt dlt = packet->dlt();

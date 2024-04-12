@@ -61,6 +61,7 @@ SOURCES += \
 	$${PWD}/../src/net/block/gdnsblock.cpp \
 	$${PWD}/../src/net/block/gdot11block.cpp \
 	$${PWD}/../src/net/block/gtcpblock.cpp \
+	$${PWD}/../src/net/block/gudpblock.cpp \
 	$${PWD}/../src/net/capture/garpspoof.cpp \
 	$${PWD}/../src/net/capture/gautoarpspoof.cpp \
 	$${PWD}/../src/net/capture/gcapture.cpp \
@@ -212,6 +213,7 @@ HEADERS += \
 	$${PWD}/../src/net/block/gdnsblock.h \
 	$${PWD}/../src/net/block/gdot11block.h \
 	$${PWD}/../src/net/block/gtcpblock.h \
+	$${PWD}/../src/net/block/gudpblock.h \
 	$${PWD}/../src/net/capture/garpspoof.h \
 	$${PWD}/../src/net/capture/gautoarpspoof.h \
 	$${PWD}/../src/net/capture/gcapture.h \
