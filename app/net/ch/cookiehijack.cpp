@@ -1,6 +1,12 @@
 #include "cookiehijack.h"
 
 CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
+	httpSiteList_.push_back("naver.com");
+	httpSiteList_.push_back("daum.net");
+	httpSiteList_.push_back("nate.com");
+
+	httpsSiteList_.push_back("twitter.com");
+
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &dnsBlock_, &GDnsBlock::block, Qt::DirectConnection);
 
 	// 40 : minimum value of ip header size + tcp header size
@@ -15,7 +21,7 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 
 	cookieHijack_.tcpFlowMgr_ = &tcpFlowMgr_;
 
-	//dnsBlockDnsServer_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "chrome.cloudflare-dns.com", "127.4.4.4"));
+	dnsBlockDnsServer_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "chrome.cloudflare-dns.com", "127.4.4.4"));
 
 	bpFilter_.filter_ = "!(tcp port 80 or udp port 53)";
 
