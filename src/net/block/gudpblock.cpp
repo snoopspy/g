@@ -37,6 +37,9 @@ void GUdpBlock::block(GPacket* packet) {
 	GVolatileIpHdr* orgIpHdr = PVolatileIpHdr(packet->ipHdr_);
 #endif
 	Q_ASSERT(orgIpHdr != nullptr);
+
+	if (orgIpHdr->dip().isBroadcast() || orgIpHdr->dip().isMulticast()) return;
+
 	int orgIpHdrLen = packet->ipHdr_->hlen() * 4;
 	int orgUdpHdrLen = sizeof(GUdpHdr);
 	int orgPayloadLen = packet->ipHdr_->tlen() - orgIpHdrLen - orgUdpHdrLen;
