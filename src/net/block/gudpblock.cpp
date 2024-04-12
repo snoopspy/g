@@ -72,6 +72,7 @@ void GUdpBlock::block(GPacket* packet) {
 	blockIpHdr->tlen_ = htons(blockLen);
 	blockIpHdr->id_ = 0;
 	blockIpHdr->p_ = GIpHdr::Icmp;
+	blockIpHdr->sum_ = 0;
 
 	std::swap(blockIpHdr->sip_, blockIpHdr->dip_);
 
@@ -88,6 +89,12 @@ void GUdpBlock::block(GPacket* packet) {
 	// OrgIpHdr
 	//
 	memcpy(data + sizeof(GIpHdr) + sizeof(GIcmpIpHdr), orgIpHdr, blockLen - sizeof(GIpHdr) - sizeof(GIcmpIpHdr));
+
+	//
+	// checksum
+	//
+	blockIpHdr->sum_ = htons(GIpHdr::calcChecksum(PIpHdr(blockIpHdr)));
+	blockIcmpIpHdr->sum_ = htons(GIcmpHdr::calcChecksum(PIpHdr(blockIpHdr), blockIcmpIpHdr));
 
 	writer_.write(&blockIpPacket_);
 	emit blocked(packet);
