@@ -69,7 +69,7 @@ void GUdpBlock::block(GPacket* packet) {
 	memcpy(pvoid(blockIpHdr), pvoid(orgIpHdr), sizeof(GIpHdr));
 	blockIpHdr->v_hlen_ = 0x45;
 	blockIpHdr->tos_ = 0x44;
-	blockIpHdr->tlen_ = htons(blockLen - sizeof(GIpHdr));
+	blockIpHdr->tlen_ = htons(blockLen);
 	blockIpHdr->id_ = 0;
 	blockIpHdr->p_ = GIpHdr::Icmp;
 
