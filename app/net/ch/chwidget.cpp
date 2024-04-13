@@ -9,13 +9,16 @@
 ChWidget::ChWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("CookieHijack");
 
+	splitter_ = new QSplitter(Qt::Vertical, this);
+	mainLayout_->addWidget(splitter_);
+
 	treeWidget_ = new GTreeWidget(this);
 	treeWidget_->setColumnCount(ColumnCookie + 1);
 	treeWidget_->setHeaderLabels(QStringList{"Host", "Cookie"});
-	mainLayout_->addWidget(treeWidget_);
+	splitter_->addWidget(treeWidget_);
 
 	plainTextEdit_ = new QPlainTextEdit(this);
-	mainLayout_->addWidget(plainTextEdit_);
+	splitter_->addWidget(plainTextEdit_);
 
 	tbFirefox_ = new QToolButton(this);
 	tbFirefox_->setText("Go");
@@ -169,11 +172,13 @@ void ChWidget::processClosed() {
 void ChWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	jo["ch"] >> cookieHijack_;
+	jo["splitter"] >> GJson::splitterSizes(splitter_);
 	jo["sizes"] >> GJson::columnSizes(treeWidget_);
 }
 
 void ChWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["ch"] << cookieHijack_;
+	jo["splitter"] << GJson::splitterSizes(splitter_);
 	jo["sizes"] << GJson::columnSizes(treeWidget_);
 }

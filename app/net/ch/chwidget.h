@@ -16,6 +16,7 @@ public:
 	void setControl();
 
 public:
+	QSplitter* splitter_{nullptr};
 	GTreeWidget* treeWidget_{nullptr};
 	QPlainTextEdit* plainTextEdit_{nullptr};
 	CookieHijack cookieHijack_{this};
