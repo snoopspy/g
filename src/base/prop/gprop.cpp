@@ -332,6 +332,7 @@ void GProp::showDialog(QObject* object) {
 	widget->setObject(object);
 	layout->addWidget(widget);
 	dialog.setLayout(layout);
+	dialog.setModal(true);
 	dialog.exec();
 }
 #endif // QT_GUI_LIB
