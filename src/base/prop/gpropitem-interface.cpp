@@ -6,7 +6,8 @@
 // ----------------------------------------------------------------------------
 // GPropItemInterface
 // ----------------------------------------------------------------------------
-GPropItemInterface::GPropItemInterface(GPropItemParam* param) : GPropItemComboBox(param) {
+GPropItemInterface::GPropItemInterface(GPropItemParam* param, bool editable) : GPropItemComboBox(param) {
+	comboBox_->setEditable(editable);
 	GIntfList& intfList = GNetInfo::instance().intfList();
 	for (int i = 0; i < intfList.count(); i++) {
 		const GIntf& intf = intfList.at(i);

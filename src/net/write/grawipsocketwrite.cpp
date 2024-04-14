@@ -129,7 +129,7 @@ GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
 #include "base/prop/gpropitem-interface.h"
 GPropItem* GRawIpSocketWrite::propCreateItem(GPropItemParam* param) {
 	if (QString(param->mpro_.name()) == "intfName") {
-		return new GPropItemInterface(param);
+		return new GPropItemInterface(param, true);
 	}
 	return GObj::propCreateItem(param);
 }

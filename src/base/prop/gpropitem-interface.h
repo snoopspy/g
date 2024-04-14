@@ -21,7 +21,7 @@ struct G_EXPORT GPropItemInterface : public GPropItemComboBox {
 	Q_OBJECT
 
 public:
-	GPropItemInterface(GPropItemParam* param);
+	GPropItemInterface(GPropItemParam* param, bool editable = false);
 	void update() override;
 
 protected:
