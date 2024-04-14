@@ -71,8 +71,8 @@ struct G_EXPORT GVolatileIpHdr final {
 
 	uint8_t hlen() { return v_hlen_ & 0x0F; }
 	uint16_t tlen() { return ntohs(tlen_); }
-	uint32_t sip() { return ntohl(sip_); }
-	uint32_t dip() { return ntohl(dip_); }
+	GIp sip() { return ntohl(sip_); }
+	GIp dip() { return ntohl(dip_); }
 };
 typedef GVolatileIpHdr *PVolatileIpHdr;
 #endif

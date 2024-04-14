@@ -41,5 +41,5 @@ public:
 
 	static void initLogger();
 	void launchDemon(QProcess* demon, int port, QString soFileName = "");
-	static bool copyFileFromAssets(QString fileName, QFile::Permissions permissions);
+	static bool copyFileFromAssets(QString fileName, QString directory, QFile::Permissions permissions);
 };

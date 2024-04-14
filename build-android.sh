@@ -31,6 +31,17 @@ if true; then
 	cd ../../..
 fi
 
+#
+# ffce
+#
+if true; then
+	cd app/net/ffce
+	make clean
+	make -j$(nproc)
+	llvm-strip ../../../bin/ffce
+	cd ../../..
+fi
+
 export QTDIR=/opt/Qt/6.5.3/android_armv7
 export MAKEDIR=$ANDROID_NDK_ROOT/prebuilt/linux-x86_64/bin
 export ANDROID_SDK_ROOT=/root/Android/Sdk
@@ -80,6 +91,20 @@ if true; then
 fi
 
 #
+# ch
+#
+if true; then
+	mkdir -p app/net/ch/build-
+	cd app/net/ch/build-
+	$QTDIR/bin/qmake ../ch.pro -spec android-clang CONFIG+=release
+	$MAKEDIR/make -j$(nproc)
+	$MAKEDIR/make INSTALL_ROOT=./android-build install
+	$QTDIR/../gcc_64/bin/androiddeployqt --input android-ch-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
+	cp android-build//build/outputs/apk/debug/android-build-debug.apk ../../../../setup/ch-$(sed 's/"//g' ../../../../version.txt).apk
+	cd ../../../..
+fi
+
+#
 # ha
 #
 if true; then
@@ -120,4 +145,3 @@ if true; then
 	cp android-build//build/outputs/apk/debug/android-build-debug.apk ../../../../setup/wa-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
-

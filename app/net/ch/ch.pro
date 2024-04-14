@@ -15,6 +15,19 @@ HEADERS += \
 
 RESOURCES += $${PWD}/ch.qrc
 
+#------------------------------------------------------------------------------
+# android
+#------------------------------------------------------------------------------
+android {
+	ch_deployment.files += $${G_DIR}/bin/ffce
+	ch_deployment.files += $${G_DIR}/bin/cert/root/root.crt
+	ch_deployment.files += $${G_DIR}/bin/cert/root/root.key
+	ch_deployment.files += $${G_DIR}/bin/cert/default.crt
+	ch_deployment.files += $${G_DIR}/bin/cert/default.key
+	ch_deployment.path = /assets
+	INSTALLS += ch_deployment
+}
+
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
 	ANDROID_PACKAGE_SOURCE_DIR = \
 		$$PWD/android

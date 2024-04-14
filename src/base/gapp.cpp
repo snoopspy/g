@@ -49,9 +49,9 @@ GApp::GApp(int &argc, char** argv, bool demon, bool nexmonDemon, bool screenKeep
 	qInfo() << G::pcapLibVersion();
 
 #ifdef Q_OS_ANDROID
-	copyFileFromAssets("arprecover", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
-	copyFileFromAssets("corepcap", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
-	copyFileFromAssets("ssdemon", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+	copyFileFromAssets("arprecover", "", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+	copyFileFromAssets("corepcap", "", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+	copyFileFromAssets("ssdemon", "", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 	system("su -c '/data/data/com.termux/files/usr/bin/termux-wake-lock'");
 #endif // Q_OS_ANDROID
 
@@ -128,9 +128,9 @@ void GApp::launchDemon(QProcess* demon, int port, QString soFileName) {
 	}
 }
 
-bool GApp::copyFileFromAssets(QString fileName, QFile::Permissions permissions) {
+bool GApp::copyFileFromAssets(QString fileName, QString directory, QFile::Permissions permissions) {
 	QString srcFileName = QString("assets:/") + fileName;
-	QString dstFileName = fileName;
+	QString dstFileName = directory + fileName;
 	QFile srcFile(srcFileName);
 	QFile dstFile(dstFileName);
 
