@@ -4,6 +4,8 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	httpSiteList_.push_back("naver.com");
 	httpSiteList_.push_back("daum.net");
 	httpSiteList_.push_back("nate.com");
+	httpSiteList_.push_back("jandi.com");
+	httpSiteList_.push_back("11st.co.kr");
 
 	httpsSiteList_.push_back("twitter.com");
 
