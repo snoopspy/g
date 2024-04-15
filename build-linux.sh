@@ -15,6 +15,7 @@ cp ../../bin/arprecover .; strip arprecover
 cp ../../bin/bf .; strip bf
 cp ../../bin/ch .; strip ch
 cp ../../bin/corepcap .; strip corepcap
+cp ../../bin/ffce .; strip ffce
 cp ../../bin/ha .; strip ha
 cp ../../bin/netclient .; strip netclient
 cp ../../bin/netserver .; strip netserver
