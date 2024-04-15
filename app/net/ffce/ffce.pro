@@ -4,6 +4,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 DESTDIR = $${PWD}/../../../bin
 INCLUDEPATH += $${PWD}/..
+win32: LIBS += -lws2_32
 
 SOURCES += \
 	*.c \

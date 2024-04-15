@@ -132,7 +132,7 @@ void ChWidget::tbFirefox_clicked(bool checked) {
 #ifdef Q_OS_WIN
 		// taskkill /IM firefox.exe /F
 		QString  program = "taskkill";
-		QStringlIst arguments;
+		QStringList arguments;
 		arguments.append("/IM");
 		arguments.append("firefox.exe");
 		arguments.append("/F");

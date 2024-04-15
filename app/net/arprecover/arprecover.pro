@@ -5,6 +5,7 @@ CONFIG -= qt
 DESTDIR = $${PWD}/../../../bin
 INCLUDEPATH += $${PWD}/..
 linux: LIBS += -lpcap
+
 win32 {
 	INCLUDEPATH += $${PWD}/../../../../npcap/Include
 	LIBS += -L$${PWD}/../../../../npcap/Lib/x64

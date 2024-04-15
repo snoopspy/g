@@ -1,6 +1,7 @@
 #include <cstring>
 #include <iostream>
 #include <unistd.h>
+#include <windows.h>
 
 #include "gtrace.h"
 #include "gaux.h"

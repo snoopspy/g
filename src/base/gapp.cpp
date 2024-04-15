@@ -146,7 +146,7 @@ bool GApp::prepareProcess(QString& program, QStringList& arguments, QString prel
 
 	QString path = QDir::currentPath();
 #ifdef Q_OS_WIN
-	program = path + program;
+	program = path + QDir::separator() + program;
 	return true;
 #endif // Q_OS_WIN
 

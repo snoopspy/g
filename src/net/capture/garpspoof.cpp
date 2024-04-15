@@ -22,14 +22,13 @@ bool GArpSpoof::doOpen() {
 	arguments.append("/IM");
 	arguments.append("arprecover.exe");
 	arguments.append("/F");
-	QProcess::startDetached(program, arguments);
 #else // Q_OS_WIN
-	QString program = "su";
+	QString program = "pkill";
 	QStringList arguments;
-	arguments.append("-c");
-	arguments.append("pkill arprecover");
-	QProcess::startDetached(program, arguments);
+	arguments.append("arprecover");
 #endif // Q_OS_WIN
+	GApp::prepareProcess(program, arguments);
+	QProcess::startDetached(program, arguments);
 
 	// ----- by gilgil 2021.06.18 -----
 	// intf_ is determined in GPcapDevice::doOpen or GRemovePcapDevice::doOpen.
@@ -279,7 +278,7 @@ void GArpSpoof::runArpRecover(FlowList* flowList) {
 		arg(10).arg(intfName_, QString(intf_->gateway()), QString(intf_->mask()),
 		QString(intf_->ip()), QString(intf_->mac()), flowString);
 	QStringList arguments = argument.split(' ');
-	qDebug() << arguments;
+	qDebug() << program << arguments;
 	if (GApp::prepareProcess(program, arguments))
 		QProcess::startDetached(program, arguments);
 }
