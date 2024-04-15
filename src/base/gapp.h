@@ -30,7 +30,7 @@ struct G_EXPORT GApp : QCoreApplication {
 #endif // QT_GUI_LIB
 
 public:
-	GApp(int &argc, char** argv, bool demon = true, bool nexmonDemon = true, bool screenKeep = true);
+	GApp(int &argc, char** argv, QStringList assets = {}, bool demon = false, bool nexmonDemon = false, bool screenKeep = false);
 	~GApp() override;
 
 	QProcess demon_;
@@ -40,6 +40,7 @@ public:
 	GScreenKeeper screenKeeper_;
 
 	static void initLogger();
-	void launchDemon(QProcess* demon, int port, QString soFileName = "");
-	static bool copyFileFromAssets(QString fileName, QString directory, QFile::Permissions permissions);
+	static bool copyFileFromAssets(QString fileName, QString directory = "", QFile::Permissions permissions = QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+	static bool prepareProcess(QString& program, QStringList& arguments, QString preloadFileName = "");
+	void launchDemon(QProcess* demon, int port, QString preloadFileName = "");
 };

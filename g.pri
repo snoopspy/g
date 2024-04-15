@@ -65,14 +65,3 @@ win32 {
 CONFIG(qt): contains(QT, gui) {
 	RESOURCES += $${PWD}/lib/libg-gui.qrc
 }
-
-#------------------------------------------------------------------------------
-# android
-#------------------------------------------------------------------------------
-android {
-	deployment.files += $${G_DIR}/bin/arprecover
-	deployment.files += $${G_DIR}/bin/corepcap
-	deployment.files += $${G_DIR}/bin/ssdemon
-	deployment.path = /assets
-	INSTALLS += deployment
-}

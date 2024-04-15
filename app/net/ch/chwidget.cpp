@@ -157,7 +157,7 @@ void ChWidget::tbFirefox_clicked(bool checked) {
 	QProcess::execute(program, arguments);
 
 #ifdef Q_OS_WIN
-	// taskkill /IM arprecover.exe /F
+	// taskkill /IM firefox.exe /F
 	program = "taskkill";
 	arguments.clear();
 	arguments.append("/IM");

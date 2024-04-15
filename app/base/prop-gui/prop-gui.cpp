@@ -29,7 +29,7 @@ int exec(GApp* a, GObj* obj) {
 }
 
 int main(int argc, char *argv[]) {
-	GApp a(argc, argv, false, false);
+	GApp a(argc, argv);
 	Dept dept;
 	return exec(&a, &dept);
 }

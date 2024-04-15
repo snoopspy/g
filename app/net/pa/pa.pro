@@ -25,3 +25,12 @@ DISTFILES += \
 	android/gradlew \
 	android/gradlew.bat \
 	android/res/values/libs.xml
+
+#------------------------------------------------------------------------------
+# android
+#------------------------------------------------------------------------------
+android {
+	deployment.files += $${G_DIR}/bin/ssdemon
+	deployment.path = /assets
+	INSTALLS += deployment
+}

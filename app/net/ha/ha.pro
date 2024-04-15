@@ -45,3 +45,13 @@ DISTFILES += \
 	android/res/drawable-xxhdpi/icon.png \
 	android/res/drawable-xxxhdpi/icon.png \
 	android/res/values/libs.xml
+
+#------------------------------------------------------------------------------
+# android
+#------------------------------------------------------------------------------
+android {
+	deployment.files += $${G_DIR}/bin/arprecover
+	deployment.files += $${G_DIR}/bin/ssdemon
+	deployment.path = /assets
+	INSTALLS += deployment
+}

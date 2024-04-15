@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 #endif // __linux__
 #ifdef WIN32
 	GetCurrentDirectoryA(BUFSIZ, wd);
-	GTRACE("arprecover %s started dir=%s %s %s", GAux::getVersion(), wd, __DATE__, __TIME__);
+	GTRACE("ffce %s started dir=%s %s %s", GAux::getVersion(), wd, __DATE__, __TIME__);
 #endif // WIN32
 
 	// ----- gilgil temp 2024.03.11 -----

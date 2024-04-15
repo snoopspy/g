@@ -15,19 +15,6 @@ HEADERS += \
 
 RESOURCES += $${PWD}/ch.qrc
 
-#------------------------------------------------------------------------------
-# android
-#------------------------------------------------------------------------------
-android {
-	ch_deployment.files += $${G_DIR}/bin/ffce
-	ch_deployment.files += $${G_DIR}/bin/cert/root/root.crt
-	ch_deployment.files += $${G_DIR}/bin/cert/root/root.key
-	ch_deployment.files += $${G_DIR}/bin/cert/default.crt
-	ch_deployment.files += $${G_DIR}/bin/cert/default.key
-	ch_deployment.path = /assets
-	INSTALLS += ch_deployment
-}
-
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
 	ANDROID_PACKAGE_SOURCE_DIR = \
 		$$PWD/android
@@ -42,3 +29,18 @@ DISTFILES += \
 	android/gradlew \
 	android/gradlew.bat \
 	android/res/values/libs.xml
+
+#------------------------------------------------------------------------------
+# android
+#------------------------------------------------------------------------------
+android {
+	deployment.files += $${G_DIR}/bin/arprecover
+	deployment.files += $${G_DIR}/bin/ffce
+	deployment.files += $${G_DIR}/bin/ssdemon
+	deployment.files += $${G_DIR}/bin/cert/root/root.crt
+	deployment.files += $${G_DIR}/bin/cert/root/root.key
+	deployment.files += $${G_DIR}/bin/cert/default.crt
+	deployment.files += $${G_DIR}/bin/cert/default.key
+	deployment.path = /assets
+	INSTALLS += deployment
+}

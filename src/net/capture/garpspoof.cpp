@@ -1,7 +1,5 @@
 #include "garpspoof.h"
-#ifdef Q_OS_ANDROID
-#include "base/sys/gnexmon.h"
-#endif // Q_OS_ANDROID
+#include "base/gapp.h"
 
 // ----------------------------------------------------------------------------
 // GArpSpoof
@@ -273,36 +271,17 @@ void GArpSpoof::runArpRecover(FlowList* flowList) {
 	flowString = flowString.left(flowString.length() - 1);
 
 #ifdef Q_OS_WIN
-	QString arprecoverFile = "arprecover.exe";
-	if (QFile::exists(arprecoverFile)) {
-		QString argument = QString("-i %1 %2 %3 %4 %5 %6 %7").
-				arg(10).arg(
-					intfName_, QString(intf_->gateway()), QString(intf_->mask()),
-					QString(intf_->ip()), QString(intf_->mac()), flowString);
-		QStringList arguments = argument.split(' ');
-		qDebug() << arguments;
-		QProcess::startDetached(arprecoverFile, arguments);
-#else // Q_OS_WIN
-	QString arprecoverFile = "arprecover";
-	if (QFile::exists(arprecoverFile)) {
-		QStringList arguments;
-		arguments.append("-c");
-		QString path = QDir::currentPath();
-#ifdef Q_OS_ANDROID
-		QString preloadStr = " ";
-		QString soFileName = GNexmon::soFileName();
-		if (soFileName != "")
-			preloadStr = "export LD_PRELOAD=" + soFileName + ";";
-		QString run = QString("export LD_LIBRARY_PATH=%1; %2 %3/%4").arg(path + "/../lib", preloadStr, path, arprecoverFile);
-#else // Q_OS_ANDROID
-		QString run = QString("%1/%2").arg(path, arprecoverFile);
-#endif // Q_OS_ANDROID
-		arguments.append(QString("%1 -i %2 %3 %4 %5 %6 %7 %8").arg(run).arg(10).arg(
-			intfName_, QString(intf_->gateway()), QString(intf_->mask()),
-			QString(intf_->ip()), QString(intf_->mac()), flowString));
-		QProcess::startDetached("su", arguments);
+	QString program = "arprecover.exe";
+#else //
+	QString program = "arprecover";
 #endif // Q_OS_WIN
-	}
+	QString argument = QString("-i %1 %2 %3 %4 %5 %6 %7").
+		arg(10).arg(intfName_, QString(intf_->gateway()), QString(intf_->mask()),
+		QString(intf_->ip()), QString(intf_->mac()), flowString);
+	QStringList arguments = argument.split(' ');
+	qDebug() << arguments;
+	if (GApp::prepareProcess(program, arguments))
+		QProcess::startDetached(program, arguments);
 }
 
 GArpSpoof::Flow::Flow(GIp senderIp, GMac senderMac, GIp targetIp, GMac targetMac) {

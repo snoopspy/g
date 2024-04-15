@@ -6,7 +6,7 @@
 Q_DECLARE_METATYPE(QSsl::SslProtocol)
 
 int main(int argc, char* argv[]) {
-	GApp a(argc, argv, false, false);
+	GApp a(argc, argv);
 	Widget w;
 	w.show();
 	return a.exec();

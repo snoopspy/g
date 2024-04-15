@@ -55,7 +55,7 @@ public slots:
 };
 
 int main(int argc, char* argv[]) {
-	GApp a(argc, argv, true, true);
+	GApp a(argc, argv);
 
 	GPcapDevice device;
 	QJsonObject jo = GJson::loadFromFile();

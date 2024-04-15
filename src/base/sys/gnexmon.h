@@ -17,5 +17,5 @@
 // GNexmon
 // ----------------------------------------------------------------------------
 struct G_EXPORT GNexmon {
-	static QString soFileName();
+	static QString preloadFileName();
 };

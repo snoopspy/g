@@ -4,7 +4,7 @@
 #include "chwidget.h"
 
 #ifdef Q_OS_ANDROID
-void installCerts() {
+void installAssets() {
 	QDir dir;
 	QString dirPath = "cert/";
 	if (!dir.mkpath(dirPath))
@@ -13,19 +13,18 @@ void installCerts() {
 	if (!dir.mkpath(dirPath))
 		qWarning() << QString("can not create directory(%1)").arg(dirPath);
 
-	GApp::copyFileFromAssets("ffce", "", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
-	GApp::copyFileFromAssets("root.crt", "cert/root/", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
-	GApp::copyFileFromAssets("root.key", "cert/root/", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
-	GApp::copyFileFromAssets("default.crt", "cert/", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
-	GApp::copyFileFromAssets("default.key", "cert/", QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+	GApp::copyFileFromAssets("root.crt", "cert/root/");
+	GApp::copyFileFromAssets("root.key", "cert/root/");
+	GApp::copyFileFromAssets("default.crt", "cert/");
+	GApp::copyFileFromAssets("default.key", "cert/");
 }
 #endif // Q_OS_ANDROID
 
 int main(int argc, char *argv[])
 {
-	GApp a(argc, argv, true, true);
+	GApp a(argc, argv, {"arprecover", "ffce", "ssdemon"}, true, false, true);
 #ifdef Q_OS_ANDROID
-	installCerts();
+	installAssets();
 #endif // Q_OS_ANDROID
 	ChWidget cw;
 
