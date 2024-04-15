@@ -124,11 +124,6 @@ size_t GRadioHdr::getFcsSize() {
 	return fcsSize;
 }
 
-#include "net/iw/giw.h"
-int GRadioHdr::freqToChannel(int freq) {
-	return GIw::ieee80211_frequency_to_channel(freq);
-}
-
 // ----------------------------------------------------------------------------
 // GTEST
 // ----------------------------------------------------------------------------

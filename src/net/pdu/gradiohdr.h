@@ -75,7 +75,6 @@ struct G_EXPORT GRadioHdr {
 	QList<GBuf> getPresentFlags(PresentFlag presentFlag);
 	int8_t getSignal();
 	size_t getFcsSize();
-	static int freqToChannel(int freq);
 };
 typedef GRadioHdr *PRadioHdr;
 #pragma pack(pop)
