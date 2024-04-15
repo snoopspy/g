@@ -22,7 +22,7 @@ GCommandItem::~GCommandItem() {
 // ----------------------------------------------------------------------------
 bool GCommand::doOpen() {
 #ifdef Q_OS_ANDROID
-	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
+	demonClient_ = new GDemonClient("127.0.0.2", GDemon::DefaultPort);
 #endif
 
 	bool res = true;

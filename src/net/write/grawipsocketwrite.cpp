@@ -24,7 +24,7 @@ GRawIpSocketWrite::~GRawIpSocketWrite() {
 
 #ifdef Q_OS_ANDROID
 bool GRawIpSocketWrite::doOpen() {
-	demonClient_ = new GDemonClient("127.0.0.1", GDemon::DefaultPort);
+	demonClient_ = new GDemonClient("127.0.0.6", GDemon::DefaultPort);
 	GDemon::RiOpenRes res = demonClient_->riOpen();
 	if (!res.result_) {
 		SET_ERR(GErr::Fail, demonClient_->error_.data());

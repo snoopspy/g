@@ -29,7 +29,7 @@ bool GPcapDevice::doOpen() {
 	}
 
 #ifdef Q_OS_ANDROID
-	demonClient_ = new GDemonClient("127.0.0.1", port_);
+	demonClient_ = new GDemonClient("127.0.0.3", port_);
 	GDemon::PcapOpenRes res = demonClient_->pcapOpen(qPrintable(objectName()), std::string(qPrintable(filter_)), std::string(qPrintable(intfName_)), snapLen_, flags_, readTimeout_, waitTimeout_, nonBlock_, true);
 	if (!res.result_) {
 		SET_ERR(GErr::Fail, demonClient_->error_.data());
