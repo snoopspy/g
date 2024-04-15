@@ -13,6 +13,7 @@ cd linux
 #
 cp ../../bin/arprecover .; strip arprecover
 cp ../../bin/bf .; strip bf
+cp ../../bin/ch .; strip ch
 cp ../../bin/corepcap .; strip corepcap
 cp ../../bin/ha .; strip ha
 cp ../../bin/netclient .; strip netclient
@@ -26,6 +27,9 @@ cp ../../setup/setup-linux.sh .
 cp ../../setup/run .
 mkdir -p ss
 cp ../../bin/ss/* ss/
+mkdir -p cert/root
+cp ../../bin/cert/root/* cert/root/
+cp ../../bin/cert/* cert/
 
 #
 # qt files

@@ -44,6 +44,7 @@ rem
 rem g files
 rem
 copy ..\..\bin\arprecover.exe . & strip arprecover.exe
+copy ..\..\bin\ch.exe . & strip ch.exe
 copy ..\..\bin\ha.exe . & strip ha.exe
 copy ..\..\bin\netclient.exe . & strip netclient.exe
 copy ..\..\bin\netserver.exe . & strip netserver.exe
@@ -55,6 +56,10 @@ copy ..\..\bin\WinDivert64.sys .
 copy ..\..\setup\setup-win.txt .
 mkdir ss
 copy ..\..\bin\ss\* ss\
+mkdir cert\root
+copy ..\..\bin\cert\root\* cert\
+copy ..\..\bin\cert\* cert\
+
 
 rem
 rem qt files
