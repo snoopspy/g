@@ -9,6 +9,14 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 
 	httpsSiteList_.push_back("twitter.com");
 
+	prefix_ = "wwww";
+
+#ifdef Q_OS_ANDROID
+	firefoxDir_ = "/data/data/org.mozilla.firefox/files/mozilla";
+#else //
+	firefoxDir_ = QDir::homePath() +"/.mozilla/firefox";
+#endif // Q_OS_ANDROID
+
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &dnsBlock_, &GDnsBlock::block, Qt::DirectConnection);
 
 	// 40 : minimum value of ip header size + tcp header size

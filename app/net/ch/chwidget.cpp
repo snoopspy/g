@@ -134,19 +134,59 @@ void ChWidget::tbFirefox_clicked(bool checked) {
 		host = host.left(i);
 	QString cookie = twi->text(ColumnCookie);
 
-	QString program = QDir::currentPath() + "/ffce";
+#ifdef Q_OS_WIN
+	QString program = QDir::currentPath() + "/ffce.exe";
 	QStringList arguments;
-	QString firefoxDir = cookieHijack_.firefoxDir_;
-	if (firefoxDir == "")
-		firefoxDir = QDir::homePath() +"/.mozilla/firefox";
-	arguments.push_back(firefoxDir);
+#else // Q_OS_WIN
+	#ifdef Q_OS_ANDROID
+		QString program = "su";
+		QStringList arguments;
+		arguments.push_back("-c");
+		arguments.push_back(QDir::currentPath() + "/ffce");
+	#else // Q_OS_ANDROID
+		QString program = QDir::currentPath() + "/ffce";
+		QStringList arguments;
+	#endif // Q_OS_ANDROID
+#endif // // Q_OS_WIN
+
+	arguments.push_back(cookieHijack_.firefoxDir_);
 	arguments.push_back(host);
 	arguments.push_back(cookie);
+	qDebug() << program;
+	qDebug() << arguments;
 	QProcess::execute(program, arguments);
+
+#ifdef Q_OS_WIN
+	// taskkill /IM arprecover.exe /F
+	program = "taskkill";
+	arguments.clear();
+	arguments.append("/IM");
+	arguments.append("firefox.exe");
+	arguments.append("/F");
+	QProcess::startDetached(program, arguments);
+#else // Q_OS_WIN
+	program = "su";
+	arguments.clear();
+	arguments.append("-c");
+	#ifdef Q_OS_ANDROID
+		arguments.append("pkill firefox");
+	#else // Q_OS_ANDROID
+		arguments.append("pkill org.mozilla.firefox");
+	#endif // Q_OS_ANDROID
+	QProcess::startDetached(program, arguments);
+#endif // Q_OS_WIN
 
 	if (host.startsWith("."))
 		host = host.mid(1);
-	QProcess::startDetached("firefox", QStringList{host});
+#ifdef Q_OS_WIN
+	QProcess::startDetached("firefox.exe", QStringList{host});
+#else // Q_OS_WIN
+	#ifdef Q_OS_ANDROID
+		QProcess::startDetached("am", QStringList{"start", "-n", "org.mozilla.firefox/org.mozilla.gecko.BrowserApp", host});
+	#else // Q_OS_ANDROID
+		QProcess::startDetached("firefox", QStringList{host});
+	#endif // Q_OS_ANDROID
+#endif // Q_OS_WIN
 }
 
 void ChWidget::treeWidget_itemSelectionChanged() {

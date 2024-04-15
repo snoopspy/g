@@ -52,7 +52,7 @@ public:
 public:
 	QStringList httpSiteList_;
 	QStringList httpsSiteList_;
-	QString prefix_{"wwww"};
+	QString prefix_;
 	QString firefoxDir_;
 
 	WebServer webServer_{this};
