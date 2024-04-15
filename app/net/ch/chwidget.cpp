@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QProgressBar>
 
+#include <GApp>
 #include <GJson>
 
 ChWidget::ChWidget(QWidget* parent) : GDefaultWidget(parent) {
@@ -124,6 +125,33 @@ void ChWidget::tbOption_clicked(bool checked) {
 void ChWidget::tbFirefox_clicked(bool checked) {
 	(void)checked;
 
+	//
+	// Kill Firefox
+	//
+	{
+#ifdef Q_OS_WIN
+		// taskkill /IM firefox.exe /F
+		QString  program = "taskkill";
+		QStringlIst arguments;
+		arguments.append("/IM");
+		arguments.append("firefox.exe");
+		arguments.append("/F");
+#else // Q_OS_WIN
+		QString program = "su";
+		QStringList arguments;
+		arguments.append("-c");
+#ifdef Q_OS_ANDROID
+		arguments.append("pkill firefox");
+#else // Q_OS_ANDROID
+		arguments.append("pkill org.mozilla.firefox");
+#endif // Q_OS_ANDROID
+#endif // Q_OS_WIN
+		QProcess::execute(program, arguments);
+	}
+
+	//
+	// Set Cookie using ffce
+	//
 	if (treeWidget_->selectedItems().count() == 0) return;
 	GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
 	QString host = twi->text(ColumnHost);
@@ -135,58 +163,36 @@ void ChWidget::tbFirefox_clicked(bool checked) {
 	QString cookie = twi->text(ColumnCookie);
 
 #ifdef Q_OS_WIN
-	QString program = QDir::currentPath() + "/ffce.exe";
-	QStringList arguments;
+	QString program = "ffce.exe";
 #else // Q_OS_WIN
-	#ifdef Q_OS_ANDROID
-		QString program = "su";
-		QStringList arguments;
-		arguments.push_back("-c");
-		arguments.push_back(QDir::currentPath() + "/ffce");
-	#else // Q_OS_ANDROID
-		QString program = QDir::currentPath() + "/ffce";
-		QStringList arguments;
-	#endif // Q_OS_ANDROID
-#endif // // Q_OS_WIN
-
+	QString program = "ffce";
+#endif // Q_OS_WIN
+	QStringList arguments;
 	arguments.push_back(cookieHijack_.firefoxDir_);
 	arguments.push_back(host);
-	arguments.push_back(cookie);
-	qDebug() << program;
-	qDebug() << arguments;
+	arguments.push_back("'" + cookie + "'");
+	qDebug() << program << arguments; // gilgil temp 2024.04.15
+	if (GApp::prepareProcess(program, arguments))
+		QProcess::execute(program, arguments);
+	qDebug() << program << arguments; // gilgil temp 2024.04.15
 	QProcess::execute(program, arguments);
 
+	//
+	// Launch FireFox
+	//
+	{
+		if (host.startsWith("."))
+			host = host.mid(1);
 #ifdef Q_OS_WIN
-	// taskkill /IM firefox.exe /F
-	program = "taskkill";
-	arguments.clear();
-	arguments.append("/IM");
-	arguments.append("firefox.exe");
-	arguments.append("/F");
-	QProcess::startDetached(program, arguments);
+		QProcess::startDetached("firefox.exe", QStringList{host});
 #else // Q_OS_WIN
-	program = "su";
-	arguments.clear();
-	arguments.append("-c");
-	#ifdef Q_OS_ANDROID
-		arguments.append("pkill firefox");
-	#else // Q_OS_ANDROID
-		arguments.append("pkill org.mozilla.firefox");
-	#endif // Q_OS_ANDROID
-	QProcess::startDetached(program, arguments);
-#endif // Q_OS_WIN
-
-	if (host.startsWith("."))
-		host = host.mid(1);
-#ifdef Q_OS_WIN
-	QProcess::startDetached("firefox.exe", QStringList{host});
-#else // Q_OS_WIN
-	#ifdef Q_OS_ANDROID
+#ifdef Q_OS_ANDROID
 		QProcess::startDetached("am", QStringList{"start", "-n", "org.mozilla.firefox/org.mozilla.gecko.BrowserApp", host});
-	#else // Q_OS_ANDROID
+#else // Q_OS_ANDROID
 		QProcess::startDetached("firefox", QStringList{host});
-	#endif // Q_OS_ANDROID
+#endif // Q_OS_ANDROID
 #endif // Q_OS_WIN
+	}
 }
 
 void ChWidget::treeWidget_itemSelectionChanged() {

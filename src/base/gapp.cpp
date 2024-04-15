@@ -155,8 +155,9 @@ bool GApp::prepareProcess(QString& program, QStringList& arguments, QString prel
 		preloadStr = "export LD_PRELOAD=" + preloadFileName + "; ";
 #ifdef Q_OS_ANDROID
 	QString run = QString("export LD_LIBRARY_PATH=%1; %2%3/%4 %5").arg(path + "/../lib", preloadStr, path, program, arguments.join(" "));
-#endif // Q_OS_ANDROID
+#else // Q_OS_ANDROID
 	QString run = QString("%1%2/%3 %4").arg(preloadStr, path, program, arguments.join(" "));
+#endif // Q_OS_ANDROID
 
 	QStringList newArguments;
 	newArguments.append("-c");
