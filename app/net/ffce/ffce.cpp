@@ -1,9 +1,9 @@
 #include <cstring>
 #include <iostream>
 #include <unistd.h>
-#ifdef Q_OS_WIN
+#ifdef WIN32
 #include <windows.h>
-#endif // Q_OS_WIN
+#endif // WIN32
 
 #include "gtrace.h"
 #include "gaux.h"
