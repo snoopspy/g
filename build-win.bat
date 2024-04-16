@@ -58,7 +58,7 @@ copy ..\..\setup\setup-win.txt .
 mkdir ss
 copy ..\..\bin\ss\* ss\
 mkdir cert\root
-copy ..\..\bin\cert\root\* cert\
+copy ..\..\bin\cert\root\* cert\root
 copy ..\..\bin\cert\* cert\
 
 
