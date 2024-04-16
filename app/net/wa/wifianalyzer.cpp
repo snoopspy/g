@@ -1,5 +1,5 @@
 #include "wifianalyzer.h"
-#include <GBeaconHdr>
+#include <GIw>
 
 WifiAnalyzer::WifiAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
@@ -115,7 +115,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 		QList<GBuf> freqList = radioHdr->getPresentFlags(GRadioHdr::Channel);
 		if (freqList.count() > 0) {
 			int16_t freq = *reinterpret_cast<uint16_t*>(freqList[0].data_);
-			channel = GRadioHdr::freqToChannel(freq);
+			channel = GIw::freqToChannel(freq);
 		}
 	}
 

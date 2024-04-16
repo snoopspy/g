@@ -1,4 +1,5 @@
 #include "probeanalyzer.h"
+#include <GIw>
 
 ProbeAnalyzer::ProbeAnalyzer(QObject* parent) : GStateObj(parent) {
 #ifdef Q_OS_ANDROID
@@ -49,7 +50,7 @@ void ProbeAnalyzer::processCaptured(GPacket* packet) {
 	QList<GBuf> frequencyList = packet->radioHdr_->getPresentFlags(GRadioHdr::Channel);
 	if (frequencyList.size() > 0) {
 		le16_t frequency = *reinterpret_cast<le16_t*>(frequencyList.at(0).data_);
-		channel = GRadioHdr::freqToChannel(frequency);
+		channel = GIw::freqToChannel(frequency);
 	}
 
 	GRadioHdr* radioHdr = packet->radioHdr_;

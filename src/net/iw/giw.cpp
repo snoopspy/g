@@ -94,7 +94,7 @@ int GIw::channel() {
 		int channel, freq;
 		int res = sscanf(buf, "\tchannel %d (%d MHz)", &channel, &freq);
 		if (res == 2) {
-			if (ieee80211_frequency_to_channel(freq) == channel) {
+			if (freqToChannel(freq) == channel) {
 				result = channel;
 				break;
 			}
@@ -128,7 +128,8 @@ bool GIw::setChannel(int channel) {
 	return true;
 }
 
-int GIw::ieee80211_frequency_to_channel(int freq) {
+// ieee80211_frequency_to_channel
+int GIw::freqToChannel(int freq) {
 	/* see 802.11-2007 17.3.8.3.2 and Annex J */
 	if (freq == 2484)
 		return 14;
