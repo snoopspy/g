@@ -34,8 +34,8 @@ struct SslServer : NetServer {
 	Q_ENUMS(SslProtocol)
 
 public:
-	QString keyFileName_{"mysite.key"};
-	QString crtFileName_{"mysite.crt"};
+	QString keyFileName_{"cert/default.key"};
+	QString crtFileName_{"cert/default.crt"};
 
 public:
 	enum SslProtocol {
