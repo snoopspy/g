@@ -220,7 +220,7 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 			}
 			continue;
 		} else if (type == GEthHdr::Ip4) {
-			GIpHdr* ipHdr = packet->ipHdr_;
+			GIpHdr* ipHdr = packet->ipHdr_; // Should disable compile optimization for GIPHdr(sip_ and dip_)
 			Q_ASSERT(ipHdr != nullptr);
 			GIp adjSrcIp = intf_->getAdjIp(ipHdr->sip());
 			GIp adjDstIp = intf_->getAdjIp(ipHdr->dip());

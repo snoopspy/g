@@ -47,11 +47,7 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	// IP
 	//
 	GIpHdr* blockIpHdr = blockIpPacket_.ipHdr_;
-#ifndef Q_OS_ANDROID
-	GIpHdr* orgIpHdr = packet->ipHdr_;
-#else
-	GVolatileIpHdr* orgIpHdr = PVolatileIpHdr(packet->ipHdr_);
-#endif
+	GIpHdr* orgIpHdr = packet->ipHdr_; // Should disable compile optimization for GIPHdr(sip_ and dip_)
 	Q_ASSERT(orgIpHdr != nullptr);
 	memcpy(pvoid(blockIpHdr), pvoid(orgIpHdr), sizeof(GIpHdr));
 	blockIpHdr->v_hlen_ = 0x45;
@@ -96,8 +92,8 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	//
 	// checksum
 	//
-	blockIpHdr->sum_ = htons(GIpHdr::calcChecksum(PIpHdr(blockIpHdr)));
-	blockTcpHdr->sum_ = htons(GTcpHdr::calcChecksum(PIpHdr(blockIpHdr), blockTcpHdr));
+	blockIpHdr->sum_ = htons(GIpHdr::calcChecksum(blockIpHdr));
+	blockTcpHdr->sum_ = htons(GTcpHdr::calcChecksum(blockIpHdr, blockTcpHdr));
 
 	// write
 	writer_.write(&blockIpPacket_);

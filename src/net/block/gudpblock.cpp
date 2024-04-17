@@ -31,11 +31,7 @@ void GUdpBlock::block(GPacket* packet) {
 		return;
 	}
 
-#ifndef Q_OS_ANDROID
-	GIpHdr* orgIpHdr = packet->ipHdr_;
-#else
-	GVolatileIpHdr* orgIpHdr = PVolatileIpHdr(packet->ipHdr_);
-#endif
+	GIpHdr* orgIpHdr = packet->ipHdr_; // Should disable compile optimization for GIPHdr(sip_ and dip_)
 	Q_ASSERT(orgIpHdr != nullptr);
 
 	if (orgIpHdr->dip().isBroadcast() || orgIpHdr->dip().isMulticast()) return;
@@ -96,8 +92,8 @@ void GUdpBlock::block(GPacket* packet) {
 	//
 	// checksum
 	//
-	blockIpHdr->sum_ = htons(GIpHdr::calcChecksum(PIpHdr(blockIpHdr)));
-	blockIcmpIpHdr->sum_ = htons(GIcmpHdr::calcChecksum(PIpHdr(blockIpHdr), blockIcmpIpHdr));
+	blockIpHdr->sum_ = htons(GIpHdr::calcChecksum(blockIpHdr));
+	blockIcmpIpHdr->sum_ = htons(GIcmpHdr::calcChecksum(blockIpHdr, blockIcmpIpHdr));
 
 	writer_.write(&blockIpPacket_);
 	emit blocked(packet);

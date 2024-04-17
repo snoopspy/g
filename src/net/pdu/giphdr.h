@@ -25,8 +25,13 @@ struct G_EXPORT GIpHdr final {
 	uint8_t ttl_;
 	uint8_t p_;
 	uint16_t sum_;
+#ifndef Q_OS_ANDROID
 	GIp sip_;
 	GIp dip_;
+#else // Q_OS_ANDROID
+	volatile uint32_t sip_;
+	volatile uint32_t dip_;
+#endif // Q_OS_ANDROID
 
 	uint8_t v() { return (v_hlen_ & 0xF0) >> 4; }
 	uint8_t hlen() { return v_hlen_ & 0x0F; }
@@ -54,27 +59,5 @@ struct G_EXPORT GIpHdr final {
 	static uint16_t recalcChecksum(uint16_t oldChecksum, uint32_t oldValue, uint32_t newValue);
 };
 typedef GIpHdr *PIpHdr;
-
-#ifdef Q_OS_ANDROID
-// Disable compile optimization for sip_ and dip_
-struct G_EXPORT GVolatileIpHdr final {
-	uint8_t v_hlen_;
-	uint8_t tos_;
-	uint16_t tlen_;
-	uint16_t id_;
-	uint16_t off_;
-	uint8_t ttl_;
-	uint8_t p_;
-	uint16_t sum_;
-	volatile uint32_t sip_;
-	volatile uint32_t dip_;
-
-	uint8_t hlen() { return v_hlen_ & 0x0F; }
-	uint16_t tlen() { return ntohs(tlen_); }
-	GIp sip() { return ntohl(sip_); }
-	GIp dip() { return ntohl(dip_); }
-};
-typedef GVolatileIpHdr *PVolatileIpHdr;
-#endif
 
 #pragma pack(pop)

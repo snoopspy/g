@@ -8,12 +8,7 @@
 // All data buffer(padding)
 // ipHdr.ip_src, ipHdr.ip_dst, tcpHdrDataLen and IPPROTO_TCP
 //
-#ifndef Q_OS_ANDROID
-uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
-#else
-uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdrTemp, GTcpHdr* tcpHdr) {
-	GVolatileIpHdr* ipHdr = PVolatileIpHdr(ipHdrTemp);
-#endif
+uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disable compile optimization for GIPHdr(sip_ and dip_)
 	uint32_t res = 0;
 	int tcpHdrDataLen = ipHdr->tlen() - ipHdr->hlen() * 4;
 
