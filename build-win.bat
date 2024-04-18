@@ -18,12 +18,14 @@ rem
 rem app
 rem
 move app\net\arprecover\makefile app\net\arprecover\makefile.gilgil
+move app\net\ffce\makefile app\net\ffce\makefile.gilgil
 cd app
 	qmake "CONFIG+=release" 
 	mingw32-make -j%NUMBER_OF_PROCESSORS%
 	cd ..
 del app\net\arprecover\Makefile	
 move app\net\arprecover\makefile.gilgil app\net\arprecover\makefile
+move app\net\ffce\makefile.gilgil app\net\ffce\makefile
 
 rem
 rem plugin
