@@ -43,4 +43,6 @@ android {
 	deployment.files += $${G_DIR}/bin/cert/default.key
 	deployment.path = /assets
 	INSTALLS += deployment
+
+	include(/root/Android/Sdk/android_openssl/openssl.pri)
 }
