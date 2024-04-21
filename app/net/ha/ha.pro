@@ -2,8 +2,6 @@ QT += widgets svg network
 include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
 
-RESOURCES += $$PWD/ha.qrc
-
 SOURCES += \
 	dbdialog.cpp \
 	ha.cpp \
@@ -24,6 +22,8 @@ HEADERS += \
 	webserver.h \
 	qrcode/QrCodeGenerator.h \
 	qrcode/qrcodegen/qrcodegen.h
+
+RESOURCES += $$PWD/ha.qrc
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
 	ANDROID_PACKAGE_SOURCE_DIR = \

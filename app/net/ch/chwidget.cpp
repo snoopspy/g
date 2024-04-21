@@ -21,6 +21,14 @@ ChWidget::ChWidget(QWidget* parent) : GDefaultWidget(parent) {
 	plainTextEdit_ = new QPlainTextEdit(this);
 	splitter_->addWidget(plainTextEdit_);
 
+	tbDb_ = new QToolButton(this);
+	tbDb_->setText("Database");
+	tbDb_->setToolTip("Database");
+	tbDb_->setIcon(QIcon(":/img/db.png"));
+	tbDb_->setAutoRaise(true);
+	tbDb_->setIconSize(tbStart_->iconSize());
+	toolButtonLayout_->addWidget(tbDb_);
+
 	tbFirefox_ = new QToolButton(this);
 	tbFirefox_->setText("Go");
 	tbFirefox_->setToolTip("Go");
@@ -29,6 +37,14 @@ ChWidget::ChWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tbFirefox_->setIconSize(tbStart_->iconSize());
 	toolButtonLayout_->addWidget(tbFirefox_);
 
+	tbScreenSaver_ = new QToolButton(this);
+	tbScreenSaver_->setText("ScreenSaver");
+	tbScreenSaver_->setToolTip("ScreenSaver");
+	tbScreenSaver_->setIcon(QIcon(":/img/screensaver.png"));
+	tbScreenSaver_->setAutoRaise(true);
+	tbScreenSaver_->setIconSize(tbStart_->iconSize());
+	toolButtonLayout_->addWidget(tbScreenSaver_);
+
 	int left, top, right, bottom;
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
 	mainLayout_->setContentsMargins(0, top, 0, 0);
@@ -36,7 +52,9 @@ ChWidget::ChWidget(QWidget* parent) : GDefaultWidget(parent) {
 	QObject::connect(tbStart_, &QToolButton::clicked, this, &ChWidget::tbStart_clicked);
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &ChWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &ChWidget::tbOption_clicked);
+	QObject::connect(tbDb_, &QToolButton::clicked, this, &ChWidget::tbDb_clicked);
 	QObject::connect(tbFirefox_, &QToolButton::clicked, this, &ChWidget::tbFirefox_clicked);
+	QObject::connect(tbScreenSaver_, &QToolButton::clicked, this, &ChWidget::tbScreenSaver_clicked);
 	QObject::connect(treeWidget_, &QTreeWidget::itemSelectionChanged, this, &ChWidget::treeWidget_itemSelectionChanged);
 
 	setControl();
@@ -53,6 +71,7 @@ void ChWidget::setControl() {
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
 	tbFirefox_->setEnabled(!active && treeWidget_->selectedItems().count() != 0);
+	tbScreenSaver_->setEnabled(active);
 }
 
 void ChWidget::addItem(QString host, QString cookie) {
@@ -120,6 +139,10 @@ void ChWidget::tbOption_clicked(bool checked) {
 	propDialog.exec();
 
 	jo["propDialog"] << propDialog;
+}
+
+void ChWidget::tbDb_clicked(bool checked) {
+	(void)checked;
 }
 
 void ChWidget::tbFirefox_clicked(bool checked) {
@@ -193,6 +216,13 @@ void ChWidget::tbFirefox_clicked(bool checked) {
 #endif // Q_OS_ANDROID
 #endif // Q_OS_WIN
 	}
+}
+
+void ChWidget::tbScreenSaver_clicked(bool checked) {
+	(void)checked;
+	if (screenSaver_.active())
+		screenSaver_.close();
+	screenSaver_.open();
 }
 
 void ChWidget::treeWidget_itemSelectionChanged() {

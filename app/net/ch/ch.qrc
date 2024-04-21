@@ -1,5 +1,6 @@
 <RCC>
 	<qresource prefix="/">
+		<file>img/db.png</file>
 		<file>img/firefox.png</file>
 	</qresource>
 </RCC>

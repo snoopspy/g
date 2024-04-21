@@ -1,6 +1,8 @@
 #pragma once
 
 #include <GDefaultWidget>
+#include <GScreenSaver>
+#include <GSplitter>
 #include <GTreeWidget>
 #include <QPlainTextEdit>
 #include "cookiehijack.h"
@@ -16,13 +18,16 @@ public:
 	void setControl();
 
 public:
-	QSplitter* splitter_{nullptr};
+	GSplitter* splitter_{nullptr};
 	GTreeWidget* treeWidget_{nullptr};
 	QPlainTextEdit* plainTextEdit_{nullptr};
 	CookieHijack cookieHijack_{this};
+	GScreenSaver screenSaver_{this};
 
 public:
+	QToolButton* tbDb_{nullptr};
 	QToolButton* tbFirefox_{nullptr};
+	QToolButton* tbScreenSaver_{nullptr};
 
 public:
 	const static int ColumnHost = 0;
@@ -38,7 +43,9 @@ private slots:
 	void tbStart_clicked(bool checked = false);
 	void tbStop_clicked(bool checked = false);
 	void tbOption_clicked(bool checked = false);
+	void tbDb_clicked(bool checked = false);
 	void tbFirefox_clicked(bool checked = false);
+	void tbScreenSaver_clicked(bool checked = false);
 	void treeWidget_itemSelectionChanged();
 
 	void processProbeDetected(GMac mac, QString type, int channel, int signal);
