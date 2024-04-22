@@ -699,7 +699,7 @@ void GDemonPcap::close() {
 }
 
 void GDemonPcap::run() {
-	GTRACE("GDemonPcap beg");
+	GTRACE("GDemonPcap beg %s", client_.data());
 
 	PcapRead read;
 
@@ -747,7 +747,7 @@ void GDemonPcap::run() {
 		}
 	}
 
-	GTRACE("GDemonPcap end");
+	GTRACE("GDemonPcap end %s", client_.data());
 	// disconnect connection
 	::shutdown(session_->sd_, SHUT_RDWR);
 	::close(session_->sd_);
@@ -899,29 +899,20 @@ GDemon::NfOpenRes GDemonNetFilter::open(NfOpenReq req) {
 
 void GDemonNetFilter::close() {
 	if (fd_ != 0) {
-		GTRACE("bef call ::shutdown"); // gilgil temp 2016.09.25
 		::shutdown(fd_, SHUT_RDWR);
-		GTRACE("aft call ::shutdown"); // gilgil temp 2016.09.25
-
-		GTRACE("bef call ::close"); // gilgil temp 2016.09.25
 		::close(fd_);
-		GTRACE("aft call ::close"); // gilgil temp 2016.09.25
 		fd_ = 0;
 	}
 
 	if (thread_ != nullptr) {
 		active_ = false;
-		GTRACE("bef thread_->join"); // gilgil temp 2021.06.27
 		thread_->join();
-		GTRACE("aft thread_->join"); // gilgil temp 2021.06.27
 		delete thread_;
 		thread_ = nullptr;
 	}
 
 	if (qh_ != nullptr) {
-		GTRACE("bef call nfq_destroy_queue"); // gilgil temp 2016.09.25
 		nfq_destroy_queue(qh_);
-		GTRACE("aft call nfq_destroy_queue"); // gilgil temp 2016.09.25
 		qh_ = nullptr;
 	}
 
@@ -934,9 +925,7 @@ void GDemonNetFilter::close() {
 #endif // INSANE
 
 		// closing library handle
-		GTRACE("bef call nfq_close"); // gilgil temp 2016.09.25
 		nfq_close(h_);
-		GTRACE("aft call nfq_close"); // gilgil temp 2016.09.25
 		h_ = nullptr;
 	}
 
@@ -947,7 +936,7 @@ void GDemonNetFilter::close() {
 }
 
 void GDemonNetFilter::run() {
-	GTRACE("GDemonNetFilter beg");
+	GTRACE("GDemonNetFilter beg %s", client_.data());
 	while (active_) {
 		// GTRACE("bef call recv"); // gilgil temp 2016.09.27
 		int res = int(::recv(fd_, nfRecvBuf_, MaxBufSize, 0));
@@ -968,7 +957,7 @@ void GDemonNetFilter::run() {
 		nfq_handle_packet(h_, pchar(nfRecvBuf_), res);
 	}
 
-	GTRACE("GDemonNetFilter end");
+	GTRACE("GDemonNetFilter end %s", client_.data());
 	// disconnect connection
 	::shutdown(session_->sd_, SHUT_RDWR);
 	::close(session_->sd_);
@@ -1121,7 +1110,7 @@ GDemon::RiOpenRes GDemonRawIp::open(RiOpenReq req) {
 	if (intfName_ != "") {
 		r = ::setsockopt(sd_, SOL_SOCKET, SO_BINDTODEVICE, intfName_.data(), intfName_.size());
 		if (r < 0) {
-			res.errBuf_ = std::string("setsockopt(SO_BINDTODEVICE) return ") + std::to_string(r) + " " + strerror(errno);
+			res.errBuf_ = std::string("setsockopt(SO_BINDTODEVICE) return ") + std::to_string(r) + " " + strerror(errno) + " '" + intfName_ + "'";
 			GTRACE("%s", res.errBuf_.data());
 			close();
 			return res;
@@ -1174,6 +1163,8 @@ bool GDemonRawIp::processRiOpen(pchar buf, int32_t size) {
 }
 
 bool GDemonRawIp::processRiClose(pchar buf, int32_t size) {
+	GTRACE("%s", client_.data());
+
 	RiCloseReq req;
 	int32_t decLen = req.decode(buf, size);
 	if (decLen == -1) {
