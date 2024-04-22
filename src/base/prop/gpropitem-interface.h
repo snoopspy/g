@@ -28,6 +28,7 @@ protected:
 	QStringList intfNames_;
 
 protected slots:
+	void myCurrentTextChanged(const QString &text);
 	void myCurrentIndexChanged(int index);
 };
 

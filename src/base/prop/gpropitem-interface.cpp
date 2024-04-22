@@ -20,7 +20,8 @@ GPropItemInterface::GPropItemInterface(GPropItemParam* param, bool editable) : G
 		comboBox_->addItem(s);
 		intfNames_.push_back(intf.name());
 	}
-	QObject::connect(comboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(myCurrentIndexChanged(int)));
+	QObject::connect(comboBox_, &QComboBox::currentTextChanged, this, &GPropItemInterface::myCurrentTextChanged);
+	QObject::connect(comboBox_, &QComboBox::currentIndexChanged, this, &GPropItemInterface::myCurrentIndexChanged);
 }
 
 void GPropItemInterface::update() {
@@ -37,18 +38,21 @@ void GPropItemInterface::update() {
 	comboBox_->setCurrentText(intfName);
 }
 
+void GPropItemInterface::myCurrentTextChanged(const QString &text) {
+	bool res = object_->setProperty(mpro_.name(), text);
+	if (!res) {
+		qWarning() << QString("object->setProperty(%1, %2) return false").arg(mpro_.name(), text);
+	}
+}
+
 void GPropItemInterface::myCurrentIndexChanged(int index) {
 	if (index == -1) return;
-	QString intfName;
+	QString text;
 	if (index < intfNames_.count())
-		intfName = intfNames_.at(index);
+		text = intfNames_.at(index);
 	else
-		intfName = comboBox_->currentText();
-
-	bool res = object_->setProperty(mpro_.name(), intfName);
-	if (!res) {
-		qWarning() << QString("object->setProperty(%1, %2) return false").arg(mpro_.name(), intfName);
-	}
+		text = comboBox_->currentText();
+	myCurrentTextChanged(text);
 }
 
 #endif // QT_GUI_LIB
