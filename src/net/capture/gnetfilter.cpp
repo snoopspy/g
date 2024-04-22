@@ -38,7 +38,7 @@ GNetFilter::~GNetFilter() {
 bool GNetFilter::doOpen() {
 	if (!enabled_) return true;
 
-	if (objectName() != "") command_.setObjectName(objectName() + "_command");
+	if (objectName() != "") command_.setObjectName(objectName() + ".command_");
 	if (!command_.open()) {
 		err = command_.err;
 		return false;

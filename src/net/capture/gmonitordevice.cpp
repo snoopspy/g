@@ -33,6 +33,7 @@ bool GMonitorDevice::doOpen() {
 		else
 			filter_ = QString("(%1) and (%2)").arg(filter_, lengthFilter);
 
+		qDebug() << objectName();
 		res = GPcapDevice::doOpen();
 		filter_ = backupFilter;
 	} else {
@@ -92,6 +93,7 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 #ifdef Q_OS_ANDROID
 	device.port_ = GDemon::NexmonPort;
 #endif // Q_OS_ANDROID
+	if (objectName() != "") device.setObjectName(objectName() + ".device");
 	device.intfName_ = intfName_;
 	if (!device.open()) {
 		err = device.err;
@@ -111,10 +113,7 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 		SET_ERR(GErr::Fail, iw.error_);
 		return false;
 	}
-	if (!iw.setChannel(1)) {
-		SET_ERR(GErr::Fail, iw.error_);
-		return false;
-	}
+	iw.setChannel(1);
 	iw.close();
 
 	while (true) {

@@ -1,9 +1,10 @@
 #pragma once
 
+#include <GGraph>
 #include <GCommand>
 #include <GMonitorDevice>
 
-struct G_EXPORT ProbeAnalyzer : GStateObj {
+struct G_EXPORT ProbeAnalyzer : GGraph {
 	Q_OBJECT
 	Q_PROPERTY(int minSignal MEMBER minSignal_)
 	Q_PROPERTY(GObjRef monitorDevice READ getMonitorDevice)
@@ -16,10 +17,6 @@ public:
 public:
 	Q_INVOKABLE ProbeAnalyzer(QObject* parent = nullptr);
 	~ProbeAnalyzer() override;
-
-protected:
-	bool doOpen() override;
-	bool doClose() override;
 
 public:
 	int minSignal_{-128};
@@ -37,4 +34,8 @@ public slots:
 
 signals:
 	void probeDetected(GMac mac, QString type, int channel, int signal);
+
+public:
+	void propLoad(QJsonObject jo) override;
+	void propSave(QJsonObject& jo) override;
 };

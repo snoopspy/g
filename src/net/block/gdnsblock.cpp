@@ -17,6 +17,7 @@ GDnsBlockItem::~GDnsBlockItem() {
 // GDnsBlock
 // ----------------------------------------------------------------------------
 bool GDnsBlock::doOpen() {
+	if (objectName() != "") writer_.setObjectName(objectName() + ".writer_");
 	if (!writer_.open()) {
 		err = writer_.err;
 		return false;

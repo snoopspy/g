@@ -41,6 +41,16 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 typedef MyTreeWidgetItem *PMyTreeWidgetItem;
 
 HostAnalyzer::HostAnalyzer(QObject* parent) : GGraph(parent) {
+	pcapDevice_.setObjectName("pcapDevice_");
+	hostMgr_.setObjectName("hostMgr_");
+	hostWatch_.setObjectName("hostWatch_");
+	hostScan_.setObjectName("hostScan_");
+	hostDb_.setObjectName("hostDb_");
+	arpBlock_.setObjectName("arpBlock_");
+	command_.setObjectName("command_");
+	screenSaver_.setObjectName("screenSaver_");
+	webServer_.setObjectName("webServer_");
+
 	hostMgr_.pcapDevice_ = &pcapDevice_;
 	QObject::connect(&pcapDevice_, &GPcapDevice::captured, &hostMgr_, &GHostMgr::manage, Qt::DirectConnection);
 

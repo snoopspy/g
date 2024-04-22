@@ -1,6 +1,20 @@
 #include "cookiehijack.h"
 
 CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
+	webServer_.setObjectName("webServer_");
+	autoArpSpoof_.setObjectName("autoArpSpoof_");
+	find_.setObjectName("find_");
+	tcpBlock_.setObjectName("tcpBlock_");
+	dnsBlock_.setObjectName("dnsBlock_");
+	dnsBlockDnsServer_.setObjectName("dnsBlockDnsServer_");
+	tcpFlowMgr_.setObjectName("tcpFlowMgr_");
+	cookieHijack_.setObjectName("cookieHijack_");
+	bpFilter_.setObjectName("bpFilter_");
+	blockExternal_.setObjectName("blockExternal_");
+	tcpBlockExternal_.setObjectName("tcpBlockExternal_");
+	udpBlockExternal_.setObjectName("udpBlockExternal_");
+	command_.setObjectName("command_");
+
 	httpSiteList_.push_back("naver.com");
 	httpSiteList_.push_back("daum.net");
 	httpSiteList_.push_back("nate.com");
@@ -80,9 +94,6 @@ bool CookieHijack::doOpen() {
 		SET_ERR(GErr::ValueIsNull, msg);
 		return false;
 	}
-
-	tcpBlock_.writer_.intfName_ = intfName;
-	dnsBlock_.writer_.intfName_ = intfName;
 
 	totalSiteList_.clear();
 	for (QString site: httpSiteList_)

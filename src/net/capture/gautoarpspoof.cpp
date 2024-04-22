@@ -39,6 +39,7 @@ bool GAutoArpSpoof::doOpen() {
 	if (it == atm_.end()) {
 		atm_.insert(gwIp_, GMac::nullMac());
 		atm_.intfName_ = intf_->name();
+		if (objectName() != "") atm_.setObjectName(objectName() + ".atm_");
 		if (!atm_.open()) {
 			err = atm_.err;
 			atm_.close();

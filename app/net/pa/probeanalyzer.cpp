@@ -1,11 +1,16 @@
 #include "probeanalyzer.h"
 #include <GIw>
 
-ProbeAnalyzer::ProbeAnalyzer(QObject* parent) : GStateObj(parent) {
+ProbeAnalyzer::ProbeAnalyzer(QObject* parent) : GGraph(parent) {
+	monitorDevice_.setObjectName("monitorDevice_");
+	command_.setObjectName("command_");
+
 #ifdef Q_OS_ANDROID
 	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -c1\"", "su -c \"nexutil -d\"", "su -c \"nexutil -m2\""}));
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\"", "su -c \"ifconfig wlan0 down\""}));
 #endif
+
+	nodes_.append(&monitorDevice_);
 
 	// for probeDetected signal
 	qRegisterMetaType<GMac>("GMac");
@@ -14,20 +19,6 @@ ProbeAnalyzer::ProbeAnalyzer(QObject* parent) : GStateObj(parent) {
 
 ProbeAnalyzer::~ProbeAnalyzer() {
 	close();
-}
-
-bool ProbeAnalyzer::doOpen() {
-	if (!monitorDevice_.open()) {
-		err = monitorDevice_.err;
-		return false;
-	}
-
-	return true;
-}
-
-bool ProbeAnalyzer::doClose() {
-	monitorDevice_.close();
-	return true;
 }
 
 void ProbeAnalyzer::processCaptured(GPacket* packet) {
@@ -63,5 +54,13 @@ void ProbeAnalyzer::processCaptured(GPacket* packet) {
 	GMac mac = dot11Hdr->ta();
 
 	emit probeDetected(mac, type, channel, signal);
+}
+
+void ProbeAnalyzer::propLoad(QJsonObject jo) {
+	GProp::propLoad(jo);
+}
+
+void ProbeAnalyzer::propSave(QJsonObject& jo) {
+	GProp::propSave(jo);
 }
 

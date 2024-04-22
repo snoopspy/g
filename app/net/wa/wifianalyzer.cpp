@@ -2,6 +2,13 @@
 #include <GIw>
 
 WifiAnalyzer::WifiAnalyzer(QObject* parent) : GStateObj(parent) {
+	monitorDevice_.setObjectName("monitorDevice_");
+	channelHop_.setObjectName("channelHop_");
+	dot11Block_.setObjectName("dot11Block_");
+	dot11Block_.setObjectName("dot11Block_");
+	monitorDeviceWrite_.setObjectName("monitorDeviceWrite_");
+	command_.setObjectName("command_");
+
 #ifdef Q_OS_ANDROID
 	command_.openCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -c1\"", "su -c \"nexutil -d\"", "su -c \"nexutil -m2\""}));
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{"su -c \"nexutil -m0\"", "su -c \"ifconfig wlan0 down\""}));

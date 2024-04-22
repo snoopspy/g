@@ -112,6 +112,7 @@ bool GArpSpoof::doOpen() {
 
 	if (!atm_.allResolved()) {
 		atm_.intfName_ = intfName_;
+		if (objectName() != "") atm_.setObjectName(objectName() + ".atm_");
 		if (!atm_.open()) {
 			err = atm_.err;
 			atm_.close();

@@ -1,11 +1,12 @@
 #pragma once
 
+#include <GGraph>
 #include <GCommand>
 #include <GBeaconFlood>
 #include <GChannelHop>
 #include <GPlainTextEdit>
 
-struct G_EXPORT BeaconFlood : GStateObj {
+struct G_EXPORT BeaconFlood : GGraph {
 	Q_OBJECT
 	Q_PROPERTY(GObjRef beaconFlood READ getBeaconFlood)
 	Q_PROPERTY(GObjRef channelHop READ getChannelHop)
@@ -31,4 +32,8 @@ public:
 
 public:
 	GPlainTextEdit* plainTextEdit_{nullptr};
+
+public:
+	void propLoad(QJsonObject jo) override;
+	void propSave(QJsonObject& jo) override;
 };
