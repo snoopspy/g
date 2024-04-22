@@ -10,7 +10,7 @@
 ChWidget::ChWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("CookieHijack");
 
-	splitter_ = new QSplitter(Qt::Vertical, this);
+	splitter_ = new GSplitter(Qt::Vertical, this);
 	mainLayout_->addWidget(splitter_);
 
 	treeWidget_ = new GTreeWidget(this);
