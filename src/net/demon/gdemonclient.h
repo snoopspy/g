@@ -57,7 +57,7 @@ struct GDemonClient : GDemon {
 	bool nfVerdict(NfVerdict verdict);
 
 	// rawip
-	RiOpenRes riOpen();
+	RiOpenRes riOpen(std::string client, std::string intfName);
 	void riClose();
 	bool riWrite(RiWrite write);
 

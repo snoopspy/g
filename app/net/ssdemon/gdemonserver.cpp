@@ -1117,6 +1117,17 @@ GDemon::RiOpenRes GDemonRawIp::open(RiOpenReq req) {
 		return res;
 	}
 
+	intfName_ = req.intfName_;
+	if (intfName_ != "") {
+		r = ::setsockopt(sd_, SOL_SOCKET, SO_BINDTODEVICE, intfName_.data(), intfName_.size());
+		if (r < 0) {
+			res.errBuf_ = std::string("setsockopt(SO_BINDTODEVICE) return ") + std::to_string(r) + " " + strerror(errno);
+			GTRACE("%s", res.errBuf_.data());
+			close();
+			return res;
+		}
+	}
+
 	res.result_ = true;
 
 	return res;
@@ -1137,6 +1148,8 @@ bool GDemonRawIp::processRiOpen(pchar buf, int32_t size) {
 		GTRACE("req.decode return =1");
 		return false;
 	}
+	client_ = req.client_;
+	GTRACE("%s", client_.data());
 
 	RiOpenRes res = open(req);
 	{

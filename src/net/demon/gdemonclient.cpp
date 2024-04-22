@@ -654,7 +654,7 @@ bool GDemonClient::nfVerdict(GDemon::NfVerdict verdict) {
 	return true;
 }
 
-GDemon::RiOpenRes GDemonClient::riOpen() {
+GDemon::RiOpenRes GDemonClient::riOpen(std::string client, std::string intfName) {
 	GDemon::RiOpenRes res;
 
 	if (sd_ == 0) {
@@ -664,6 +664,8 @@ GDemon::RiOpenRes GDemonClient::riOpen() {
 	}
 
 	RiOpenReq req;
+	req.client_ = client;
+	req.intfName_ = intfName;
 	{
 		GSpinLockGuard guard(sendBufLock_);
 		int32_t encLen = req.encode(sendBuf_, MaxBufSize);

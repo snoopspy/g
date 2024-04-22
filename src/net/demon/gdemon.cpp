@@ -1315,6 +1315,16 @@ int32_t GDemon::RiOpenReq::encode(pchar buffer, int32_t size) {
 
 	buf += sizeof(Header); size -= sizeof(Header);
 
+	// client_
+	int32_t len = client_.size();
+	*pint32_t(buf) = int32_t(len); buf += sizeof(len); size -= sizeof(len);
+	memcpy(buf, client_.data(), len); buf += len; size -= len;
+
+	// intfName_
+	len = intfName_.size();
+	*pint32_t(buf) = int32_t(len); buf += sizeof(len); size -= sizeof(len);
+	memcpy(buf, intfName_.data(), len); buf += len; size -= len;
+
 	len_ = buf - buffer - sizeof(Header);
 	cmd_ = CmdRiOpen;
 	Header::encode(buffer, sizeof(Header));
@@ -1334,6 +1344,14 @@ int32_t GDemon::RiOpenReq::decode(pchar buffer, int32_t size) {
 		GTRACE("cmd_ is not CmdRiOpen %d", cmd_);
 		return -1;
 	}
+
+	// client_
+	int32_t len = *pint32_t(buf); buf += sizeof(len); size -= sizeof(len);
+	client_ = std::string(buf, len); buf += len; size -= len;
+
+	// intfName_
+	len = *pint32_t(buf); buf += sizeof(len); size -= sizeof(len);
+	intfName_ = std::string(buf, len); buf += len; size -= len;
 
 	if (size < 0) {
 		GTRACE("decode size is %d", size);

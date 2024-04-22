@@ -319,6 +319,8 @@ struct GDemon {
 	// rawip
 	//
 	struct RiOpenReq : Header {
+		std::string client_;
+		std::string intfName_;
 		int32_t encode(pchar buffer, int32_t size);
 		int32_t decode(pchar buffer, int32_t size);
 	};

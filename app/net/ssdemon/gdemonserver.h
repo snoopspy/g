@@ -174,6 +174,8 @@ struct GDemonRawIp : GDemon {
 
 	GDemonSession* session_;
 	bool active_{false};
+	std::string client_;
+	std::string intfName_;
 
 	RiOpenRes open(RiOpenReq req);
 	void close();
