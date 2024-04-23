@@ -1,3 +1,6 @@
+# make
+sudo apt install make
+
 # g++
 sudo apt install g++
 
