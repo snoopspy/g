@@ -1,3 +1,6 @@
+# iptables
+sudo apt install iptables
+
 # libpcap-dev
 sudo apt install libpcap-dev
 
