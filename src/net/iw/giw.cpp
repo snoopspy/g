@@ -59,11 +59,13 @@ bool GIw::open(QString intfName) {
 		return false;
 	}
 
+	//			* 2412.0 MHz [1] (20.0 dBm)
 	while (true) {
 		if (std::fgets(buf, BufSize, p) == nullptr) break;
-		int freq, channel;
+		float freq;
+		int channel;
 		char additional[BufSize];
-		int res = sscanf(buf, "\t\t* %d MHz [%d] (%s)", &freq, &channel, additional);
+		int res = sscanf(buf, "\t\t\t* %f MHz [%d] (%s)", &freq, &channel, additional);
 		if (res >= 2) {
 			if (res >= 3 && strncmp(additional, "disabled", strlen("disabled")) == 0)
 				continue;
