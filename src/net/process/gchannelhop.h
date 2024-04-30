@@ -42,6 +42,7 @@ public:
 	~GChannelHop() override;
 
 protected:
+	bool firstOpen_{true};
 	GIw iw_;
 	GStateWaitEvent swe_;
 

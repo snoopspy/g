@@ -29,6 +29,10 @@ bool GChannelHop::doOpen() {
 		SET_ERR(GErr::Fail, iw_.error_);
 		return false;
 	}
+	if (firstOpen_) {
+		firstOpen_ = false;
+		qDebug() << iw_.channelList();
+	}
 	thread_.start();
 	return true;
 }
