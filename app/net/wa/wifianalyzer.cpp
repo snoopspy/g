@@ -97,7 +97,7 @@ void WifiAnalyzer::processCaptured(GPacket* packet) {
 				break;
 			}
 			case GBeaconHdr::TagDsParameterSet: {
-				char* p = pchar(tag->value());
+				gbyte* p = pbyte(tag->value());
 				channel = *p;
 				break;
 			}
