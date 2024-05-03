@@ -138,8 +138,8 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		qWarning() << QString("selectHost(%1) return false").arg(QString(mac));
 	}
 	GHostDb::Mode mode = dbItem.mode_;
-	if (adminTimeoutSec_ != 0 && mode == GHostDb::Default)
-		item->blockTime_ = hostValue->firstTime_ + adminTimeoutSec_;
+	if (admitTimeoutSec_ != 0 && mode == GHostDb::Default)
+		item->blockTime_ = hostValue->firstTime_ + admitTimeoutSec_;
 	else
 		item->blockTime_ = 0;
 
