@@ -138,7 +138,7 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 		qWarning() << QString("selectHost(%1) return false").arg(QString(mac));
 	}
 	GHostDb::Mode mode = dbItem.mode_;
-	if (admitTimeoutSec_ != 0 && mode == GHostDb::Default)
+	if (admitTimeoutSec_ != 0 && mode == GHostDb::Auto)
 		item->blockTime_ = hostValue->firstTime_ + admitTimeoutSec_;
 	else
 		item->blockTime_ = 0;
@@ -197,7 +197,7 @@ void HostAnalyzer::updateWidgetItem(GTreeWidgetItem* twi) {
 	bool prevBlock = policy == GArpBlock::Block;
 	bool block = false; // remove warning
 	switch(mode) {
-		case GHostDb::Default :
+		case GHostDb::Auto :
 			block = policy == GArpBlock::Block;
 			break;
 		case GHostDb::Allow :
@@ -225,7 +225,7 @@ void HostAnalyzer::updateWidgetItem(GTreeWidgetItem* twi) {
 		toolButton->setIcon(QIcon(":/img/play.png"));
 		toolButton->setChecked(false);
 	}
-	toolButton->setEnabled(mode == GHostDb::Default);
+	toolButton->setEnabled(mode == GHostDb::Auto);
 	QObject::connect(toolButton, &QToolButton::toggled, this, &HostAnalyzer::toolButton_toggled);
 }
 

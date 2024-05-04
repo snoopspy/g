@@ -19,7 +19,7 @@ HostDialog::HostDialog(QWidget* parent, GMac mac, HostAnalyzer* hostAnalyzer)
 		QLabel* lblAlias  = new QLabel("Alias", this); leAlias_ = new QLineEdit(dbItem.alias_, this);
 		QLabel* lblHost = new QLabel("Host", this); leHost_ = new QLineEdit(dbItem.host_, this);
 		QLabel* lblVendor = new QLabel("Vendor", this); leVendor_ = new QLineEdit(dbItem.vendor_, this);
-		QLabel* lblMode = new QLabel("Mode", this); cbMode_ = new QComboBox(this); cbMode_->addItems(QStringList{"Default", "Allow", "Block"});
+		QLabel* lblMode = new QLabel("Mode", this); cbMode_ = new QComboBox(this); cbMode_->addItems(QStringList{"Auto", "Allow", "Block"});
 		cbMode_->setCurrentIndex(int(dbItem.mode_));
 		QLabel* lblBlockTime = new QLabel("BlockTime", this); dteBlockTime_ = new QDateTimeEdit(this);
 
@@ -64,7 +64,7 @@ HostDialog::~HostDialog() {
 
 void HostDialog::setDateTimeEdit() {
 	GHostDb::Mode mode = GHostDb::Mode(cbMode_->currentIndex());
-	if (!ha_->active() || ha_->admitTimeoutSec_ == 0 || mode != GHostDb::Default) {
+	if (!ha_->active() || ha_->admitTimeoutSec_ == 0 || mode != GHostDb::Auto) {
 		dteBlockTime_->setEnabled(false);
 		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(0));
 		dteBlockTime_->setDisplayFormat("m");
@@ -114,7 +114,7 @@ void HostDialog::pbOk_clicked() {
 		Q_ASSERT(hostValue != nullptr);
 		HostAnalyzer::Item* haItem = ha_->getItem(hostValue);
 		haItem->state_ = HostAnalyzer::Item::Changed;
-		if (dbItem.mode_ == GHostDb::Default)
+		if (dbItem.mode_ == GHostDb::Auto)
 			haItem->blockTime_ = dteBlockTime_->dateTime().toSecsSinceEpoch();
 		else
 			haItem->blockTime_ = 0;

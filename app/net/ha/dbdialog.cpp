@@ -73,7 +73,7 @@ struct HostModel : QSqlQueryModel {
 			Q_ASSERT(hostValue != nullptr);
 			HostAnalyzer::Item* haItem = hostAnalyzer->getItem(hostValue);
 			haItem->state_ = HostAnalyzer::Item::Changed;
-			if (dbItem.mode_ == GHostDb::Default)
+			if (dbItem.mode_ == GHostDb::Auto)
 				haItem->blockTime_ = hostValue->firstTime_ + hostAnalyzer->admitTimeoutSec_;
 			else
 				haItem->blockTime_ = 0;

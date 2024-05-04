@@ -44,7 +44,7 @@ public:
 	// Item
 	// --------------------------------------------------------------------------
 	enum Mode {
-		Default = 0,
+		Auto = 0,
 		Allow = 1,
 		Block = 2
 	};
@@ -54,7 +54,7 @@ public:
 		QString alias_;
 		QString host_;
 		QString vendor_;
-		Mode mode_{Default};
+		Mode mode_{Auto};
 
 		QString getDefaultName() {
 			if (alias_ != "") return alias_;
