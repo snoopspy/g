@@ -70,6 +70,7 @@ void ChWidget::setControl() {
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
+	tbDb_->setEnabled(!active);
 	tbFirefox_->setEnabled(!active && treeWidget_->selectedItems().count() != 0);
 	tbScreenSaver_->setEnabled(active);
 }
