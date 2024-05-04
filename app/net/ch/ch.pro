@@ -6,11 +6,13 @@ SOURCES += \
 	ch.cpp \
 	chwidget.cpp \
 	cookiehijack.cpp \
+	dbdialog.cpp \
 	webserver.cpp
 
 HEADERS += \
 	chwidget.h \
 	cookiehijack.h \
+	dbdialog.h \
 	webserver.h
 
 RESOURCES += $${PWD}/ch.qrc

@@ -2,5 +2,6 @@
 	<qresource prefix="/">
 		<file>img/db.png</file>
 		<file>img/firefox.png</file>
+		<file>img/search.png</file>
 	</qresource>
 </RCC>

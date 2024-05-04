@@ -141,8 +141,37 @@ void ChWidget::tbOption_clicked(bool checked) {
 	jo["propDialog"] << propDialog;
 }
 
+#include "dbdialog.h"
 void ChWidget::tbDb_clicked(bool checked) {
 	(void)checked;
+
+	bool dbOpened = cookieHijack_.cookieHijack_.active();
+	if (!dbOpened) {
+		if (!cookieHijack_.cookieHijack_.open()) {
+			QMessageBox::warning(this, "Error", cookieHijack_.cookieHijack_.err->msg());
+			cookieHijack_.cookieHijack_.close();
+			return;
+		}
+	}
+
+	DbDialog dbDialog(this, &cookieHijack_.cookieHijack_);
+	dbDialog.setModal(true);
+
+	QJsonObject& jo = GJson::instance();
+	jo["dbDialog"] >> dbDialog;
+	dbDialog.setPeriod();
+
+#ifdef Q_OS_ANDROID
+	dbDialog.showMaximized();
+#else // Q_OS_ANDROID
+	dbDialog.show();
+#endif // Q_OS_ANDROID
+	dbDialog.exec();
+
+	jo["dbDialog"] << dbDialog;
+
+	if (!dbOpened)
+		cookieHijack_.cookieHijack_.close();
 }
 
 void ChWidget::tbFirefox_clicked(bool checked) {

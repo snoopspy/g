@@ -70,10 +70,8 @@ protected:
 	QRegularExpression reHost_;
 	QRegularExpression reCookie_;
 
-protected:
+public:
 	QSqlDatabase db_;
-
-protected:
 	QSqlQuery* insertQuery_{nullptr};
 
 public:

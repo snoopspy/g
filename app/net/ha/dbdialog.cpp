@@ -27,7 +27,7 @@ struct HostModel : QSqlQueryModel {
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
 		QVariant res = QSqlQueryModel::data(index, role);
 		if (role == Qt::DisplayRole) {
-			if (index.column() == 0) { // mac
+			if (index.column() == DbDialog::ColumnHostMac) {
 				GMac mac = res.toString();
 				return QString(mac);
 			}
