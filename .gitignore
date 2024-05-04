@@ -1,5 +1,5 @@
 android-build/
-build-*/
+build/
 bin/
 lib/g-d-test/
 lib/g-gui-d-test/
