@@ -39,6 +39,9 @@ public:
 public:
 	void closeEvent(QCloseEvent* event) override;
 
+public:
+	void launchFirefox(QString host, QString cookie);
+
 private slots:
 	void tbStart_clicked(bool checked = false);
 	void tbStop_clicked(bool checked = false);

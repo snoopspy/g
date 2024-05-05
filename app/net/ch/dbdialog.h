@@ -5,6 +5,7 @@
 #include <QDialog>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QPlainTextEdit>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QTabWidget>
@@ -13,6 +14,7 @@
 
 #include <GTableView>
 #include <GProp>
+#include <GSplitter>
 
 #include <GCookieHijack>
 
@@ -41,7 +43,9 @@ public:
 	QLineEdit* leSearchCookie_{nullptr};
 	QToolButton* tbSearchCookie_{nullptr};
 	QToolButton* tbFirefox_{nullptr};
+	GSplitter* splitter_{nullptr};
 	QTableView* cookieView_{nullptr};
+	QPlainTextEdit* plainTextEdit_{nullptr};
 
 	CookieModel* cookieModel_{nullptr};
 
@@ -68,11 +72,13 @@ public:
 		Custom
 	};
 	void setPeriod();
+	void setControl();
 
 public slots:
 	void tbSearchLog_clicked();
 	void cbPeriod_currentIndexChanged(int index);
-	void setControl();
+	void doSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+	void tbFirefox_clicked();
 
 public:
 	void propLoad(QJsonObject jo) override;

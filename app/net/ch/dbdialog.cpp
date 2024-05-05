@@ -1,5 +1,6 @@
 #include "dbdialog.h"
 
+#include <QItemSelectionModel>
 #include <QMessageBox>
 #include <QModelIndexList>
 #include <QSqlTableModel>
@@ -31,8 +32,12 @@ DbDialog::DbDialog(QWidget* parent, GCookieHijack* cookieHijack) : QDialog(paren
 	mainLayout_ = new QVBoxLayout;
 	mainLayout_->setContentsMargins(0, 0, 0, 0);
 	mainLayout_->setSpacing(0);
-	tabWidget_ = new QTabWidget(this);
 
+	splitter_ = new GSplitter(Qt::Vertical, this);
+	mainLayout_->addWidget(splitter_);
+	this->setLayout(mainLayout_);
+
+	tabWidget_ = new QTabWidget(this);
 	//
 	// Cookie
 	//
@@ -74,13 +79,17 @@ DbDialog::DbDialog(QWidget* parent, GCookieHijack* cookieHijack) : QDialog(paren
 		cookieVLayout_->addWidget(cookieView_);
 
 	tabWidget_->addTab(cookieWidget_, "Cookie");
-	mainLayout_->addWidget(tabWidget_);
-	this->setLayout(mainLayout_);
+	splitter_->addWidget(tabWidget_);
 
-//	QObject::connect(logView_, &QTableView::selected, this, logView_selected);
+	plainTextEdit_= new QPlainTextEdit(this);
+	splitter_->addWidget(plainTextEdit_);
+
 	QObject::connect(tbSearchCookie_, &QToolButton::clicked, this, &DbDialog::tbSearchLog_clicked);
 	QObject::connect(cbPeriod_, SIGNAL(currentIndexChanged(int)), this, SLOT(cbPeriod_currentIndexChanged(int)));
 	QObject::connect(leSearchCookie_, &QLineEdit::returnPressed, this, &DbDialog::tbSearchLog_clicked);
+	QObject::connect(tbFirefox_, &QToolButton::clicked, this, &DbDialog::tbFirefox_clicked);
+
+	setControl();
 }
 
 DbDialog::~DbDialog() {
@@ -156,6 +165,19 @@ void DbDialog::setPeriod() {
 	dteEnd_->setDateTime(endTime);
 }
 
+void DbDialog::setControl() {
+	tbFirefox_->setEnabled(false);
+	QItemSelectionModel* model = cookieView_->selectionModel();
+	if (model == nullptr)
+		return;
+	if (model->selectedIndexes().count() == 0)
+		return;
+	const QModelIndex& modelIndex = model->selectedIndexes().at(0);
+	QString cookie = modelIndex.siblingAtColumn(ColumnCookie).data().toString();
+	plainTextEdit_->setPlainText(cookie);
+	tbFirefox_->setEnabled(true);
+}
+
 void DbDialog::tbSearchLog_clicked() {
 	QMutexLocker ml(cookieHijack_);
 	QSqlQuery query(cookieHijack_->db_);
@@ -201,6 +223,11 @@ void DbDialog::tbSearchLog_clicked() {
 	cookieView_->hideColumn(ColumnMac);
 	cookieView_->resizeColumnsToContents();
 	cookieView_->update();
+
+	QItemSelectionModel* model = cookieView_->selectionModel();
+	QObject::connect(model, &QItemSelectionModel::selectionChanged, this, &DbDialog::doSelectionChanged);
+
+	setControl();
 }
 
 void DbDialog::cbPeriod_currentIndexChanged(int index) {
@@ -208,8 +235,28 @@ void DbDialog::cbPeriod_currentIndexChanged(int index) {
 	setPeriod();
 }
 
-void DbDialog::setControl() {
-	//this->tbFirefox_->setEnabled(logView_->selectedIndexes().size() > 0);
+void DbDialog::doSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected) {
+	(void)selected;
+	(void)deselected;
+	qDebug() << selected.data();
+	qDebug() << deselected.data();
+	setControl();
+}
+
+#include "chwidget.h"
+void DbDialog::tbFirefox_clicked() {
+	QItemSelectionModel* model = cookieView_->selectionModel();
+	if (model == nullptr)
+		return;
+	if (model->selectedIndexes().count() == 0)
+		return;
+	const QModelIndex& modelIndex = model->selectedIndexes().at(0);
+	QString host = modelIndex.siblingAtColumn(ColumnHost).data().toString();
+	QString cookie = modelIndex.siblingAtColumn(ColumnCookie).data().toString();
+
+	ChWidget* chWidget = dynamic_cast<ChWidget*>(parent());
+	Q_ASSERT(chWidget != nullptr);
+	chWidget->launchFirefox(host, cookie);
 }
 
 void DbDialog::propLoad(QJsonObject jo) {
@@ -218,6 +265,7 @@ void DbDialog::propLoad(QJsonObject jo) {
 	dteEnd_->setDateTime(QDateTime::fromString(jo["endTime"].toString(), "yy/MM/dd hh:mm"));
 	leSearchCookie_->setText(jo["searchLog"].toString());
 	cbPeriod_->setCurrentIndex(jo["searchPeriod"].toInt(int(Today)));
+	jo["splitter"] >> GJson::splitterSizes(splitter_);
 }
 
 void DbDialog::propSave(QJsonObject& jo) {
@@ -226,4 +274,5 @@ void DbDialog::propSave(QJsonObject& jo) {
 	jo["endTime"] = dteEnd_->dateTime().toString("yy/MM/dd hh:mm");
 	jo["searchLog"] = leSearchCookie_->text();
 	jo["searchPeriod"] = cbPeriod_->currentIndex();
+	jo["splitter"] << GJson::splitterSizes(splitter_);
 }

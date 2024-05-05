@@ -95,6 +95,73 @@ void ChWidget::closeEvent(QCloseEvent* event) {
 #endif // Q_OS_ANDROID
 }
 
+void ChWidget::launchFirefox(QString host, QString cookie) {
+	//
+	// Kill Firefox
+	//
+	{
+#ifdef Q_OS_WIN
+		// taskkill /IM firefox.exe /F
+		QString  program = "taskkill";
+		QStringList arguments;
+		arguments.append("/IM");
+		arguments.append("firefox.exe");
+		arguments.append("/F");
+#else // Q_OS_WIN
+		QString program = "su";
+		QStringList arguments;
+		arguments.append("-c");
+#ifdef Q_OS_ANDROID
+		arguments.append("pkill firefox");
+#else // Q_OS_ANDROID
+		arguments.append("pkill org.mozilla.firefox");
+#endif // Q_OS_ANDROID
+#endif // Q_OS_WIN
+		QProcess::execute(program, arguments);
+	}
+
+	//
+	// Set Cookie using ffce
+	//
+	if (host.startsWith(cookieHijack_.prefix_ + "."))
+		host = host.mid(cookieHijack_.prefix_.size());
+	qsizetype i = host.indexOf(":");
+	if (i != -1)
+		host = host.left(i);
+
+#ifdef Q_OS_WIN
+	QString program = "ffce.exe";
+#else // Q_OS_WIN
+	QString program = "ffce";
+#endif // Q_OS_WIN
+	QStringList arguments;
+	arguments.push_back(cookieHijack_.firefoxDir_);
+	arguments.push_back(host);
+	arguments.push_back("'" + cookie + "'");
+	qDebug() << program << arguments; // gilgil temp 2024.04.15
+	if (GApp::prepareProcess(program, arguments))
+		QProcess::execute(program, arguments);
+	qDebug() << program << arguments; // gilgil temp 2024.04.15
+	QProcess::execute(program, arguments);
+
+	//
+	// Launch FireFox
+	//
+	{
+		if (host.startsWith("."))
+			host = host.mid(1);
+#ifdef Q_OS_WIN
+		QProcess::startDetached("firefox.exe", QStringList{host});
+#else // Q_OS_WIN
+#ifdef Q_OS_ANDROID
+		QProcess::startDetached("am", QStringList{"start", "-n", "org.mozilla.firefox/org.mozilla.gecko.BrowserApp", host});
+#else // Q_OS_ANDROID
+		QProcess::startDetached("firefox", QStringList{host});
+#endif // Q_OS_ANDROID
+#endif // Q_OS_WIN
+	}
+}
+
 void ChWidget::tbStart_clicked(bool checked) {
 	(void)checked;
 
@@ -178,74 +245,11 @@ void ChWidget::tbDb_clicked(bool checked) {
 void ChWidget::tbFirefox_clicked(bool checked) {
 	(void)checked;
 
-	//
-	// Kill Firefox
-	//
-	{
-#ifdef Q_OS_WIN
-		// taskkill /IM firefox.exe /F
-		QString  program = "taskkill";
-		QStringList arguments;
-		arguments.append("/IM");
-		arguments.append("firefox.exe");
-		arguments.append("/F");
-#else // Q_OS_WIN
-		QString program = "su";
-		QStringList arguments;
-		arguments.append("-c");
-#ifdef Q_OS_ANDROID
-		arguments.append("pkill firefox");
-#else // Q_OS_ANDROID
-		arguments.append("pkill org.mozilla.firefox");
-#endif // Q_OS_ANDROID
-#endif // Q_OS_WIN
-		QProcess::execute(program, arguments);
-	}
-
-	//
-	// Set Cookie using ffce
-	//
 	if (treeWidget_->selectedItems().count() == 0) return;
 	GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
 	QString host = twi->text(ColumnHost);
-	if (host.startsWith(cookieHijack_.prefix_ + "."))
-		host = host.mid(cookieHijack_.prefix_.size());
-	qsizetype i = host.indexOf(":");
-	if (i != -1)
-		host = host.left(i);
 	QString cookie = twi->text(ColumnCookie);
-
-#ifdef Q_OS_WIN
-	QString program = "ffce.exe";
-#else // Q_OS_WIN
-	QString program = "ffce";
-#endif // Q_OS_WIN
-	QStringList arguments;
-	arguments.push_back(cookieHijack_.firefoxDir_);
-	arguments.push_back(host);
-	arguments.push_back("'" + cookie + "'");
-	qDebug() << program << arguments; // gilgil temp 2024.04.15
-	if (GApp::prepareProcess(program, arguments))
-		QProcess::execute(program, arguments);
-	qDebug() << program << arguments; // gilgil temp 2024.04.15
-	QProcess::execute(program, arguments);
-
-	//
-	// Launch FireFox
-	//
-	{
-		if (host.startsWith("."))
-			host = host.mid(1);
-#ifdef Q_OS_WIN
-		QProcess::startDetached("firefox.exe", QStringList{host});
-#else // Q_OS_WIN
-#ifdef Q_OS_ANDROID
-		QProcess::startDetached("am", QStringList{"start", "-n", "org.mozilla.firefox/org.mozilla.gecko.BrowserApp", host});
-#else // Q_OS_ANDROID
-		QProcess::startDetached("firefox", QStringList{host});
-#endif // Q_OS_ANDROID
-#endif // Q_OS_WIN
-	}
+	launchFirefox(host, cookie);
 }
 
 void ChWidget::tbScreenSaver_clicked(bool checked) {
