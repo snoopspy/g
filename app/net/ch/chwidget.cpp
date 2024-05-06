@@ -112,7 +112,7 @@ void ChWidget::launchFirefox(QString host, QString cookie) {
 		QStringList arguments;
 		arguments.append("-c");
 #ifdef Q_OS_ANDROID
-		arguments.append("pkill org.mozilla.firefox");
+		arguments.append("pkill -f org.mozilla.firefox");
 #else // Q_OS_ANDROID
 		arguments.append("pkill firefox");
 #endif // Q_OS_ANDROID
@@ -139,10 +139,9 @@ void ChWidget::launchFirefox(QString host, QString cookie) {
 	arguments.push_back(cookieHijack_.firefoxDir_);
 	arguments.push_back(host);
 	arguments.push_back("'" + cookie + "'");
-	qDebug() << program << arguments; // gilgil temp 2024.04.15
 	if (GApp::prepareProcess(program, arguments))
 		QProcess::execute(program, arguments);
-	qDebug() << program << arguments; // gilgil temp 2024.04.15
+	qDebug() << program << arguments;
 	QProcess::execute(program, arguments);
 
 	//
@@ -152,12 +151,12 @@ void ChWidget::launchFirefox(QString host, QString cookie) {
 		if (host.startsWith("."))
 			host = host.mid(1);
 #ifdef Q_OS_WIN
-		QProcess::startDetached("firefox.exe", QStringList{host});
+		QProcess::startDetached("firefox.exe", QStringList{"http://" + host});
 #else // Q_OS_WIN
 #ifdef Q_OS_ANDROID
-		QProcess::startDetached("am", QStringList{"start", "-n", "org.mozilla.firefox/org.mozilla.gecko.BrowserApp", host});
+		QProcess::startDetached("am", QStringList{"start", "-n", "org.mozilla.firefox/org.mozilla.gecko.BrowserApp", "http://" + host});
 #else // Q_OS_ANDROID
-		QProcess::startDetached("firefox", QStringList{host});
+		QProcess::startDetached("firefox", QStringList{"http://" + host});
 #endif // Q_OS_ANDROID
 #endif // Q_OS_WIN
 	}
