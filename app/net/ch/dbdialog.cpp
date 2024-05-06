@@ -167,6 +167,7 @@ void DbDialog::setPeriod() {
 
 void DbDialog::setControl() {
 	tbFirefox_->setEnabled(false);
+	plainTextEdit_->clear();
 	QItemSelectionModel* model = cookieView_->selectionModel();
 	if (model == nullptr)
 		return;
@@ -238,8 +239,6 @@ void DbDialog::cbPeriod_currentIndexChanged(int index) {
 void DbDialog::doSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected) {
 	(void)selected;
 	(void)deselected;
-	qDebug() << selected.data();
-	qDebug() << deselected.data();
 	setControl();
 }
 
@@ -250,9 +249,15 @@ void DbDialog::tbFirefox_clicked() {
 		return;
 	if (model->selectedIndexes().count() == 0)
 		return;
-	const QModelIndex& modelIndex = model->selectedIndexes().at(0);
-	QString host = modelIndex.siblingAtColumn(ColumnHost).data().toString();
-	QString cookie = modelIndex.siblingAtColumn(ColumnCookie).data().toString();
+	QString host, cookie;
+	{
+		const QModelIndex& modelIndex = model->selectedIndexes().at(0);
+		host = modelIndex.siblingAtColumn(ColumnHost).data().toString();
+	}
+	{
+		const QModelIndex& modelIndex = model->selectedIndexes().at(0);
+		cookie = modelIndex.siblingAtColumn(ColumnCookie).data().toString();
+	}
 
 	ChWidget* chWidget = dynamic_cast<ChWidget*>(parent());
 	Q_ASSERT(chWidget != nullptr);
