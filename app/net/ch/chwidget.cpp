@@ -118,6 +118,7 @@ void ChWidget::launchFirefox(QString host, QString cookie) {
 #endif // Q_OS_ANDROID
 #endif // Q_OS_WIN
 		QProcess::execute(program, arguments);
+		QThread::sleep(1); // waiting firefox process killed
 	}
 
 	//
