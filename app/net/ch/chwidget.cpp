@@ -112,9 +112,9 @@ void ChWidget::launchFirefox(QString host, QString cookie) {
 		QStringList arguments;
 		arguments.append("-c");
 #ifdef Q_OS_ANDROID
-		arguments.append("pkill firefox");
-#else // Q_OS_ANDROID
 		arguments.append("pkill org.mozilla.firefox");
+#else // Q_OS_ANDROID
+		arguments.append("pkill firefox");
 #endif // Q_OS_ANDROID
 #endif // Q_OS_WIN
 		QProcess::execute(program, arguments);
