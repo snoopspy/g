@@ -154,7 +154,7 @@ void ChWidget::launchFirefox(QString host, QString cookie) {
 		QProcess::startDetached("firefox.exe", QStringList{"http://" + host});
 #else // Q_OS_WIN
 #ifdef Q_OS_ANDROID
-		QProcess::startDetached("am", QStringList{"start", "-n", "org.mozilla.firefox/org.mozilla.gecko.BrowserApp", "http://" + host});
+		QProcess::startDetached("am", QStringList{"start", "--user", "0", "-n", "org.mozilla.firefox/org.mozilla.gecko.BrowserApp", "http://" + host});
 #else // Q_OS_ANDROID
 		QProcess::startDetached("firefox", QStringList{"http://" + host});
 #endif // Q_OS_ANDROID
