@@ -23,9 +23,14 @@ bool GArpSpoof::doOpen() {
 	arguments.append("arprecover.exe");
 	arguments.append("/F");
 #else // Q_OS_WIN
-	QString program = "pkill";
+	QString program = "su";
 	QStringList arguments;
-	arguments.append("arprecover");
+	arguments.append("-c");
+#ifdef Q_OS_ANDROID
+	arguments.append("pkill -f arprecover");
+#else // Q_OS_ANDROID
+	arguments.append("pkill arprecover");
+#endif // Q_OS_ANDROID
 #endif // Q_OS_WIN
 	GApp::prepareProcess(program, arguments);
 	QProcess::startDetached(program, arguments);
