@@ -59,6 +59,6 @@ cp $QTDIR/plugins/sqldrivers/libqsqlite.so plugins/sqldrivers/
 #
 # compress
 #
-tar czf ../snoopspy-$(sed 's/"//g' ../../version.txt).tar.gz *
+tar czf ../snoopspy-linux-$(sed 's/"//g' ../../version.txt).tar.gz *
 cd ..
 cd ..
