@@ -92,6 +92,6 @@ rem compress
 rem 
 set /p VERSION=<..\..\version.txt
 set VERSION=%VERSION:"=%
-"C:\Program Files\7-Zip\7z.exe" a ..\snoopspy-%VERSION%.zip *
+"C:\Program Files\7-Zip\7z.exe" a ..\snoopspy-win-%VERSION%.zip *
 cd ..
 cd ..
