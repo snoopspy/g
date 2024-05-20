@@ -20,6 +20,9 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	httpSiteList_.push_back("nate.com");
 	httpSiteList_.push_back("jandi.com");
 	httpSiteList_.push_back("11st.co.kr");
+	httpSiteList_.push_back("wavve.com");
+	httpSiteList_.push_back("nexon.com");
+	httpSiteList_.push_back("op.gg");
 
 	httpsSiteList_.push_back("twitter.com");
 
@@ -30,6 +33,8 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 #else //
 	firefoxDir_ = QDir::homePath() +"/.mozilla/firefox";
 #endif // Q_OS_ANDROID
+
+	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, this, &CookieHijack::hijack, Qt::DirectConnection);
 
 	QObject::connect(&autoArpSpoof_, &GAutoArpSpoof::captured, &dnsBlock_, &GDnsBlock::block, Qt::DirectConnection);
 
@@ -111,7 +116,7 @@ bool CookieHijack::doOpen() {
 	dnsBlock_.dnsBlockItems_.clear();
 	if (prefix_ != "") {
 		dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, prefix_ + ".*", QString(intf->ip())));
-		dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "_*", QString(intf->ip()))); // _4433._https.wifi.naver.com
+		dnsBlock_.dnsBlockItems_.push_back(new GDnsBlockItem(this, "_*", QString(intf->ip()))); // _4433._https.wwww.naver.com
 	}
 
 	bool res = GGraph::doOpen();

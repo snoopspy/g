@@ -85,6 +85,9 @@ public:
 	QList<Site> totalSiteList_;
 	QStringList getHttpResponse(int siteNo);
 
+public slots:
+	void hijack(GPacket* packet);
+
 public:
 	void propLoad(QJsonObject jo) override;
 	void propSave(QJsonObject& jo) override;
