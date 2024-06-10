@@ -5,7 +5,7 @@
 #include <QHeaderView>
 #include <QScroller>
 
-#include "base/widget/gitemdelegate.h"
+#include "gitemdelegate.h"
 
 // ----------------------------------------------------------------------------
 // GTableWidget

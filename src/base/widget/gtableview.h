@@ -14,7 +14,7 @@
 
 #include <QTableView>
 
-#include "base/widget/gitemdelegate.h"
+#include "gitemdelegate.h"
 
 // ----------------------------------------------------------------------------
 // GTableView
