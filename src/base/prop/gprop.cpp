@@ -101,10 +101,13 @@ bool GProp::propLoad(QJsonObject jo, QMetaProperty mpro) {
 		if (parent != nullptr) {
 			QString s = variant.toString();
 			if (s != "") {
-				GObj* node = parent->findChild<GObj*>(s);
-				if (node != nullptr) {
-					GObjPtr objPtr = node;
-					res = object->setProperty(propName, QVariant::fromValue<GObjPtr>(objPtr));
+				QObject* qobj = parent->findChild<QObject*>(s);
+				if (qobj != nullptr) {
+					GObj* node = dynamic_cast<GObj*>(qobj);
+					if (node != nullptr) {
+						GObjPtr objPtr = node;
+						res = object->setProperty(propName, QVariant::fromValue<GObjPtr>(objPtr));
+					}
 				}
 			} else
 				res = true;
