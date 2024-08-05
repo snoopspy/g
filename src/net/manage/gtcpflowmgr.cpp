@@ -74,8 +74,10 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 
 		if (currentRevTcpFlowVal_ == nullptr) {
 			currentTcpFlowVal_->state_ = TcpFlowValue::Half;
+			currentTcpFlowVal_->direction_ = TcpFlowValue::ClientServer;
 		} else {
 			currentTcpFlowVal_->state_ = TcpFlowValue::Full;
+			currentTcpFlowVal_->direction_ = TcpFlowValue::ServerClient;
 			currentRevTcpFlowVal_->state_ = TcpFlowValue::Full;
 		}
 
@@ -87,6 +89,8 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 	}
 	Q_ASSERT(currentTcpFlowVal_ != nullptr);
 	currentTcpFlowVal_->lastTime_ = packet->ts_.tv_sec;
+	currentTcpFlowVal_->packets_++;
+	currentTcpFlowVal_->bytes_ += packet->buf_.size_;
 
 	if ((tcpHdr->flags() & (GTcpHdr::Rst | GTcpHdr::Fin)) != 0) {
 		TcpFlowValue::State state = (tcpHdr->flags() & GTcpHdr::Rst) ? TcpFlowValue::Rst : TcpFlowValue::Fin;

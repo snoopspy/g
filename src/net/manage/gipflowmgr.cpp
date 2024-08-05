@@ -67,8 +67,10 @@ void GIpFlowMgr::manage(GPacket* packet) {
 
 		if (currentRevIpFlowVal_ == nullptr) {
 			currentIpFlowVal_->state_ = IpFlowValue::Half;
+			currentIpFlowVal_->direction_ = IpFlowValue::ClientServer;
 		} else {
 			currentIpFlowVal_->state_ = IpFlowValue::Full;
+			currentIpFlowVal_->direction_ = IpFlowValue::ServerClient;
 			currentRevIpFlowVal_->state_ = IpFlowValue::Full;
 		}
 
@@ -81,6 +83,8 @@ void GIpFlowMgr::manage(GPacket* packet) {
 	}
 	Q_ASSERT(currentIpFlowVal_ != nullptr);
 	currentIpFlowVal_->lastTime_ = packet->ts_.tv_sec;
+	currentIpFlowVal_->packets_++;
+	currentIpFlowVal_->bytes_ += packet->buf_.size_;
 
 	emit managed(packet);
 }

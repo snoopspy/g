@@ -40,6 +40,14 @@ public:
 			Fin
 		} state_;
 
+		enum Direction {
+			ClientServer,
+			ServerClient
+		} direction_;
+
+		quint64 packets_{0};
+		quint64 bytes_{0};
+
 		static struct TcpFlowValue* allocate(size_t totalMemSize) {
 			TcpFlowValue* res = reinterpret_cast<TcpFlowValue*>(malloc(sizeof(TcpFlowValue) + totalMemSize));
 			new (res) TcpFlowValue;

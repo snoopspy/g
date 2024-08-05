@@ -34,6 +34,14 @@ public:
 			Full
 		} state_;
 
+		enum Direction {
+			ClientServer,
+			ServerClient
+		} direction_;
+
+		quint64 packets_{0};
+		quint64 bytes_{0};
+
 		static struct UdpFlowValue* allocate(size_t totalMemSize) {
 			UdpFlowValue* udpFlowValue = PUdpFlowValue(malloc(sizeof(UdpFlowValue) + totalMemSize));
 			new (udpFlowValue) UdpFlowValue;

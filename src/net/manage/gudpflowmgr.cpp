@@ -72,8 +72,10 @@ void GUdpFlowMgr::manage(GPacket* packet) {
 
 		if (currentRevUdpFlowVal_ == nullptr) {
 			currentUdpFlowVal_->state_ = UdpFlowValue::Half;
+			currentUdpFlowVal_->direction_ = UdpFlowValue::ClientServer;
 		} else {
 			currentUdpFlowVal_->state_ = UdpFlowValue::Full;
+			currentUdpFlowVal_->direction_ = UdpFlowValue::ServerClient;
 			currentRevUdpFlowVal_->state_ = UdpFlowValue::Full;
 		}
 
@@ -85,6 +87,9 @@ void GUdpFlowMgr::manage(GPacket* packet) {
 	}
 	Q_ASSERT(currentUdpFlowVal_ != nullptr);
 	currentUdpFlowVal_->lastTime_ = packet->ts_.tv_sec;
+	currentUdpFlowVal_->packets_++;
+	currentUdpFlowVal_->bytes_ += packet->buf_.size_;
+
 
 	emit managed(packet);
 }

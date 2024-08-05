@@ -34,6 +34,14 @@ public:
 			Full
 		} state_;
 
+		enum Direction {
+			ClientServer,
+			ServerClient
+		} direction_;
+
+		quint64 packets_{0};
+		quint64 bytes_{0};
+
 		static struct IpFlowValue* allocate(size_t totalMemSize) {
 			IpFlowValue* ipFlowValue = reinterpret_cast<IpFlowValue*>(malloc(sizeof(IpFlowValue) + totalMemSize));
 			new (ipFlowValue) IpFlowValue;
