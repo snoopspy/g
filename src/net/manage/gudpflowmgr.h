@@ -110,7 +110,7 @@ protected:
 public:
 	GPacketMgr::RequestItems requestItems_;
 
-protected:
+public:
 	FlowMap flowMap_;
 	void deleteOldFlowMaps(time_t now);
 

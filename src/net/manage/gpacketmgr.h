@@ -55,8 +55,8 @@ public:
 	// Value
 	// --------------------------------------------------------------------------
 	struct Value {
-		time_t firstTime_{0};
-		time_t lastTime_{0};
+		struct timeval firstTime_{0, 0};
+		struct timeval lastTime_{0 ,0};
 #ifdef _DEBUG
 		size_t totalMemSize_{0};
 #endif // _DEBUG

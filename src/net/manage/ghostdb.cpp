@@ -114,7 +114,7 @@ void GHostDb::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 }
 
 void GHostDb::hostDeleted(GMac mac, GHostMgr::HostValue* hostValue) {
-	insertLog(mac, hostValue->ip_, hostValue->firstTime_, hostValue->lastTime_);
+	insertLog(mac, hostValue->ip_, hostValue->firstTime_.tv_sec, hostValue->lastTime_.tv_sec);
 }
 
 void GHostDb::hostChanged(GMac mac, GHostMgr::HostValue* hostValue) {
