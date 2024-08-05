@@ -34,11 +34,7 @@ public:
 			Full
 		} state_;
 
-		enum Direction {
-			ClientServer,
-			ServerClient
-		} direction_;
-
+		Direction direction_;
 		quint64 packets_{0};
 		quint64 bytes_{0};
 

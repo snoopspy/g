@@ -67,10 +67,10 @@ void GIpFlowMgr::manage(GPacket* packet) {
 
 		if (currentRevIpFlowVal_ == nullptr) {
 			currentIpFlowVal_->state_ = IpFlowValue::Half;
-			currentIpFlowVal_->direction_ = IpFlowValue::ClientServer;
+			currentIpFlowVal_->direction_ = ClientToServer;
 		} else {
 			currentIpFlowVal_->state_ = IpFlowValue::Full;
-			currentIpFlowVal_->direction_ = IpFlowValue::ServerClient;
+			currentIpFlowVal_->direction_ = ServerToClient;
 			currentRevIpFlowVal_->state_ = IpFlowValue::Full;
 		}
 

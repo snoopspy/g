@@ -74,10 +74,10 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 
 		if (currentRevTcpFlowVal_ == nullptr) {
 			currentTcpFlowVal_->state_ = TcpFlowValue::Half;
-			currentTcpFlowVal_->direction_ = TcpFlowValue::ClientServer;
+			currentTcpFlowVal_->direction_ = ClientToServer;
 		} else {
 			currentTcpFlowVal_->state_ = TcpFlowValue::Full;
-			currentTcpFlowVal_->direction_ = TcpFlowValue::ServerClient;
+			currentTcpFlowVal_->direction_ = ServerToClient;
 			currentRevTcpFlowVal_->state_ = TcpFlowValue::Full;
 		}
 

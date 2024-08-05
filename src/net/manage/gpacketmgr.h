@@ -22,6 +22,12 @@ struct G_EXPORT GPacketMgr : GStateObj {
 	Q_PROPERTY(long checkIntervalSec MEMBER checkIntervalSec_)
 
 public:
+	enum Direction {
+		ClientToServer,
+		ServerToClient
+	};
+
+public:
 	long checkIntervalSec_{1}; // 1 second
 
 public:

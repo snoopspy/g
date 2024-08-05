@@ -72,10 +72,10 @@ void GUdpFlowMgr::manage(GPacket* packet) {
 
 		if (currentRevUdpFlowVal_ == nullptr) {
 			currentUdpFlowVal_->state_ = UdpFlowValue::Half;
-			currentUdpFlowVal_->direction_ = UdpFlowValue::ClientServer;
+			currentUdpFlowVal_->direction_ = ClientToServer;
 		} else {
 			currentUdpFlowVal_->state_ = UdpFlowValue::Full;
-			currentUdpFlowVal_->direction_ = UdpFlowValue::ServerClient;
+			currentUdpFlowVal_->direction_ = ServerToClient;
 			currentRevUdpFlowVal_->state_ = UdpFlowValue::Full;
 		}
 
