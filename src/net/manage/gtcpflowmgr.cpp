@@ -82,6 +82,7 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 		}
 
 		it = flowMap_.insert(currentTcpFlowKey_, currentTcpFlowVal_);
+		currentPacket_ = packet;
 		for (Managable* manager: managables_)
 			manager->tcpFlowCreated(currentTcpFlowKey_, currentTcpFlowVal_);
 	} else {

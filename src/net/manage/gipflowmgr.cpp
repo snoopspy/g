@@ -75,6 +75,7 @@ void GIpFlowMgr::manage(GPacket* packet) {
 		}
 
 		it = flowMap_.insert(currentIpFlowKey_, currentIpFlowVal_);
+		currentPacket_ = packet;
 		for (Managable* manager: managables_)
 			manager->ipFlowCreated(currentIpFlowKey_, currentIpFlowVal_);
 

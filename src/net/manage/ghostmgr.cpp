@@ -183,6 +183,7 @@ void GHostMgr::manage(GPacket* packet) {
 			currentHostVal_->vendor_ = vendor;
 
 			it = hostMap_.insert(currentMac_, currentHostVal_);
+			currentPacket_ = packet;
 			for (Managable* manager: managables_)
 				manager->hostCreated(currentMac_, currentHostVal_);
 		} else {
@@ -203,6 +204,7 @@ void GHostMgr::manage(GPacket* packet) {
 			currentHostVal_ = it.value();
 			if (changed) {
 				qDebug() << QString("changed %1 %2 %3 %4").arg(QString(it.key())).arg(QString(hv->ip_)).arg(hv->host_).arg(hv->vendor_); // gilgil temp 2022.03.07
+				currentPacket_ = packet;
 				for (Managable* manager: managables_)
 					manager->hostChanged(currentMac_, currentHostVal_);
 			}

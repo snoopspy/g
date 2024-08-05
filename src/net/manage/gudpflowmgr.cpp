@@ -33,7 +33,7 @@ void GUdpFlowMgr::deleteOldFlowMaps(time_t now) {
 		if (elapsed >= timeout) {
 			GFlow::UdpFlowKey udpFlowKey = it.key();
 			for (Managable* manager: managables_)
-				manager->udpFlowCreated(udpFlowKey, udpFlowValue);
+				manager->udpFlowDeleted(udpFlowKey, udpFlowValue);
 			it = flowMap_.erase(it);
 			continue;
 		}
@@ -80,6 +80,7 @@ void GUdpFlowMgr::manage(GPacket* packet) {
 		}
 
 		it = flowMap_.insert(currentUdpFlowkey_, currentUdpFlowVal_);
+		currentPacket_ = packet;
 		for (Managable* manager: managables_)
 			manager->udpFlowCreated(currentUdpFlowkey_, currentUdpFlowVal_);
 	} else {

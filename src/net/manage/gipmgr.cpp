@@ -88,6 +88,7 @@ void GIpMgr::processIp(GPacket* packet, GIp ip) {
 			currentIpVal_->firstTime_ = currentIpVal_->lastTime_ = packet->ts_.tv_sec;
 
 			it = ipMap_.insert(currentIp_, currentIpVal_);
+			currentPacket_ = packet;
 			for (Managable* manager: managables_)
 				manager->ipCreated(currentIp_, currentIpVal_);
 		}
