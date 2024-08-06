@@ -53,10 +53,11 @@ struct G_EXPORT GIp final {
 		return prefix >= 0xE0 && prefix < 0xF0;
 	}
 
-	bool isPrivate() const { // 10.0.0.0/24, , 192.168.0.0/16
-		if ((ip_ & 0xFF000000) == 0x0A000000) return true; // 10.0.0.0/8
-		if ((ip_ & 0xFFFF0000) == 0xAC200000) return true; // 172.16.0.0/16
+	bool isPrivate() const {
 		if ((ip_ & 0xFFFF0000) == 0xC0A80000) return true; // 192.168.0.0/16
+		if ((ip_ & 0xFFFF0000) == 0xAC200000) return true; // 172.16.0.0/16
+		if ((ip_ & 0xFF000000) == 0x0A000000) return true; // 10.0.0.0/8
+		return false;
 	}
 
 protected:
