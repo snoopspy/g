@@ -22,6 +22,10 @@ struct G_EXPORT GPacketMgr : GStateObj {
 	Q_PROPERTY(long checkIntervalSec MEMBER checkIntervalSec_)
 
 public:
+#ifdef _DEBUG
+	uint32_t canary_{0x43434343}; // CCCC
+#endif
+
 	enum Direction {
 		ClientToServer,
 		ServerToClient

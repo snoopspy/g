@@ -45,13 +45,13 @@ public:
 		quint64 bytes_{0};
 
 		static struct TcpFlowValue* allocate(size_t totalMemSize) {
-			TcpFlowValue* res = reinterpret_cast<TcpFlowValue*>(malloc(sizeof(TcpFlowValue) + totalMemSize));
-			new (res) TcpFlowValue;
+			TcpFlowValue* tcpFlowValue = PTcpFlowValue(malloc(sizeof(TcpFlowValue) + totalMemSize));
+			new (tcpFlowValue) TcpFlowValue;
 #ifdef _DEBUG
-			res->totalMemSize_ = totalMemSize;
-			memset(pbyte(res) + sizeof(TcpFlowValue), 'A', totalMemSize);
+			tcpFlowValue->totalMemSize_ = totalMemSize;
+			memset(pbyte(tcpFlowValue) + sizeof(TcpFlowValue), 'A', totalMemSize);
 #endif // _DEBUG
-			return res;
+			return tcpFlowValue;
 		}
 
 		static void deallocate(TcpFlowValue* tcpFlowValue) {
@@ -64,6 +64,7 @@ public:
 
 		void* mem(size_t offset) { return pbyte(this) + sizeof(TcpFlowValue) + offset; }
 	};
+	typedef TcpFlowValue *PTcpFlowValue;
 
 public:
 	// --------------------------------------------------------------------------
@@ -84,7 +85,7 @@ public:
 	} managables_;
 	// --------------------------------------------------------------------------
 
-protected:
+public:
 	// --------------------------------------------------------------------------
 	// FlowMap
 	// --------------------------------------------------------------------------

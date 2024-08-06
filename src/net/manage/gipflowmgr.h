@@ -39,7 +39,7 @@ public:
 		quint64 bytes_{0};
 
 		static struct IpFlowValue* allocate(size_t totalMemSize) {
-			IpFlowValue* ipFlowValue = reinterpret_cast<IpFlowValue*>(malloc(sizeof(IpFlowValue) + totalMemSize));
+			IpFlowValue* ipFlowValue = PIpFlowValue(malloc(sizeof(IpFlowValue) + totalMemSize));
 			new (ipFlowValue) IpFlowValue;
 #ifdef _DEBUG
 			ipFlowValue->totalMemSize_ = totalMemSize;
@@ -58,6 +58,7 @@ public:
 
 		void* mem(size_t offset) { return pbyte(this) + sizeof(IpFlowValue) + offset; }
 	};
+	typedef IpFlowValue *PIpFlowValue;
 
 public:
 	// --------------------------------------------------------------------------
@@ -78,7 +79,7 @@ public:
 	} managables_;
 	// --------------------------------------------------------------------------
 
-protected:
+public:
 	// --------------------------------------------------------------------------
 	// FlowMap
 	// --------------------------------------------------------------------------
