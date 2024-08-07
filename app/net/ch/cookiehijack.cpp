@@ -158,6 +158,10 @@ QStringList CookieHijack::getHttpResponse(int siteNo) {
 	return res;
 }
 
+void CookieHijack::hijack(GPacket* packet) {
+	(void)packet; // gilgil temp 2024.08.08
+}
+
 void CookieHijack::propLoad(QJsonObject jo) {
 	GProp::propLoad(jo);
 }
