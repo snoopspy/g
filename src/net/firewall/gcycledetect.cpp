@@ -48,11 +48,12 @@ bool GCycleDetect::doOpen() {
 	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request(this, sizeof(Item*));
 	tcpFlowMgr_->managables_.insert(this);
 
+	tcpMap_.clear();
+
 	return true;
 }
 
 bool GCycleDetect::doClose() {
-	tcpMap_.clear();
 	return true;
 }
 
@@ -69,7 +70,7 @@ void GCycleDetect::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 	uint8_t ttl = ipHdr->ttl();
 	new (item) Item(ttl);
 
-	qDebug() << QString("Key %1 > %2 ttl=%3").arg(QString(tcpFlowKey.sip_)).arg(QString(tcpFlowKey.dip_)).arg(QString::number(ttl));
+	qDebug() << QString("Key %1 > %2:%3 ttl=%4").arg(QString(tcpFlowKey.sip_)).arg(QString(tcpFlowKey.dip_)).arg(tcpFlowKey.dport_).arg(QString::number(ttl));
 	GCycleItemKey key(tcpFlowKey.sip_, tcpFlowKey.dip_, tcpFlowKey.dport_, ttl);
 	GCycleMap::iterator it = tcpMap_.find(key);
 	if (it == tcpMap_.end()) {
@@ -83,19 +84,23 @@ void GCycleDetect::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 
 void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
 	qDebug() << QString("%1:%2 > %3:%4").arg(QString(tcpFlowKey.sip_)).arg(QString::number(tcpFlowKey.sport_)).arg(QString(tcpFlowKey.dip_)).arg(QString::number(tcpFlowKey.dport_));
+
 	Item* item = getItem(tcpFlowValue);
 	bool clientToServer = tcpFlowValue->direction_ == GPacketMgr::ClientToServer;
 	if (!clientToServer) {
 		tcpFlowKey = tcpFlowKey.reverse();
-		tcpFlowMgr_->flowMap_.find(tcpFlowKey);
-		if (tcpFlowValue == nullptr) return;
-		item = getItem(tcpFlowValue);
+		GTcpFlowMgr::FlowMap::iterator it = tcpFlowMgr_->flowMap_.find(tcpFlowKey);
+		if (it == tcpFlowMgr_->flowMap_.end()) return;
+		GTcpFlowMgr::TcpFlowValue* revTcpFlowValue = it.value();
+		Q_ASSERT(revTcpFlowValue != nullptr);
+		item = getItem(revTcpFlowValue);
 	}
 
 	uint8_t ttl = item->ttl_;
-	qDebug() << QString("Key %1 > %2 ttl=%3").arg(QString(tcpFlowKey.sip_)).arg(QString(tcpFlowKey.dip_)).arg(QString::number(ttl));
+	qDebug() << QString("Key %1 > %2:%3 ttl=%4").arg(QString(tcpFlowKey.sip_)).arg(QString(tcpFlowKey.dip_)).arg(tcpFlowKey.dport_).arg(QString::number(ttl));
 	GCycleItemKey key(tcpFlowKey.sip_, tcpFlowKey.dip_, tcpFlowKey.dport_, ttl);
 	GCycleMap::iterator it = tcpMap_.find(key);
+	qDebug() << (it == tcpMap_.end());
 	if (it == tcpMap_.end()) {
 		GCycleItem citem;
 		it = tcpMap_.insert(key, citem);
