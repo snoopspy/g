@@ -31,6 +31,7 @@ protected:
 	void loadConvert();
 	void loadDelay();
 	void loadFilter();
+	void loadFirewall();
 	void loadManage();
 	void loadProcess();
 	void loadWrite();

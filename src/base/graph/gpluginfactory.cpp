@@ -23,6 +23,7 @@ void GPluginFactory::loadDefault() {
 	loadChange();
 	loadDelay();
 	loadFilter();
+	loadFirewall();
 	loadManage();
 	loadProcess();
 	loadWrite();
@@ -186,6 +187,20 @@ void GPluginFactory::loadFilter() {
 
 	ItemCategory* category = new ItemCategory("Filter");
 	category->items_.push_back(new ItemNode("GBpFilter"));
+
+	items_.push_back(category);
+}
+
+// ----------------------------------------------------------------------------
+// Firewall
+// ----------------------------------------------------------------------------
+#include <GCycleDetect>
+
+void GPluginFactory::loadFirewall() {
+	qRegisterMetaType<GCycleDetect*>();
+
+	ItemCategory* category = new ItemCategory("Firewall");
+	category->items_.push_back(new ItemNode("GCycleDetect"));
 
 	items_.push_back(category);
 }

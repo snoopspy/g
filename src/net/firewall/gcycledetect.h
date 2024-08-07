@@ -1,0 +1,99 @@
+#pragma once
+
+#include <GStateObj>
+#include <GPacket>
+#include <GTcpFlowMgr>
+
+// ----------------------------------------------------------------------------
+// GCycleItemKey
+// ----------------------------------------------------------------------------
+struct GCycleItemKey {
+	GCycleItemKey(GIp clientIp, GIp serverIp, uint16_t serverPort, uint8_t ttl) :
+		clientIp_(clientIp), serverIp_(serverIp), serverPort_(serverPort), ttl_(ttl) {}
+	GIp clientIp_;
+	GIp serverIp_;
+	uint16_t serverPort_;
+	uint8_t ttl_;
+
+	bool operator < (const GCycleItemKey& r) const {
+		if (this->clientIp_ < r.clientIp_) return true;
+		if (this->clientIp_ > r.clientIp_) return false;
+		if (this->serverIp_ < r.serverIp_) return true;
+		if (this->serverIp_ > r.serverIp_) return false;
+		if (this->serverPort_ < r.serverPort_) return true;
+		if (this->serverPort_ > r.serverPort_) return false;
+		if (this->ttl_ < r.ttl_) return true;
+		return false;
+	}
+};
+
+// ----------------------------------------------------------------------------
+// GCycleItem
+// ----------------------------------------------------------------------------
+struct GCycleItem {
+	struct TimevalList : QList<struct timeval> {
+		double diffAvg_;
+		void check(QString prefix);
+	} firstTimes_, lastTimes_;
+
+	struct Quint64List : QList<quint64> {
+		double diffAvg_;
+		void check(QString prefix);
+	} txPackets_, txBytes_, rxPackets_, rxBytes_;
+};
+
+// ----------------------------------------------------------------------------
+// GCycleMap
+// ----------------------------------------------------------------------------
+struct GCycleMap : QMap<GCycleItemKey, GCycleItem> {
+};
+
+// ----------------------------------------------------------------------------
+// GCycleDetect
+// ----------------------------------------------------------------------------
+struct G_EXPORT GCycleDetect : GStateObj, GTcpFlowMgr::Managable {
+	Q_OBJECT
+	Q_PROPERTY(QString prop MEMBER prop_)
+	Q_PROPERTY(GObjPtr tcpFlowMgr READ getTcpFlowMgr WRITE setTcpFlowMgr)
+
+	GObjPtr getTcpFlowMgr() { return tcpFlowMgr_; }
+	void setTcpFlowMgr(GObjPtr value) { tcpFlowMgr_ = dynamic_cast<GTcpFlowMgr*>(value.data()); }
+
+public:
+	QString prop_;
+	GTcpFlowMgr* tcpFlowMgr_{nullptr};
+
+public:
+	Q_INVOKABLE GCycleDetect(QObject* parent = nullptr) : GStateObj(parent) {}
+	~GCycleDetect() override { close(); }
+
+protected:
+	bool doOpen() override;
+	bool doClose() override;
+
+public:
+	GCycleMap tcpMap_;
+
+public:
+	// --------------------------------------------------------------------------
+	// Item
+	// --------------------------------------------------------------------------
+	struct Item {
+		Item(uint8_t ttl) : ttl_(ttl) {}
+		uint8_t ttl_;
+	};
+	typedef Item* PItem;
+	// --------------------------------------------------------------------------
+
+	// GTcpFlowMgr::Managable
+	size_t tcpFlowOffset_{0};
+	Item* getItem(GTcpFlowMgr::TcpFlowValue* tcpFlowValue) { return PItem(tcpFlowValue->mem(tcpFlowOffset_)); }
+	void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
+	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
+
+public slots:
+	void detect(GPacket* packet);
+
+signals:
+	void detected(GPacket* packet);
+};
