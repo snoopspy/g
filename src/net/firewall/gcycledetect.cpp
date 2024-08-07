@@ -100,12 +100,9 @@ void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 	qDebug() << QString("Key %1 > %2:%3 ttl=%4").arg(QString(tcpFlowKey.sip_)).arg(QString(tcpFlowKey.dip_)).arg(tcpFlowKey.dport_).arg(QString::number(ttl));
 	GCycleItemKey key(tcpFlowKey.sip_, tcpFlowKey.dip_, tcpFlowKey.dport_, ttl);
 	GCycleMap::iterator it = tcpMap_.find(key);
-	qDebug() << (it == tcpMap_.end());
-	if (it == tcpMap_.end()) {
-		GCycleItem citem;
-		it = tcpMap_.insert(key, citem);
-	}
+	Q_ASSERT(it != tcpMap_.end());
 	GCycleItem& citem = it.value();
+
 	if (clientToServer) {
 		citem.lastTimes_.push_back(tcpFlowValue->lastTime_);
 		citem.lastTimes_.check("lastTimes");
