@@ -34,7 +34,7 @@ bool GClientHelloSplit::doClose() {
 }
 
 void GClientHelloSplit::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
-	// qDebug() << QString("_tcpFlowDetected %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
+	// qDebug() << QString("_tcpFlowDetected %1").arg(QString(tcpFlowKey)); // gilgil temp 2021.04.07
 	(void)tcpFlowKey;
 	Item* item = getItem(tcpFlowValue);
 	new (item) Item;
@@ -44,7 +44,7 @@ void GClientHelloSplit::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr
 	(void)tcpFlowKey;
 	Item* item = getItem(tcpFlowValue);
 	item->~Item();
-	// qDebug() << QString("_tcpFlowDeleted %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_), QString::number(tcpFlowKey.sport_), QString(tcpFlowKey.dip_), QString::number(tcpFlowKey.dport_)); // gilgil temp 2021.04.07
+	// qDebug() << QString("_tcpFlowDeleted %1").arg(QString(tcpFlowKey)); // gilgil temp 2021.04.07
 }
 
 void GClientHelloSplit::split(GPacket* packet) {
@@ -72,9 +72,7 @@ void GClientHelloSplit::split(GPacket* packet) {
 	if (tcpData.data_[0] != 0x16 || tcpData.data_[1] != 0x03) return;
 
 	GFlow::TcpFlowKey* tcpFlowKey = &tcpFlowMgr_->currentTcpFlowKey_;
-	qDebug() << QString("tcp size=%1 %2:%3>%4:%5")
-		.arg(packet->buf_.size_)
-		.arg(QString(tcpFlowKey->sip_)).arg(tcpFlowKey->sport_).arg(QString(tcpFlowKey->dip_)).arg(tcpFlowKey->dport_); // gilgil temp 2016.10.10
+	qDebug() << QString("tcp size=%1 %2").arg(packet->buf_.size_).arg(QString(*tcpFlowKey)); // gilgil temp 2016.10.10
 
 	size_t orgDataSize = tcpData.size_;
 	size_t firstDataSize = 16;

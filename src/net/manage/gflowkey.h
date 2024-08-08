@@ -35,6 +35,8 @@ namespace GFlow {
 		MacFlowKey reverse() {
 			return MacFlowKey(dmac_, smac_);
 		}
+
+		explicit operator QString() const { return QString("%1 %2").arg(QString(smac_)).arg(QString(dmac_)); }
 	};
 
 	// ----------------------------------------------------------------------------
@@ -53,6 +55,8 @@ namespace GFlow {
 			if (this->mac2_ < r.mac2_) return true;
 			return false;
 		}
+
+		explicit operator QString() const { return QString("%1 %2").arg(QString(mac1_)).arg(QString(mac2_)); }
 	};
 
 	// ----------------------------------------------------------------------------
@@ -76,6 +80,8 @@ namespace GFlow {
 		IpFlowKey reverse() {
 			return IpFlowKey(dip_, sip_);
 		}
+
+		explicit operator QString() const { return QString("%1 %2").arg(QString(sip_)).arg(QString(dip_)); }
 	};
 
 	// ----------------------------------------------------------------------------
@@ -95,6 +101,8 @@ namespace GFlow {
 			if (this->ip2_ < r.ip2_) return true;
 			return false;
 		}
+
+		explicit operator QString() const { return QString("%1 %2").arg(QString(ip1_)).arg(QString(ip2_)); }
 	};
 
 	// ----------------------------------------------------------------------------
@@ -118,6 +126,8 @@ namespace GFlow {
 		PortFlowKey reverse() {
 			return PortFlowKey(dport_, sport_);
 		}
+
+		explicit operator QString() const { return QString("%1 %2").arg(sport_).arg(dport_); }
 	};
 
 	// ----------------------------------------------------------------------------
@@ -137,6 +147,8 @@ namespace GFlow {
 			if (this->port2_ < r.port2_) return true;
 			return false;
 		}
+
+		explicit operator QString() const { return QString("%1 %2").arg(port1_).arg(port2_); }
 	};
 
 	// ----------------------------------------------------------------------------
@@ -156,6 +168,8 @@ namespace GFlow {
 			if (this->port_ < r.port_) return true;
 			return false;
 		}
+
+		explicit operator QString() const { return QString("%1:%2").arg(QString(ip_)).arg(port_); }
 	};
 
 	typedef TransportKey TcpKey;
@@ -199,6 +213,8 @@ namespace GFlow {
 		TransportFlowKey reverse() {
 			return TransportFlowKey(dip_, dport_, sip_, sport_);
 		}
+
+		explicit operator QString() const { return QString("%1:%2>%3%4").arg(QString(sip_)).arg(sport_).arg(QString(dip_)).arg(dport_); }
 	};
 
 	typedef TransportFlowKey TcpFlowKey;
@@ -227,6 +243,8 @@ namespace GFlow {
 			if (this->port2_ < r.port2_) return true;
 			return false;
 		}
+
+		explicit operator QString() const { return QString("%1:%2 %3%4").arg(QString(ip1_)).arg(port1_).arg(QString(ip2_)).arg(port2_); }
 	};
 
 	typedef TransportSessionKey TcpSessionKey;
@@ -252,5 +270,6 @@ namespace GFlow {
 		TupleFlowKey reverse() {
 			return TupleFlowKey(proto_, flow_.reverse());
 		}
+		explicit operator QString() const { return QString("%1 %2").arg(proto_).arg(QString(flow_)); }
 	};
 }

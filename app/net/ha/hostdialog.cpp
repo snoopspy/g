@@ -80,7 +80,7 @@ void HostDialog::setDateTimeEdit() {
 		Q_ASSERT(haItem != nullptr);
 		time_t blockTime = haItem->blockTime_;
 		if (blockTime == 0)
-			blockTime = hostValue->firstTime_ + ha_->admitTimeoutSec_;
+			blockTime = hostValue->firstTime_.tv_sec + ha_->admitTimeoutSec_;
 		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(blockTime));
 		dteBlockTime_->setDisplayFormat("MM/dd hh:mm");
 	}

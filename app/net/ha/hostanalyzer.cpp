@@ -139,7 +139,7 @@ void HostAnalyzer::hostCreated(GMac mac, GHostMgr::HostValue* hostValue) {
 	}
 	GHostDb::Mode mode = dbItem.mode_;
 	if (admitTimeoutSec_ != 0 && mode == GHostDb::Auto)
-		item->blockTime_ = hostValue->firstTime_ + admitTimeoutSec_;
+		item->blockTime_ = hostValue->firstTime_.tv_sec + admitTimeoutSec_;
 	else
 		item->blockTime_ = 0;
 
@@ -322,7 +322,7 @@ void HostAnalyzer::updateHosts() {
 			twi = new MyTreeWidgetItem(treeWidget_);
 			item->treeWidgetItem_ = twi;
 			twi->setProperty("mac", QString(mac));
-			twi->setProperty("firstTime", quint64(hostValue->firstTime_));
+			twi->setProperty("firstTime", quint64(hostValue->firstTime_.tv_sec));
 			treeWidget_->addTopLevelItem(twi);
 			QToolButton *toolButton = new QToolButton(treeWidget_);
 #ifdef Q_OS_ANDROID
@@ -376,7 +376,7 @@ void HostAnalyzer::updateElapsedTime() {
 		}
 		GHostMgr::HostValue* hostValue = it.value();
 		Q_ASSERT(hostValue != nullptr);
-		qint64 firstTime = hostValue->firstTime_;
+		qint64 firstTime = hostValue->firstTime_.tv_sec;
 		qint64 elapsed = now - firstTime;
 
 		qint64 days = elapsed / 86400;
