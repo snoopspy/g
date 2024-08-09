@@ -404,4 +404,3 @@ void HostAnalyzer::propLoad(QJsonObject jo) {
 void HostAnalyzer::propSave(QJsonObject& jo) {
 	GProp::propSave(jo);
 }
-
