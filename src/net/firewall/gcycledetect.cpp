@@ -5,7 +5,7 @@
 // ----------------------------------------------------------------------------
 void GCycleItem::TimevalList::check(QString prefix) {
 	int cnt = count();
-	Q_ASSERT(cnt > 2);
+	Q_ASSERT(cnt > 1);
 
 	QString msg = prefix + " ";
 	TimevalList::iterator it = begin();
@@ -62,11 +62,15 @@ void GCycleItem::Quint64List::check(QString prefix) {
 // GCycleDetect
 // ----------------------------------------------------------------------------
 bool GCycleDetect::doOpen() {
+	if (minCheckCount_ <= 1) {
+		SET_ERR(GErr::Fail, "minCheckCount must be greater than one");
+		return false;
+	}
 	if (tcpFlowMgr_ == nullptr) {
 		SET_ERR(GErr::ObjectIsNull, "tcpFlowMgr is null");
 		return false;
 	}
-	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request(this, sizeof(Item*));
+	itemOffset_ = tcpFlowMgr_->requestItems_.request(this, sizeof(Item*));
 	tcpFlowMgr_->managables_.insert(this);
 
 	tcpMap_.clear();
@@ -125,7 +129,6 @@ void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 	GCycleItem& citem = it.value();
 
 	if (clientToServer) {
-		qDebug() << tcpFlowValue->lastTime_.tv_sec; // gilgil temp
 		citem.lastTimes_.push_back(tcpFlowValue->lastTime_);
 		if (citem.lastTimes_.count() >= minCheckCount_) citem.lastTimes_.check("lastTimes");
 
