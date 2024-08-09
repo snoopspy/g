@@ -13,16 +13,14 @@ CdWidget::CdWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("CycleDetect");
 
 	treeWidget_ = new GTreeWidget(this);
-	treeWidget_->setHeaderLabels(QStringList{"SrcIP", "DstIP", "DstPort", ""});
+	treeWidget_->setHeaderLabels(QStringList{"ClientIP", "ServerIP", "ServerPort", "Ttl", "Count", "FirstTime", "LastTime", "txPackets", "TxBytes", "RxPackets", "RxBytes"});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 	treeWidget_->setIndentation(0);
 	treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
 	QHeaderView* hv = treeWidget_->header();
-	hv->setSectionResizeMode(CycleDetect::ColumnSip, QHeaderView::Stretch);
-	hv->setSectionResizeMode(CycleDetect::ColumnDip, QHeaderView::Stretch);
-	hv->setStretchLastSection(false);
+	hv->setStretchLastSection(true);
 
 	tbEdit_ = new QToolButton(this);
 	tbEdit_->setText("Edit");

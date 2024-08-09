@@ -23,7 +23,6 @@ struct G_EXPORT GCapture : GStateObj, GReadable, GWritable {
 	Q_OBJECT
 	Q_PROPERTY(bool enabled MEMBER enabled_)
 	Q_PROPERTY(bool autoParse MEMBER autoParse_)
-	// Q_PROPERTY(GParser*) // gilgil temp 2019.05.14
 
 public:
 	bool enabled_{true};

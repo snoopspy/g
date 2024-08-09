@@ -100,13 +100,14 @@ void GCycleDetect::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 	GCycleMap::iterator it = tcpMap_.find(key);
 	if (it == tcpMap_.end()) {
 		GCycleItem citem;
-		citem.firstTimes_.push_back(tcpFlowMgr_->currentPacket_->ts_);
-		if (citem.firstTimes_.count() >= minCheckCount_) citem.firstTimes_.check("firstTimes");
 		emit created(key, &citem);
-		qDebug() << citem.user_; // gilgil temp
 		it = tcpMap_.insert(key, citem);
-		qDebug() << citem.user_; // gilgil temp
 	}
+
+	GCycleItem& citem = it.value();
+	citem.firstTimes_.push_back(tcpFlowMgr_->currentPacket_->ts_);
+	if (citem.firstTimes_.count() >= minCheckCount_) citem.firstTimes_.check("firstTimes");
+	emit updated(key, &citem);
 }
 
 void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {

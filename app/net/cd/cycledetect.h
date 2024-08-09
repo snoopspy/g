@@ -4,6 +4,7 @@
 #include <GGraph>
 #include <GPcapDevice>
 #include <GPcapFile>
+#include <GPcapFileWrite>
 #include <GCommand>
 #include <GTreeWidget>
 
@@ -14,6 +15,7 @@ struct G_EXPORT CycleDetect : GGraph {
 	Q_PROPERTY(GObjRef pcapFile READ getPcapFile)
 	Q_PROPERTY(GObjRef tcpFlowMgr READ getTcpFlowMgr)
 	Q_PROPERTY(GObjRef cycleDetect READ getCycleDetect)
+	Q_PROPERTY(GObjRef pcapFileWrite READ getPcapFileWrite)
 	Q_PROPERTY(GObjRef command READ getCommand)
 
 
@@ -23,6 +25,7 @@ public:
 	GObjRef getPcapFile() { return &pcapFile_; }
 	GObjRef getTcpFlowMgr() { return &tcpFlowMgr_; }
 	GObjRef getCycleDetect() { return &cycleDetect_; }
+	GObjRef getPcapFileWrite() { return &pcapFileWrite_; }
 	GObjRef getCommand() { return &command_; }
 
 public:
@@ -38,12 +41,21 @@ public:
 	GPcapFile pcapFile_{this};
 	GTcpFlowMgr tcpFlowMgr_{this};
 	GCycleDetect cycleDetect_{this};
+	GPcapFileWrite pcapFileWrite_{this};
 	GCommand command_{this};
 
 public:
-	const static int ColumnSip = 0;
-	const static int ColumnDip = 1;
-	const static int ColumnDport = 2;
+	const static int ColumnClientIp = 0;
+	const static int ColumnServerIp = 1;
+	const static int ColumnServerPort = 2;
+	const static int ColumnTtl = 3;
+	const static int ColumnCount = 4;
+	const static int ColumnFirstTime = 5;
+	const static int ColumnLastTime = 6;
+	const static int ColumnTxPackets = 7;
+	const static int ColumnTxBytes = 8;
+	const static int ColumnRxPackets = 9;
+	const static int ColumnRxBytes = 10;
 
 	QTimer updateTimer_;
 
