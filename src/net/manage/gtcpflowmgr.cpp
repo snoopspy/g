@@ -9,14 +9,25 @@ bool GTcpFlowMgr::doOpen() {
 }
 
 bool GTcpFlowMgr::doClose() {
-	for (Managable* manager: managables_) {
-		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
-			GFlow::TcpFlowKey tcpFlowKey = it.key();
+	while (true) {
+		if (flowMap_.count() == 0) break;
+		FlowMap::iterator oldestIt = flowMap_.begin();
+		GFlow::TcpFlowKey oldestTcpFlowKey = oldestIt.key();
+		TcpFlowValue* oldestTcpFlowValue = oldestIt.value();
+		FlowMap::iterator it = oldestIt + 1;
+		for (; it != flowMap_.end(); it++) {
 			TcpFlowValue* tcpFlowValue = it.value();
-			manager->tcpFlowDeleted(tcpFlowKey, tcpFlowValue);
+			if (oldestTcpFlowValue->lastTime_.tv_sec > tcpFlowValue->lastTime_.tv_sec) {
+				oldestIt = it;
+				oldestTcpFlowKey = it.key();
+				oldestTcpFlowValue = it.value();
+			}
 		}
+		for (Managable* manager: managables_)
+			manager->tcpFlowDeleted(oldestTcpFlowKey, oldestTcpFlowValue);
+		flowMap_.erase(oldestIt);
 	}
-	flowMap_.clear();
+	Q_ASSERT(flowMap_.count() == 0);
 	return GPacketMgr::doClose();
 }
 
