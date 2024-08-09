@@ -14,7 +14,8 @@ bool GTcpFlowMgr::doClose() {
 		FlowMap::iterator oldestIt = flowMap_.begin();
 		GFlow::TcpFlowKey oldestTcpFlowKey = oldestIt.key();
 		TcpFlowValue* oldestTcpFlowValue = oldestIt.value();
-		FlowMap::iterator it = oldestIt + 1;
+		FlowMap::iterator it = oldestIt;
+		it++;
 		for (; it != flowMap_.end(); it++) {
 			TcpFlowValue* tcpFlowValue = it.value();
 			if (oldestTcpFlowValue->lastTime_.tv_sec > tcpFlowValue->lastTime_.tv_sec) {

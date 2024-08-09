@@ -9,14 +9,26 @@ bool GIpFlowMgr::doOpen() {
 }
 
 bool GIpFlowMgr::doClose() {
-	for (Managable* manager: managables_) {
-		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
-			GFlow::IpFlowKey ipFlowKey = it.key();
+	while (true) {
+		if (flowMap_.count() == 0) break;
+		FlowMap::iterator oldestIt = flowMap_.begin();
+		GFlow::IpFlowKey oldestIpFlowKey = oldestIt.key();
+		IpFlowValue* oldestIpFlowValue = oldestIt.value();
+		FlowMap::iterator it = oldestIt;
+		it++;
+		for (; it != flowMap_.end(); it++) {
 			IpFlowValue* ipFlowValue = it.value();
-			manager->ipFlowDeleted(ipFlowKey, ipFlowValue);
+			if (oldestIpFlowValue->lastTime_.tv_sec > ipFlowValue->lastTime_.tv_sec) {
+				oldestIt = it;
+				oldestIpFlowKey = it.key();
+				oldestIpFlowValue = it.value();
+			}
 		}
+		for (Managable* manager: managables_)
+			manager->ipFlowDeleted(oldestIpFlowKey, oldestIpFlowValue);
+		flowMap_.erase(oldestIt);
 	}
-	flowMap_.clear();
+	Q_ASSERT(flowMap_.count() == 0);
 	return GPacketMgr::doClose();
 }
 

@@ -9,14 +9,26 @@ bool GUdpFlowMgr::doOpen() {
 }
 
 bool GUdpFlowMgr::doClose() {
-	for (Managable* manager: managables_) {
-		for (FlowMap::iterator it = flowMap_.begin(); it != flowMap_.end(); it++) {
-			GFlow::UdpFlowKey udpFlowKey = it.key();
+	while (true) {
+		if (flowMap_.count() == 0) break;
+		FlowMap::iterator oldestIt = flowMap_.begin();
+		GFlow::UdpFlowKey oldestUdpFlowKey = oldestIt.key();
+		UdpFlowValue* oldestUdpFlowValue = oldestIt.value();
+		FlowMap::iterator it = oldestIt;
+		it++;
+		for (; it != flowMap_.end(); it++) {
 			UdpFlowValue* udpFlowValue = it.value();
-			manager->udpFlowDeleted(udpFlowKey, udpFlowValue);
+			if (oldestUdpFlowValue->lastTime_.tv_sec > udpFlowValue->lastTime_.tv_sec) {
+				oldestIt = it;
+				oldestUdpFlowKey = it.key();
+				oldestUdpFlowValue = it.value();
+			}
 		}
+		for (Managable* manager: managables_)
+			manager->udpFlowDeleted(oldestUdpFlowKey, oldestUdpFlowValue);
+		flowMap_.erase(oldestIt);
 	}
-	flowMap_.clear();
+	Q_ASSERT(flowMap_.count() == 0);
 	return GPacketMgr::doClose();
 }
 
