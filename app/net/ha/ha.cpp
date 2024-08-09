@@ -3,8 +3,7 @@
 #include <GJson>
 #include "hawidget.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	GApp a(argc, argv, {"arprecover", "ssdemon"}, true, false, true);
 	HaWidget hw;
 

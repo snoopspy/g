@@ -38,13 +38,13 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	tbDb_->setIconSize(tbStart_->iconSize());
 	toolButtonLayout_->addWidget(tbDb_);
 
-	tbHost_ = new QToolButton(this);
-	tbHost_->setText("Host");
-	tbHost_->setToolTip("Host");
-	tbHost_->setIcon(QIcon(":/img/edit.png"));
-	tbHost_->setAutoRaise(true);
-	tbHost_->setIconSize(tbStart_->iconSize());
-	toolButtonLayout_->addWidget(tbHost_);
+	tbEdit_ = new QToolButton(this);
+	tbEdit_->setText("Edit");
+	tbEdit_->setToolTip("Edit");
+	tbEdit_->setIcon(QIcon(":/img/edit.png"));
+	tbEdit_->setAutoRaise(true);
+	tbEdit_->setIconSize(tbStart_->iconSize());
+	toolButtonLayout_->addWidget(tbEdit_);
 
 	tbQrCode_ = new QToolButton(this);
 	tbQrCode_->setText("QrCode");
@@ -73,7 +73,7 @@ HaWidget::HaWidget(QWidget* parent) : GDefaultWidget(parent) {
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &HaWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &HaWidget::tbOption_clicked);
 	QObject::connect(tbDb_, &QToolButton::clicked, this, &HaWidget::tbDb_clicked);
-	QObject::connect(tbHost_, &QToolButton::clicked, this, &HaWidget::tbHost_clicked);
+	QObject::connect(tbEdit_, &QToolButton::clicked, this, &HaWidget::tbEdit_clicked);
 	QObject::connect(tbQrCode_, &QToolButton::clicked, this, &HaWidget::tbQrCode_clicked);
 	QObject::connect(tbScreenSaver_, &QToolButton::clicked, this, &HaWidget::tbScreenSaver_clicked);
 
@@ -107,7 +107,7 @@ void HaWidget::setControl() {
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
-	tbHost_->setEnabled(treeWidget_->selectedItems().count() > 0);
+	tbEdit_->setEnabled(treeWidget_->selectedItems().count() > 0);
 	tbQrCode_->setEnabled(active);
 	tbScreenSaver_->setEnabled(active);
 }
@@ -196,7 +196,7 @@ void HaWidget::tbDb_clicked(bool checked) {
 }
 
 #include "hostdialog.h"
-void HaWidget::tbHost_clicked(bool checked) {
+void HaWidget::tbEdit_clicked(bool checked) {
 	(void)checked;
 
 	if (treeWidget_->selectedItems().count() == 0) return;
