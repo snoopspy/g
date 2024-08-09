@@ -54,6 +54,8 @@ struct GCycleMap : QMap<GCycleItemKey, GCycleItem> {
 struct G_EXPORT GCycleDetect : GStateObj, GTcpFlowMgr::Managable {
 	Q_OBJECT
 	Q_PROPERTY(QString prop MEMBER prop_)
+	Q_PROPERTY(int minCheckCount MEMBER minCheckCount_)
+	Q_PROPERTY(int maxCheckCount MEMBER maxCheckCount_)
 	Q_PROPERTY(GObjPtr tcpFlowMgr READ getTcpFlowMgr WRITE setTcpFlowMgr)
 
 	GObjPtr getTcpFlowMgr() { return tcpFlowMgr_; }
@@ -61,6 +63,8 @@ struct G_EXPORT GCycleDetect : GStateObj, GTcpFlowMgr::Managable {
 
 public:
 	QString prop_;
+	int minCheckCount_{3};
+	int maxCheckCount_{100};
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 
 public:

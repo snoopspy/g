@@ -4,36 +4,57 @@
 // GCycleItem
 // ----------------------------------------------------------------------------
 void GCycleItem::TimevalList::check(QString prefix) {
+	int cnt = count();
+	Q_ASSERT(cnt > 2);
+
 	QString msg = prefix + " ";
+	TimevalList::iterator it = begin();
+	quint64 prev = it->tv_sec;
 	quint64 sum = 0;
-	for (struct timeval& tv: *this) {
-		msg += QString::number(tv.tv_sec) + " ";
-		sum += tv.tv_sec;
+	for (it++; it != end(); it++) {
+		quint64 now = it->tv_sec;
+		quint64 i = now >= prev ? now - prev : prev - now;
+		prev = now;
+		sum += i;
+		msg += QString::number(i) + " ";
 	}
-	double avg = sum / count();
+
+	double avg = (double)sum / (cnt - 1);
+
+	it = begin();
+	prev = it->tv_sec;
 	double diffSum = 0;
-	for (struct timeval& tv: *this) {
-		double diff = std::abs(avg - (double)tv.tv_sec);
+	for (it++; it != end(); it++) {
+		quint64 now = it->tv_sec;
+		quint64 i = now >= prev ? now - prev : prev - now;
+		prev = now;
+		double diff = std::abs(avg - i);
 		diffSum += diff;
 	}
-	diffAvg_ = diffSum / count();
+
+	diffAvg_ = diffSum / (cnt - 1);
 	qDebug() << QString("%1:%2").arg(msg).arg(diffAvg_);
 }
 
 void GCycleItem::Quint64List::check(QString prefix) {
+	int cnt = count();
+	Q_ASSERT(cnt > 1);
+
 	QString msg = prefix + " ";
 	quint64 sum = 0;
-	for (quint64 i : *this) {
+	for (quint64 i: *this) {
 		msg += QString::number(i) + " ";
 		sum += i;
 	}
-	double avg = sum / count();
+
+	double avg = (double)sum / cnt;
 	double diffSum = 0;
 	for (quint64 i : *this) {
 		double diff = std::abs(avg - (double)i);
 		diffSum += diff;
 	}
-	diffAvg_ = diffSum / count();
+
+	diffAvg_ = diffSum / cnt;
 	qDebug() << QString("%1:%2").arg(msg).arg(diffAvg_);
 }
 
@@ -79,7 +100,7 @@ void GCycleDetect::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 	}
 	GCycleItem& citem = it.value();
 	citem.firstTimes_.push_back(tcpFlowMgr_->currentPacket_->ts_);
-	citem.firstTimes_.check("firstTimes");
+	if (citem.firstTimes_.count() >= minCheckCount_) citem.firstTimes_.check("firstTimes");
 }
 
 void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
@@ -104,20 +125,21 @@ void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 	GCycleItem& citem = it.value();
 
 	if (clientToServer) {
+		qDebug() << tcpFlowValue->lastTime_.tv_sec; // gilgil temp
 		citem.lastTimes_.push_back(tcpFlowValue->lastTime_);
-		citem.lastTimes_.check("lastTimes");
+		if (citem.lastTimes_.count() >= minCheckCount_) citem.lastTimes_.check("lastTimes");
 
 		citem.txPackets_.push_back(tcpFlowValue->packets_);
-		citem.txPackets_.check("txPackets");
+		if (citem.txPackets_.count() >= minCheckCount_) citem.txPackets_.check("txPackets");
 
 		citem.txBytes_.push_back(tcpFlowValue->bytes_);
-		citem.txBytes_.check("txBytes");
+		if (citem.txBytes_.count() >= minCheckCount_) citem.txBytes_.check("txBytes");
 	} else {
 		citem.rxPackets_.push_back(tcpFlowValue->packets_);
-		citem.rxPackets_.check("rxPackets");
+		if (citem.rxPackets_.count() >= minCheckCount_) citem.rxPackets_.check("rxPackets");
 
 		citem.rxBytes_.push_back(tcpFlowValue->bytes_);
-		citem.rxBytes_.check("rxBytes_");
+		if (citem.rxBytes_.count() >= minCheckCount_) citem.rxBytes_.check("rxBytes_");
 	}
 }
 
