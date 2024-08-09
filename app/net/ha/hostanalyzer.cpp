@@ -10,9 +10,9 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 		int column = treeWidget()->sortColumn();
 		switch (column) {
 			case HostAnalyzer::ColumnIp:
-				return uint32_t(GIp(text(HostAnalyzer::ColumnIp))) < uint32_t(GIp(other.text(HostAnalyzer::ColumnIp)));
+				return uint32_t(GIp(text(column))) < uint32_t(GIp(other.text(column)));
 			case HostAnalyzer::ColumnName:
-				return text(1) < other.text(HostAnalyzer::ColumnName);
+				return text(column) < other.text(column);
 			case HostAnalyzer::ColumnElapsed: {
 				const GTreeWidgetItem* twi1 = PTreeWidgetItem(this);
 				const GTreeWidgetItem* twi2 = PTreeWidgetItem(&other);
@@ -23,11 +23,11 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 			case HostAnalyzer::ColumnAttack: {
 				QTreeWidgetItem* item1 = const_cast<QTreeWidgetItem*>(dynamic_cast<const QTreeWidgetItem*>(this));
 				Q_ASSERT(item1 != nullptr);
-				QToolButton* toolButton1 = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(item1, HostAnalyzer::ColumnAttack));
+				QToolButton* toolButton1 = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(item1, column));
 
 				QTreeWidgetItem* item2 = const_cast<QTreeWidgetItem*>(dynamic_cast<const QTreeWidgetItem*>(&other));
 				Q_ASSERT(item2 != nullptr);
-				QToolButton* toolButton2 = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(item2, HostAnalyzer::ColumnAttack));
+				QToolButton* toolButton2 = dynamic_cast<QToolButton*>(treeWidget_->itemWidget(item2, column));
 
 				if (toolButton1 == nullptr || toolButton2 == nullptr) return false;
 				return toolButton1->text() < toolButton2->text();
