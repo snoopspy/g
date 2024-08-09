@@ -99,12 +99,14 @@ void GCycleDetect::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 	GCycleItemKey key(tcpFlowKey.sip_, tcpFlowKey.dip_, tcpFlowKey.dport_, ttl);
 	GCycleMap::iterator it = tcpMap_.find(key);
 	if (it == tcpMap_.end()) {
-		GCycleItem  citem;
+		GCycleItem citem;
+		citem.firstTimes_.push_back(tcpFlowMgr_->currentPacket_->ts_);
+		if (citem.firstTimes_.count() >= minCheckCount_) citem.firstTimes_.check("firstTimes");
+		emit created(key, &citem);
+		qDebug() << citem.user_; // gilgil temp
 		it = tcpMap_.insert(key, citem);
+		qDebug() << citem.user_; // gilgil temp
 	}
-	GCycleItem& citem = it.value();
-	citem.firstTimes_.push_back(tcpFlowMgr_->currentPacket_->ts_);
-	if (citem.firstTimes_.count() >= minCheckCount_) citem.firstTimes_.check("firstTimes");
 }
 
 void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
@@ -137,15 +139,16 @@ void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 
 		citem.txBytes_.push_back(tcpFlowValue->bytes_);
 		if (citem.txBytes_.count() >= minCheckCount_) citem.txBytes_.check("txBytes");
+
+		emit updated(key, &citem);
 	} else {
 		citem.rxPackets_.push_back(tcpFlowValue->packets_);
 		if (citem.rxPackets_.count() >= minCheckCount_) citem.rxPackets_.check("rxPackets");
 
 		citem.rxBytes_.push_back(tcpFlowValue->bytes_);
 		if (citem.rxBytes_.count() >= minCheckCount_) citem.rxBytes_.check("rxBytes_");
+
+		emit updated(key, &citem);
 	}
 }
 
-void GCycleDetect::detect(GPacket* packet) {
-	(void)packet;
-}

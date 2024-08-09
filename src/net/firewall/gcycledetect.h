@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GStateObj>
-#include <GPacket>
 #include <GTcpFlowMgr>
 
 // ----------------------------------------------------------------------------
@@ -40,6 +39,8 @@ struct GCycleItem {
 		double diffAvg_{0};
 		void check(QString prefix);
 	} txPackets_, txBytes_, rxPackets_, rxBytes_;
+
+	void* user_{nullptr}; // used for QTreeWidgetItem
 };
 
 // ----------------------------------------------------------------------------
@@ -95,9 +96,8 @@ public:
 	void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 
-public slots:
-	void detect(GPacket* packet);
-
 signals:
-	void detected(GPacket* packet);
+	void created(GCycleItemKey key, GCycleItem* item);
+	void updated(GCycleItemKey key, GCycleItem* item);
+	void deleted(GCycleItemKey key, GCycleItem* item);
 };

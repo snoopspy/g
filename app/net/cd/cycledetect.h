@@ -69,17 +69,14 @@ public:
 
 public:
 	GTreeWidget* treeWidget_{nullptr}; // reference
-// 	void updateWidgetItem(GTreeWidgetItem* twi);
-// 	void checkBlockTime(GHostMgr::HostValue* hostValue);
-
-// public slots:
-// 	void processClosed();
-// 	void toolButton_toggled(bool checked);
-// 	void updateHosts();
-// 	void updateElapsedTime();
 
 public slots:
 	void updateCycleItem();
+
+public slots:
+	void doCreated(GCycleItemKey key, GCycleItem* item);
+	void doUpdated(GCycleItemKey key, GCycleItem* item);
+	void doDeleted(GCycleItemKey key, GCycleItem* item);
 
  public:
 	void propLoad(QJsonObject jo) override;
