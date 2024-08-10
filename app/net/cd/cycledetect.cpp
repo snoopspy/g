@@ -44,23 +44,12 @@ CycleDetect::CycleDetect(QObject* parent) : GGraph(parent) {
 
 	pcapDevice_.filter_ = "tcp";
 	pcapFile_.enabled_ = false;
-	tcpFlowMgr_.rstTimeout_ = 1;
-	tcpFlowMgr_.finTimeout_ = 1;
 
 	cycleDetect_.tcpFlowMgr_ = &tcpFlowMgr_;
 
 	QObject::connect(&pcapDevice_, &GPcapDevice::captured, &tcpFlowMgr_, &GTcpFlowMgr::manage, Qt::DirectConnection);
 	QObject::connect(&pcapFile_, &GPcapFile::captured, &tcpFlowMgr_, &GTcpFlowMgr::manage, Qt::DirectConnection);
 	QObject::connect(&pcapDevice_, SIGNAL(captured(GPacket*)), &pcapFileWrite_, SLOT(write(GPacket*)), Qt::DirectConnection);
-
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-	pcapDevice_.readTimeout_ = -1;
-	pcapDevice_.waitTimeout_ = 1000;
-#endif // Q_OS_LINUX
-#if defined(Q_OS_WIN) || defined(Q_OS_ANDROID)
-	pcapDevice_.readTimeout_ = 1000;
-	pcapDevice_.waitTimeout_ = 1;
-#endif
 
 	nodes_.append(&pcapDevice_);
 	nodes_.append(&pcapFile_);
