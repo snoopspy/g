@@ -87,7 +87,15 @@ bool CycleDetect::doClose() {
 	QObject::disconnect(&cycleDetect_, &GCycleDetect::updated, this, &CycleDetect::doUpdated);
 	QObject::disconnect(&cycleDetect_, &GCycleDetect::deleted, this, &CycleDetect::doDeleted);
 
+	QObject::connect(&cycleDetect_, &GCycleDetect::created, this, &CycleDetect::doCreated, Qt::DirectConnection);
+	QObject::connect(&cycleDetect_, &GCycleDetect::updated, this, &CycleDetect::doUpdated, Qt::DirectConnection);
+	QObject::connect(&cycleDetect_, &GCycleDetect::deleted, this, &CycleDetect::doDeleted, Qt::DirectConnection);
+
 	bool res = GGraph::doClose();
+
+	QObject::disconnect(&cycleDetect_, &GCycleDetect::created, this, &CycleDetect::doCreated);
+	QObject::disconnect(&cycleDetect_, &GCycleDetect::updated, this, &CycleDetect::doUpdated);
+	QObject::disconnect(&cycleDetect_, &GCycleDetect::deleted, this, &CycleDetect::doDeleted);
 
 	updateTimer_.stop();
 
@@ -105,7 +113,8 @@ void CycleDetect::doCreated(GCycleItemKey key, GCycleItem* item) {
 	twi->setText(ColumnServerPort, QString(QString::number(key.serverPort_)));
 	twi->setText(ColumnTtl, QString(QString::number(key.ttl_)));
 	twi->setText(ColumnCount, QString::number(item->firstTimes_.count()));
-	twi->setText(ColumnFirstTime, QString::number(item->firstTimes_.diffAvg_));
+	if (item->firstTimes_.diffAvg_ != -1)
+		twi->setText(ColumnFirstTime, QString::number(item->firstTimes_.diffAvg_));
 	treeWidget_->addTopLevelItem(twi);
 	item->user_ = twi;
 }
@@ -115,12 +124,18 @@ void CycleDetect::doUpdated(GCycleItemKey key, GCycleItem* item) {
 	MyTreeWidgetItem* twi = PMyTreeWidgetItem(item->user_);
 	Q_ASSERT(twi != nullptr);
 	twi->setText(ColumnCount, QString::number(item->firstTimes_.count()));
-	twi->setText(ColumnFirstTime, QString::number(item->firstTimes_.diffAvg_));
-	twi->setText(ColumnLastTime, QString::number(item->lastTimes_.diffAvg_));
-	twi->setText(ColumnTxPackets, QString::number(item->txPackets_.diffAvg_));
-	twi->setText(ColumnTxBytes, QString::number(item->txBytes_.diffAvg_));
-	twi->setText(ColumnRxPackets, QString::number(item->rxPackets_.diffAvg_));
-	twi->setText(ColumnRxBytes, QString::number(item->rxBytes_.diffAvg_));
+	if (item->firstTimes_.diffAvg_ != -1)
+		twi->setText(ColumnFirstTime, QString::number(item->firstTimes_.diffAvg_));
+	if (item->lastTimes_.diffAvg_ != -1)
+		twi->setText(ColumnLastTime, QString::number(item->lastTimes_.diffAvg_));
+	if (item->txPackets_.diffAvg_ != -1)
+		twi->setText(ColumnTxPackets, QString::number(item->txPackets_.diffAvg_));
+	if (item->txBytes_.diffAvg_ != -1)
+		twi->setText(ColumnTxBytes, QString::number(item->txBytes_.diffAvg_));
+	if (item->rxPackets_.diffAvg_ != -1)
+		twi->setText(ColumnRxPackets, QString::number(item->rxPackets_.diffAvg_));
+	if (item->rxBytes_.diffAvg_ != -1)
+		twi->setText(ColumnRxBytes, QString::number(item->rxBytes_.diffAvg_));
 }
 
 void CycleDetect::doDeleted(GCycleItemKey key, GCycleItem* item) {

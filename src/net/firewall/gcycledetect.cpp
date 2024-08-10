@@ -86,7 +86,13 @@ void GCycleDetect::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 	qDebug() << QString("%1:%2 > %3:%4").arg(QString(tcpFlowKey.sip_)).arg(QString::number(tcpFlowKey.sport_)).arg(QString(tcpFlowKey.dip_)).arg(QString::number(tcpFlowKey.dport_));
 	Item* item = getItem(tcpFlowValue);
 	if (tcpFlowValue->direction_ == GPacketMgr::ServerToClient) {
-		new (item) Item(0);
+		GFlow::TcpFlowKey revTcpFlowKey = tcpFlowKey.reverse();
+		GTcpFlowMgr::FlowMap::iterator it = tcpFlowMgr_->flowMap_.find(revTcpFlowKey);
+		Q_ASSERT(it != tcpFlowMgr_->flowMap_.end());
+		GTcpFlowMgr::TcpFlowValue* revTcpFlowValue = it.value();
+		Item* revItem = getItem(revTcpFlowValue);
+		Q_ASSERT(revItem != nullptr);
+		new (item) Item(revItem->ttl_);
 		return;
 	}
 	Q_ASSERT(tcpFlowMgr_->currentPacket_ != nullptr);
@@ -106,7 +112,8 @@ void GCycleDetect::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 
 	GCycleItem& citem = it.value();
 	citem.firstTimes_.push_back(tcpFlowMgr_->currentPacket_->ts_);
-	if (citem.firstTimes_.count() >= minCheckCount_) citem.firstTimes_.check("firstTimes");
+	if (citem.firstTimes_.count() >= minCheckCount_)
+		citem.firstTimes_.check("firstTimes");
 	emit updated(key, &citem);
 }
 
@@ -114,17 +121,12 @@ void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 	qDebug() << QString("%1:%2 > %3:%4").arg(QString(tcpFlowKey.sip_)).arg(QString::number(tcpFlowKey.sport_)).arg(QString(tcpFlowKey.dip_)).arg(QString::number(tcpFlowKey.dport_));
 
 	Item* item = getItem(tcpFlowValue);
-	bool clientToServer = tcpFlowValue->direction_ == GPacketMgr::ClientToServer;
-	if (!clientToServer) {
-		tcpFlowKey = tcpFlowKey.reverse();
-		GTcpFlowMgr::FlowMap::iterator it = tcpFlowMgr_->flowMap_.find(tcpFlowKey);
-		if (it == tcpFlowMgr_->flowMap_.end()) return;
-		GTcpFlowMgr::TcpFlowValue* revTcpFlowValue = it.value();
-		Q_ASSERT(revTcpFlowValue != nullptr);
-		item = getItem(revTcpFlowValue);
-	}
-
 	uint8_t ttl = item->ttl_;
+
+	bool clientToServer = tcpFlowValue->direction_ == GPacketMgr::ClientToServer;
+	if (!clientToServer)
+		tcpFlowKey = tcpFlowKey.reverse();
+
 	qDebug() << QString("Key %1 > %2:%3 ttl=%4").arg(QString(tcpFlowKey.sip_)).arg(QString(tcpFlowKey.dip_)).arg(tcpFlowKey.dport_).arg(QString::number(ttl));
 	GCycleItemKey key(tcpFlowKey.sip_, tcpFlowKey.dip_, tcpFlowKey.dport_, ttl);
 	GCycleMap::iterator it = tcpMap_.find(key);
@@ -133,21 +135,26 @@ void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 
 	if (clientToServer) {
 		citem.lastTimes_.push_back(tcpFlowValue->lastTime_);
-		if (citem.lastTimes_.count() >= minCheckCount_) citem.lastTimes_.check("lastTimes");
+		if (citem.lastTimes_.count() >= minCheckCount_)
+			citem.lastTimes_.check("lastTimes");
 
 		citem.txPackets_.push_back(tcpFlowValue->packets_);
-		if (citem.txPackets_.count() >= minCheckCount_) citem.txPackets_.check("txPackets");
+		if (citem.txPackets_.count() >= minCheckCount_)
+			citem.txPackets_.check("txPackets");
 
 		citem.txBytes_.push_back(tcpFlowValue->bytes_);
-		if (citem.txBytes_.count() >= minCheckCount_) citem.txBytes_.check("txBytes");
+		if (citem.txBytes_.count() >= minCheckCount_)
+			citem.txBytes_.check("txBytes");
 
 		emit updated(key, &citem);
 	} else {
 		citem.rxPackets_.push_back(tcpFlowValue->packets_);
-		if (citem.rxPackets_.count() >= minCheckCount_) citem.rxPackets_.check("rxPackets");
+		if (citem.rxPackets_.count() >= minCheckCount_)
+			citem.rxPackets_.check("rxPackets");
 
 		citem.rxBytes_.push_back(tcpFlowValue->bytes_);
-		if (citem.rxBytes_.count() >= minCheckCount_) citem.rxBytes_.check("rxBytes_");
+		if (citem.rxBytes_.count() >= minCheckCount_)
+			citem.rxBytes_.check("rxBytes_");
 
 		emit updated(key, &citem);
 	}

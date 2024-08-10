@@ -31,12 +31,12 @@ struct GCycleItemKey {
 // ----------------------------------------------------------------------------
 struct GCycleItem {
 	struct TimevalList : QList<struct timeval> {
-		double diffAvg_{0};
+		double diffAvg_{-1};
 		void check(QString prefix);
 	} firstTimes_, lastTimes_;
 
 	struct Quint64List : QList<quint64> {
-		double diffAvg_{0};
+		double diffAvg_{-1};
 		void check(QString prefix);
 	} txPackets_, txBytes_, rxPackets_, rxBytes_;
 
