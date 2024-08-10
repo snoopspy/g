@@ -20,8 +20,13 @@ struct MyTreeWidgetItem : GTreeWidgetItem {
 			case CycleDetect::ColumnTxPackets:
 			case CycleDetect::ColumnTxBytes:
 			case CycleDetect::ColumnRxPackets:
-			case CycleDetect::ColumnRxBytes:
-				return text(CycleDetect::ColumnServerPort).toInt() < other.text(CycleDetect::ColumnServerPort).toInt();
+			case CycleDetect::ColumnRxBytes: {
+				QString leftStr = text(column);
+				int left = leftStr.isEmpty() ? -1 : leftStr.toInt();
+				QString rightStr = other.text(column);
+				int right = rightStr.isEmpty() ? -1 : rightStr.toInt();
+				return left < right;
+			}
 			default:
 				qCritical() << "unreachable";
 				return true;
