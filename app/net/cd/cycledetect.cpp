@@ -42,6 +42,7 @@ CycleDetect::CycleDetect(QObject* parent) : GGraph(parent) {
 	cycleDetect_.setObjectName("cycleDetect");
 	command_.setObjectName("command_");
 
+	pcapDevice_.filter_ = "tcp";
 	pcapFile_.enabled_ = false;
 	tcpFlowMgr_.rstTimeout_ = 1;
 	tcpFlowMgr_.finTimeout_ = 1;
