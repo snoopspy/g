@@ -47,9 +47,9 @@ CycleDetect::CycleDetect(QObject* parent) : GGraph(parent) {
 
 	cycleDetect_.tcpFlowMgr_ = &tcpFlowMgr_;
 
+	QObject::connect(&pcapDevice_, SIGNAL(captured(GPacket*)), &pcapFileWrite_, SLOT(write(GPacket*)), Qt::DirectConnection);
 	QObject::connect(&pcapDevice_, &GPcapDevice::captured, &tcpFlowMgr_, &GTcpFlowMgr::manage, Qt::DirectConnection);
 	QObject::connect(&pcapFile_, &GPcapFile::captured, &tcpFlowMgr_, &GTcpFlowMgr::manage, Qt::DirectConnection);
-	QObject::connect(&pcapDevice_, SIGNAL(captured(GPacket*)), &pcapFileWrite_, SLOT(write(GPacket*)), Qt::DirectConnection);
 
 	nodes_.append(&pcapDevice_);
 	nodes_.append(&pcapFile_);
