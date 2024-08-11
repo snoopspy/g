@@ -103,6 +103,7 @@ void CycleDetect::updateCycleItem() {
 
 void CycleDetect::doCreated(GCycleItemKey key, GCycleItem* item) {
 	MyTreeWidgetItem* twi = new MyTreeWidgetItem(treeWidget_);
+	twi->setFlags(twi->flags() | Qt::ItemIsEditable);
 	twi->setText(ColumnClientIp, QString(key.clientIp_));
 	twi->setText(ColumnServerIp, QString(key.serverIp_));
 	twi->setText(ColumnServerPort, QString(QString::number(key.serverPort_)));
