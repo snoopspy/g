@@ -83,7 +83,7 @@ bool GCycleDetect::doClose() {
 }
 
 void GCycleDetect::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
-	qDebug() << QString("%1:%2 > %3:%4").arg(QString(tcpFlowKey.sip_)).arg(QString::number(tcpFlowKey.sport_)).arg(QString(tcpFlowKey.dip_)).arg(QString::number(tcpFlowKey.dport_));
+	qDebug() << QString("+++++ %1:%2 > %3:%4").arg(QString(tcpFlowKey.sip_)).arg(QString::number(tcpFlowKey.sport_)).arg(QString(tcpFlowKey.dip_)).arg(QString::number(tcpFlowKey.dport_));
 	Item* item = getItem(tcpFlowValue);
 	if (tcpFlowValue->direction_ == GPacketMgr::ServerToClient) {
 		GFlow::TcpFlowKey revTcpFlowKey = tcpFlowKey.reverse();
@@ -118,7 +118,7 @@ void GCycleDetect::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tcp
 }
 
 void GCycleDetect::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
-	qDebug() << QString("%1:%2 > %3:%4").arg(QString(tcpFlowKey.sip_)).arg(QString::number(tcpFlowKey.sport_)).arg(QString(tcpFlowKey.dip_)).arg(QString::number(tcpFlowKey.dport_));
+	qDebug() << QString("----- %1:%2 > %3:%4").arg(QString(tcpFlowKey.sip_)).arg(QString::number(tcpFlowKey.sport_)).arg(QString(tcpFlowKey.dip_)).arg(QString::number(tcpFlowKey.dport_));
 
 	Item* item = getItem(tcpFlowValue);
 	uint8_t ttl = item->ttl_;
