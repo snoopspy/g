@@ -32,8 +32,8 @@ void GCycleItem::TimevalList::check(QString prefix) {
 		diffSum += diff;
 	}
 
-	diffAvg_ = diffSum / (cnt - 1);
-	qDebug() << QString("%1:%2").arg(msg).arg(diffAvg_);
+	avgDiff_ = diffSum / (cnt - 1);
+	qDebug() << QString("%1 (%2)").arg(msg).arg(avgDiff_);
 }
 
 void GCycleItem::Quint64List::check(QString prefix) {
@@ -54,8 +54,8 @@ void GCycleItem::Quint64List::check(QString prefix) {
 		diffSum += diff;
 	}
 
-	diffAvg_ = diffSum / cnt;
-	qDebug() << QString("%1:%2").arg(msg).arg(diffAvg_);
+	avgDiff_ = diffSum / cnt;
+	qDebug() << QString("%1 (%2)").arg(msg).arg(avgDiff_);
 }
 
 // ----------------------------------------------------------------------------
