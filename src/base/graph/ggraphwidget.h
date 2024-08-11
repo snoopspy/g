@@ -73,12 +73,11 @@ public:
 		"close()"};
 
 public:
+	QAction* actionStartStop_;
 	QAction* actionNewFile_;
 	QAction* actionOpenFile_;
 	QAction* actionSaveFile_;
 	QAction* actionSaveFileAs_;
-	QAction* actionStart_;
-	QAction* actionStop_;
 	QAction* actionEdit_;
 	QAction* actionLink_;
 	QAction* actionDelete_;
@@ -101,12 +100,11 @@ public slots:
 	void writeLog(QString msg);
 
 public slots:
+	void actionStartStopTriggered(bool);
 	void actionNewFileTriggered(bool);
 	void actionOpenFileTriggered(bool);
 	void actionSaveFileTriggered(bool);
 	void actionSaveFileAsTriggered(bool);
-	void actionStartTriggered(bool);
-	void actionStopTriggered(bool);
 	void actionEditTriggered(bool);
 	void actionLinkTriggered(bool);
 	void actionDeleteTriggered(bool);

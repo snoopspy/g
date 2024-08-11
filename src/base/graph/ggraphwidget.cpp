@@ -15,7 +15,8 @@ GGraphWidget::GGraphWidget(QWidget *parent) : QWidget(parent) {
 }
 
 GGraphWidget::~GGraphWidget() {
-	actionStop_->trigger();
+	if (graph_->active())
+		actionStartStop_->trigger();
 	clear();
 }
 
@@ -26,6 +27,8 @@ void GGraphWidget::init() {
 	fileDialog_.setNameFilters(filters);
 	fileDialog_.setDefaultSuffix("ss");
 	fileDialog_.setViewMode(QFileDialog::Detail);
+
+	actionStartStop_ = new QAction(this);
 
 	(actionNewFile_ = new QAction(this))->setText("New");
 	actionNewFile_->setIcon(QIcon(":/img/new.png"));
@@ -38,12 +41,6 @@ void GGraphWidget::init() {
 
 	(actionSaveFileAs_ = new QAction(this))->setText("Save As");
 	actionSaveFileAs_->setIcon(QIcon(":/img/saveas.png"));
-
-	(actionStart_ = new QAction(this))->setText("Start");
-	actionStart_->setIcon(QIcon(":/img/start.png"));
-
-	(actionStop_ = new QAction(this))->setText("Stop");
-	actionStop_->setIcon(QIcon(":/img/stop.png"));
 
 	(actionEdit_ = new QAction(this))->setText("Edit");
 	actionEdit_->setIcon(QIcon(":/img/edit.png"));
@@ -104,13 +101,12 @@ void GGraphWidget::init() {
 	midLeftSplitter_->setStretchFactor(0, 0);
 	midLeftSplitter_->setStretchFactor(1, 1);
 
+	toolBar_->addAction(actionStartStop_);
+	toolBar_->addSeparator();
 	toolBar_->addAction(actionNewFile_);
 	toolBar_->addAction(actionOpenFile_);
 	toolBar_->addAction(actionSaveFile_);
 	toolBar_->addAction(actionSaveFileAs_);
-	toolBar_->addSeparator();
-	toolBar_->addAction(actionStart_);
-	toolBar_->addAction(actionStop_);
 	toolBar_->addSeparator();
 	toolBar_->addAction(actionEdit_);
 	toolBar_->addAction(actionLink_);
@@ -118,12 +114,11 @@ void GGraphWidget::init() {
 	toolBar_->addSeparator();
 	toolBar_->addAction(actionAbout_);
 
+	QObject::connect(actionStartStop_, &QAction::triggered, this, &GGraphWidget::actionStartStopTriggered);
 	QObject::connect(actionNewFile_, &QAction::triggered, this, &GGraphWidget::actionNewFileTriggered);
 	QObject::connect(actionOpenFile_, &QAction::triggered, this, &GGraphWidget::actionOpenFileTriggered);
 	QObject::connect(actionSaveFile_, &QAction::triggered, this, &GGraphWidget::actionSaveFileTriggered);
 	QObject::connect(actionSaveFileAs_, &QAction::triggered, this, &GGraphWidget::actionSaveFileAsTriggered);
-	QObject::connect(actionStart_, &QAction::triggered, this, &GGraphWidget::actionStartTriggered);
-	QObject::connect(actionStop_, &QAction::triggered, this, &GGraphWidget::actionStopTriggered);
 	QObject::connect(actionEdit_, &QAction::triggered, this, &GGraphWidget::actionEditTriggered);
 	QObject::connect(actionLink_, &QAction::triggered, this, &GGraphWidget::actionLinkTriggered);
 	QObject::connect(actionDelete_, &QAction::triggered, this, &GGraphWidget::actionDeleteTriggered);
@@ -316,12 +311,18 @@ void GGraphWidget::setControl() {
 	if (graph_ != nullptr)
 		active = graph_->active();
 
+	actionStartStop_->setEnabled(true);
+	if (!active) {
+		actionStartStop_->setText("Start");
+		actionStartStop_->setIcon(QIcon(":/img/start.png"));
+	} else {
+		actionStartStop_->setText("Stop");
+		actionStartStop_->setIcon(QIcon(":/img/stop.png"));
+	}
 	actionNewFile_->setEnabled(!active);
 	actionOpenFile_->setEnabled(!active);
 	actionSaveFile_->setEnabled(!active && fileName_ != "");
 	actionSaveFileAs_->setEnabled(!active);
-	actionStart_->setEnabled(!active);
-	actionStop_->setEnabled(active);
 	actionEdit_->setEnabled(!active && mode != GGScene::MoveItem);
 	actionLink_->setEnabled(!active && mode != GGScene::InsertLine);
 
@@ -351,6 +352,21 @@ void GGraphWidget::writeLog(QString msg) {
 	msg = msg.mid(7); // Omit year and date
 	plainTextEdit_->insertPlainText(msg);
 	plainTextEdit_->verticalScrollBar()->setValue(plainTextEdit_->verticalScrollBar()->maximum());
+}
+
+void GGraphWidget::actionStartStopTriggered(bool) {
+	bool active = graph_->active();
+	if (!active) {
+		plainTextEdit_->clear();
+		bool res = graph_->open();
+		if (!res) {
+			QString msg = graph_->err->msg();
+			QMessageBox::warning(this, "Error", msg);
+		}
+	} else {
+		graph_->close();
+	}
+	setControl();
 }
 
 void GGraphWidget::actionNewFileTriggered(bool) {
@@ -384,21 +400,6 @@ void GGraphWidget::actionSaveFileAsTriggered(bool) {
 		fileName_ = fileDialog_.selectedFiles().first();
 		actionSaveFileTriggered(false);
 	}
-}
-
-void GGraphWidget::actionStartTriggered(bool) {
-	plainTextEdit_->clear();
-	bool res = graph_->open();
-	if (!res) {
-		QString msg = graph_->err->msg();
-		QMessageBox::warning(this, "Error", msg);
-	}
-	setControl();
-}
-
-void GGraphWidget::actionStopTriggered(bool) {
-	graph_->close();
-	setControl();
 }
 
 void GGraphWidget::actionEditTriggered(bool) {
