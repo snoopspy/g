@@ -41,8 +41,12 @@ void GTcpFlowMgr::deleteOldFlowMaps(time_t now) {
 		switch (tcpFlowValue->state_) {
 			case TcpFlowValue::Half: timeout = halfTimeout_; break;
 			case TcpFlowValue::Full: timeout = fullTimeout_; break;
-			case TcpFlowValue::Rst: timeout = rstTimeout_; break;
-			case TcpFlowValue::Fin: timeout = finTimeout_; break;
+			case TcpFlowValue::ForwardFin: timeout = forwardFinTimeout_; break;
+			case TcpFlowValue::BackwardFin: timeout = backwardFinTimeout_; break;
+			case TcpFlowValue::FullFin: timeout = fullFinTimeout_; break;
+			case TcpFlowValue::ForwardRst: timeout = forwardRstTimeout_; break;
+			case TcpFlowValue::BackwardRst: timeout = forwardRstTimeout_; break;
+			case TcpFlowValue::FullRst: timeout = fullRstTimeout_; break;
 		}
 		if (elapsed >= timeout) {
 			GFlow::TcpFlowKey tcpFlowKey = it.key();
@@ -105,11 +109,110 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 	currentTcpFlowVal_->packets_++;
 	currentTcpFlowVal_->bytes_ += packet->buf_.size_;
 
-	if ((tcpHdr->flags() & (GTcpHdr::Rst | GTcpHdr::Fin)) != 0) {
-		TcpFlowValue::State state = (tcpHdr->flags() & GTcpHdr::Rst) ? TcpFlowValue::Rst : TcpFlowValue::Fin;
-		currentTcpFlowVal_->state_ = state;
+	uint8_t flag = tcpHdr->flags();
+	if ((flag & GTcpHdr::Fin) != 0) {
+		TcpFlowValue::State oldState = currentTcpFlowVal_->state_;
+		switch (oldState) {
+			case TcpFlowValue::Half:
+				currentTcpFlowVal_->state_ = TcpFlowValue::ForwardFin;
+				break;
+			case TcpFlowValue::Full:
+				currentTcpFlowVal_->state_ = TcpFlowValue::ForwardFin;
+				break;
+			case TcpFlowValue::ForwardFin: // do not modify
+				break;
+			case TcpFlowValue::BackwardFin: // full !!!
+				currentTcpFlowVal_->state_= TcpFlowValue::FullFin;
+				break;
+			case TcpFlowValue::FullFin: // do not modify
+				break;
+			case TcpFlowValue::ForwardRst: // do not modify
+				qWarning() << "invalid state ForwardRst";
+				break;
+			case TcpFlowValue::BackwardRst:
+				currentTcpFlowVal_->state_ = TcpFlowValue::FullFin;
+				break;
+			case TcpFlowValue::FullRst: // do not modify
+				qWarning() << "invalid state FullRst";
+				break;
+		}
+
 		if (currentRevTcpFlowVal_ != nullptr) {
-			currentRevTcpFlowVal_->state_ = state;
+			TcpFlowValue::State revOldState = currentRevTcpFlowVal_->state_;
+			switch (revOldState) {
+				case TcpFlowValue::Half:
+					currentRevTcpFlowVal_->state_ = TcpFlowValue::BackwardFin;
+					break;
+				case TcpFlowValue::Full:
+					currentRevTcpFlowVal_->state_ = TcpFlowValue::BackwardFin;
+					break;
+				case TcpFlowValue::ForwardFin: // full !!!
+					currentRevTcpFlowVal_->state_ = TcpFlowValue::FullFin;
+					break;
+				case TcpFlowValue::BackwardFin: // do not modify
+					break;
+				case TcpFlowValue::FullFin: // do not modify
+					break;
+				case TcpFlowValue::ForwardRst: // do not modify
+					break;
+				case TcpFlowValue::BackwardRst: // do not modify
+					break;
+				case TcpFlowValue::FullRst: // do not modify
+					break;
+			}
+		}
+	} else if ((flag & GTcpHdr::Rst) != 0) {
+		TcpFlowValue::State oldState = currentTcpFlowVal_->state_;
+		switch (oldState) {
+			case TcpFlowValue::Half:
+				currentTcpFlowVal_->state_ = TcpFlowValue::ForwardRst;
+				break;
+			case TcpFlowValue::Full:
+				currentTcpFlowVal_->state_ = TcpFlowValue::ForwardRst;
+				break;
+			case TcpFlowValue::ForwardFin:
+				currentTcpFlowVal_->state_ = TcpFlowValue::ForwardRst;
+				break;
+			case TcpFlowValue::BackwardFin:
+				currentTcpFlowVal_->state_ = TcpFlowValue::ForwardRst;
+				break;
+			case TcpFlowValue::FullFin:
+				currentTcpFlowVal_->state_ = TcpFlowValue::ForwardRst;
+				break;
+			case TcpFlowValue::ForwardRst: // do not modify
+				break;
+			case TcpFlowValue::BackwardRst: // full !!!
+				currentTcpFlowVal_->state_ = TcpFlowValue::FullRst;
+				break;
+			case TcpFlowValue::FullRst: // do not modify
+				break;
+		}
+		if (currentRevTcpFlowVal_ != nullptr) {
+			TcpFlowValue::State revOldState = currentRevTcpFlowVal_->state_;
+			switch(revOldState) {
+				case TcpFlowValue::Half:
+					currentRevTcpFlowVal_->state_ = TcpFlowValue::BackwardRst;
+					break;
+				case TcpFlowValue::Full:
+					currentRevTcpFlowVal_->state_ = TcpFlowValue::BackwardRst;
+					break;
+				case TcpFlowValue::ForwardFin:
+					currentRevTcpFlowVal_->state_ = TcpFlowValue::FullRst;
+					break;
+				case TcpFlowValue::BackwardFin:
+					currentRevTcpFlowVal_->state_ = TcpFlowValue::BackwardRst;
+					break;
+				case TcpFlowValue::FullFin:
+					currentRevTcpFlowVal_->state_ = TcpFlowValue::FullRst;
+					break;
+				case TcpFlowValue::ForwardRst: // full !!!
+					currentRevTcpFlowVal_->state_ = TcpFlowValue::FullRst;
+					break;
+				case TcpFlowValue::BackwardRst: // do not modiry
+					break;
+				case TcpFlowValue::FullRst: // do not modify
+					break;
+			}
 		}
 	}
 

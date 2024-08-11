@@ -19,14 +19,24 @@ struct G_EXPORT GTcpFlowMgr : GPacketMgr {
 	Q_OBJECT
 	Q_PROPERTY(long halfTimeout MEMBER halfTimeout_)
 	Q_PROPERTY(long fullTimeout MEMBER fullTimeout_)
-	Q_PROPERTY(long rstTimeout MEMBER rstTimeout_)
-	Q_PROPERTY(long finTimeout MEMBER finTimeout_)
+	Q_PROPERTY(long forwardFinTimeout MEMBER forwardFinTimeout_)
+	Q_PROPERTY(long backwardFinTimeout MEMBER backwardFinTimeout_)
+	Q_PROPERTY(long fullFinTimeout MEMBER fullFinTimeout_)
+	Q_PROPERTY(long forwardRstTimeout MEMBER forwardRstTimeout_)
+	Q_PROPERTY(long backwardRstTimeout MEMBER backwardRstTimeout_)
+	Q_PROPERTY(long fullRstTimeout MEMBER fullRstTimeout_)
 
 public:
 	long halfTimeout_{60 * 1}; // 1 minutes
 	long fullTimeout_{60 * 60}; // 1 hour
-	long rstTimeout_{10}; // 10 seconds
-	long finTimeout_{20}; // 20 seconds
+
+	long forwardFinTimeout_{30}; // 30 seconds
+	long backwardFinTimeout_{60}; // 60 seconds
+	long fullFinTimeout_{15}; // 15 seconds
+
+	long forwardRstTimeout_{10}; // 10 seconds
+	long backwardRstTimeout_{20}; // 20 seconds
+	long fullRstTimeout_{5}; // 5 seconds
 
 public:
 	// --------------------------------------------------------------------------
@@ -36,8 +46,12 @@ public:
 		enum State {
 			Half,
 			Full,
-			Rst,
-			Fin
+			ForwardFin,
+			BackwardFin,
+			FullFin,
+			ForwardRst,
+			BackwardRst,
+			FullRst
 		} state_;
 
 		Direction direction_;
