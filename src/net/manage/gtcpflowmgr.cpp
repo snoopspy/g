@@ -138,6 +138,7 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 		}
 
 		if (currentRevTcpFlowVal_ != nullptr) {
+			currentRevTcpFlowVal_->lastTime_ = packet->ts_;
 			TcpFlowValue::State revOldState = currentRevTcpFlowVal_->state_;
 			switch (revOldState) {
 				case TcpFlowValue::Half:
@@ -188,6 +189,7 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 				break;
 		}
 		if (currentRevTcpFlowVal_ != nullptr) {
+			currentRevTcpFlowVal_->lastTime_ = packet->ts_;
 			TcpFlowValue::State revOldState = currentRevTcpFlowVal_->state_;
 			switch(revOldState) {
 				case TcpFlowValue::Half:
