@@ -19,7 +19,7 @@ void GCycleItem::TimevalList::check(QString prefix) {
 		msg += QString::number(i) + " ";
 	}
 
-	double avg = (double)sum / (cnt - 1);
+	avg_ = (double)sum / (cnt - 1);
 
 	it = begin();
 	prev = it->tv_sec;
@@ -28,7 +28,7 @@ void GCycleItem::TimevalList::check(QString prefix) {
 		quint64 now = it->tv_sec;
 		quint64 i = now >= prev ? now - prev : prev - now;
 		prev = now;
-		double diff = std::abs(avg - i);
+		double diff = std::abs(avg_ - i);
 		diffSum += diff;
 	}
 
@@ -47,10 +47,11 @@ void GCycleItem::Quint64List::check(QString prefix) {
 		sum += i;
 	}
 
-	double avg = (double)sum / cnt;
+	avg_ = (double)sum / cnt;
+
 	double diffSum = 0;
 	for (quint64 i : *this) {
-		double diff = std::abs(avg - (double)i);
+		double diff = std::abs(avg_ - (double)i);
 		diffSum += diff;
 	}
 

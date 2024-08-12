@@ -13,7 +13,25 @@ CdWidget::CdWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("CycleDetect");
 
 	treeWidget_ = new GTreeWidget(this);
-	treeWidget_->setHeaderLabels(QStringList{"ClientIP", "ServerIP", "ServerPort", "Ttl", "Count", "FirstTime", "LastTime", "txPackets", "TxBytes", "RxPackets", "RxBytes"});
+	treeWidget_->setHeaderLabels(QStringList{
+		"ClientIP",
+		"ServerIP",
+		"ServerPort",
+		"Ttl",
+		"Count",
+		"FTA",
+		"FTAD",
+		"LTA",
+		"LTAD",
+		"TPA",
+		"TPAD",
+		"TBA",
+		"TBADV",
+		"RPA",
+		"RPAD",
+		"RBA",
+		"RBAD"
+	});
 	treeWidget_->setSortingEnabled(true);
 	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 	treeWidget_->setIndentation(0);

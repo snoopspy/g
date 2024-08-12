@@ -50,12 +50,18 @@ public:
 	const static int ColumnServerPort = 2;
 	const static int ColumnTtl = 3;
 	const static int ColumnCount = 4;
-	const static int ColumnFirstTime = 5;
-	const static int ColumnLastTime = 6;
-	const static int ColumnTxPackets = 7;
-	const static int ColumnTxBytes = 8;
-	const static int ColumnRxPackets = 9;
-	const static int ColumnRxBytes = 10;
+	const static int ColumnFirstTimeAvg = 5;
+	const static int ColumnFirstTimeAvgDiff = 6;
+	const static int ColumnLastTimeAvg = 7;
+	const static int ColumnLastTimeAvgDiff = 8;
+	const static int ColumnTxPacketsAvg = 9;
+	const static int ColumnTxPacketsAvgDiff = 10;
+	const static int ColumnTxBytesAvg = 11;
+	const static int ColumnTxBytesAvgDiff = 12;
+	const static int ColumnRxPacketsAvg = 13;
+	const static int ColumnRxPacketsAvgDiff = 14;
+	const static int ColumnRxBytesAvg = 15;
+	const static int ColumnRxBytesAvgDiff = 16;
 
 	QTimer updateTimer_;
 
