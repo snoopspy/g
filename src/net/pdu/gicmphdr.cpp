@@ -39,7 +39,7 @@ uint16_t GIcmpHdr::calcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr) {
 struct GIcmpHdrTest : testing::Test {
 	GSyncPcapFile pcapFile_;
 	void SetUp() override {
-		pcapFile_.fileName_ = "pcap/eth-icmp8.pcap";
+		pcapFile_.fileName_ = "pcap/test/eth-icmp8.pcap";
 		ASSERT_TRUE(pcapFile_.open());
 	}
 	void TearDown() override {

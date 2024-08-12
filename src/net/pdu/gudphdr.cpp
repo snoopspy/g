@@ -66,7 +66,7 @@ GBuf GUdpHdr::parseData(GUdpHdr* udpHdr) {
 struct GUdpHdrTest : testing::Test {
 	GSyncPcapFile pcapFile_;
 	void SetUp() override {
-		pcapFile_.fileName_ = "pcap/ipv4-udp-port1234.pcap";
+		pcapFile_.fileName_ = "pcap/test/ipv4-udp-port1234.pcap";
 		ASSERT_TRUE(pcapFile_.open());
 	}
 	void TearDown() override {

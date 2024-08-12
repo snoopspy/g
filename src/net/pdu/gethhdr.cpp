@@ -10,7 +10,7 @@
 struct GEthHdrTest : testing::Test {
 	GSyncPcapFile pcapFile_;
 	void SetUp() override {
-		pcapFile_.fileName_ = "pcap/eth-tcp-syn-port80.pcap";
+		pcapFile_.fileName_ = "pcap/test/eth-tcp-syn-port80.pcap";
 		ASSERT_TRUE(pcapFile_.open());
 	}
 	void TearDown() override {
