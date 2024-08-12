@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 SUBDIRS += \
 	arprecover \
+	cd \
 	ch \
 	ffce \
 	ha \
