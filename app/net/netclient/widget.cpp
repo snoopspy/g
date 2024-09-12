@@ -162,6 +162,7 @@ void Widget::doReadyRead() {
 	if (udpSocket != nullptr) {
 		QNetworkDatagram datagram = udpSocket->receiveDatagram();
 		ba = datagram.data();
+		qDebug() << ba.size();
 	} else {
 		QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 		Q_ASSERT(socket != nullptr);

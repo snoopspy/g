@@ -174,14 +174,13 @@ void Widget::doReadChannelFinished() {
 }
 
 void Widget::doReadyRead() {
-	qDebug() << "";
-
 	QByteArray ba;
 
 	QUdpSocket* udpSocket = dynamic_cast<QUdpSocket*>(sender());
 	if (udpSocket != nullptr) {
 		QNetworkDatagram datagram = udpSocket->receiveDatagram();
 		ba = datagram.data();
+		qDebug() << ba.size();
 		if (ui->chkEcho->isChecked()) {
 			// UDP broadcast not supported yet
 			datagram.setDestination(datagram.senderAddress(), datagram.senderPort());
@@ -191,6 +190,7 @@ void Widget::doReadyRead() {
 		QAbstractSocket* socket = dynamic_cast<QAbstractSocket*>(sender());
 		Q_ASSERT(socket != nullptr);
 		ba = socket->readAll();
+		qDebug() << ba.size();
 		if (ui->chkEcho->isChecked()) {
 			if (ui->chkEchoBroadcast->isChecked()) {
 				for (QAbstractSocket* socket: socketList_)
