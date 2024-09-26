@@ -17,38 +17,38 @@ debug-test: g-d-test g-gui-d-test
 release-test: g-test g-gui-test
 
 libg-d:
-	mkdir -p libg-d;      cd libg-d;        qmake ../libg.pro          CONFIG+=debug;   make -j$(NPROC)
+	mkdir -p build-libg-d;       cd build-libg-d;        qmake ../libg.pro          CONFIG+=debug;   make -j$(NPROC)
 	
 libg-gui-d:
-	mkdir -p libg-gui-d;   cd libg-gui-d;   qmake ../libg-gui.pro      CONFIG+=debug;   make -j$(NPROC)
+	mkdir -p build-libg-gui-d;   cd build-libg-gui-d;   qmake ../libg-gui.pro      CONFIG+=debug;   make -j$(NPROC)
 
 libg:
-	mkdir -p libg;         cd libg;         qmake ../libg.pro          CONFIG+=release; make -j$(NPROC)
+	mkdir -p build-libg;         cd build-libg;         qmake ../libg.pro          CONFIG+=release; make -j$(NPROC)
 
 libg-gui:
-	mkdir -p libg-gui;     cd libg-gui;     qmake ../libg-gui.pro      CONFIG+=release; make -j$(NPROC)
+	mkdir -p build-libg-gui;     cd build-libg-gui;     qmake ../libg-gui.pro      CONFIG+=release; make -j$(NPROC)
 
 g-d-test:
-	mkdir -p g-d-test;     cd g-d-test;     qmake ../libg-test.pro     CONFIG+=debug;   make -j$(NPROC)
+	mkdir -p build-g-d-test;     cd build-g-d-test;     qmake ../libg-test.pro     CONFIG+=debug;   make -j$(NPROC)
 
 g-gui-d-test:
-	mkdir -p g-gui-d-test; cd g-gui-d-test; qmake ../libg-gui-test.pro CONFIG+=debug;   make -j$(NPROC)
+	mkdir -p build-g-gui-d-test; cd build-g-gui-d-test; qmake ../libg-gui-test.pro CONFIG+=debug;   make -j$(NPROC)
 
 g-test:
-	mkdir -p g-test;       cd g-test;       qmake ../libg-test.pro     CONFIG+=release; make -j$(NPROC)
+	mkdir -p build-g-test;       cd build-g-test;       qmake ../libg-test.pro     CONFIG+=release; make -j$(NPROC)
 
 g-gui-test:
-	mkdir -p g-gui-test;   cd g-gui-test;   qmake ../libg-gui-test.pro CONFIG+=release; make -j$(NPROC)
+	mkdir -p build-g-gui-test;   cd build-g-gui-test;   qmake ../libg-gui-test.pro CONFIG+=release; make -j$(NPROC)
 
 clean:
-	rm -rf libg-d
-	rm -rf libg-gui-d
-	rm -rf libg
-	rm -rf libg-gui
-	rm -rf g-d-test
-	rm -rf g-gui-d-test
-	rm -rf g-test
-	rm -rf g-gui-test
+	rm -rf build-libg-d
+	rm -rf build-libg-gui-d
+	rm -rf build-libg
+	rm -rf build-libg-gui
+	rm -rf build-g-d-test
+	rm -rf build-g-gui-d-test
+	rm -rf build-g-test
+	rm -rf build-g-gui-test
 	rm -rf *.pro.user
 
 distclean: clean

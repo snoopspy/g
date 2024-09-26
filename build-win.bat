@@ -2,13 +2,13 @@ rem
 rem lib
 rem
 cd lib
-	mkdir libg
-	cd libg
+	mkdir build-libg
+	cd build-libg
 	qmake ../libg.pro "CONFIG+=release"
 	mingw32-make -j%NUMBER_OF_PROCESSORS%
 	cd ..
-	mkdir libg-gui
-	cd libg-gui
+	mkdir build-libg-gui
+	cd build-libg-gui
 	qmake ../libg-gui.pro "CONFIG+=release"
 	mingw32-make -j%NUMBER_OF_PROCESSORS%
 	cd ..

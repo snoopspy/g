@@ -55,8 +55,8 @@ if true; then
 	# lib
 	#
 	cd lib
-	mkdir -p build-
-	cd build-
+	mkdir -p build-libg
+	cd build-libg
 	$QTDIR/bin/qmake ../libg-gui.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
 	cd ../..
@@ -66,8 +66,8 @@ fi
 # snoopspy
 #
 if true; then
-	mkdir -p app/net/snoopspy/build-
-	cd app/net/snoopspy/build-
+	mkdir -p app/net/snoopspy/build
+	cd app/net/snoopspy/build
 	$QTDIR/bin/qmake ../snoopspy.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./android-build install
@@ -80,8 +80,8 @@ fi
 # bf
 #
 if true; then
-	mkdir -p app/net/bf/build-
-	cd app/net/bf/build-
+	mkdir -p app/net/bf/build
+	cd app/net/bf/build
 	$QTDIR/bin/qmake ../bf.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./android-build install
@@ -94,8 +94,8 @@ fi
 # ch
 #
 if true; then
-	mkdir -p app/net/ch/build-
-	cd app/net/ch/build-
+	mkdir -p app/net/ch/build
+	cd app/net/ch/build
 	$QTDIR/bin/qmake ../ch.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./android-build install
@@ -108,8 +108,8 @@ fi
 # ha
 #
 if true; then
-	mkdir -p app/net/ha/build-
-	cd app/net/ha/build-
+	mkdir -p app/net/ha/build
+	cd app/net/ha/build
 	$QTDIR/bin/qmake ../ha.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./android-build install
@@ -122,8 +122,8 @@ fi
 # pa
 #
 if true; then
-	mkdir -p app/net/pa/build-
-	cd app/net/pa/build-
+	mkdir -p app/net/pa/build
+	cd app/net/pa/build
 	$QTDIR/bin/qmake ../pa.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=././android-build install
@@ -136,7 +136,7 @@ fi
 # wa
 #
 if true; then
-	mkdir -p app/net/wa/build-
+	mkdir -p app/net/wa/build
 	cd app/net/wa/build-
 	$QTDIR/bin/qmake ../wa.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
