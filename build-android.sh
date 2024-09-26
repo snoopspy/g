@@ -137,7 +137,7 @@ fi
 #
 if true; then
 	mkdir -p app/net/wa/build
-	cd app/net/wa/build-
+	cd app/net/wa/build
 	$QTDIR/bin/qmake ../wa.pro -spec android-clang CONFIG+=release
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./android-build install
