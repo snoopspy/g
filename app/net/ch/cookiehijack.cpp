@@ -24,7 +24,7 @@ CookieHijack::CookieHijack(QObject* parent) : GGraph(parent) {
 	httpSiteList_.push_back("nexon.com");
 	httpSiteList_.push_back("op.gg");
 
-	httpsSiteList_.push_back("twitter.com");
+	httpsSiteList_.push_back("x.com");
 
 	prefix_ = "wwww";
 
