@@ -66,7 +66,8 @@ void GCookieHijack::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tc
 	// qDebug() << QString("_tcpFlowDetected %1").arg(QString(tcpFlowKey)); // gilgil temp 2021.04.07
 	(void)tcpFlowKey;
 	Item* item = getItem(tcpFlowValue);
-	new (item) Item(this);
+	GTcpHdr* tcpHdr = tcpFlowMgr_->currentPacket_->tcpHdr_;
+	new (item) Item(this, tcpHdr->seq() + 1);
 }
 
 void GCookieHijack::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
@@ -114,16 +115,16 @@ void GCookieHijack::hijack(GPacket* packet) {
 
 	GBuf tcpData = packet->tcpData_;
 	if (!tcpData.valid()) return;
-	QString segment = QString::fromLatin1(pchar(tcpData.data_), tcpData.size_);
+	QByteArray segment = QByteArray(pchar(tcpData.data_), tcpData.size_);
 
 	Q_ASSERT(tcpFlowMgr_->currentTcpFlowVal_ != nullptr);
 	Item* item = getItem(tcpFlowMgr_->currentTcpFlowVal_);
-	QString http = item->insertSegment(tcpHdr->seq(), segment);
+	QString http = item->insert(tcpHdr->seq(), segment);
 
 	QString host, cookie;
 	if (!extract(http, host, cookie))
 		return;
-	item->segments_.clear();
+	item->clear();
 
 	time_t created = packet->ts_.tv_sec;
 	GMac mac(GMac::nullMac());
@@ -134,28 +135,6 @@ void GCookieHijack::hijack(GPacket* packet) {
 	insert(created, mac, ip, host, cookie);
 	qDebug() << "\n" << host << "\n" << cookie;
 	emit hijacked(packet->ts_.tv_sec, mac, ip, host, cookie);
-}
-
-// ----------------------------------------------------------------------------
-// GCookieHijack::Item
-// ----------------------------------------------------------------------------
-QString GCookieHijack::Item::insertSegment(uint32_t seq, QString segment) {
-	segments_.insert(seq, segment);
-	while (segments_.count() > ch_->maxMergeCount_) {
-		segments_.erase(segments_.begin());
-	}
-
-	QString http;
-	uint32_t nextSeq = 0;
-	for (Map::iterator it = segments_.begin(); it != segments_.end(); it++) {
-		uint32_t seq = it.key();
-		QString& segment = it.value();
-		if (nextSeq == 0 || seq == nextSeq) {
-			nextSeq = seq + segment.size();
-			http += segment;
-		}
-	}
-	return http;
 }
 
 #ifdef QT_GUI_LIB

@@ -17,6 +17,7 @@
 
 #include "base/gstateobj.h"
 #include "net/manage/gtcpflowmgr.h"
+#include "net/pdu/gtcpsegment.h"
 
 // ----------------------------------------------------------------------------
 // GCookieHijack
@@ -47,14 +48,10 @@ public:
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
-	struct Item {
-		Item(GCookieHijack* ch) : ch_(ch) {}
+	struct Item : GTcpSegment {
+		Item(GCookieHijack* ch, uint32_t seq) : GTcpSegment(seq), ch_(ch) {}
 		~Item() {}
 		GCookieHijack* ch_;
-		struct Map : QMap<uint32_t /*seq*/, QString /*segment*/> {
-		} segments_;
-
-		QString insertSegment(uint32_t seq, QString segment);
 		bool extract(QString& host, QString &cookie);
 	};
 	typedef Item *PItem;
