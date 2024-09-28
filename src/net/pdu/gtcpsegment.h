@@ -10,7 +10,9 @@
 
 #pragma once
 
-#include <QMap>
+#include <map>
+#include <set>
+#include <QByteArray>
 #include <QRecursiveMutex>
 
 // ----------------------------------------------------------------------------
@@ -23,8 +25,8 @@ public:
 	QRecursiveMutex mutex_;
 
 protected:
-	struct Map : QMap<uint32_t /*seq*/, QByteArray /*segment*/> {
-	} map_;
+	struct Map : std::map<uint32_t /*seq*/, QByteArray /*segment*/> {} map_;
+	struct Set : std::set<int32_t /*seq*/> {} set_;
 	uint32_t firstSeq_;
 	uint32_t nextSeq_;
 	QByteArray reassemble();
