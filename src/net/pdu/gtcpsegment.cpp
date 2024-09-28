@@ -190,6 +190,26 @@ struct GTcpSegmentTest : testing::Test {
 		ba = ts.insert(seq, "CCCCC");
 		EXPECT_EQ(ba, "AAAAABBBCCC");
 	}
+
+	// AAAAA
+	//       CCCCC
+	//    BBBBB
+	void reverseOverlap(uint32_t seq) {
+		printf("reverseOverlap %d %u %08x\n", seq, seq, seq);
+		GTcpSegment ts(seq);
+		QByteArray ba;
+
+		ba = ts.insert(seq, "AAAAA");
+		EXPECT_EQ(ba, "AAAAA");
+
+		seq += 6;
+		ba = ts.insert(seq, "CCCCC");
+		EXPECT_EQ(ba, "AAAAA");
+
+		seq -= 3;
+		ba = ts.insert(seq, "BBBBB");
+		EXPECT_EQ(ba, "AAAAABBBCCC");
+	}
 };
 
 TEST_F(GTcpSegmentTest, basicTest) {
@@ -240,6 +260,16 @@ TEST_F(GTcpSegmentTest, overlapTest) {
 	overlap(INT32_MAX - 1);
 	overlap(INT32_MAX - 4);
 	overlap(INT32_MAX - 6);
+}
+
+TEST_F(GTcpSegmentTest, reverseOverlapTest) {
+	reverseOverlap(1);
+	reverseOverlap(uint32_t(-1));
+	reverseOverlap(uint32_t(-4));
+	reverseOverlap(uint32_t(-6));
+	reverseOverlap(INT32_MAX - 1);
+	reverseOverlap(INT32_MAX - 4);
+	reverseOverlap(INT32_MAX - 6);
 }
 
 #endif // GTEST
