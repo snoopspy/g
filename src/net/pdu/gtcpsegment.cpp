@@ -16,12 +16,10 @@ QByteArray GTcpSegment::reassemble() {
 	for (auto it = map_.begin(); it != map_.end();) {
 		uint32_t seq = it.key();
 		QByteArray& segment = it.value();
-		uint32_t diff = uint32_t(nextSeq_ - seq);
-		qDebug() << QString::number(diff, 16) << nextSeq_ << seq;
 		bool ok = true;
 		if (nextSeq_ < 0x0000FFFF && seq > 0xFFFF0000) // maybe overflow
 			ok = true;
-		else if (nextSeq_ >= 0x0000FFFF && seq <= 0xFFFF0000) // maybe overflow
+		else if (seq < 0x0000FFFF && nextSeq_ > 0xFFFF0000) // maybe overflow
 			ok = false;
 		else if (nextSeq_ < seq)
 			ok = false;
@@ -46,6 +44,7 @@ struct GTcpSegmentTest : testing::Test {
 	//      BBBBB
 	//           CCCCC
 	void basic(uint32_t seq) {
+		printf("basic %d %u %08x\n", seq, seq, seq);
 		GTcpSegment ts(seq);
 		QByteArray ba;
 
@@ -66,6 +65,7 @@ struct GTcpSegmentTest : testing::Test {
 	//      BBBBB
 	//           CCCCC
 	void duplicate(uint32_t seq) {
+		printf("duplicate %d %u %08x\n", seq, seq, seq);
 		GTcpSegment ts(seq);
 		QByteArray ba;
 
@@ -88,6 +88,7 @@ struct GTcpSegmentTest : testing::Test {
 	//           CCCCC
 	//      BBBBB
 	void reverse(uint32_t seq) {
+		printf("reverse %d %u %08x\n", seq, seq, seq);
 		GTcpSegment ts(seq);
 		QByteArray ba;
 
@@ -108,6 +109,7 @@ struct GTcpSegmentTest : testing::Test {
 	//      BBBBB
 	//      BBBBB
 	void reverseDuplicate(uint32_t seq) {
+		printf("reverseDuplicate %d %u %08x\n", seq, seq, seq);
 		GTcpSegment ts(seq);
 		QByteArray ba;
 
@@ -130,6 +132,7 @@ struct GTcpSegmentTest : testing::Test {
 	//    BBBBB
 	//       CCCCC
 	void overlap(uint32_t seq) {
+		printf("overlap %d %u %08x\n", seq, seq, seq);
 		GTcpSegment ts(seq);
 		QByteArray ba;
 
@@ -151,13 +154,19 @@ TEST_F(GTcpSegmentTest, basicTest) {
 	basic(uint32_t(-1));
 	basic(uint32_t(-4));
 	basic(uint32_t(-6));
+	basic(0x80000000 - 1);
+	basic(0x80000000 - 4);
+	basic(0x80000000 - 6);
 }
 
 TEST_F(GTcpSegmentTest, duplicateTest) {
 	duplicate(1);
-	reverse(uint32_t(-1));
-	reverse(uint32_t(-4));
-	reverse(uint32_t(-6));
+	duplicate(uint32_t(-1));
+	duplicate(uint32_t(-4));
+	duplicate(uint32_t(-6));
+	duplicate(0x80000000 - 1);
+	duplicate(0x80000000 - 4);
+	duplicate(0x80000000 - 6);
 }
 
 TEST_F(GTcpSegmentTest, reverseTest) {
@@ -165,6 +174,9 @@ TEST_F(GTcpSegmentTest, reverseTest) {
 	reverse(uint32_t(-1));
 	reverse(uint32_t(-4));
 	reverse(uint32_t(-6));
+	reverse(0x80000000 - 1);
+	reverse(0x80000000 - 4);
+	reverse(0x80000000 - 6);
 }
 
 TEST_F(GTcpSegmentTest, reverseDuplicateTest) {
@@ -172,10 +184,16 @@ TEST_F(GTcpSegmentTest, reverseDuplicateTest) {
 	reverseDuplicate(uint32_t(-1));
 	reverseDuplicate(uint32_t(-4));
 	reverseDuplicate(uint32_t(-6));
+	reverseDuplicate(0x80000000 - 1);
+	reverseDuplicate(0x80000000 - 4);
+	reverseDuplicate(0x80000000 - 6);
 }
 
 TEST_F(GTcpSegmentTest, overlapTest) {
 	overlap(1);
+	overlap(uint32_t(-1));
+	overlap(uint32_t(-4));
+	overlap(uint32_t(-6));
 	overlap(uint32_t(-1));
 	overlap(uint32_t(-4));
 	overlap(uint32_t(-6));
