@@ -51,7 +51,7 @@ struct G_EXPORT GDhcpHdr final {
 	uint8_t* bootFileName() { return bootFileName_; }
 	uint32_t magic() { return ntohl(magic_); }
 
-	// OptionType(Option::type_)
+	// Option::type_
 	enum: uint8_t {
 		HostName = 12,
 		RequestedIpAddress = 50,

@@ -21,7 +21,7 @@ struct G_EXPORT GTlsHdr final {
 	uint16_t version_;
 	uint16_t length_;
 
-	// ContentType(contentType_)
+	// contentType_
 	enum ContentType : uint16_t {
 		Unassigned = 0, // 0x00 (0 - 19)
 		ChangeCipherSpec = 20, // 0x14
@@ -59,12 +59,12 @@ struct G_EXPORT GTlsHdr final {
 		Tls1_3_D26 = 0x7f1a, /** TLS 1.3 (draft 26) */
 		Tls1_3_D27 = 0x7f1b, /** TLS 1.3 (draft 27) */
 		Tls1_3_D28 = 0x7f1c, /** TLS 1.3 (draft 28) */
-		Tls1_3_FBD23 = 0xfb17, /** TLS 1.3 (Facebook draft 23) */
-		Tls1_3_FBD26 = 0xfb1a, /** TLS 1.3 (Facebook draft 26) */
+		Tls1_3_Fbd23 = 0xfb17, /** TLS 1.3 (Facebook draft 23) */
+		Tls1_3_Fbd26 = 0xfb1a, /** TLS 1.3 (Facebook draft 26) */
 		Unknown = 0 /** Unknown value */
 	};
 
-	// HandleShakeType(handshakeType_)
+	// handshakeType_
 	enum: uint8_t {
 		HelloRequest = 0, // 0x00
 		ClientHello = 1, // 0x01

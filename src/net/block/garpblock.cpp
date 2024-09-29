@@ -70,7 +70,7 @@ bool GArpBlock::doOpen() {
 	sendPacket_.ethHdr_.smac_ = mac_;
 	sendPacket_.ethHdr_.type_ = htons(GEthHdr::Arp);
 
-	sendPacket_.arpHdr_.hrd_ = htons(GArpHdr::ETHER);
+	sendPacket_.arpHdr_.hrd_ = htons(GArpHdr::Ether);
 	sendPacket_.arpHdr_.pro_ = htons(GEthHdr::Ip4);
 	sendPacket_.arpHdr_.hln_ = GMac::Size;
 	sendPacket_.arpHdr_.pln_ = GIp::Size;

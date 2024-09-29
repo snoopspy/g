@@ -25,7 +25,7 @@ struct G_EXPORT GIcmpHdr {
 	uint8_t code() { return code_; }
 	uint16_t sum() { return ntohs(sum_); }
 
-	// Type(type_)
+	// type_
 	enum: uint8_t {
 		PingReply = 0,
 		DestinationUnReaclable = 3,

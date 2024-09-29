@@ -86,7 +86,7 @@ void GHostScan::run() {
 	ethHdr->type_ = htons(GEthHdr::Arp);
 
 	GArpHdr* arpHdr = &packet.arpHdr_;
-	arpHdr->hrd_ = htons(GArpHdr::ETHER);
+	arpHdr->hrd_ = htons(GArpHdr::Ether);
 	arpHdr->pro_ = htons(GEthHdr::Ip4);
 	arpHdr->hln_ = GMac::Size;
 	arpHdr->pln_ = GIp::Size;

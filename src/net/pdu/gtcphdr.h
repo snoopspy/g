@@ -38,7 +38,7 @@ struct G_EXPORT GTcpHdr final {
 	uint16_t sum() { return ntohs(sum_); }
 	uint16_t urp() { return ntohs(urp_); }
 
-	// Flag(flag_)
+	// flag_
 	enum: uint8_t {
 		Urg = 0x20,
 		Ack = 0x10,

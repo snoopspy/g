@@ -79,7 +79,7 @@ void GHostWatch::WatchThread::run() {
 		ethHdr->smac_ = myMac;
 		ethHdr->type_ = htons(GEthHdr::Arp);
 
-		arpHdr->hrd_ = htons(GArpHdr::ETHER);
+		arpHdr->hrd_ = htons(GArpHdr::Ether);
 		arpHdr->pro_ = htons(GEthHdr::Ip4);
 		arpHdr->hln_ = GMac::Size;
 		arpHdr->pln_ = GIp::Size;

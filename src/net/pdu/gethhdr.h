@@ -25,7 +25,7 @@ struct G_EXPORT GEthHdr final {
 	GMac smac() { return smac_; }
 	uint16_t type() { return ntohs(type_); }
 
-	// Type(type_)
+	// type_
 	enum: uint16_t {
 		Ip4 = 0x0800,
 		Arp = 0x0806,

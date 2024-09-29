@@ -45,7 +45,7 @@ struct G_EXPORT GIpHdr final {
 	GIp sip() { return ntohl(sip_); }
 	GIp dip() { return ntohl(dip_); }
 
-	// Protocol(p_)
+	// p_
 	enum: uint8_t {
 		Icmp = 1, // Internet Control Message Protocol
 		Igmp = 2, // Internet Group Management Protocol

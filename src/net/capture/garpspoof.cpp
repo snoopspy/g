@@ -301,7 +301,7 @@ void GArpSpoof::Flow::makePacket(GEthArpPacket* packet, GMac attackMac, bool inf
 	packet->ethHdr_.smac_ = attackMac;
 	packet->ethHdr_.type_ = htons(GEthHdr::Arp);
 
-	packet->arpHdr_.hrd_ = htons(GArpHdr::ETHER);
+	packet->arpHdr_.hrd_ = htons(GArpHdr::Ether);
 	packet->arpHdr_.pro_ = htons(GEthHdr::Ip4);
 	packet->arpHdr_.hln_ = GMac::Size;
 	packet->arpHdr_.pln_ = GIp::Size;
