@@ -30,7 +30,7 @@ QByteArray GTcpSegment::reassemble() {
 		}
 		if (!ok) break;
 
-		QByteArray segment = it->second;
+		QByteArray& segment = it->second;
 		int32_t skip = nextSeq_ - seq;
 		Q_ASSERT(skip >= 0);
 		segment = segment.mid(skip);
