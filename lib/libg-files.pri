@@ -133,6 +133,7 @@ SOURCES += \
 	$${PWD}/../src/net/pdu/gradiohdr.cpp \
 	$${PWD}/../src/net/pdu/gtcphdr.cpp \
 	$${PWD}/../src/net/pdu/gtcpsegment.cpp \
+	$${PWD}/../src/net/pdu/gtlshdr.cpp \
 	$${PWD}/../src/net/pdu/gudphdr.cpp \
 	$${PWD}/../src/net/process/gclienthellosplit.cpp \
 	$${PWD}/../src/net/process/gcommand.cpp \
@@ -289,6 +290,7 @@ HEADERS += \
 	$${PWD}/../src/net/pdu/gradiohdr.h \
 	$${PWD}/../src/net/pdu/gtcphdr.h \
 	$${PWD}/../src/net/pdu/gtcpsegment.h \
+	$${PWD}/../src/net/pdu/gtlshdr.h \
 	$${PWD}/../src/net/pdu/gudphdr.h \
 	$${PWD}/../src/net/process/gclienthellosplit.h \
 	$${PWD}/../src/net/process/gcommand.h \
