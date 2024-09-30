@@ -48,8 +48,9 @@ public:
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
-	struct Item : GTcpSegment {
-		Item(uint32_t seq) : GTcpSegment(seq) {}
+	struct Item {
+		GTcpSegment segment_;
+		Item(uint32_t seq) : segment_(seq) {}
 		~Item() {}
 	};
 	typedef Item *PItem;

@@ -208,6 +208,7 @@ void GPluginFactory::loadFirewall() {
 // ----------------------------------------------------------------------------
 // Manage
 // ----------------------------------------------------------------------------
+#include <GCertMgr>
 #include <GHostDb>
 #include <GHostMgr>
 #include <GHostScan>
@@ -218,6 +219,7 @@ void GPluginFactory::loadFirewall() {
 #include <GUdpFlowMgr>
 
 void GPluginFactory::loadManage() {
+	qRegisterMetaType<GCertMgr*>();
 	qRegisterMetaType<GHostDb*>();
 	qRegisterMetaType<GHostMgr*>();
 	qRegisterMetaType<GHostScan*>();
@@ -228,6 +230,7 @@ void GPluginFactory::loadManage() {
 	qRegisterMetaType<GUdpFlowMgr*>();
 
 	ItemCategory* category = new ItemCategory("Manage");
+	category->items_.push_back(new ItemNode("GCertMgr"));
 	category->items_.push_back(new ItemNode("GHostDb"));
 	category->items_.push_back(new ItemNode("GHostMgr"));
 	category->items_.push_back(new ItemNode("GHostScan"));

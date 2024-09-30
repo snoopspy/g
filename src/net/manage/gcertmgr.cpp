@@ -44,26 +44,41 @@ void GCertMgr::manage(GPacket* packet) {
 	GBuf tcpData = packet->tcpData_;
 	if (!tcpData.valid()) return;
 	QByteArray ba(reinterpret_cast<const char*>(tcpData.data_), tcpData.size_);
-	*item += ba;
+	item->segment_ += ba;
 
-	gbyte* p = pbyte(item->constData());
-	uint32_t size = item->size();
-	GTls::Record* tr = GTls::Record::check(p, &size);
-	if (tr == nullptr) return;
-	if (tr->contentType_ != GTls::Record::Handshake) {
-		item->handshakeFinished_ = true;
-		return;
-	}
+	while (true) {
+		gbyte* p = pbyte(item->segment_.constData());
+		uint32_t size = item->segment_.size();
+		if (size == 0) break;
 
-	GTls::Handshake* hs = GTls::Handshake::check(tr, &size);
-	if (hs == nullptr) return;
+		GTls::Record* tr = GTls::Record::check(p, &size);
+		if (tr == nullptr) return;
+		if (tr->contentType_ != GTls::Record::Handshake) {
+			item->handshakeFinished_ = true; // gilgil temp 2024.10.01
+			return;
+		}
 
-	uint32_t length = hs->length_;
-	switch (hs->handshakeType_) {
-		case GTls::Handshake::ClientHello: printf("ClientHello %u\n", length); break;
-		case GTls::Handshake::ServerHello: printf("ServerHello %u\n", length); break;
-		case GTls::Handshake::Certificate: printf("Certificate %u\n", length); break;
-		default:
-			printf("%u %u", hs->handshakeType_, length);
+		GTls::Handshake* hs = GTls::Handshake::check(tr, &size);
+		if (hs == nullptr) return;
+		emit managed(hs);
+
+		uint32_t length = hs->length_;
+		switch (hs->handshakeType_) {
+			case GTls::Handshake::HelloRequest: qDebug() << "HelloRequest" << length; break;
+				case GTls::Handshake::ClientHello: qDebug() << "ClientHello" << length; break;
+				case GTls::Handshake::ServerHello: qDebug() << "ServerHello" << length; break;
+				case GTls::Handshake::NetSessionTicket: qDebug() << "NetSessionTicket" << length; break;
+				case GTls::Handshake::Certificate: qDebug() << "Certificate" << length; break;
+				case GTls::Handshake::ServerKeyExchange: qDebug() << "ServerKeyExchange" << length; break;
+				case GTls::Handshake::CertificateRequest: qDebug() << "CertificateRequest" << length; break;
+				case GTls::Handshake::ServerHelloDone: qDebug() << "ServerHelloDone" << length; break;
+				case GTls::Handshake::CertificateVerify: qDebug() << "CertificateVerify" << length; break;
+				case GTls::Handshake::ClientKeyExchange: qDebug() << "ClientKeyExchange" << length; break;
+				case GTls::Handshake::Finished: qDebug() << "Finished" << length; break;
+				case GTls::Handshake::CertificateStatus: qDebug() << "CertificateStatus" << length; break;
+			default:
+				qDebug() << "Unknown" << uint(hs->handshakeType_) << length; break;
+		}
+		item->segment_.remove(0, sizeof(GTls::Record) + sizeof(GTls::Handshake) + length);
 	}
 }

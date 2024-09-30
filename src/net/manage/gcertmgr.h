@@ -46,9 +46,10 @@ public:
 	// --------------------------------------------------------------------------
 	// Item
 	// --------------------------------------------------------------------------
-	struct Item : GTcpSegment {
+	struct Item {
+		GTcpSegment segment_;
 		bool handshakeFinished_{false};
-		Item(uint32_t seq) : GTcpSegment(seq) {}
+		Item(uint32_t seq) : segment_(seq) {}
 		~Item() {}
 	};
 	typedef Item *PItem;

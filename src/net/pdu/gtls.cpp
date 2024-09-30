@@ -5,13 +5,13 @@
 // ----------------------------------------------------------------------------
 GTls::Record* GTls::Record::check(gbyte* p, uint32_t* size) {
 	if (*size < sizeof(GTls::Record)) {
-		qDebug() << QString("size(%d) is too short").arg(*size); // gilgil temp 2024.10.01
+		qDebug() << QString("size(%1) is too short").arg(*size); // gilgil temp 2024.10.01
 		return nullptr;
 	}
 	GTls::Record* tr = GTls::PRecord(p);
 	uint16_t r = sizeof(GTls::Record) + tr->length();
 	if (*size < r) {
-		qDebug() << QString("size(%d) is less then r(%d)").arg(*size).arg(r); // gilgil temp 2024.10.01
+		qDebug() << QString("size(%1) is less then r(%2)").arg(*size).arg(r); // gilgil temp 2024.10.01
 		return nullptr;
 	}
 	*size -= sizeof(GTls::Record);
@@ -20,15 +20,15 @@ GTls::Record* GTls::Record::check(gbyte* p, uint32_t* size) {
 
 GTls::Handshake* GTls::Handshake::check(GTls::Record* tr, uint32_t* size) {
 	Q_ASSERT(tr->contentType() == GTls::Record::Handshake);
-	if (*size < sizeof(GTls::Record) + sizeof(GTls::Handshake)) {
-		qDebug() << QString("size(%d) is too short").arg(*size); // gilgil temp 2024.10.01
+	if (*size < sizeof(GTls::Handshake)) {
+		qDebug() << QString("size(%1) is too short").arg(*size); // gilgil temp 2024.10.01
 		return nullptr;
 	}
 	GTls::Handshake* hs = GTls::PHandshake(pbyte(tr) + sizeof(GTls::Record));
 	uint16_t length = hs->length_;
 	uint16_t r = sizeof(GTls::Handshake) + length;
 	if (*size < r) {
-		qDebug() << QString("size(%d) is less then r(%d)").arg(*size).arg(r); // gilgil temp 2024.10.01
+		qDebug() << QString("size(%1) is less then r(%2)").arg(*size).arg(r); // gilgil temp 2024.10.01
 		return nullptr;
 	}
 	*size -= sizeof(GTls::Handshake);
@@ -53,7 +53,7 @@ struct GTlsTestObj : GObj {
 public:
 	GTlsTestObj(QString fileName) {
 		pcapFile_.fileName_ = fileName;
-		QObject::connect(&certMgr_, &GCertMgr::managed, this, &GTlsTestObj::debug);
+		QObject::connect(&certMgr_, &GCertMgr::managed, this, &GTlsTestObj::debug, Qt::DirectConnection);
 		certMgr_.tcpFlowMgr_ = &tcpFlowMgr_;
 	}
 
@@ -94,10 +94,10 @@ public:
 		certMgr_.manage(&packet);
 	}
 
+	GTls::Handshake* currentHs_{nullptr};
 public slots:
 	void debug(GTls::Handshake* hs) {
-		uint8_t hst = hs->handshakeType_;
-		printf("handshakeType=%d 0x%02x\n", hst, hst);
+		currentHs_ = hs;
 	}
 };
 
@@ -105,6 +105,52 @@ TEST(GTlsTest, netclient_g_gilgil_net_tls1_0) {
 	GTlsTestObj obj("pcap/tls/netclient-g.gilgil.net-tls1_0.pcap");
 	EXPECT_EQ(obj.open(), true);
 	obj.readOnePacket();
+	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(obj.currentHs_->length_, 186);
+}
+
+TEST(GTlsTest, netclient_g_gilgil_net_tls1_1) {
+	GTlsTestObj obj("pcap/tls/netclient-g.gilgil.net-tls1_1.pcap");
+	EXPECT_EQ(obj.open(), true);
+	obj.readOnePacket();
+	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(obj.currentHs_->length_, 186);
+	obj.readOnePacket();
+	obj.readOnePacket();
+	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ServerHelloDone);
+	EXPECT_EQ(obj.currentHs_->length_, 0);
+}
+
+TEST(GTlsTest, netclient_g_gilgil_net_tls1_2) {
+	GTlsTestObj obj("pcap/tls/netclient-g.gilgil.net-tls1_2.pcap");
+	EXPECT_EQ(obj.open(), true);
+	obj.readOnePacket();
+	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(obj.currentHs_->length_, 508);
+	obj.readOnePacket();
+	obj.readOnePacket();
+	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ServerHelloDone);
+	EXPECT_EQ(obj.currentHs_->length_, 0);
+	obj.readOnePacket();
+	obj.readOnePacket();
+	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientKeyExchange);
+	EXPECT_EQ(obj.currentHs_->length_, 66);
+}
+
+TEST(GTlsTest, tls_all) {
+	GTlsTestObj obj("pcap/tls/tls_all.pcap");
+	EXPECT_EQ(obj.open(), true);
+	obj.readOnePacket();
+	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(obj.currentHs_->length_, 508);
+	obj.readOnePacket();
+	obj.readOnePacket();
+	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ServerHelloDone);
+	EXPECT_EQ(obj.currentHs_->length_, 0);
+	obj.readOnePacket();
+	obj.readOnePacket();
+	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientKeyExchange);
+	EXPECT_EQ(obj.currentHs_->length_, 66);
 }
 
 #include "gtls.moc"

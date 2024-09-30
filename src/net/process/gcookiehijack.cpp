@@ -122,12 +122,12 @@ void GCookieHijack::hijack(GPacket* packet) {
 
 	Q_ASSERT(tcpFlowMgr_->currentTcpFlowVal_ != nullptr);
 	Item* item = getItem(tcpFlowMgr_->currentTcpFlowVal_);
-	QString http = item->insert(tcpHdr->seq(), segment);
+	QString http = item->segment_.insert(tcpHdr->seq(), segment);
 
 	QString host, cookie;
 	if (!extract(http, host, cookie))
 		return;
-	item->clear();
+	item->segment_.clear();
 
 	time_t created = packet->ts_.tv_sec;
 	GMac mac(GMac::nullMac());
