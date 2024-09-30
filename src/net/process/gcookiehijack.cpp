@@ -67,9 +67,10 @@ void GCookieHijack::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::Tc
 	(void)tcpFlowKey;
 	Item* item = getItem(tcpFlowValue);
 	GTcpHdr* tcpHdr = tcpFlowMgr_->currentPacket_->tcpHdr_;
+	Q_ASSERT(tcpHdr != nullptr);
 	bool synExist = (tcpHdr->flags() & GTcpHdr::Syn) != 0;
 	bool finExist = (tcpHdr->flags() & GTcpHdr::Fin) != 0;
-	new (item) Item(this, tcpHdr->seq() + (synExist || finExist ? 1 : 0));
+	new (item) Item(tcpHdr->seq() + (synExist || finExist ? 1 : 0));
 }
 
 void GCookieHijack::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {

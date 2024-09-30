@@ -10,35 +10,33 @@
 
 #pragma once
 
-#include <QRegularExpression>
-#include <QSqlDatabase>
-#include <QSqlError>
-#include <QSqlQuery>
-
 #include "base/gstateobj.h"
 #include "net/manage/gtcpflowmgr.h"
 #include "net/pdu/gtcpsegment.h"
+#include "net/pdu/gtls.h"
 
 // ----------------------------------------------------------------------------
-// GCookieHijack
+// GCertMgr
 // ----------------------------------------------------------------------------
-struct G_EXPORT GCookieHijack : GStateObj, GTcpFlowMgr::Managable, QRecursiveMutex {
+struct G_EXPORT GCertMgr : GStateObj, GTcpFlowMgr::Managable {
 	Q_OBJECT
-	Q_PROPERTY(QString fileName MEMBER fileName_)
-	Q_PROPERTY(int maxMergeCount MEMBER maxMergeCount_)
+	Q_PROPERTY(QString caDirectory MEMBER caDirectory_)
+	Q_PROPERTY(QString intermediateDirectory MEMBER intermediateDirectory_)
+	Q_PROPERTY(QString serverDirectory MEMBER serverDirectory_)
 	Q_PROPERTY(GObjPtr tcpFlowMgr READ getTcpFlowMgr WRITE setTcpFlowMgr)
 
 	GObjPtr getTcpFlowMgr() { return tcpFlowMgr_; }
 	void setTcpFlowMgr(GObjPtr value) { tcpFlowMgr_ = dynamic_cast<GTcpFlowMgr*>(value.data()); }
 
 public:
-	QString fileName_{"cookiehijack.db"};
-	int maxMergeCount_{5};
+	QString caDirectory_;
+	QString intermediateDirectory_;
+	QString serverDirectory_;
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 
 public:
-	Q_INVOKABLE GCookieHijack(QObject* parent = nullptr) : GStateObj(parent) {}
-	~GCookieHijack() override { close(); }
+	Q_INVOKABLE GCertMgr(QObject* parent = nullptr) : GStateObj(parent) {}
+	~GCertMgr() override { close(); }
 
 protected:
 	bool doOpen() override;
@@ -49,6 +47,7 @@ public:
 	// Item
 	// --------------------------------------------------------------------------
 	struct Item : GTcpSegment {
+		bool handshakeFinished_{false};
 		Item(uint32_t seq) : GTcpSegment(seq) {}
 		~Item() {}
 	};
@@ -61,26 +60,9 @@ public:
 	void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 
-protected:
-	QRegularExpression reHost_;
-	QRegularExpression reCookie_;
-
-public:
-	QSqlDatabase db_;
-	QSqlQuery* insertQuery_{nullptr};
-
-public:
-	bool extract(QString httpRequest, QString& host, QString& cookie);
-	bool insert(time_t created, GMac mac, GIp ip, QString host, QString cookie);
-
 public slots:
-	void hijack(GPacket* packet);
+	void manage(GPacket* packet);
 
 signals:
-	void hijacked(time_t created, GMac mac, GIp ip, QString host, QString cookie);
-
-#ifdef QT_GUI_LIB
-public:
-	GPropItem* propCreateItem(GPropItemParam* param) override;
-#endif // QT_GUI_LIB
+	void managed(GTls::Handshake* hs);
 };

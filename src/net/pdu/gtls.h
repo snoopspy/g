@@ -18,12 +18,16 @@
 #pragma pack(push, 1)
 namespace GTls {
 	struct Record {
-		uint16_t contentType_;
+		uint8_t contentType_;
 		uint16_t version_;
 		uint16_t length_;
 
+		uint8_t contentType() { return contentType_; }
+		uint16_t version() { return ntohs(version_); }
+		uint16_t length() { return ntohs(length_); }
+
 		// contentType_
-		enum ContentType : uint16_t {
+		enum: uint16_t {
 			Unassigned = 0, // 0x00 (0 - 19)
 			ChangeCipherSpec = 20, // 0x14
 			Alert = 21, // 0x15
@@ -38,7 +42,7 @@ namespace GTls {
 		};
 
 		// version_
-		enum Version : uint16_t {
+		enum: uint16_t {
 			Ssl2 = 0x0200, /** SSL 2.0 */
 			Ssl3 = 0x0300, /** SSL 3.0 */
 			Tls1_0 = 0x0301, /** TLS 1.0 */
@@ -65,9 +69,9 @@ namespace GTls {
 			Unknown = 0 /** Unknown value */
 		};
 
-		static GTls::Record* check(gbyte* p, uint32_t size);
+		static GTls::Record* check(gbyte* p, uint32_t* size);
 	};
-
+	typedef Record *PRecord;
 
 	struct Handshake {
 		struct Length3 {
@@ -96,8 +100,9 @@ namespace GTls {
 			CertificateStatus = 22 // 0x16
 		};
 
-		static GTls::Handshake* check(GTls::Record* tr, uint32_t size);
+		static GTls::Handshake* check(GTls::Record* tr, uint32_t* size);
 	};
+	typedef Handshake *PHandshake;
 
 	struct Extension {
 		uint16_t type_;
@@ -107,10 +112,18 @@ namespace GTls {
 			return pbyte(this) + sizeof(type_) + sizeof(length_);
 		}
 
+		// type_
+		enum: uint16_t {
+			ServerName = 0,
+			EcPointformats = 11,
+			KeyShare = 51,
+			SupportedVersions = 43
+		};
+
 		Extension* next() {
 			gbyte* res = pbyte(this);
 			res += sizeof(Extension) + length_;
-			return PExtension(res);
+			return reinterpret_cast<Extension*>(res);
 		}
 	};
 	typedef Extension *PExtension;
@@ -118,26 +131,30 @@ namespace GTls {
 	struct ClientHelloHs : Handshake {
 		uint16_t version_;
 		uint8_t random[32];
-		uint8_t sessionIdLength_;
 		QByteArray sessionId_;
 		QList<uint16_t> cipherSuites_;
 		QByteArray compressionMethods_;
 		QList<Extension> extensions_;
+
+		bool parse(GTls::Handshake* hs, uint32_t size);
+	};
+
+	struct ServerHelloHs : Handshake {
+		uint16_t version_;
+		uint8_t random[32];
+		QByteArray sessionId_;
+		uint16_t cipherSuite_;
+		QByteArray compressionMethods_;
+		QList<Extension> extensions_;
+
 		bool parse(gbyte* p, uint32_t size);
 	};
 
-	struct ServerHello : Handshake {
-		uint16_t version_;
-		uint8_t random[32];
-		uint8_t sessionIdLength_;
-	};
+	struct CertificateHs : Handshake {
+		Handshake::Length3 certificatesLength;
+		QList<QByteArray> certificates_;
 
-	struct Certificate : Handshake {
-		uint8_t certificatesLength_[3];
-
-		struct Certificate_ {
-
-		};
+		bool parse(GTls::Handshake* hs, uint32_t size);
 	};
 
 	struct ServreHelloDone : Handshake {
