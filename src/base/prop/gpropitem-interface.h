@@ -28,8 +28,8 @@ protected:
 	QStringList intfNames_;
 
 protected slots:
-	void myCurrentTextChanged(const QString &text);
 	void myCurrentIndexChanged(int index);
+	void myCurrentTextChanged(const QString &text);
 };
 
 #endif // QT_GUI_LIB
