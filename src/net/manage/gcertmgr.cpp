@@ -75,12 +75,21 @@ void GCertMgr::manage(GPacket* packet) {
 		uint32_t size = item->segment_.size();
 		if (size == 0) break;
 
-		GTls::Record* tr = GTls::Record::check(p, &size);
-		if (tr == nullptr) return;
-		if (tr->contentType_ != GTls::Record::Handshake) {
+		if (size < sizeof(GTls::Record)) {
+			qDebug() << QString("size(%1) is too short").arg(size); // gilgil temp 2024.10.01
+			return;
+		}
+		GTls::Record* tr = GTls::PRecord(p);
+		if (tr->contentType() != GTls::Record::Handshake) { // may be not TLS handshake
 			item->checkNeeded_ = false;
 			return;
 		}
+		uint16_t r = sizeof(GTls::Record) + tr->length();
+		if (size < r) {
+			qDebug() << QString("size(%1) is less then r(%2)").arg(size).arg(r); // gilgil temp 2024.10.01
+			return;
+		}
+		size -= sizeof(GTls::Record);
 
 		GTls::Handshake* hs = GTls::Handshake::check(tr, &size);
 		if (hs == nullptr) return;

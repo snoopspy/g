@@ -3,21 +3,6 @@
 // ----------------------------------------------------------------------------
 // GTlsHdr
 // ----------------------------------------------------------------------------
-GTls::Record* GTls::Record::check(gbyte* p, uint32_t* size) {
-	if (*size < sizeof(GTls::Record)) {
-		qDebug() << QString("size(%1) is too short").arg(*size); // gilgil temp 2024.10.01
-		return nullptr;
-	}
-	GTls::Record* tr = GTls::PRecord(p);
-	uint16_t r = sizeof(GTls::Record) + tr->length();
-	if (*size < r) {
-		qDebug() << QString("size(%1) is less then r(%2)").arg(*size).arg(r); // gilgil temp 2024.10.01
-		return nullptr;
-	}
-	*size -= sizeof(GTls::Record);
-	return tr;
-}
-
 GTls::Handshake* GTls::Handshake::check(GTls::Record* tr, uint32_t* size) {
 	Q_ASSERT(tr->contentType() == GTls::Record::Handshake);
 	if (*size < sizeof(GTls::Handshake)) {

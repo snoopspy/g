@@ -68,8 +68,6 @@ namespace GTls {
 			Tls1_3_Fbd26 = 0xfb1a, /** TLS 1.3 (Facebook draft 26) */
 			Unknown = 0 /** Unknown value */
 		};
-
-		static GTls::Record* check(gbyte* p, uint32_t* size);
 	};
 	typedef Record *PRecord;
 
