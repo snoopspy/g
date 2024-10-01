@@ -47,8 +47,10 @@ public:
 	// Item
 	// --------------------------------------------------------------------------
 	struct Item {
+		bool checkNeeded_{true};
 		GTcpSegment segment_;
-		bool handshakeFinished_{false};
+		QString serverName_;
+		QList<QByteArray> certificates_;
 		Item(uint32_t seq) : segment_(seq) {}
 		~Item() {}
 	};
@@ -61,9 +63,13 @@ public:
 	void tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 	void tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) override;
 
+	static QString extractServerName(GTls::Handshake *hs);
+	static QList<QByteArray> extractCertificates(GTls::Handshake *hs);
+
 public slots:
 	void manage(GPacket* packet);
 
 signals:
-	void managed(GTls::Handshake* hs);
+	void handshakeDetected(GTls::Handshake* hs);
+	void certificatesDetected(QString serverName, QList<QByteArray> certificates);
 };

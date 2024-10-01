@@ -36,10 +36,34 @@ void GCertMgr::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlow
 	qDebug() << QString("_tcpFlowDeleted %1").arg(QString(tcpFlowKey)); // gilgil temp 2021.04.07
 }
 
+QString GCertMgr::extractServerName(GTls::Handshake *hs) {
+	GTls::ClientHelloHs ch;
+	ch.parse(hs);
+	if (ch.extensions_.size() > 0) {
+		GTls::Extension* extension = ch.extensions_.at(0);
+		uint16_t type = extension->type();
+		if (type == GTls::Extension::ServerName) {
+			GTls::ServerNameIndication* sni = GTls::PServerNameIndication(extension);
+			QByteArray serverName = sni->serverName();
+			qDebug() << QString("serverName=%1").arg(serverName);
+			return serverName;
+		} else {
+			qWarning() << QString("Invalid extension type(%1)").arg(type);
+			return QString();
+		}
+	}
+}
+
+QList<QByteArray> GCertMgr::extractCertificates(GTls::Handshake *hs) {
+	GTls::CertificateHs cr;
+	cr.parse(hs);
+	return cr.certificates_;
+}
+
 void GCertMgr::manage(GPacket* packet) {
 	Item* item = getItem(tcpFlowMgr_->currentTcpFlowVal_);
 	Q_ASSERT(item != nullptr);
-	if (item->handshakeFinished_) return;
+	if (!item->checkNeeded_) return;
 
 	GBuf tcpData = packet->tcpData_;
 	if (!tcpData.valid()) return;
@@ -54,36 +78,54 @@ void GCertMgr::manage(GPacket* packet) {
 		GTls::Record* tr = GTls::Record::check(p, &size);
 		if (tr == nullptr) return;
 		if (tr->contentType_ != GTls::Record::Handshake) {
-			item->handshakeFinished_ = true; // gilgil temp 2024.10.01
+			item->checkNeeded_ = false;
 			return;
 		}
 
 		GTls::Handshake* hs = GTls::Handshake::check(tr, &size);
 		if (hs == nullptr) return;
-		emit managed(hs);
+		emit handshakeDetected(hs);
 
 		uint32_t length = hs->length_;
-		switch (hs->handshakeType_) {
+		uint8_t handshakeType = hs->handshakeType_;
+		switch (handshakeType) {
 			case GTls::Handshake::HelloRequest: qDebug() << "HelloRequest" << length; break;
-				case GTls::Handshake::ClientHello: qDebug() << "ClientHello" << length; break;
-				case GTls::Handshake::ServerHello: qDebug() << "ServerHello" << length; break;
-				case GTls::Handshake::NetSessionTicket: qDebug() << "NetSessionTicket" << length; break;
-				case GTls::Handshake::Certificate: qDebug() << "Certificate" << length; break;
-				case GTls::Handshake::ServerKeyExchange: qDebug() << "ServerKeyExchange" << length; break;
-				case GTls::Handshake::CertificateRequest: qDebug() << "CertificateRequest" << length; break;
-				case GTls::Handshake::ServerHelloDone: qDebug() << "ServerHelloDone" << length; break;
-				case GTls::Handshake::CertificateVerify: qDebug() << "CertificateVerify" << length; break;
-				case GTls::Handshake::ClientKeyExchange: qDebug() << "ClientKeyExchange" << length; break;
-				case GTls::Handshake::Finished: qDebug() << "Finished" << length; break;
-				case GTls::Handshake::CertificateStatus: qDebug() << "CertificateStatus" << length; break;
+			case GTls::Handshake::ClientHello: qDebug() << "ClientHello" << length; break;
+			case GTls::Handshake::ServerHello: qDebug() << "ServerHello" << length; break;
+			case GTls::Handshake::NetSessionTicket: qDebug() << "NetSessionTicket" << length; break;
+			case GTls::Handshake::Certificate: qDebug() << "Certificate" << length; break;
+			case GTls::Handshake::ServerKeyExchange: qDebug() << "ServerKeyExchange" << length; break;
+			case GTls::Handshake::CertificateRequest: qDebug() << "CertificateRequest" << length; break;
+			case GTls::Handshake::ServerHelloDone: qDebug() << "ServerHelloDone" << length; break;
+			case GTls::Handshake::CertificateVerify: qDebug() << "CertificateVerify" << length; break;
+			case GTls::Handshake::ClientKeyExchange: qDebug() << "ClientKeyExchange" << length; break;
+			case GTls::Handshake::Finished: qDebug() << "Finished" << length; break;
+			case GTls::Handshake::CertificateStatus: qDebug() << "CertificateStatus" << length; break;
 			default:
 				qDebug() << "Unknown" << uint(hs->handshakeType_) << length; break;
 		}
 
-		if (hs->handshakeType_ == GTls::Handshake::ClientHello) {
-			GTls::ClientHelloHs ch;
-			ch.parse(hs);
-			qDebug() << ch.version_;
+		switch (handshakeType) {
+			case GTls::Handshake::ClientHello:
+				item->serverName_ =	extractServerName(hs);
+				item->checkNeeded_ = false;
+				break;
+			case GTls::Handshake::ServerHello: {
+				GTls::ServerHelloHs sh;
+				sh.parse(hs); // for debug
+				break;
+			}
+			case GTls::Handshake::Certificate: {
+				item->certificates_ = extractCertificates(hs);
+				item->checkNeeded_ = false;
+
+				Item* revItem = getItem(tcpFlowMgr_->currentRevTcpFlowVal_);
+				if (revItem != nullptr) {
+					emit certificatesDetected(revItem->serverName_, item->certificates_);
+				}
+				break;
+			}
+			default:
 		}
 		item->segment_.remove(0, sizeof(GTls::Record) + sizeof(GTls::Handshake) + length);
 	}

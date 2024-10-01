@@ -35,15 +35,124 @@ GTls::Handshake* GTls::Handshake::check(GTls::Record* tr, uint32_t* size) {
 	return hs;
 }
 
-bool GTls::ClientHelloHs::parse(GTls::Handshake* hs) {
+void GTls::ClientHelloHs::parse(GTls::Handshake* hs) {
 	*PHandshake(this) = *hs;
-	//handshakeType_ = hs->handshakeType_;
-	//uint32_t len = length_ = hs->length_;
 
-	//gbyte* p = pbyte(hs);
-	//p += sizeof(GTls::Handshake); len -= sizeof(GTls::Handshake);
-	//version_ = ntohs(*puint16_t(p)); p += sizeof(version_); len -= sizeof(version_);
-//	memcpy(random_, p, sizeof(random_)); p += sizeof(random_); len -= sizeof(random_);
+	gbyte* p = pbyte(hs); uint32_t len = length_; gbyte* end = p + sizeof(GTls::Handshake) + len;
+	p += sizeof(GTls::Handshake);
+
+	version_ = ntohs(*puint16_t(p)); p += sizeof(version_); len -= sizeof(version_);
+
+	memcpy(random_, p, sizeof(random_)); p += sizeof(random_); len -= sizeof(random_);
+
+	uint8_t sessionIdLength = *puint8_t(p); p += sizeof(sessionIdLength); len -= sizeof(sessionIdLength);
+	if (sessionIdLength > 32)
+		qWarning() << QString("too big sessionIdLengh(%1)").arg(sessionIdLength);
+	sessionId_ = QByteArray(pchar(p), sessionIdLength); p += sessionIdLength; len -= sessionIdLength;
+
+	uint16_t cipherSuitesLength = ntohs(*puint16_t(p)); p += sizeof(cipherSuitesLength); len -= sizeof(cipherSuitesLength);
+	if (cipherSuitesLength > 256)
+		qWarning() << QString("too big cipherSuitesLength(%1)").arg(cipherSuitesLength);
+	for (int i = 0; i < cipherSuitesLength / 2; i++) {
+		uint16_t cipherSuite = ntohs(*puint16_t(p)); p += sizeof(cipherSuite); len -= sizeof(cipherSuite);
+		cipherSuites_.push_back(cipherSuite);
+	}
+
+	uint8_t compressionMethodsLength = *puint8_t(p); p += sizeof(compressionMethodsLength); len -= sizeof(compressionMethodsLength);
+	if (compressionMethodsLength != 0 && compressionMethodsLength != 1)
+		qWarning() << QString("Invalid compressionMethodsLength(%1)").arg(compressionMethodsLength);
+	compressionMethod_ = QByteArray(pchar(p), compressionMethodsLength);  p += compressionMethodsLength; len -= compressionMethodsLength;
+
+	int16_t extensionsLength = ntohs(*pint16_t(p)); p += sizeof(extensionsLength); len -= sizeof(extensionsLength);
+	if (extensionsLength > 8192)
+		qWarning() << QString("too big extensionsLength(%1)").arg(extensionsLength);
+	while (p < end) {
+		Extension* extension = PExtension(p);
+		extensions_.push_back(extension);
+
+		uint16_t oneLength = extension->length(); oneLength += sizeof(Extension);
+		p += oneLength; len -= oneLength;
+		extensionsLength -= oneLength;
+		if (extensionsLength < 0) {
+			qWarning() << QString("Invalid extensionsLength(%1)").arg(extensionsLength);
+			break;
+		}
+	}
+	if (extensionsLength != 0)
+		qWarning() << QString("extensionsLength is not zero(%1)").arg(extensionsLength);
+
+	if (len != 0)
+		qWarning() << QString("len is not zero(%1)").arg(len);
+}
+
+void GTls::ServerHelloHs::parse(GTls::Handshake* hs) {
+	*PHandshake(this) = *hs;
+
+	gbyte* p = pbyte(hs); uint32_t len = length_; gbyte* end = p + sizeof(GTls::Handshake) + len;
+	p += sizeof(GTls::Handshake);
+
+	version_ = ntohs(*puint16_t(p)); p += sizeof(version_); len -= sizeof(version_);
+
+	memcpy(random_, p, sizeof(random_)); p += sizeof(random_); len -= sizeof(random_);
+
+	uint8_t sessionIdLength = *puint8_t(p); p += sizeof(sessionIdLength); len -= sizeof(sessionIdLength);
+	if (sessionIdLength > 32)
+		qWarning() << QString("too big sessionIdLengh(%1)").arg(sessionIdLength);
+	sessionId_ = QByteArray(pchar(p), sessionIdLength); p += sessionIdLength; len -= sessionIdLength;
+
+	uint16_t cipherSuite_ = ntohs(*puint16_t(p)); p += sizeof(cipherSuite_); len -= sizeof(cipherSuite_);
+
+	uint8_t compressionMethodsLength = *puint8_t(p); p += sizeof(compressionMethodsLength); len -= sizeof(compressionMethodsLength);
+	if (compressionMethodsLength != 0 && compressionMethodsLength != 1)
+		qWarning() << QString("Invalid compressionMethodsLength(%1)").arg(compressionMethodsLength);
+	compressionMethod_ = QByteArray(pchar(p), compressionMethodsLength);  p += compressionMethodsLength; len -= compressionMethodsLength;
+
+	int16_t extensionsLength = ntohs(*pint16_t(p)); p += sizeof(extensionsLength); len -= sizeof(extensionsLength);
+	if (extensionsLength > 8192)
+		qWarning() << QString("too big extensionsLength(%1)").arg(extensionsLength);
+	while (p < end) {
+		Extension* extension = PExtension(p);
+		extensions_.push_back(extension);
+
+		uint16_t oneLength = extension->length(); oneLength += sizeof(Extension);
+		p += oneLength; len -= oneLength;
+		extensionsLength -= oneLength;
+		if (extensionsLength < 0) {
+			qWarning() << QString("Invalid extensionsLength(%1)").arg(extensionsLength);
+			break;
+		}
+	}
+	if (extensionsLength != 0)
+		qWarning() << QString("extensionsLength is not zero(%1)").arg(extensionsLength);
+
+	if (len != 0)
+		qWarning() << QString("len is not zero(%1)").arg(len);
+}
+
+void GTls::CertificateHs::parse(GTls::Handshake* hs) {
+	*PHandshake(this) = *hs;
+
+	gbyte* p = pbyte(hs); uint32_t len = length_; gbyte* end = p + sizeof(GTls::Handshake) + len;
+	p += sizeof(GTls::Handshake);
+
+	certificatesLength_ = *PLength3(p); p += sizeof(certificatesLength_); len -= sizeof(certificatesLength_);
+	uint32_t certificatesLength = certificatesLength_;
+	while (p < end) {
+		Length3 oneLength = *PLength3(p); p += sizeof(oneLength); len -= sizeof(oneLength);
+		QByteArray certificate(pchar(p), oneLength);
+		certificates_.push_back(certificate);
+		p += oneLength; len -= oneLength;
+		certificatesLength -= sizeof(Length3) + oneLength;
+		if (certificatesLength < 0) {
+			qWarning() << QString("Invalid certificatesLength(%1)").arg(certificatesLength);
+			break;
+		}
+	}
+	if (certificatesLength != 0)
+		qWarning() << QString("extensionsLength is not zero(%1)").arg(certificatesLength);
+
+	if (len != 0)
+		qWarning() << QString("len is not zero(%1)").arg(len);
 }
 
 // ----------------------------------------------------------------------------
@@ -64,7 +173,8 @@ struct GTlsTestObj : GObj {
 public:
 	GTlsTestObj(QString fileName) {
 		pcapFile_.fileName_ = fileName;
-		QObject::connect(&certMgr_, &GCertMgr::managed, this, &GTlsTestObj::debug, Qt::DirectConnection);
+		QObject::connect(&certMgr_, &GCertMgr::handshakeDetected, this, &GTlsTestObj::doHandshakeDetected, Qt::DirectConnection);
+		QObject::connect(&certMgr_, &GCertMgr::certificatesDetected, this, &GTlsTestObj::doCertificatesDetected, Qt::DirectConnection);
 		certMgr_.tcpFlowMgr_ = &tcpFlowMgr_;
 	}
 
@@ -105,10 +215,13 @@ public:
 		certMgr_.manage(&packet);
 	}
 
-	QList<GTls::Handshake*> hsList_;
+	QList<GTls::Handshake> hsList_;
 public slots:
-	void debug(GTls::Handshake* hs) {
-		hsList_.push_back(hs);
+	void doHandshakeDetected(GTls::Handshake* hs) {
+		hsList_.push_back(*hs);
+	}
+	void doCertificatesDetected(QString serverName, QList<QByteArray> certificates) {
+		qDebug() << serverName << certificates;
 	}
 };
 
@@ -118,9 +231,9 @@ TEST(GTlsTest, netclient_g_gilgil_net_tls1_0) {
 
 	obj.readOnePacket();
 	ASSERT_EQ(obj.hsList_.size(), 1);
-	GTls::Handshake* hs = obj.hsList_.at(0);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ClientHello);
-	EXPECT_EQ(hs->length_, 186);
+	GTls::Handshake hs = obj.hsList_.at(0);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(hs.length_, 186);
 	obj.hsList_.clear();
 }
 
@@ -130,25 +243,26 @@ TEST(GTlsTest, netclient_g_gilgil_net_tls1_1) {
 
 	obj.readOnePacket();
 	ASSERT_EQ(obj.hsList_.size(), 1);
-	GTls::Handshake* hs = obj.hsList_.at(0);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ClientHello);
-	EXPECT_EQ(hs->length_, 186);
+	GTls::Handshake hs = obj.hsList_.at(0);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(hs.length_, 186);
+	obj.hsList_.clear();
 
 	obj.readOnePacket();
 	obj.readOnePacket();
 	ASSERT_EQ(obj.hsList_.size(), 4);
 	hs = obj.hsList_.at(0);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerHello);
-	EXPECT_EQ(hs->length_, 57);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::ServerHello);
+	EXPECT_EQ(hs.length_, 57);
 	hs = obj.hsList_.at(1);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::Certificate);
-	EXPECT_EQ(hs->length_, 817);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::Certificate);
+	EXPECT_EQ(hs.length_, 813);
 	hs = obj.hsList_.at(2);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerKeyExchange);
-	EXPECT_EQ(hs->length_, 331);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::ServerKeyExchange);
+	EXPECT_EQ(hs.length_, 327);
 	hs = obj.hsList_.at(3);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerHelloDone);
-	EXPECT_EQ(hs->length_, 4);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::ServerHelloDone);
+	EXPECT_EQ(hs.length_, 0);
 }
 
 TEST(GTlsTest, netclient_g_gilgil_net_tls1_2) {
@@ -157,27 +271,43 @@ TEST(GTlsTest, netclient_g_gilgil_net_tls1_2) {
 
 	obj.readOnePacket();
 	ASSERT_EQ(obj.hsList_.size(), 1);
-	GTls::Handshake* hs = obj.hsList_.at(0);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ClientHello);
-	EXPECT_EQ(hs->length_, 508);
+	GTls::Handshake hs = obj.hsList_.at(0);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(hs.length_, 508);
+	obj.hsList_.clear();
 
 	obj.readOnePacket();
 	obj.readOnePacket();
 	ASSERT_EQ(obj.hsList_.size(), 4);
 	hs = obj.hsList_.at(0);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerHello);
-	EXPECT_EQ(hs->length_, 508);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::ServerHello);
+	EXPECT_EQ(hs.length_, 57);
 	hs = obj.hsList_.at(1);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::Certificate);
-	EXPECT_EQ(hs->length_, 813);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::Certificate);
+	EXPECT_EQ(hs.length_, 813);
 
 	hs = obj.hsList_.at(2);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerKeyExchange);
-	EXPECT_EQ(hs->length_, 329);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::ServerKeyExchange);
+	EXPECT_EQ(hs.length_, 329);
 
 	hs = obj.hsList_.at(3);
-	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerHelloDone);
-	EXPECT_EQ(hs->length_, 0);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::ServerHelloDone);
+	EXPECT_EQ(hs.length_, 0);
+}
+
+TEST(GTlsTest, netclient_g_gilgil_net_tls1_3) {
+	GTlsTestObj obj("pcap/tls/netclient-g.gilgil.net-tls1_3.pcap");
+	EXPECT_EQ(obj.open(), true);
+
+	obj.readOnePacket();
+	ASSERT_EQ(obj.hsList_.size(), 1);
+	GTls::Handshake hs = obj.hsList_.at(0);
+	EXPECT_EQ(hs.handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(hs.length_, 250);
+	obj.hsList_.clear();
+
+	obj.readOnePacket();
+	obj.readOnePacket();
 }
 
 #include "gtls.moc"

@@ -80,6 +80,7 @@ namespace GTls {
 				return quint32(len_[0]) << 16 | quint32(len_[1]) << 8 | quint32(len_[2]);
 			}
 		};
+		typedef Length3 *PLength3;
 
 		uint8_t handshakeType_;
 		Length3 length_;
@@ -108,6 +109,8 @@ namespace GTls {
 		uint16_t type_;
 		uint16_t length_;
 
+		uint16_t type() { return ntohs(type_); }
+		uint16_t length() { return htons(length_); }
 		void* value() {
 			return pbyte(this) + sizeof(type_) + sizeof(length_);
 		}
@@ -128,36 +131,49 @@ namespace GTls {
 	};
 	typedef Extension *PExtension;
 
+	struct ServerNameIndication : GTls::Extension {
+		uint16_t length_;
+		uint8_t type_;
+		uint16_t serverNameLength_;
+
+		uint16_t length() { return htons(length_); }
+		uint16_t type() { return type_; }
+		uint16_t serverNameLength() { return htons(serverNameLength_); }
+		QByteArray serverName() {
+			char* p = pchar(this) + sizeof(ServerNameIndication);
+			QByteArray res(p, serverNameLength());
+			return res;
+		}
+	};
+	typedef ServerNameIndication *PServerNameIndication;
+
 	struct ClientHelloHs : Handshake {
 		uint16_t version_;
 		uint8_t random_[32];
 		QByteArray sessionId_;
 		QList<uint16_t> cipherSuites_;
-		QByteArray compressionMethods_;
-		QList<Extension> extensions_;
+		QByteArray compressionMethod_;
+		QList<Extension*> extensions_;
 
-		bool parse(GTls::Handshake* hs);
+		void parse(GTls::Handshake* hs);
 	};
 
 	struct ServerHelloHs : Handshake {
 		uint16_t version_;
-		uint8_t random[32];
+		uint8_t random_[32];
 		QByteArray sessionId_;
 		uint16_t cipherSuite_;
-		QByteArray compressionMethods_;
-		QList<Extension> extensions_;
+		QByteArray compressionMethod_;
+		QList<Extension*> extensions_;
 
-		bool parse(gbyte* p, uint32_t size);
+		void parse(GTls::Handshake* hs);
 	};
 
 	struct CertificateHs : Handshake {
-		Handshake::Length3 certificatesLength;
+		Handshake::Length3 certificatesLength_;
 		QList<QByteArray> certificates_;
 
-		bool parse(GTls::Handshake* hs, uint32_t size);
-	};
-
-	struct ServreHelloDone : Handshake {
+		void parse(GTls::Handshake* hs);
 	};
 };
 #pragma pack(pop)
