@@ -44,7 +44,7 @@ public:
 	// --------------------------------------------------------------------------
 	struct IpValue : GPacketMgr::Value {
 		static struct IpValue* allocate(size_t totalMemSize) {
-			IpValue* ipValue = reinterpret_cast<IpValue*>(malloc(sizeof(IpValue) + totalMemSize));
+			IpValue* ipValue = PIpValue(malloc(sizeof(IpValue) + totalMemSize));
 			new (ipValue) IpValue;
 #ifdef _DEBUG
 			ipValue->totalMemSize_ = totalMemSize;
@@ -63,6 +63,7 @@ public:
 
 		void* mem(size_t offset) { return pbyte(this) + sizeof(IpValue) + offset; }
 	};
+	typedef IpValue *PIpValue;
 
 public:
 	// --------------------------------------------------------------------------

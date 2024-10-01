@@ -130,7 +130,7 @@ namespace GTls {
 
 	struct ClientHelloHs : Handshake {
 		uint16_t version_;
-		uint8_t random[32];
+		uint8_t random_[32];
 		QByteArray sessionId_;
 		QList<uint16_t> cipherSuites_;
 		QByteArray compressionMethods_;

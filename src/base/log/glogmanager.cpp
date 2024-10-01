@@ -78,7 +78,7 @@ void GLogManager::myMessageOutput(QtMsgType type, const QMessageLogContext &cont
 	QString finalMsg = QString("%1 %2 %3 [%4:%5] %6 %7\n").arg(nowStr, typeStr, threadStr, fileStr, lineStr, funcStr, msg);
 
 	for (GObj* obj: logManager) {
-		GLog* log = reinterpret_cast<GLog*>(obj);
+		GLog* log = PLog(obj);
 		log->write(finalMsg);
 	}
 #ifdef QT_GUI_LIB

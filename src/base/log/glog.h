@@ -20,3 +20,4 @@ struct G_EXPORT GLog : GObj {
 	~GLog() override {}
 	virtual void write(QString& msg) = 0;
 };
+typedef GLog *PLog;

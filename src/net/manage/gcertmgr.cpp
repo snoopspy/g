@@ -83,6 +83,7 @@ void GCertMgr::manage(GPacket* packet) {
 		if (hs->handshakeType_ == GTls::Handshake::ClientHello) {
 			GTls::ClientHelloHs ch;
 			ch.parse(hs);
+			qDebug() << ch.version_;
 		}
 		item->segment_.remove(0, sizeof(GTls::Record) + sizeof(GTls::Handshake) + length);
 	}

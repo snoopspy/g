@@ -66,7 +66,7 @@ public:
 #endif // _DEBUG
 
 		static struct Value* allocate(size_t totalMemSize) {
-			Value* value = reinterpret_cast<Value*>(malloc(sizeof(Value) + totalMemSize));
+			Value* value = PValue(malloc(sizeof(Value) + totalMemSize));
 			new (value) Value;
 #ifdef _DEBUG
 			value->totalMemSize_ = totalMemSize;
@@ -85,6 +85,7 @@ public:
 
 		void* mem(size_t offset) { return pbyte(this) + sizeof(Value) + offset; }
 	};
+	typedef Value *PValue;
 
 	// ----------------------------------------------------------------------------
 	// RequestItem

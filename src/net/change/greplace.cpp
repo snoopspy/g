@@ -53,7 +53,7 @@ bool GReplace::doClose() {
 void GReplace::processFound(int itemIndex, int foundIndex, QString& foundStr) {
 	Q_ASSERT(itemIndex < replaceItems_.count());
 	GObj* obj = replaceItems_.at(itemIndex);
-	GReplaceItem* replaceItem = reinterpret_cast<GReplaceItem*>(obj);
+	GReplaceItem* replaceItem = PReplaceItem(obj);
 	Q_ASSERT(replaceItem != nullptr);
 	QString replaceStr;
 	GReplaceItem::Type replaceType = replaceItem->replaceType_;

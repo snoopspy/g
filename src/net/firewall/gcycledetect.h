@@ -89,7 +89,7 @@ public:
 		Item(uint8_t ttl) : ttl_(ttl) {}
 		uint8_t ttl_;
 	};
-	typedef Item* PItem;
+	typedef Item *PItem;
 	// --------------------------------------------------------------------------
 
 	// GTcpFlowMgr::Managable

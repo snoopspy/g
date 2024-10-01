@@ -36,11 +36,14 @@ GTls::Handshake* GTls::Handshake::check(GTls::Record* tr, uint32_t* size) {
 }
 
 bool GTls::ClientHelloHs::parse(GTls::Handshake* hs) {
-	gbyte* p = pbyte(hs);
-	uint32_t len = hs->length_;
-	p += sizeof(GTls::Handshake); len -= sizeof(GTls::Handshake);
-	version_ = ntohs(*puint16_t(p)); p += sizeof(version_); len -= sizeof(version_);
-	qDebug() << "version=" << QString::number(version_, 16);
+	*PHandshake(this) = *hs;
+	//handshakeType_ = hs->handshakeType_;
+	//uint32_t len = length_ = hs->length_;
+
+	//gbyte* p = pbyte(hs);
+	//p += sizeof(GTls::Handshake); len -= sizeof(GTls::Handshake);
+	//version_ = ntohs(*puint16_t(p)); p += sizeof(version_); len -= sizeof(version_);
+//	memcpy(random_, p, sizeof(random_)); p += sizeof(random_); len -= sizeof(random_);
 }
 
 // ----------------------------------------------------------------------------
