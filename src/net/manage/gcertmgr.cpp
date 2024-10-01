@@ -39,19 +39,19 @@ void GCertMgr::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlow
 QString GCertMgr::extractServerName(GTls::Handshake *hs) {
 	GTls::ClientHelloHs ch;
 	ch.parse(hs);
-	if (ch.extensions_.size() > 0) {
-		GTls::Extension* extension = ch.extensions_.at(0);
+	ssize_t count = ch.extensions_.size();
+	for (int i = 0; i < count; i++) {
+		GTls::Extension* extension = ch.extensions_.at(i);
 		uint16_t type = extension->type();
 		if (type == GTls::Extension::ServerName) {
 			GTls::ServerNameIndication* sni = GTls::PServerNameIndication(extension);
 			QByteArray serverName = sni->serverName();
 			qDebug() << QString("serverName=%1").arg(serverName);
 			return serverName;
-		} else {
-			qWarning() << QString("Invalid extension type(%1)").arg(type);
-			return QString();
 		}
 	}
+	qWarning() << "Can not find ServerName";
+	return QString();
 }
 
 QList<QByteArray> GCertMgr::extractCertificates(GTls::Handshake *hs) {
@@ -116,16 +116,19 @@ void GCertMgr::manage(GPacket* packet) {
 				break;
 			}
 			case GTls::Handshake::Certificate: {
-				item->certificates_ = extractCertificates(hs);
+				QList<QByteArray> certificates = extractCertificates(hs);
 				item->checkNeeded_ = false;
 
 				Item* revItem = getItem(tcpFlowMgr_->currentRevTcpFlowVal_);
-				if (revItem != nullptr) {
-					emit certificatesDetected(revItem->serverName_, item->certificates_);
-				}
+				QString serverName;
+				if (revItem != nullptr)
+					serverName = revItem->serverName_;
+				qDebug() << QString("cert detected %1 %2").arg(serverName).arg(certificates.size()); // gilgil temp 2024.10.01
+				emit certificatesDetected(revItem->serverName_, certificates);
 				break;
 			}
 			default:
+				break;
 		}
 		item->segment_.remove(0, sizeof(GTls::Record) + sizeof(GTls::Handshake) + length);
 	}

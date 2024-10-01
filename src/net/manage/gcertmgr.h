@@ -50,7 +50,6 @@ public:
 		bool checkNeeded_{true};
 		GTcpSegment segment_;
 		QString serverName_;
-		QList<QByteArray> certificates_;
 		Item(uint32_t seq) : segment_(seq) {}
 		~Item() {}
 	};

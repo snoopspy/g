@@ -118,7 +118,7 @@ void GTls::ServerHelloHs::parse(GTls::Handshake* hs) {
 		p += oneLength; len -= oneLength;
 		extensionsLength -= oneLength;
 		if (extensionsLength < 0) {
-			qWarning() << QString("Invalid extensionsLength(%1)").arg(extensionsLength);
+			qWarning() << QString("invalid extensionsLength(%1)").arg(extensionsLength);
 			break;
 		}
 	}
@@ -139,6 +139,8 @@ void GTls::CertificateHs::parse(GTls::Handshake* hs) {
 	uint32_t certificatesLength = certificatesLength_;
 	while (p < end) {
 		Length3 oneLength = *PLength3(p); p += sizeof(oneLength); len -= sizeof(oneLength);
+		if (oneLength > 65536)
+			qWarning() << QString("too big certificat size(%1").arg(oneLength);
 		QByteArray certificate(pchar(p), oneLength);
 		certificates_.push_back(certificate);
 		p += oneLength; len -= oneLength;
