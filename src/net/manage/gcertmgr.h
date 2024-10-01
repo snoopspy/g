@@ -20,18 +20,16 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GCertMgr : GStateObj, GTcpFlowMgr::Managable {
 	Q_OBJECT
-	Q_PROPERTY(QString caDirectory MEMBER caDirectory_)
-	Q_PROPERTY(QString intermediateDirectory MEMBER intermediateDirectory_)
-	Q_PROPERTY(QString serverDirectory MEMBER serverDirectory_)
+	Q_PROPERTY(bool saveCertFile MEMBER saveCertFile_)
+	Q_PROPERTY(QString folder MEMBER folder_)
 	Q_PROPERTY(GObjPtr tcpFlowMgr READ getTcpFlowMgr WRITE setTcpFlowMgr)
 
 	GObjPtr getTcpFlowMgr() { return tcpFlowMgr_; }
 	void setTcpFlowMgr(GObjPtr value) { tcpFlowMgr_ = dynamic_cast<GTcpFlowMgr*>(value.data()); }
 
 public:
-	QString caDirectory_;
-	QString intermediateDirectory_;
-	QString serverDirectory_;
+	bool saveCertFile_{true};
+	QString folder_{"certificate"};
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 
 public:

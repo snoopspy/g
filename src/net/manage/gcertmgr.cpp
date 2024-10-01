@@ -11,6 +11,14 @@ bool GCertMgr::doOpen() {
 	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request(this, sizeof(Item));
 	tcpFlowMgr_->managables_.insert(this);
 
+	if (!folder_.endsWith(QDir::separator()))
+		folder_ += QDir::separator();
+	QDir dir;
+	if (!dir.mkpath(folder_)) {
+		SET_ERR(GErr::Fail, QString("can not create folder(%1)").arg(folder_));
+		return false;
+	}
+
 	return true;
 }
 
@@ -80,7 +88,23 @@ void GCertMgr::manage(GPacket* packet) {
 			return;
 		}
 		GTls::Record* tr = GTls::PRecord(p);
-		if (tr->contentType() != GTls::Record::Handshake) { // may be not TLS handshake
+		bool ok = true;
+		uint8_t contentType = tr->contentType();
+		if (contentType != GTls::Record::Handshake) { // may be not TLS handshake
+			ok = false;
+		} else {
+			uint16_t version = tr->version();
+			switch (version) {
+				case GTls::Record::Tls1_0:
+				case GTls::Record::Tls1_1:
+				case GTls::Record::Tls1_2:
+				case GTls::Record::Tls1_3:
+					break;
+				default:
+					ok = false;
+			}
+		}
+		if (!ok) {
 			item->checkNeeded_ = false;
 			return;
 		}
@@ -133,6 +157,17 @@ void GCertMgr::manage(GPacket* packet) {
 				if (revItem != nullptr)
 					serverName = revItem->serverName_;
 				qDebug() << QString("cert detected %1 %2").arg(serverName).arg(certificates.size()); // gilgil temp 2024.10.01
+				if (saveCertFile_) {
+					QDateTime now = QDateTime::fromMSecsSinceEpoch(packet->ts_.tv_sec * 1000 + packet->ts_.tv_usec / 1000);
+					for (int i = 0; i < certificates.size(); i++) {
+						QByteArray certificate =  certificates.at(i);
+						QString fileName = QString("%1%2-%3.der").arg(folder_).arg(now.toString("yyMMdd-hhmmss-zzz")).arg(i);
+						QFile file(fileName);
+						file.open(QIODevice::WriteOnly);
+						file.write(certificate);
+						file.close();
+					}
+				}
 				emit certificatesDetected(revItem->serverName_, certificates);
 				break;
 			}
