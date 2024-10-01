@@ -43,7 +43,7 @@ static GMac getMac(char* intfName) {
 		return GMac::nullMac();
 	}
 
-	const u_char* p = const_cast<const u_char*>(reinterpret_cast<u_char*>(buffer.ifr_ifru.ifru_hwaddr.sa_data));
+	const u_char* p = const_cast<const u_char*>(puchar(buffer.ifr_ifru.ifru_hwaddr.sa_data));
 	GMac res(p);
 	return res;
 }

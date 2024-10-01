@@ -11,7 +11,7 @@ uint16_t GIpHdr::calcChecksum(GIpHdr* ipHdr) {
 	uint16_t *p;
 
 	// Add ipHdr buffer as array of uint16_t
-	p = reinterpret_cast<uint16_t*>(ipHdr);
+	p = puint16_t(ipHdr);
 	for (int i = 0; i < int(sizeof(GIpHdr)) / 2; i++) {
 		res += ntohs(*p);
 		p++;

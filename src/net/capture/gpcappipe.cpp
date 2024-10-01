@@ -182,7 +182,7 @@ qint64 GPcapPipe::recvAll(char *data, size_t size) {
 			char* begin = p;
 			char* end = begin + recvLen - 1;
 			while (begin < end) {
-				uint16_t two = *reinterpret_cast<uint16_t*>(begin);
+				uint16_t two = *puint16_t(begin);
 				if (ntohs(two) == 0x0d0a) { // \r\n
 					char* shift = begin;
 					while (shift < end) {

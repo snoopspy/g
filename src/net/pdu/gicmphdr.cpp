@@ -8,7 +8,7 @@ uint16_t GIcmpHdr::calcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr) {
 	int icmpHdrDataLen = ipHdr->tlen() - ipHdr->hlen() * 4;
 
 	// Add udpHdr & data buffer as array of uint16_t
-	uint16_t* p = reinterpret_cast<uint16_t*>(icmpHdr);
+	uint16_t* p = puint16_t(icmpHdr);
 	for (int i = 0; i < icmpHdrDataLen / 2; i++) {
 		res += htons(*p);
 		p++;
@@ -16,7 +16,7 @@ uint16_t GIcmpHdr::calcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr) {
 
 	// If length is odd, add last data(padding)
 	if (icmpHdrDataLen % 2 != 0)
-		res += uint32_t(*(reinterpret_cast<uint8_t*>(p)) << 8);
+		res += uint32_t(*puint8_t(p) << 8);
 
 	// Decrease checksum from sum
 	res -= icmpHdr->sum();

@@ -11,13 +11,24 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
 extern int _debug_gilgil;
 extern __thread int _thread_gilgil;
 
 typedef void *pvoid;
 typedef char *pchar;
+typedef unsigned char *puchar;
 typedef unsigned char gbyte, *pbyte;
+typedef int16_t *pint8_t;
+typedef uint16_t *puint8_t;
+typedef int16_t *pint16_t;
+typedef uint16_t *puint16_t;
+typedef int32_t *pint32_t;
+typedef uint32_t *puint32_t;
+typedef int64_t *pint64_t;
+typedef uint64_t *puint64_t;
+typedef bool *pbool;
 
 #ifdef WIN32
 	#if defined(G_BUILD)

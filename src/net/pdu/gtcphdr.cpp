@@ -13,7 +13,7 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disab
 	int tcpHdrDataLen = ipHdr->tlen() - ipHdr->hlen() * 4;
 
 	// Add tcpHdr & data buffer as array of uint16_t
-	uint16_t* p = reinterpret_cast<uint16_t*>(tcpHdr);
+	uint16_t* p = puint16_t(tcpHdr);
 	for (int i = 0; i < tcpHdrDataLen / 2; i++) {
 		res += htons(*p);
 		p++;
@@ -21,7 +21,7 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disab
 
 	// If length is odd, add last data(padding)
 	if (tcpHdrDataLen % 2 != 0) {
-		res += uint32_t(*(reinterpret_cast<uint8_t*>(p)) << 8);
+		res += uint32_t(*puint8_t(p) << 8);
 	}
 
 	// Decrease checksum from sum
@@ -58,7 +58,7 @@ GBuf GTcpHdr::parseData(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
 	GBuf res;
 	res.size_ = ipHdr->tlen() - ipHdr->hlen() * 4 - tcpHdr->off() * 4;
 	if (res.size_ > 0)
-		res.data_ = reinterpret_cast<u_char*>(tcpHdr) + tcpHdr->off() * 4;
+		res.data_ = puchar(tcpHdr) + tcpHdr->off() * 4;
 	else
 		res.data_ = nullptr;
 	return res;

@@ -10,10 +10,10 @@ QByteArray GDnsInfo::Question::encode() {
 	res = GDnsInfo::encodeName(this->name_);
 
 	uint16_t _type = htons(this->type_);
-	res.append(reinterpret_cast<const char*>(&_type), sizeof(uint16_t));
+	res.append(pchar(&_type), sizeof(uint16_t));
 
 	uint16_t _class_ = htons(this->class_);
-	res.append(reinterpret_cast<const char*>(&_class_), sizeof(uint16_t));
+	res.append(pchar(&_class_), sizeof(uint16_t));
 
 	return res;
 }
@@ -23,12 +23,12 @@ bool GDnsInfo::Question::decode(u_char* udpData, size_t dataLen, size_t* offset)
 	if (this->name_ == "") return false;
 
 	if (*offset + sizeof(uint16_t) > dataLen) return false;
-	uint16_t* _type = reinterpret_cast<uint16_t*>(udpData + *offset);
+	uint16_t* _type = puint16_t(udpData + *offset);
 	this->type_ = ntohs(*_type);
 	*offset += sizeof(uint16_t);
 
 	if (*offset + sizeof(uint16_t) > dataLen) return false;
-	uint16_t* _class_ = reinterpret_cast<uint16_t*>(udpData + *offset);
+	uint16_t* _class_ = puint16_t(udpData + *offset);
 	this->class_ = ntohs(*_class_);
 	*offset += sizeof(uint16_t);
 
@@ -88,27 +88,27 @@ bool GDnsInfo::ResourceRecord::decode(u_char* udpData, size_t dataLen, size_t* o
 	if (this->name_ == "") return false;
 
 	if (*offset + sizeof(uint16_t) > dataLen) return false;
-	uint16_t* _type = reinterpret_cast<uint16_t*>(udpData + *offset);
+	uint16_t* _type = puint16_t(udpData + *offset);
 	this->type_ = ntohs(*_type);
 	*offset += sizeof(uint16_t);
 
 	if (*offset + sizeof(uint16_t) > dataLen) return false;
-	uint16_t* _class_ = reinterpret_cast<uint16_t*>(udpData + *offset);
+	uint16_t* _class_ = puint16_t(udpData + *offset);
 	this->class_ = ntohs(*_class_);
 	*offset += sizeof(uint16_t);
 
 	if (*offset + sizeof(uint32_t) > dataLen) return false;
-	uint32_t* _ttl = reinterpret_cast<uint32_t*>(udpData + *offset);
+	uint32_t* _ttl = puint32_t(udpData + *offset);
 	this->ttl_ = ntohl(*_ttl);
 	*offset += sizeof(uint32_t);
 
 	if (*offset + sizeof(uint16_t) > dataLen) return false;
-	uint16_t* _dataLength = reinterpret_cast<uint16_t*>(udpData + *offset);
+	uint16_t* _dataLength = puint16_t(udpData + *offset);
 	this->dataLength_= ntohs(*_dataLength);
 	*offset += sizeof(uint16_t);
 
 	if (*offset + dataLength_ > dataLen) return false;
-	const char* data = const_cast<const char*>(reinterpret_cast<char*>(udpData + *offset));
+	const char* data = const_cast<const char*>(pchar(udpData + *offset));
 	this->data_ = QByteArray::fromRawData(data, this->dataLength_);
 	*offset += this->dataLength_;
 

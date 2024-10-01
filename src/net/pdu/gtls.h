@@ -136,7 +136,7 @@ namespace GTls {
 		QByteArray compressionMethods_;
 		QList<Extension> extensions_;
 
-		bool parse(GTls::Handshake* hs, uint32_t size);
+		bool parse(GTls::Handshake* hs);
 	};
 
 	struct ServerHelloHs : Handshake {

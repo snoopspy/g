@@ -43,7 +43,7 @@ void GCertMgr::manage(GPacket* packet) {
 
 	GBuf tcpData = packet->tcpData_;
 	if (!tcpData.valid()) return;
-	QByteArray ba(reinterpret_cast<const char*>(tcpData.data_), tcpData.size_);
+	QByteArray ba(pchar(tcpData.data_), tcpData.size_);
 	item->segment_ += ba;
 
 	while (true) {
@@ -78,6 +78,11 @@ void GCertMgr::manage(GPacket* packet) {
 				case GTls::Handshake::CertificateStatus: qDebug() << "CertificateStatus" << length; break;
 			default:
 				qDebug() << "Unknown" << uint(hs->handshakeType_) << length; break;
+		}
+
+		if (hs->handshakeType_ == GTls::Handshake::ClientHello) {
+			GTls::ClientHelloHs ch;
+			ch.parse(hs);
 		}
 		item->segment_.remove(0, sizeof(GTls::Record) + sizeof(GTls::Handshake) + length);
 	}

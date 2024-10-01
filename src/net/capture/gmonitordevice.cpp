@@ -139,7 +139,7 @@ bool GMonitorDevice::getRadioInfoFromDevice() {
 			return false;
 		}
 
-		uint64_t radioHdr64 = be64toh(*reinterpret_cast<uint64_t*>(radioHdr));
+		uint64_t radioHdr64 = be64toh(*puint64_t(radioHdr));
 		uint32_t fcsSize = radioHdr->getFcsSize();
 
 		qDebug() << QString("device radioInfo radioHdr=0x%1 fcsSize=%2").arg(QString::number(radioHdr64, 16)).arg(fcsSize);

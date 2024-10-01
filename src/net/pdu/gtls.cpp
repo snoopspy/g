@@ -35,6 +35,14 @@ GTls::Handshake* GTls::Handshake::check(GTls::Record* tr, uint32_t* size) {
 	return hs;
 }
 
+bool GTls::ClientHelloHs::parse(GTls::Handshake* hs) {
+	gbyte* p = pbyte(hs);
+	uint32_t len = hs->length_;
+	p += sizeof(GTls::Handshake); len -= sizeof(GTls::Handshake);
+	version_ = ntohs(*puint16_t(p)); p += sizeof(version_); len -= sizeof(version_);
+	qDebug() << "version=" << QString::number(version_, 16);
+}
+
 // ----------------------------------------------------------------------------
 // GTEST
 // ----------------------------------------------------------------------------
@@ -94,63 +102,79 @@ public:
 		certMgr_.manage(&packet);
 	}
 
-	GTls::Handshake* currentHs_{nullptr};
+	QList<GTls::Handshake*> hsList_;
 public slots:
 	void debug(GTls::Handshake* hs) {
-		currentHs_ = hs;
+		hsList_.push_back(hs);
 	}
 };
 
 TEST(GTlsTest, netclient_g_gilgil_net_tls1_0) {
 	GTlsTestObj obj("pcap/tls/netclient-g.gilgil.net-tls1_0.pcap");
 	EXPECT_EQ(obj.open(), true);
+
 	obj.readOnePacket();
-	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientHello);
-	EXPECT_EQ(obj.currentHs_->length_, 186);
+	ASSERT_EQ(obj.hsList_.size(), 1);
+	GTls::Handshake* hs = obj.hsList_.at(0);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(hs->length_, 186);
+	obj.hsList_.clear();
 }
 
 TEST(GTlsTest, netclient_g_gilgil_net_tls1_1) {
 	GTlsTestObj obj("pcap/tls/netclient-g.gilgil.net-tls1_1.pcap");
 	EXPECT_EQ(obj.open(), true);
+
 	obj.readOnePacket();
-	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientHello);
-	EXPECT_EQ(obj.currentHs_->length_, 186);
+	ASSERT_EQ(obj.hsList_.size(), 1);
+	GTls::Handshake* hs = obj.hsList_.at(0);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(hs->length_, 186);
+
 	obj.readOnePacket();
 	obj.readOnePacket();
-	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ServerHelloDone);
-	EXPECT_EQ(obj.currentHs_->length_, 0);
+	ASSERT_EQ(obj.hsList_.size(), 4);
+	hs = obj.hsList_.at(0);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerHello);
+	EXPECT_EQ(hs->length_, 57);
+	hs = obj.hsList_.at(1);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::Certificate);
+	EXPECT_EQ(hs->length_, 817);
+	hs = obj.hsList_.at(2);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerKeyExchange);
+	EXPECT_EQ(hs->length_, 331);
+	hs = obj.hsList_.at(3);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerHelloDone);
+	EXPECT_EQ(hs->length_, 4);
 }
 
 TEST(GTlsTest, netclient_g_gilgil_net_tls1_2) {
 	GTlsTestObj obj("pcap/tls/netclient-g.gilgil.net-tls1_2.pcap");
 	EXPECT_EQ(obj.open(), true);
-	obj.readOnePacket();
-	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientHello);
-	EXPECT_EQ(obj.currentHs_->length_, 508);
-	obj.readOnePacket();
-	obj.readOnePacket();
-	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ServerHelloDone);
-	EXPECT_EQ(obj.currentHs_->length_, 0);
-	obj.readOnePacket();
-	obj.readOnePacket();
-	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientKeyExchange);
-	EXPECT_EQ(obj.currentHs_->length_, 66);
-}
 
-TEST(GTlsTest, tls_all) {
-	GTlsTestObj obj("pcap/tls/tls_all.pcap");
-	EXPECT_EQ(obj.open(), true);
 	obj.readOnePacket();
-	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientHello);
-	EXPECT_EQ(obj.currentHs_->length_, 508);
-	obj.readOnePacket();
-	obj.readOnePacket();
-	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ServerHelloDone);
-	EXPECT_EQ(obj.currentHs_->length_, 0);
+	ASSERT_EQ(obj.hsList_.size(), 1);
+	GTls::Handshake* hs = obj.hsList_.at(0);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ClientHello);
+	EXPECT_EQ(hs->length_, 508);
+
 	obj.readOnePacket();
 	obj.readOnePacket();
-	EXPECT_EQ(obj.currentHs_->handshakeType_, GTls::Handshake::ClientKeyExchange);
-	EXPECT_EQ(obj.currentHs_->length_, 66);
+	ASSERT_EQ(obj.hsList_.size(), 4);
+	hs = obj.hsList_.at(0);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerHello);
+	EXPECT_EQ(hs->length_, 508);
+	hs = obj.hsList_.at(1);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::Certificate);
+	EXPECT_EQ(hs->length_, 813);
+
+	hs = obj.hsList_.at(2);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerKeyExchange);
+	EXPECT_EQ(hs->length_, 329);
+
+	hs = obj.hsList_.at(3);
+	EXPECT_EQ(hs->handshakeType_, GTls::Handshake::ServerHelloDone);
+	EXPECT_EQ(hs->length_, 0);
 }
 
 #include "gtls.moc"
