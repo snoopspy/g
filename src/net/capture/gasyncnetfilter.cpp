@@ -27,7 +27,7 @@ GPacket::Result GAsyncNetFilter::read(GPacket* packet) {
 	return GPacket::Fail;
 }
 
-GPacket::Result GAsyncNetFilter::write(GBuf buf) {
+GPacket::Result GAsyncNetFilter::writeBuf(GBuf buf) {
 	(void)buf;
 	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;

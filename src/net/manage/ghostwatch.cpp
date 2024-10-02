@@ -122,7 +122,7 @@ void GHostWatch::WatchThread::run() {
 		for (SendInfo& sendInfo: sendInfos) {
 			ethHdr->dmac_ = sendInfo.mac_;
 			arpHdr->tip_ = htonl(sendInfo.ip_);
-			GPacket::Result res = deviceWrite.write(buf);
+			GPacket::Result res = deviceWrite.writeBuf(buf);
 			if (res != GPacket::Ok) {
 				qWarning() << QString("deviceWrite.write return %1").arg(int(res));
 			}

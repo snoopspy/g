@@ -123,7 +123,7 @@ GPacket::Result GPcapPipe::read(GPacket* packet) {
 	return GPacket::Ok;
 }
 
-GPacket::Result GPcapPipe::write(GBuf buf) {
+GPacket::Result GPcapPipe::writeBuf(GBuf buf) {
 	(void)buf;
 	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;

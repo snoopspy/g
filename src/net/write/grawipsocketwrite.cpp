@@ -43,7 +43,7 @@ bool GRawIpSocketWrite::doClose() {
 	return true;
 }
 
-GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
+GPacket::Result GRawIpSocketWrite::writeBuf(GBuf buf) {
 	GDemon::RiWrite write;
 	write.size_ = buf.size_;
 	write.data_ = buf.data_;
@@ -97,7 +97,7 @@ bool GRawIpSocketWrite::doClose() {
 	return true;
 }
 
-GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
+GPacket::Result GRawIpSocketWrite::writeBuf(GBuf buf) {
 	GIpHdr* ipHdr = PIpHdr(buf.data_);
 	addr_in_.sin_addr.s_addr = ipHdr->dip_; // network byte order
 
@@ -123,7 +123,7 @@ GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
 		res = writeMtuSplit(packet, mtu_, GPacket::Ip);
 		packet->buf_ = backupBuf;
 	} else
-		res = write(GBuf(pbyte(packet->ipHdr_), packet->ipHdr_->tlen()));
+		res = writeBuf(GBuf(pbyte(packet->ipHdr_), packet->ipHdr_->tlen()));
 
 	if (res == GPacket::Ok)
 		emit written(packet);

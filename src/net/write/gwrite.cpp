@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 // GWrite
 // ----------------------------------------------------------------------------
-GPacket::Result GWrite::write(GBuf buf) {
+GPacket::Result GWrite::writeBuf(GBuf buf) {
 	(void)buf;
 	SET_ERR(GErr::VirtualFunctionCall, "virtual function call");
 	return GPacket::Fail;

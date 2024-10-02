@@ -47,7 +47,7 @@ protected:
 
 public:
 	GPacket::Result read(GPacket* packet) override;
-	GPacket::Result write(GBuf buf) override;
+	GPacket::Result writeBuf(GBuf buf) override;
 	GPacket::Result write(GPacket* packet) override;
 	virtual GPacket::Result relay(GPacket* packet);
 	virtual GPacket::Result drop(GPacket* packet);

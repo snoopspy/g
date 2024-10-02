@@ -252,8 +252,8 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 	return GPacket::Fail; // remove warning: non-void function does not return a value in all control paths
 }
 
-GPacket::Result GArpSpoof::write(GBuf buf) {
-	return GPcapDevice::write(buf);
+GPacket::Result GArpSpoof::writeBuf(GBuf buf) {
+	return GPcapDevice::writeBuf(buf);
 }
 
 GPacket::Result GArpSpoof::write(GPacket* packet) {
@@ -341,7 +341,7 @@ bool GArpSpoof::sendArpInfectAll(uint16_t operation) {
 
 bool GArpSpoof::sendArpInfect(Flow* flow, uint16_t operation) {
 	flow->infectPacket_.arpHdr_.op_ = htons(operation);
-	GPacket::Result res = write(GBuf(pbyte(&flow->infectPacket_), sizeof(flow->infectPacket_)));
+	GPacket::Result res = writeBuf(GBuf(pbyte(&flow->infectPacket_), sizeof(flow->infectPacket_)));
 	return res == GPacket::Ok;
 }
 
@@ -358,7 +358,7 @@ bool GArpSpoof::sendArpRecoverAll(uint16_t operation) {
 bool GArpSpoof::sendArpRecover(Flow* flow, uint16_t operation) {
 	bool res = true;
 	flow->recoverPacket_.arpHdr_.op_ = htons(operation);
-	GPacket::Result written = write(GBuf(pbyte(&flow->recoverPacket_), sizeof(flow->recoverPacket_)));
+	GPacket::Result written = writeBuf(GBuf(pbyte(&flow->recoverPacket_), sizeof(flow->recoverPacket_)));
 	if (written != GPacket::Ok) res = false;
 	return res;
 }

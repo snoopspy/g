@@ -104,7 +104,7 @@ void GHostScan::run() {
 					exit = true;
 					break;
 				}
-				GPacket::Result res = pcapDevice_->write(GBuf(pbyte(&packet), sizeof(packet)));
+				GPacket::Result res = pcapDevice_->writeBuf(GBuf(pbyte(&packet), sizeof(packet)));
 				if (res != GPacket::Ok) {
 					qWarning() << QString("device_->write return %1").arg(int(res));
 					exit = true;

@@ -158,7 +158,7 @@ void GArpBlock::infect(Item* item, uint16_t operation) {
 		sendPacket_.arpHdr_.tmac_ = item->mac_;
 		sendPacket_.arpHdr_.tip_ = htonl(item->ip_);
 
-		write_.write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
+		write_.writeBuf(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
 	}
 
 	if (attackDirection_ == Gateway || attackDirection_ == Both) { // To Gateway
@@ -169,7 +169,7 @@ void GArpBlock::infect(Item* item, uint16_t operation) {
 		sendPacket_.arpHdr_.tmac_ = gwMac_;
 		sendPacket_.arpHdr_.tip_ = htonl(gwIp_);
 
-		write_.write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
+		write_.writeBuf(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
 	}
 }
 
@@ -185,7 +185,7 @@ void GArpBlock::recover(Item *item, uint16_t operation)
 		sendPacket_.arpHdr_.tmac_ = item->mac_;
 		sendPacket_.arpHdr_.tip_ = htonl(item->ip_);
 
-		write_.write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
+		write_.writeBuf(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
 	}
 
 	if (attackDirection_ == Gateway || attackDirection_ == Both) { // To Gateway
@@ -196,7 +196,7 @@ void GArpBlock::recover(Item *item, uint16_t operation)
 		sendPacket_.arpHdr_.tmac_ = gwMac_;
 		sendPacket_.arpHdr_.tip_ = htonl(gwIp_);
 
-		write_.write(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
+		write_.writeBuf(GBuf(pbyte(&sendPacket_), sizeof(GEthArpPacket)));
 	}
 }
 

@@ -92,7 +92,7 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 	return GPacket::Ok;
 }
 
-GPacket::Result GNetFilter::write(GBuf buf) {
+GPacket::Result GNetFilter::writeBuf(GBuf buf) {
 	(void)buf;
 	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;
@@ -271,7 +271,7 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 	return GPacket::Ok;
 }
 
-GPacket::Result GNetFilter::write(GBuf buf) {
+GPacket::Result GNetFilter::writeBuf(GBuf buf) {
 	(void)buf;
 	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;

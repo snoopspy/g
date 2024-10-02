@@ -116,7 +116,7 @@ bool GAtm::sendQueries() {
 		GMac mac = it.value();
 		if (mac.isNull()) {
 			query.arpHdr_.tip_ = htonl(ip);
-			GPacket::Result res = write(queryBuf);
+			GPacket::Result res = writeBuf(queryBuf);
 			if (res != GPacket::Ok) {
 				return false;
 			}

@@ -33,7 +33,7 @@ GPacket::Result GCapture::read(GPacket* packet) {
 	return GPacket::Fail;
 }
 
-GPacket::Result GCapture::write(GBuf buf) {
+GPacket::Result GCapture::writeBuf(GBuf buf) {
 	(void)buf;
 	SET_ERR(GErr::VirtualFunctionCall, "virtual function call");
 	return GPacket::Fail;

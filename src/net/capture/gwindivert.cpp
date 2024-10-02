@@ -191,7 +191,7 @@ GPacket::Result GWinDivert::read(GPacket* packet) {
 	return GPacket::Ok;
 }
 
-GPacket::Result GWinDivert::write(GBuf buf) {
+GPacket::Result GWinDivert::writeBuf(GBuf buf) {
 	(void)buf;
 	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;

@@ -235,7 +235,7 @@ void GAutoArpSpoof::FloodingThread::run() {
 		if (elapsed > qint64(aas->floodingTimeout_)) break;
 		for (int i = 0; i < 2; i++) {
 			GBuf buf(pbyte(&infectPacket_[i]), sizeof(GEthArpPacket));
-			aas->write(buf);
+			aas->writeBuf(buf);
 			if (swe_.wait(aas->sendInterval_)) break;
 		}
 		if (swe_.wait(aas->floodingSendInterval_)) break;

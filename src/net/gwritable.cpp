@@ -55,7 +55,7 @@ GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu, GPacket::D
 		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
 		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
 
-		GPacket::Result res = write(sendPacket->buf_);
+		GPacket::Result res = writeBuf(sendPacket->buf_);
 		if (res != GPacket::Ok) {
 			qWarning() << QString("write(packet->buf_) return %1 len=%2").arg(int(res)).arg(sendPacket->buf_.size_);
 			result = res;

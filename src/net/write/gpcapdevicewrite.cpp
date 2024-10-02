@@ -59,7 +59,7 @@ bool GPcapDeviceWrite::doClose() {
 	return true;
 }
 
-GPacket::Result GPcapDeviceWrite::write(GBuf buf) {
+GPacket::Result GPcapDeviceWrite::writeBuf(GBuf buf) {
 	GDemon::PcapWrite write;
 	write.size_ = buf.size_;
 	write.data_ = buf.data_;
@@ -117,7 +117,7 @@ bool GPcapDeviceWrite::doClose() {
 	return true;
 }
 
-GPacket::Result GPcapDeviceWrite::write(GBuf buf) {
+GPacket::Result GPcapDeviceWrite::writeBuf(GBuf buf) {
 	int i = pcap_sendpacket(pcap_, buf.data_, int(buf.size_));
 	if (i != 0) {
 		SET_ERR(GErr::Fail, QString("pcap_sendpacket return %1 %2 size=%3").arg(i).arg(pcap_geterr(pcap_)).arg(buf.size_));
@@ -133,7 +133,7 @@ GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
 	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->tlen() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr)
 		res = writeMtuSplit(packet, mtu_, GPacket::Eth);
 	else
-		res = write(packet->buf_);
+		res = writeBuf(packet->buf_);
 	if (res == GPacket::Ok)
 		emit written(packet);
 	return res;

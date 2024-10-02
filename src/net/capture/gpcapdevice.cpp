@@ -135,7 +135,7 @@ GPacket::Result GPcapDevice::read(GPacket* packet) {
 	return GPacket::Ok;
 }
 
-GPacket::Result GPcapDevice::write(GBuf buf) {
+GPacket::Result GPcapDevice::writeBuf(GBuf buf) {
 	GDemon::PcapWrite write;
 	write.size_ = buf.size_;
 	write.data_ = buf.data_;

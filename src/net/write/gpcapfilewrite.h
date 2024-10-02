@@ -41,7 +41,7 @@ protected:
 	pcap_dumper_t* pcap_dumper_{nullptr};
 
 public:
-	GPacket::Result write(GBuf buf) override;
+	GPacket::Result writeBuf(GBuf buf) override;
 
 public slots:
 	GPacket::Result write(GPacket* packet) override;

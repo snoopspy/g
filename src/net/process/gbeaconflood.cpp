@@ -65,7 +65,7 @@ void GBeaconFlood::FloodingThread::run() {
 			for (BeaconFrame& bf: beaconFlood->bfl_) {
 				GBuf buf(pbyte(&bf), bf.size_);
 				if (!beaconFlood->active()) break;
-				GPacket::Result res = beaconFlood->write(buf);
+				GPacket::Result res = beaconFlood->writeBuf(buf);
 				if (res != GPacket::Ok) {
 					qWarning() << beaconFlood->err->msg();
 					ok = false;

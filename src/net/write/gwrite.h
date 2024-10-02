@@ -33,7 +33,7 @@ protected:
 	GPacket::Dlt dlt_{GPacket::Null};
 
 public:
-	GPacket::Result write(GBuf buf) override;
+	GPacket::Result writeBuf(GBuf buf) override;
 	GPacket::Result write(GPacket* packet) override;
 
 signals:

@@ -109,12 +109,12 @@ void GDot11Block::processBeacon(GPacket* packet) {
 void GDot11Block::attack(Ap& ap) {
 	if (deauthApBroadcast_) {
 		GBuf buf(pbyte(&ap.deauthFrame_), sizeof(ap.deauthFrame_));
-		writer_->write(buf);
+		writer_->writeBuf(buf);
 	}
 	if (timAttack_) {
 		if (!ap.timFrame_.isEmpty()) {
 			GBuf buf(pbyte(ap.timFrame_.data()), ap.timFrame_.size());
-			writer_->write(buf);
+			writer_->writeBuf(buf);
 		}
 	}
 }

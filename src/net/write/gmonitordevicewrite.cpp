@@ -32,8 +32,8 @@ bool GMonitorDeviceWrite::doClose() {
 	return GPcapDeviceWrite::doClose();
 }
 
-GPacket::Result GMonitorDeviceWrite::write(GBuf buf) {
-	return GPcapDeviceWrite::write(buf);
+GPacket::Result GMonitorDeviceWrite::writeBuf(GBuf buf) {
+	return GPcapDeviceWrite::writeBuf(buf);
 }
 
 GPacket::Result GMonitorDeviceWrite::write(GPacket* packet) {
@@ -42,7 +42,7 @@ GPacket::Result GMonitorDeviceWrite::write(GPacket* packet) {
 	GRadioHdr* radioHdr = packet->radioHdr_;
 	GDot11* dot11 = packet->dot11_;
 	if (radioHdr == nullptr || dot11 == nullptr) {
-		GPacket::Result res = GPcapDeviceWrite::write(packet->buf_);
+		GPacket::Result res = GPcapDeviceWrite::writeBuf(packet->buf_);
 		if (res == GPacket::Ok)
 			emit written(packet);
 		return res;
@@ -74,7 +74,7 @@ GPacket::Result GMonitorDeviceWrite::write(GPacket* packet) {
 	memcpy(sendDot11, dot11, sendDot11Size);
 
 	GBuf sendBuf(sendBuffer_, sendRadioHdrSize + sendDot11Size);
-	GPacket::Result res = GPcapDeviceWrite::write(sendBuf);
+	GPacket::Result res = GPcapDeviceWrite::writeBuf(sendBuf);
 	if (res == GPacket::Ok)
 		emit written(packet);
 	return res;

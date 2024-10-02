@@ -59,7 +59,7 @@ bool GPcapFileWrite::doClose() {
 	return true;
 }
 
-GPacket::Result GPcapFileWrite::write(GBuf buf) {
+GPacket::Result GPcapFileWrite::writeBuf(GBuf buf) {
 	(void)buf;
 	SET_ERR(GErr::NotSupported, "not supported");
 	return GPacket::Fail;

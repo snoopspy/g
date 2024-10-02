@@ -37,6 +37,6 @@ protected:
 	gbyte sendBuffer_[GPacket::MaxBufSize];
 
 public:
-	GPacket::Result write(GBuf buf) override;
+	GPacket::Result writeBuf(GBuf buf) override;
 	GPacket::Result write(GPacket* packet) override;
 };
