@@ -121,7 +121,7 @@ void GTls::CertificateHs::parse(GTls::Handshake* hs) {
 	p += sizeof(GTls::Handshake);
 
 	certificatesLength_ = *PLength3(p); p += sizeof(certificatesLength_); len -= sizeof(certificatesLength_);
-	uint32_t certificatesLength = certificatesLength_;
+	int32_t certificatesLength = certificatesLength_;
 	while (p < end) {
 		Length3 oneLength = *PLength3(p); p += sizeof(oneLength); len -= sizeof(oneLength);
 		if (oneLength > 65536)
