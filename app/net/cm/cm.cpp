@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 		cw.treeWidget_->setColumnWidth(1, width / 3);
 	}
 
-	GCommand* command = &cw.certMgr_.command_;
+	GCommand* command = &cw.certManager_.command_;
 	if (!command->open()) {
 		QMessageBox::warning(&cw, "Error", command->err->msg());
 	}

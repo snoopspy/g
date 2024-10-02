@@ -64,6 +64,22 @@ void CertManager::certificatesDetected(QString serverName, QList<QByteArray> cer
 		chain.append(certificate);
 	}
 	QList<QSslError> errors = QSslCertificate::verify(chain);
+	bool ok = errors.size() == 0;
+
+	if (showType_ == All || (showType_ == Abnormal && !ok)) {
+		QMetaObject::invokeMethod(this, [this, serverName]() {
+			QTreeWidgetItem* twi = new QTreeWidgetItem(treeWidget_);
+			twi->setText(0, serverName);
+
+			QTreeWidgetItem* twi2 = new QTreeWidgetItem(twi);
+			twi2->setText(0, "hahaha");
+
+			//twi->addChild(twi2);
+
+			treeWidget_->addTopLevelItem(twi);
+
+		}, Qt::BlockingQueuedConnection);
+	}
 	qDebug() << "chain size=" << chain.size();
 	qDebug() << errors;
 }

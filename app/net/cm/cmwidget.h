@@ -13,7 +13,7 @@ public:
 
 public:
 	GTreeWidget* treeWidget_;
-	CertManager certMgr_{this};
+	CertManager certManager_{this};
 
 public:
 	void closeEvent(QCloseEvent* event) override;

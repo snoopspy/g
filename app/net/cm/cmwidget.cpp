@@ -13,22 +13,15 @@ CmWidget::CmWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("CertManager");
 
 	treeWidget_ = new GTreeWidget(this);
-	treeWidget_->setHeaderLabels(QStringList{"IP", "Name", "Elapsed", ""});
-	treeWidget_->setSortingEnabled(true);
-	treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
-	treeWidget_->setIndentation(0);
-	treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
-
-#ifdef Q_OS_ANDROID
-	treeWidget_->setColumnWidth(CertManager::ColumnAttack, GItemDelegate::DefaultItemHeight);
-#else
-	treeWidget_->setColumnWidth(CertManager::ColumnAttack, treeWidget_->header()->sizeHint().height());
-#endif // Q_OS_ANDROID
+	treeWidget_->setHeaderLabels(QStringList{"Server"});
+	//treeWidget_->setSortingEnabled(true);
+	//treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
+	//treeWidget_->setIndentation(0);
+	//treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
 	QHeaderView* hv = treeWidget_->header();
-	hv->setSectionResizeMode(CertManager::ColumnElapsed, QHeaderView::Stretch);
-	hv->setSectionResizeMode(CertManager::ColumnAttack, QHeaderView::Fixed);
-	hv->setStretchLastSection(false);
+	hv->setSectionResizeMode(0, QHeaderView::Stretch);
+	//hv->setStretchLastSection(false);
 
 	mainLayout_->addWidget(treeWidget_);
 
@@ -41,7 +34,9 @@ CmWidget::CmWidget(QWidget* parent) : GDefaultWidget(parent) {
 	QObject::connect(tbStop_, &QToolButton::clicked, this, &CmWidget::tbStop_clicked);
 	QObject::connect(tbOption_, &QToolButton::clicked, this, &CmWidget::tbOption_clicked);
 
-	QObject::connect(&certMgr_, &GStateObj::closed, tbStop_, &QToolButton::click);
+	certManager_.treeWidget_ = treeWidget_;
+
+	QObject::connect(&certManager_, &GStateObj::closed, tbStop_, &QToolButton::click);
 
 	setControl();
 }
@@ -65,7 +60,7 @@ void CmWidget::closeEvent(QCloseEvent* event) {
 }
 
 void CmWidget::setControl() {
-	bool active = certMgr_.active();
+	bool active = certManager_.active();
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
@@ -76,9 +71,9 @@ void CmWidget::tbStart_clicked(bool checked) {
 
 	treeWidget_->clear();
 
-	if (!certMgr_.open()) {
+	if (!certManager_.open()) {
 		tbStop_->click();
-		QMessageBox::warning(this, "Error", certMgr_.err->msg());
+		QMessageBox::warning(this, "Error", certManager_.err->msg());
 		return;
 	}
 
@@ -88,7 +83,7 @@ void CmWidget::tbStart_clicked(bool checked) {
 void CmWidget::tbStop_clicked(bool checked) {
 	(void)checked;
 
-	certMgr_.close();
+	certManager_.close();
 	setControl();
 }
 
@@ -99,7 +94,7 @@ void CmWidget::tbOption_clicked(bool checked) {
 	GPropDialog propDialog;
 	propDialog.setModal(true);
 	propDialog.setWindowTitle("Option");
-	propDialog.widget_.setObject(&certMgr_);
+	propDialog.widget_.setObject(&certManager_);
 
 	QJsonObject& jo = GJson::instance();
 	bool isFirst = jo.find("propDialog") == jo.end();
@@ -121,18 +116,18 @@ void CmWidget::tbOption_clicked(bool checked) {
 }
 
 void CmWidget::processClosed() {
-	if (certMgr_.active())
+	if (certManager_.active())
 		tbStop_->click();
 }
 
 void CmWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
 	jo["sizes"] >> GJson::columnSizes(treeWidget_);
-	jo["ha"] >> certMgr_;
+	jo["ha"] >> certManager_;
 }
 
 void CmWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
 	jo["sizes"] << GJson::columnSizes(treeWidget_);
-	jo["ha"] << certMgr_;
+	jo["ha"] << certManager_;
 }
