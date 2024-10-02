@@ -53,6 +53,8 @@ GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 
 #else
 bool GRawIpSocketWrite::doOpen() {
+	if (!enabled_) return true;
+
 	sd_ = ::socket(PF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (sd_ == -1) {
 		QString msg = QString("socket return -1 %1").arg(strerror(errno));
@@ -86,6 +88,8 @@ bool GRawIpSocketWrite::doOpen() {
 }
 
 bool GRawIpSocketWrite::doClose() {
+	if (!enabled_) return true;
+
 	if (sd_ != 0) {
 		::close(sd_);
 		sd_ = 0;
@@ -108,6 +112,8 @@ GPacket::Result GRawIpSocketWrite::write(GBuf buf) {
 #endif
 
 GPacket::Result GRawIpSocketWrite::write(GPacket* packet) {
+	if (!enabled_) return GPacket::Ok;
+
 	GPacket::Result res;
 	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->tlen() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr) {
 		GBuf backupBuf = packet->buf_;

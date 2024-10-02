@@ -12,6 +12,8 @@ GMonitorDeviceWrite::~GMonitorDeviceWrite() {
 }
 
 bool GMonitorDeviceWrite::doOpen() {
+	if (!enabled_) return true;
+
 	if (!GPcapDeviceWrite::doOpen()) return false;
 
 	GPacket::Dlt _dlt = dlt();
@@ -25,6 +27,8 @@ bool GMonitorDeviceWrite::doOpen() {
 }
 
 bool GMonitorDeviceWrite::doClose() {
+	if (!enabled_) return true;
+
 	return GPcapDeviceWrite::doClose();
 }
 
@@ -33,6 +37,8 @@ GPacket::Result GMonitorDeviceWrite::write(GBuf buf) {
 }
 
 GPacket::Result GMonitorDeviceWrite::write(GPacket* packet) {
+	if (!enabled_) return GPacket::Ok;
+
 	GRadioHdr* radioHdr = packet->radioHdr_;
 	GDot11* dot11 = packet->dot11_;
 	if (radioHdr == nullptr || dot11 == nullptr) {

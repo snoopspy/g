@@ -22,6 +22,8 @@ GPcapDeviceWrite::~GPcapDeviceWrite() {
 
 #ifdef Q_OS_ANDROID
 bool GPcapDeviceWrite::doOpen() {
+	if (!enabled_) return true;
+
 	if (intfName_ == "") {
 		SET_ERR(GErr::InterfaceNameNotSpecified, "intfName is not specified");
 		return false;
@@ -47,6 +49,8 @@ bool GPcapDeviceWrite::doOpen() {
 }
 
 bool GPcapDeviceWrite::doClose() {
+	if (!enabled_) return true;
+
 	if (demonClient_ != nullptr) {
 		demonClient_->pcapClose();
 		delete demonClient_;
@@ -64,6 +68,8 @@ GPacket::Result GPcapDeviceWrite::write(GBuf buf) {
 }
 
 GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
+	if (!enabled_) return GPacket::Ok;
+
 	GPacket::Result res = write(packet->buf_);
 	if (res == GPacket::Ok)
 		emit written(packet);
@@ -71,6 +77,8 @@ GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
 }
 #else
 bool GPcapDeviceWrite::doOpen() {
+	if (!enabled_) return true;
+
 	if (intfName_ == "") {
 		SET_ERR(GErr::InterfaceNameNotSpecified, "intfName is not specified");
 		return false;
@@ -97,6 +105,8 @@ bool GPcapDeviceWrite::doOpen() {
 }
 
 bool GPcapDeviceWrite::doClose() {
+	if (!enabled_) return true;
+
 	if (pcap_ != nullptr) {
 		pcap_close(pcap_);
 		pcap_ = nullptr;
@@ -117,6 +127,8 @@ GPacket::Result GPcapDeviceWrite::write(GBuf buf) {
 }
 
 GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
+	if (!enabled_) return GPacket::Ok;
+
 	GPacket::Result res;
 	if (mtu_ != 0 && packet->ipHdr_ != nullptr && packet->ipHdr_->tlen() > uint16_t(mtu_) && packet->tcpHdr_ != nullptr)
 		res = writeMtuSplit(packet, mtu_, GPacket::Eth);

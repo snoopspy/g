@@ -18,6 +18,10 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GWrite : GStateObj, GWritable {
 	Q_OBJECT
+	Q_PROPERTY(bool enabled MEMBER enabled_)
+
+public:
+	bool enabled_{true};
 
 public:
 	Q_INVOKABLE GWrite(QObject* parent = nullptr) : GStateObj(parent) {}

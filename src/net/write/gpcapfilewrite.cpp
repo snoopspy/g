@@ -7,6 +7,8 @@
 // GPcapFileWrite
 // ----------------------------------------------------------------------------
 bool GPcapFileWrite::doOpen() {
+	if (!enabled_) return true;
+
 	if (fileName_ == "") {
 		SET_ERR(GErr::FileNameNotSpecified, "file name is not specified");
 		return false;
@@ -43,6 +45,8 @@ bool GPcapFileWrite::doOpen() {
 }
 
 bool GPcapFileWrite::doClose() {
+	if (!enabled_) return true;
+
 	if (pcap_dumper_ != nullptr) {
 		pcap_dump_close(pcap_dumper_);
 		pcap_dumper_ = nullptr;
@@ -62,6 +66,8 @@ GPacket::Result GPcapFileWrite::write(GBuf buf) {
 }
 
 GPacket::Result GPcapFileWrite::write(GPacket* packet) {
+	if (!enabled_) return GPacket::Ok;
+
 	pcap_pkthdr pkthdr;
 	pkthdr.ts = packet->ts_;
 	pkthdr.caplen = pkthdr.len = bpf_u_int32(packet->buf_.size_);
