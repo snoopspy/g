@@ -158,7 +158,9 @@ void GCertMgr::manage(GPacket* packet) {
 					serverName = revItem->serverName_;
 				qDebug() << QString("cert detected %1 %2").arg(serverName).arg(certificates.size()); // gilgil temp 2024.10.01
 				if (saveCertFile_) {
-					QDateTime now = QDateTime::fromMSecsSinceEpoch(packet->ts_.tv_sec * 1000 + packet->ts_.tv_usec / 1000);
+					qint64 msecs = packet->ts_.tv_sec;
+					msecs = msecs * 1000 +  packet->ts_.tv_usec / 1000;
+					QDateTime now = QDateTime::fromMSecsSinceEpoch(msecs);
 					for (int i = 0; i < certificates.size(); i++) {
 						QByteArray certificate =  certificates.at(i);
 						QString fileName = QString("%1%2-%3-%4.der").arg(folder_).arg(now.toString("yyMMdd-hhmmss-zzz")).arg(serverName).arg(i);
