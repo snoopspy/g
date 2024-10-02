@@ -29,7 +29,7 @@ struct G_EXPORT GCertMgr : GStateObj, GTcpFlowMgr::Managable {
 
 public:
 	bool saveCertFile_{true};
-	QString folder_{"certificate"};
+	QString folder_{QString("certificate") + QDir::separator()};
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 
 public:
