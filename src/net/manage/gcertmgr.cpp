@@ -161,7 +161,7 @@ void GCertMgr::manage(GPacket* packet) {
 					QDateTime now = QDateTime::fromMSecsSinceEpoch(packet->ts_.tv_sec * 1000 + packet->ts_.tv_usec / 1000);
 					for (int i = 0; i < certificates.size(); i++) {
 						QByteArray certificate =  certificates.at(i);
-						QString fileName = QString("%1%2-%3.der").arg(folder_).arg(now.toString("yyMMdd-hhmmss-zzz")).arg(i);
+						QString fileName = QString("%1%2-%3-%4.der").arg(folder_).arg(now.toString("yyMMdd-hhmmss-zzz")).arg(serverName).arg(i);
 						QFile file(fileName);
 						file.open(QIODevice::WriteOnly);
 						file.write(certificate);
