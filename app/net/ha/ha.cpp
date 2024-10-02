@@ -14,8 +14,8 @@ int main(int argc, char *argv[]) {
 	hw.show();
 	if (isFirst) {
 		int width = hw.width();
-		hw.treeWidget_->setColumnWidth(0, width / 3);
-		hw.treeWidget_->setColumnWidth(1, width / 3);
+		hw.treeWidget_->setColumnWidth(HostAnalyzer::ColumnIp, width / 3);
+		hw.treeWidget_->setColumnWidth(HostAnalyzer::ColumnName, width / 3);
 	}
 
 	GCommand* command = &hw.hostAnalyzer_.command_;

@@ -55,6 +55,13 @@ public:
 	GMonitorDeviceWrite monitorDeviceWrite_{this};
 	GCommand command_{this};
 
+public:
+	const static int ColumnMac = 0;
+	const static int ColumnSsid = 1;
+	const static int ColumnChannel = 2;
+	const static int ColumnSignal = 3;
+	const static int ColumnCount = 4;
+
 public slots:
 	void processCaptured(GPacket* packet);
 	void processChannelChanged(int channel);

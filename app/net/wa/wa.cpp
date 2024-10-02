@@ -15,9 +15,9 @@ int main(int argc, char *argv[])
 	wa.show();
 	if (isFirst) {
 		int width = wa.width();
-		wa.tableWidget_->setColumnWidth(0, width / 4);
-		wa.tableWidget_->setColumnWidth(1, width / 4);
-		wa.tableWidget_->setColumnWidth(2, width / 12);
+		wa.tableWidget_->setColumnWidth(WifiAnalyzer::ColumnMac, width / 4);
+		wa.tableWidget_->setColumnWidth(WifiAnalyzer::ColumnSsid, width / 4);
+		wa.tableWidget_->setColumnWidth(WifiAnalyzer::ColumnChannel, width / 12);
 	}
 
 	GCommand* command = &wa.wifiAnalyzer_.command_;
