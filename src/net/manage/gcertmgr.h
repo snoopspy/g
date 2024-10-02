@@ -21,15 +21,15 @@
 struct G_EXPORT GCertMgr : GStateObj, GTcpFlowMgr::Managable {
 	Q_OBJECT
 	Q_PROPERTY(bool saveCertFile MEMBER saveCertFile_)
-	Q_PROPERTY(QString folder MEMBER folder_)
+	Q_PROPERTY(QString saveCertFileFolder MEMBER saveCertFileFolder_)
 	Q_PROPERTY(GObjPtr tcpFlowMgr READ getTcpFlowMgr WRITE setTcpFlowMgr)
 
 	GObjPtr getTcpFlowMgr() { return tcpFlowMgr_; }
 	void setTcpFlowMgr(GObjPtr value) { tcpFlowMgr_ = dynamic_cast<GTcpFlowMgr*>(value.data()); }
 
 public:
-	bool saveCertFile_{true};
-	QString folder_{QString("certificate") + QDir::separator()};
+	bool saveCertFile_{false};
+	QString saveCertFileFolder_{QString("certificate") + QDir::separator()};
 	GTcpFlowMgr* tcpFlowMgr_{nullptr};
 
 public:
@@ -63,10 +63,13 @@ public:
 	static QString extractServerName(GTls::Handshake *hs);
 	static QList<QByteArray> extractCertificates(GTls::Handshake *hs);
 
+	static bool makeFolder(QString& folder);
+	static void saveCertFiles(QString folder, QString serverName, struct timeval ts, QList<QByteArray>& certs);
+
 public slots:
 	void manage(GPacket* packet);
 
 signals:
 	void handshakeDetected(GTls::Handshake* hs);
-	void certificatesDetected(QString serverName, QList<QByteArray> certificates);
+	void certificatesDetected(QString serverName, QList<QByteArray> certs);
 };

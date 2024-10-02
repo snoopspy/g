@@ -11,12 +11,11 @@ bool GCertMgr::doOpen() {
 	tcpFlowOffset_ = tcpFlowMgr_->requestItems_.request(this, sizeof(Item));
 	tcpFlowMgr_->managables_.insert(this);
 
-	if (!folder_.endsWith(QDir::separator()))
-		folder_ += QDir::separator();
-	QDir dir;
-	if (!dir.mkpath(folder_)) {
-		SET_ERR(GErr::Fail, QString("can not create folder(%1)").arg(folder_));
-		return false;
+	if (saveCertFile_) {
+		if (!makeFolder(saveCertFileFolder_)) {
+			SET_ERR(GErr::Fail, QString("can not create folder(%1)").arg(saveCertFileFolder_));
+			return false;
+		}
 	}
 
 	return true;
@@ -66,6 +65,32 @@ QList<QByteArray> GCertMgr::extractCertificates(GTls::Handshake *hs) {
 	GTls::CertificateHs cr;
 	cr.parse(hs);
 	return cr.certificates_;
+}
+
+bool GCertMgr::makeFolder(QString& folder) {
+	if (folder == "") return true;
+	if (folder == QDir::separator()) {
+		qWarning() << "folder can not be" << QDir::separator();
+		return false;
+	}
+	if (!folder.endsWith(QDir::separator()))
+		folder += QDir::separator();
+	QDir dir;
+	return dir.mkpath(folder);
+}
+
+void GCertMgr::saveCertFiles(QString folder, QString serverName, struct timeval ts, QList<QByteArray>& certs) {
+	qint64 msecs = ts.tv_sec;
+	msecs = msecs * 1000 +  ts.tv_usec / 1000;
+	QDateTime now = QDateTime::fromMSecsSinceEpoch(msecs);
+	for (int i = 0; i < certs.size(); i++) {
+		QByteArray cert =  certs.at(i);
+		QString fileName = QString("%1%2-%3-%4.der").arg(folder).arg(now.toString("yyMMdd-hhmmss-zzz")).arg(serverName).arg(i);
+		QFile file(fileName);
+		file.open(QIODevice::WriteOnly);
+		file.write(cert);
+		file.close();
+	}
 }
 
 void GCertMgr::manage(GPacket* packet) {
@@ -149,28 +174,18 @@ void GCertMgr::manage(GPacket* packet) {
 				break;
 			}
 			case GTls::Handshake::Certificate: {
-				QList<QByteArray> certificates = extractCertificates(hs);
+				QList<QByteArray> certs = extractCertificates(hs);
 				item->checkNeeded_ = false;
 
 				Item* revItem = getItem(tcpFlowMgr_->currentRevTcpFlowVal_);
 				QString serverName;
 				if (revItem != nullptr)
 					serverName = revItem->serverName_;
-				qDebug() << QString("cert detected %1 %2").arg(serverName).arg(certificates.size()); // gilgil temp 2024.10.01
+				qDebug() << QString("cert detected %1 %2").arg(serverName).arg(certs.size()); // gilgil temp 2024.10.01
 				if (saveCertFile_) {
-					qint64 msecs = packet->ts_.tv_sec;
-					msecs = msecs * 1000 +  packet->ts_.tv_usec / 1000;
-					QDateTime now = QDateTime::fromMSecsSinceEpoch(msecs);
-					for (int i = 0; i < certificates.size(); i++) {
-						QByteArray certificate =  certificates.at(i);
-						QString fileName = QString("%1%2-%3-%4.der").arg(folder_).arg(now.toString("yyMMdd-hhmmss-zzz")).arg(serverName).arg(i);
-						QFile file(fileName);
-						file.open(QIODevice::WriteOnly);
-						file.write(certificate);
-						file.close();
-					}
+					saveCertFiles(saveCertFileFolder_, serverName, packet->ts_, certs);
 				}
-				emit certificatesDetected(revItem->serverName_, certificates);
+				emit certificatesDetected(revItem->serverName_, certs);
 				break;
 			}
 			default:
