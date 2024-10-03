@@ -12,7 +12,7 @@ HEADERS += \
 	certmanager.h
 
 
-RESOURCES += $$PWD/ha.qrc
+RESOURCES += $$PWD/cm.qrc
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
 	ANDROID_PACKAGE_SOURCE_DIR = \

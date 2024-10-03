@@ -70,7 +70,7 @@ GPacket::Result GPcapDeviceWrite::writeBuf(GBuf buf) {
 GPacket::Result GPcapDeviceWrite::write(GPacket* packet) {
 	if (!enabled_) return GPacket::Ok;
 
-	GPacket::Result res = write(packet->buf_);
+	GPacket::Result res = writeBuf(packet->buf_);
 	if (res == GPacket::Ok)
 		emit written(packet);
 	return res;

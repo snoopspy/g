@@ -144,7 +144,7 @@ GPacket::Result GPcapDevice::writeBuf(GBuf buf) {
 }
 
 GPacket::Result GPcapDevice::write(GPacket* packet) {
-	return write(packet->buf_);
+	return writeBuf(packet->buf_);
 }
 
 GPacket::Result GPcapDevice::relay(GPacket* packet) {
