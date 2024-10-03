@@ -76,8 +76,15 @@ copy %QTDIR%\bin\Qt6Network.dll .
 copy %QTDIR%\bin\Qt6Sql.dll .
 copy %QTDIR%\bin\Qt6Svg.dll .
 copy %QTDIR%\bin\Qt6Widgets.dll .
+
+
+#
+# plugins files
+#
 mkdir platforms
 copy %QTDIR%\plugins\platforms\*.dll platforms\
+mkdir tls
+copy %QTDIR%\plugins\tls\*.dll tls\
 mkdir plugins\sqldrivers
 copy %QTDIR%\plugins\sqldrivers\qsqlite.dll plugins\sqldrivers\
 

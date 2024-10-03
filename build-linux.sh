@@ -51,10 +51,12 @@ cp $QTDIR/lib/libQt6Widgets.so.6 .
 cp $QTDIR/lib/libQt6XcbQpa.so.6 .
 
 #
-# platforms files
+# plugins files
 #
 mkdir -p platforms
 cp $QTDIR/plugins/platforms/* platforms/
+mkdir -p tls
+cp $QTDIR/plugins/tls/* tls/
 mkdir -p plugins/sqldrivers
 cp $QTDIR/plugins/sqldrivers/libqsqlite.so plugins/sqldrivers/
 
