@@ -12,18 +12,36 @@
 CmWidget::CmWidget(QWidget* parent) : GDefaultWidget(parent) {
 	setWindowTitle("CertManager");
 
+	splitter_ = new GSplitter(Qt::Vertical, this);
+
 	treeWidget_ = new GTreeWidget(this);
-	treeWidget_->setHeaderLabels(QStringList{"Server"});
-	//treeWidget_->setSortingEnabled(true);
-	//treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
-	//treeWidget_->setIndentation(0);
-	//treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
+	treeWidget_->setHeaderLabels(QStringList{"Name", "File", "Ok"});
+	// treeWidget_->setSortingEnabled(true);
+	// treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
+	// treeWidget_->setIndentation(0);
+	// treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
+
+#ifdef Q_OS_ANDROID
+	treeWidget_->setColumnWidth(CertManager::ColumnFile, GItemDelegate::DefaultItemHeight);
+#else
+	treeWidget_->setColumnWidth(CertManager::ColumnFile, treeWidget_->header()->sizeHint().height());
+#endif // Q_OS_ANDROID
 
 	QHeaderView* hv = treeWidget_->header();
-	hv->setSectionResizeMode(0, QHeaderView::Stretch);
-	//hv->setStretchLastSection(false);
+	hv->setSectionResizeMode(CertManager::ColumnFile, QHeaderView::Stretch);
+	hv->setSectionResizeMode(CertManager::ColumnOk, QHeaderView::Fixed);
+	hv->setStretchLastSection(false);
 
-	mainLayout_->addWidget(treeWidget_);
+	plainTextEdit_ = new GPlainTextEdit(this);
+	plainTextEdit_->setReadOnly(true);
+	plainTextEdit_->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+
+	splitter_->addWidget(treeWidget_);
+	splitter_->addWidget(plainTextEdit_);
+	splitter_->setStretchFactor(0, 1);
+	splitter_->setStretchFactor(1, 0);
+
+	mainLayout_->addWidget(splitter_);
 
 	int left, top, right, bottom;
 	mainLayout_->getContentsMargins(&left, &top, &right, &bottom);
@@ -64,6 +82,15 @@ void CmWidget::setControl() {
 	tbStart_->setEnabled(!active);
 	tbStop_->setEnabled(active);
 	tbOption_->setEnabled(!active);
+
+	if (treeWidget_->selectedItems().count() > 0) {
+		GTreeWidgetItem* twi = PTreeWidgetItem(treeWidget_->selectedItems().at(0));
+		QString help = twi->property("help").toString();
+		plainTextEdit_->clear();
+		plainTextEdit_->insertPlainText(help);
+	} else {
+		plainTextEdit_->clear();
+	}
 }
 
 void CmWidget::tbStart_clicked(bool checked) {
@@ -122,12 +149,14 @@ void CmWidget::processClosed() {
 
 void CmWidget::propLoad(QJsonObject jo) {
 	jo["rect"] >> GJson::rect(this);
+	jo["splitter"] >> GJson::splitterSizes(splitter_);
 	jo["sizes"] >> GJson::columnSizes(treeWidget_);
 	jo["ha"] >> certManager_;
 }
 
 void CmWidget::propSave(QJsonObject& jo) {
 	jo["rect"] << GJson::rect(this);
+	jo["splitter"] << GJson::splitterSizes(splitter_);
 	jo["sizes"] << GJson::columnSizes(treeWidget_);
 	jo["ha"] << certManager_;
 }

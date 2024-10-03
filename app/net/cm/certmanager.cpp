@@ -67,17 +67,26 @@ void CertManager::certificatesDetected(QString serverName, QList<QByteArray> cer
 	bool ok = errors.size() == 0;
 
 	if (showType_ == All || (showType_ == Abnormal && !ok)) {
-		QMetaObject::invokeMethod(this, [this, serverName]() {
-			QTreeWidgetItem* twi = new QTreeWidgetItem(treeWidget_);
-			twi->setText(0, serverName);
+		QMetaObject::invokeMethod(this, [this, serverName, errors, certs]() {
+			GTreeWidgetItem* twi = new GTreeWidgetItem(treeWidget_);
+			twi->setText(ColumnName, serverName);
+			QStringList helps;
+			for (const QSslError& error: errors)
+				helps.append(error.errorString());
+			twi->setProperty("help", helps.join("\n"));
 
-			QTreeWidgetItem* twi2 = new QTreeWidgetItem(twi);
-			twi2->setText(0, "hahaha");
+			for (const QByteArray& cert: certs) {
+				QSslCertificate certificate(cert, QSsl::Der);
+				QString displayName = certificate.subjectDisplayName();
 
-			//twi->addChild(twi2);
+				GTreeWidgetItem* twi2 = new GTreeWidgetItem(twi);
+				twi2->setText(ColumnName, displayName);
 
+				helps.clear();
+				helps.append(certificate.toText());
+				twi2->setProperty("help", helps.join("\n"));
+			}
 			treeWidget_->addTopLevelItem(twi);
-
 		}, Qt::BlockingQueuedConnection);
 	}
 	qDebug() << "chain size=" << chain.size();

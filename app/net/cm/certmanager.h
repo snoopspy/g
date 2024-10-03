@@ -57,10 +57,9 @@ public:
 	GTreeWidget* treeWidget_{nullptr}; // reference
 
 public:
-	const static int ColumnIp = 0; // gilgil temp 2024.10.02
-	const static int ColumnName = 1;
-	const static int ColumnElapsed = 2;
-	const static int ColumnAttack = 3;
+	const static int ColumnName = 0;
+	const static int ColumnFile = 1;
+	const static int ColumnOk = 2;
 
 public slots:
 	void certificatesDetected(QString serverName, QList<QByteArray> certs);

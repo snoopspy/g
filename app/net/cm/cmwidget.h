@@ -2,6 +2,8 @@
 
 #include <GDefaultWidget>
 #include <GTreeWidget>
+#include <GSplitter>
+#include <GPlainTextEdit>
 #include "certmanager.h"
 
 struct G_EXPORT CmWidget : GDefaultWidget, GProp {
@@ -12,7 +14,9 @@ public:
 	~CmWidget() override;
 
 public:
+	GSplitter* splitter_;
 	GTreeWidget* treeWidget_;
+	GPlainTextEdit* plainTextEdit_;
 	CertManager certManager_{this};
 
 public:
