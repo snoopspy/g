@@ -15,21 +15,14 @@ CmWidget::CmWidget(QWidget* parent) : GDefaultWidget(parent) {
 	splitter_ = new GSplitter(Qt::Vertical, this);
 
 	treeWidget_ = new GTreeWidget(this);
-	treeWidget_->setHeaderLabels(QStringList{"Name", "File", "Ok"});
+	treeWidget_->setHeaderLabels(QStringList{"Name"});
 	// treeWidget_->setSortingEnabled(true);
 	// treeWidget_->sortByColumn(-1, Qt::AscendingOrder);
 	// treeWidget_->setIndentation(0);
 	// treeWidget_->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
-#ifdef Q_OS_ANDROID
-	treeWidget_->setColumnWidth(CertManager::ColumnFile, GItemDelegate::DefaultItemHeight);
-#else
-	treeWidget_->setColumnWidth(CertManager::ColumnFile, treeWidget_->header()->sizeHint().height());
-#endif // Q_OS_ANDROID
-
 	QHeaderView* hv = treeWidget_->header();
-	hv->setSectionResizeMode(CertManager::ColumnFile, QHeaderView::Stretch);
-	hv->setSectionResizeMode(CertManager::ColumnOk, QHeaderView::Fixed);
+	hv->setSectionResizeMode(CertManager::ColumnName, QHeaderView::Stretch);
 	hv->setStretchLastSection(false);
 
 	plainTextEdit_ = new GPlainTextEdit(this);

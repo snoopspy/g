@@ -58,8 +58,6 @@ public:
 
 public:
 	const static int ColumnName = 0;
-	const static int ColumnFile = 1;
-	const static int ColumnOk = 2;
 
 public slots:
 	void doCertificatesDetected(QString serverName, struct timeval ts, QList<QByteArray> certs);

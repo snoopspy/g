@@ -69,10 +69,14 @@ void CertManager::doCertificatesDetected(QString serverName, struct timeval ts, 
 		QMetaObject::invokeMethod(this, [this, serverName, errors, certs]() {
 			GTreeWidgetItem* twi = new GTreeWidgetItem(treeWidget_);
 			twi->setText(ColumnName, serverName);
-			QStringList helps;
-			for (const QSslError& error: errors)
-				helps.append(error.errorString());
-			twi->setProperty("help", helps.join("\n"));
+			if (errors.size() == 0) {
+				twi->setProperty("help", "Ok")				;
+			} else {
+				QStringList helps;
+				for (const QSslError& error: errors)
+					helps.append(error.errorString());
+				twi->setProperty("help", helps.join("\n"));
+			}
 
 			for (const QByteArray& cert: certs) {
 				QSslCertificate certificate(cert, QSsl::Der);
@@ -81,7 +85,7 @@ void CertManager::doCertificatesDetected(QString serverName, struct timeval ts, 
 				GTreeWidgetItem* twi2 = new GTreeWidgetItem(twi);
 				twi2->setText(ColumnName, displayName);
 
-				helps.clear();
+				QStringList helps;
 				helps.append(certificate.toText());
 				twi2->setProperty("help", helps.join("\n"));
 			}
