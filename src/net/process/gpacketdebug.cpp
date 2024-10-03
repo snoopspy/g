@@ -1,7 +1,6 @@
 #include "gpacketdebug.h"
-#include <iostream>
 
-QString dump(u_char* data, size_t size) {
+static QString dump(u_char* data, size_t size) {
 	QString raw;
 	QString hexa;
 	if (size > 16) size = 16;
@@ -35,6 +34,15 @@ QString dump(u_char* data, size_t size) {
 // ----------------------------------------------------------------------------
 // GPacketDebug
 // ----------------------------------------------------------------------------
+bool GPacketDebug::doOpen()  {
+	frameNo_ = 0;
+	return true;
+}
+
+bool GPacketDebug::doClose() {
+	return true;
+}
+
 void GPacketDebug::debug(GPacket* packet) {
 	if (!enabled_) return;
 
@@ -126,7 +134,7 @@ void GPacketDebug::debug(GPacket* packet) {
 	}
 
 	msg = QString("%1:").arg(packet->buf_.size_) + msg;
-	qDebug() << msg;
+	qDebug() << ++frameNo_ << msg;
 
 	emit debugged(packet);
 }

@@ -28,8 +28,11 @@ public:
 	~GPacketDebug() override { close(); }
 
 protected:
-	bool doOpen() override { return true; }
-	bool doClose() override { return true; }
+	int frameNo_;
+
+protected:
+	bool doOpen() override;
+	bool doClose() override;
 
 public slots:
 	void debug(GPacket* packet);
