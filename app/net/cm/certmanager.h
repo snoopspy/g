@@ -62,7 +62,7 @@ public:
 	const static int ColumnOk = 2;
 
 public slots:
-	void certificatesDetected(QString serverName, QList<QByteArray> certs);
+	void doCertificatesDetected(QString serverName, struct timeval ts, QList<QByteArray> certs);
 	void processClosed();
 
 public:

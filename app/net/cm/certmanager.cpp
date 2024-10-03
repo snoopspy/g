@@ -23,11 +23,10 @@ CertManager::CertManager(QObject* parent) : GGraph(parent) {
 	nodes_.append(&certMgr_);
 	nodes_.append(&pcapFileWrite_);
 
-
 	QObject::connect(&pcapDevice_, &GPcapDevice::captured, &tcpFlowMgr_, &GTcpFlowMgr::manage, Qt::DirectConnection);
 	QObject::connect(&tcpFlowMgr_, &GTcpFlowMgr::managed, &certMgr_, &GCertMgr::manage, Qt::DirectConnection);
-	QObject::connect(&certMgr_, &GCertMgr::certificatesDetected, this, &CertManager::certificatesDetected, Qt::DirectConnection);
 	QObject::connect(&pcapDevice_, &GPcapDevice::captured, &pcapFileWrite_, &GPcapFileWrite::write, Qt::DirectConnection);
+	QObject::connect(&certMgr_, &GCertMgr::certificatesDetected, this, &CertManager::doCertificatesDetected, Qt::DirectConnection);
 }
 
 CertManager::~CertManager() {
@@ -54,7 +53,7 @@ bool CertManager::doClose() {
 	return res;
 }
 
-void CertManager::certificatesDetected(QString serverName, QList<QByteArray> certs) {
+void CertManager::doCertificatesDetected(QString serverName, struct timeval ts, QList<QByteArray> certs) {
 	QList<QSslCertificate> chain;
 	int count = certs.size();
 	for (int i = 0; i < count; i++) {
@@ -88,6 +87,10 @@ void CertManager::certificatesDetected(QString serverName, QList<QByteArray> cer
 			}
 			treeWidget_->addTopLevelItem(twi);
 		}, Qt::BlockingQueuedConnection);
+	}
+
+	if (saveCertFileType_ == All || (saveCertFileType_ == Abnormal && !ok)) {
+		certMgr_.saveCertFiles(saveCertFileFolder_, serverName, ts, certs);
 	}
 	qDebug() << "chain size=" << chain.size();
 	qDebug() << errors;
