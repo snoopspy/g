@@ -1,6 +1,5 @@
 #include "gsyncdelay.h"
 #include <QDeadlineTimer>
-#include <QThread>
 
 // ----------------------------------------------------------------------------
 // GSyncDelay

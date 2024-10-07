@@ -162,16 +162,19 @@ void GPluginFactory::loadConvert() {
 // ----------------------------------------------------------------------------
 #include <GDelay>
 #include <GSyncDelay>
+#include <GThreadDelay>
 #include <GTimeStampSyncDelay>
 
 void GPluginFactory::loadDelay() {
 	qRegisterMetaType<GDelay*>();
 	qRegisterMetaType<GSyncDelay*>();
+	qRegisterMetaType<GThreadDelay*>();
 	qRegisterMetaType<GTimeStampSyncDelay*>();
 
 	ItemCategory* category = new ItemCategory("Delay");
 	category->items_.push_back(new ItemNode("GDelay"));
 	category->items_.push_back(new ItemNode("GSyncDelay"));
+	category->items_.push_back(new ItemNode("GThreadDelay"));
 	category->items_.push_back(new ItemNode("GTimeStampSyncDelay"));
 
 	items_.push_back(category);

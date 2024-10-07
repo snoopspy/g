@@ -81,7 +81,7 @@ bool GCertMgr::makeFolder(QString& folder) {
 
 void GCertMgr::saveCertFiles(QString folder, QString serverName, struct timeval ts, QList<QByteArray>& certs) {
 	qint64 msecs = ts.tv_sec;
-	msecs = msecs * 1000 +  ts.tv_usec / 1000;
+	msecs = msecs * 1000 + ts.tv_usec / 1000;
 	QDateTime now = QDateTime::fromMSecsSinceEpoch(msecs);
 	for (int i = 0; i < certs.size(); i++) {
 		QByteArray cert =  certs.at(i);

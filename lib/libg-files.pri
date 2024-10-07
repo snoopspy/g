@@ -82,6 +82,7 @@ SOURCES += \
 	$${PWD}/../src/net/convert/gconvertip.cpp \
 	$${PWD}/../src/net/delay/gdelay.cpp \
 	$${PWD}/../src/net/delay/gsyncdelay.cpp \
+	$${PWD}/../src/net/delay/gthreaddelay.cpp \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.cpp \
 	$${PWD}/../src/net/filter/gbpfilter.cpp \
 	$${PWD}/../src/net/firewall/gcycledetect.cpp \
@@ -238,6 +239,7 @@ HEADERS += \
 	$${PWD}/../src/net/convert/gconvertip.h \
 	$${PWD}/../src/net/delay/gdelay.h \
 	$${PWD}/../src/net/delay/gsyncdelay.h \
+	$${PWD}/../src/net/delay/gthreaddelay.h \
 	$${PWD}/../src/net/delay/gtimestampsyncdelay.h \
 	$${PWD}/../src/net/filter/gbpfilter.h \
 	$${PWD}/../src/net/firewall/gcycledetect.h \
