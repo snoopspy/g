@@ -11,7 +11,7 @@ bool GCapture::doOpen() {
 	if (!enabled_) return true;
 
 	if (autoRead_) {
-		thread_.start();
+		captureThread_.start();
 	}
 	return true;
 }
@@ -21,8 +21,8 @@ bool GCapture::doClose() {
 
 	bool res = true;
 	if (autoRead_) {
-		thread_.quit();
-		res = thread_.wait();
+		captureThread_.quit();
+		res = captureThread_.wait();
 	}
 	return res;
 }
@@ -56,7 +56,7 @@ GPacket::Result GCapture::drop(GPacket* packet) {
 	return GPacket::Ok;
 }
 
-void GCapture::run() {
+void GCapture::captureRun() {
 	qDebug() << "beg";
 
 	GPacket* packet = anyPacket_.get(dlt());
@@ -78,4 +78,13 @@ void GCapture::run() {
 	}
 	qDebug() << "end";
 	emit closed();
+}
+
+// ----------------------------------------------------------------------------
+// GCapture::CaptureThread
+// ----------------------------------------------------------------------------
+void GCapture::CaptureThread::run() {
+	GCapture* capture = dynamic_cast<GCapture*>(parent());
+	Q_ASSERT(capture != nullptr);
+	capture->captureRun();
 }

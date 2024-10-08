@@ -35,7 +35,7 @@ public:
 	GPacket::Result relay(GPacket* packet) override;
 
 protected:
-	void run() override;
+	void captureRun() override;
 
 private:
 	GIpPacket asyncIpPacket_{this};

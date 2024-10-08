@@ -45,7 +45,7 @@ GPacket::Result GAsyncNetFilter::relay(GPacket* packet) {
 	return GPacket::Fail;
 }
 
-void GAsyncNetFilter::run() {
+void GAsyncNetFilter::captureRun() {
 	qDebug() << "beg"; // gilgil temp 2016.09.27
 	while (active()) {
 		// qDebug() << "bef call recv"; // gilgil temp 2016.09.27

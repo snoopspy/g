@@ -66,7 +66,7 @@ bool GPcapPipe::doOpen() {
 	dlt_ = GPacket::intToDlt(dataLink);
 
 	bool res = GCapture::doOpen();
-	process_->moveToThread(&thread_);
+	process_->moveToThread(&captureThread_);
 
 	Q_ASSERT(recvBuf_ == nullptr);
 	recvBuf_ = new gbyte[bufSize_];

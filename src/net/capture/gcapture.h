@@ -56,18 +56,14 @@ public:
 	virtual PathType pathType() { return OutOfPath; }
 
 protected:
-	GAnyPacket anyPacket_;
-	struct Thread : GThread {
-		Thread(GCapture* capture) : GThread(capture) {}
-	protected:
-		void run() override {
-			GCapture* capture = dynamic_cast<GCapture*>(parent());
-			Q_ASSERT(capture != nullptr);
-			capture->run();
-		}
-	} thread_{this};
+	virtual void captureRun();
 
-	virtual void run();
+	GAnyPacket anyPacket_;
+	struct CaptureThread : GThread {
+		CaptureThread(GCapture* capture) : GThread(capture) {}
+	protected:
+		void run() override;
+	} captureThread_{this};
 
 signals:
 	void captured(GPacket* packet);
