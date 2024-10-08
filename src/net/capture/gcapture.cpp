@@ -58,7 +58,6 @@ GPacket::Result GCapture::drop(GPacket* packet) {
 
 void GCapture::captureRun() {
 	qDebug() << "beg";
-
 	GPacket* packet = anyPacket_.get(dlt());
 	PathType pt = pathType();
 	while (active()) {
