@@ -85,7 +85,7 @@ void GTls::ServerHelloHs::parse(GTls::Handshake* hs) {
 		qWarning() << QString("too big sessionIdLengh(%1)").arg(sessionIdLength);
 	sessionId_ = QByteArray(pchar(p), sessionIdLength); p += sessionIdLength; len -= sessionIdLength;
 
-	uint16_t cipherSuite_ = ntohs(*puint16_t(p)); p += sizeof(cipherSuite_); len -= sizeof(cipherSuite_);
+	cipherSuite_ = ntohs(*puint16_t(p)); p += sizeof(cipherSuite_); len -= sizeof(cipherSuite_);
 
 	uint8_t compressionMethodsLength = *puint8_t(p); p += sizeof(compressionMethodsLength); len -= sizeof(compressionMethodsLength);
 	if (compressionMethodsLength != 0 && compressionMethodsLength != 1)
@@ -126,7 +126,8 @@ void GTls::CertificateHs::parse(GTls::Handshake* hs) {
 		Length3 oneLength = *PLength3(p); p += sizeof(oneLength); len -= sizeof(oneLength);
 		if (oneLength > 65536)
 			qWarning() << QString("too big certificat size(%1").arg(oneLength);
-		QByteArray certificate(pchar(p), oneLength);
+		qsizetype ol = oneLength;
+		QByteArray certificate(pchar(p), ol);
 		certificates_.push_back(certificate);
 		p += oneLength; len -= oneLength;
 		certificatesLength -= sizeof(Length3) + oneLength;
@@ -207,8 +208,8 @@ public slots:
 	void doHandshakeDetected(GTls::Handshake* hs) {
 		hsList_.push_back(*hs);
 	}
-	void doCertificatesDetected(QString serverName, QList<QByteArray> certificates) {
-		qDebug() << serverName << certificates;
+	void doCertificatesDetected(QString serverName, struct timeval st, QList<QByteArray> certs) {
+		qDebug() << serverName << certs.size();
 	}
 };
 

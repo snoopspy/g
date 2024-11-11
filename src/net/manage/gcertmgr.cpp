@@ -101,7 +101,11 @@ void GCertMgr::manage(GPacket* packet) {
 	GBuf tcpData = packet->tcpData_;
 	if (!tcpData.valid()) return;
 	QByteArray ba(pchar(tcpData.data_), tcpData.size_);
-	item->segment_ += ba;
+
+	GTcpHdr* tcpHdr = packet->tcpHdr_;
+	Q_ASSERT(tcpHdr != nullptr);
+	uint32_t seq = tcpHdr->seq();
+	item->segment_.insert(seq, ba);
 
 	while (true) {
 		gbyte* p = pbyte(item->segment_.constData());
@@ -135,7 +139,7 @@ void GCertMgr::manage(GPacket* packet) {
 		}
 		uint16_t r = sizeof(GTls::Record) + tr->length();
 		if (size < r) {
-			qDebug() << QString("size(%1) is less then r(%2)").arg(size).arg(r); // gilgil temp 2024.10.01
+			// qDebug() << QString("size(%1) is less then r(%2)").arg(size).arg(r); // gilgil temp 2024.10.01
 			return;
 		}
 		size -= sizeof(GTls::Record);
