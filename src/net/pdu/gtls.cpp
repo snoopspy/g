@@ -124,7 +124,6 @@ void GTls::CertificateHs::parse(GTls::Handshake* hs) {
 	int32_t certificatesLength = certificatesLength_;
 	while (p < end) {
 		Length3 oneLength = *PLength3(p); p += sizeof(oneLength); len -= sizeof(oneLength);
-		oneLength.len_[0] = 0xFF; oneLength.len_[1] = 0xFF; oneLength.len_[2] = 0xFF;
 		qsizetype ol = oneLength;
 		if (ol < 0 || ol > 65536) {
 			qWarning() << QString("too big certificat size(%1 %2)").arg(oneLength).arg(ol);
