@@ -211,6 +211,7 @@ public slots:
 		hsList_.push_back(*hs);
 	}
 	void doCertificatesDetected(QString serverName, struct timeval st, QList<QByteArray> certs) {
+		(void)st;
 		qDebug() << serverName << certs.size();
 	}
 };
