@@ -33,7 +33,7 @@ GApp::GApp(int &argc, char** argv, QStringList assets, bool demon, bool nexmonDe
 #endif // QT_GUI_LIB
 
 #ifndef Q_OS_ANDROID
-	int res = chdir(getDir(argv[0]).data());
+	int res = chdir(getDir(QCoreApplication::applicationDirPath().toStdString()).data());
 	if (res != 0) {
 		GLastErr lastErr;
 		fprintf(stderr, "%s\n", qPrintable(lastErr.msg()));
@@ -144,7 +144,7 @@ bool GApp::copyFileFromAssets(QString fileName, QString directory, QFile::Permis
 bool GApp::prepareProcess(QString& program, QStringList& arguments, QString preloadFileName) {
 	if (!QFile::exists(program)) return false;
 
-	QString path = QDir::currentPath();
+	QString path = QCoreApplication::applicationDirPath();
 #ifdef Q_OS_WIN
 	program = path + QDir::separator() + program;
 	return true;
