@@ -8,19 +8,6 @@
 #include "base/sys/gnexmon.h"
 #include "net/demon/gdemon.h"
 
-std::string getDir(std::string argv) {
-	ssize_t i = argv.length() - 1;
-	while (i >= 0) {
-		char& ch = argv.at(i);
-		if (ch == '/' || ch == '\\') {
-			std::string res = argv.substr(0, i + 1);
-			return res;
-		}
-		i--;
-	}
-	return "/";
-}
-
 #include <unistd.h> // for chdir
 
 // ----------------------------------------------------------------------------
@@ -33,7 +20,7 @@ GApp::GApp(int &argc, char** argv, QStringList assets, bool demon, bool nexmonDe
 #endif // QT_GUI_LIB
 
 #ifndef Q_OS_ANDROID
-	int res = chdir(getDir(QCoreApplication::applicationDirPath().toStdString()).data());
+	int res = chdir(qPrintable(QCoreApplication::applicationDirPath()));
 	if (res != 0) {
 		GLastErr lastErr;
 		fprintf(stderr, "%s\n", qPrintable(lastErr.msg()));
