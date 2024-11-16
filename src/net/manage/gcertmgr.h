@@ -71,5 +71,5 @@ public slots:
 
 signals:
 	void handshakeDetected(GTls::Handshake* hs);
-	void certificatesDetected(QString serverName, struct timeval st, QList<QByteArray> certs);
+	void certificatesDetected(QString serverName, GIp serverIp, struct timeval st, QList<QByteArray> certs);
 };

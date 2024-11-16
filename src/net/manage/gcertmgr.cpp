@@ -189,7 +189,10 @@ void GCertMgr::manage(GPacket* packet) {
 				if (saveCertFile_) {
 					saveCertFiles(saveCertFileFolder_, serverName, packet->ts_, certs);
 				}
-				emit certificatesDetected(revItem->serverName_, packet->ts_, certs);
+				GIpHdr* ipHdr = packet->ipHdr_;
+				Q_ASSERT(ipHdr != nullptr);
+				GIp serverIp = ipHdr->sip();
+				emit certificatesDetected(revItem->serverName_, serverIp, packet->ts_, certs);
 				break;
 			}
 			default:
