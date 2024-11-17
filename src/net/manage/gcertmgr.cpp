@@ -26,7 +26,7 @@ bool GCertMgr::doClose() {
 }
 
 void GCertMgr::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
-	qDebug() << QString("_tcpFlowDetected %1").arg(QString(tcpFlowKey)); // gilgil temp 2021.04.07
+	// qDebug() << QString("_tcpFlowDetected %1").arg(QString(tcpFlowKey)); // gilgil temp 2021.04.07
 	(void)tcpFlowKey;
 	Item* item = getItem(tcpFlowValue);
 	GTcpHdr* tcpHdr = tcpFlowMgr_->currentPacket_->tcpHdr_;
@@ -40,7 +40,7 @@ void GCertMgr::tcpFlowDeleted(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlow
 	(void)tcpFlowKey;
 	Item* item = getItem(tcpFlowValue);
 	item->~Item();
-	qDebug() << QString("_tcpFlowDeleted %1").arg(QString(tcpFlowKey)); // gilgil temp 2021.04.07
+	// qDebug() << QString("_tcpFlowDeleted %1").arg(QString(tcpFlowKey)); // gilgil temp 2021.04.07
 }
 
 QString GCertMgr::extractServerName(GTls::Handshake *hs) {

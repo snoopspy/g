@@ -133,7 +133,6 @@ void GTcpFlowMgr::manage(GPacket* packet) {
 				currentTcpFlowVal_->state_ = TcpFlowValue::FullFin;
 				break;
 			case TcpFlowValue::FullRst: // do not modify
-				qWarning() << "invalid state FullRst";
 				break;
 		}
 
