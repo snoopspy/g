@@ -13,9 +13,7 @@ cd linux
 #
 cp ../../bin/arprecover .; strip arprecover
 cp ../../bin/bf .; strip bf
-cp ../../bin/cd .; strip cd
 cp ../../bin/ch .; strip ch
-cp ../../bin/cm .; strip cm
 cp ../../bin/corepcap .; strip corepcap
 cp ../../bin/ffce .; strip ffce
 cp ../../bin/ha .; strip ha
