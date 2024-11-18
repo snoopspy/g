@@ -56,13 +56,12 @@ copy ..\..\bin\sscon.exe . & strip sscon.exe
 copy ..\..\bin\sslog.exe . & strip sslog.exe
 copy ..\..\bin\WinDivert.dll .
 copy ..\..\bin\WinDivert64.sys .
-copy ..\..\setup\setup-win.txt .
-mkdir ss
-copy ..\..\bin\ss\* ss\
 mkdir cert\root
 copy ..\..\bin\cert\root\* cert\root
 copy ..\..\bin\cert\* cert\
-
+mkdir ss
+copy ..\..\bin\ss\* ss\
+copy ..\..\setup\setup-win.txt .
 
 rem
 rem qt files

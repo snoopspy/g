@@ -3,6 +3,7 @@ make
 #
 # setup
 #
+mkdir -p setup
 cd setup
 rm -rf linux
 mkdir -p linux
@@ -24,13 +25,13 @@ cp ../../bin/snoopspy .; strip snoopspy
 cp ../../bin/sscon .; strip sscon
 cp ../../bin/sslog .; strip sslog
 cp ../../bin/wa .; strip wa
-cp ../../setup/setup-linux.sh .
-cp ../../setup/run .
-mkdir -p ss
-cp ../../bin/ss/* ss/
 mkdir -p cert/root
 cp ../../bin/cert/root/* cert/root/
 cp ../../bin/cert/* cert/
+mkdir -p ss
+cp ../../bin/ss/* ss/
+cp ../../setup/setup-linux.sh .
+cp ../../setup/run .
 
 #
 # qt files
