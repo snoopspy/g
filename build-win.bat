@@ -74,10 +74,9 @@ copy %QTDIR%\bin\Qt6Sql.dll .
 copy %QTDIR%\bin\Qt6Svg.dll .
 copy %QTDIR%\bin\Qt6Widgets.dll .
 
-
-#
-# plugins files
-#
+rem
+rem plugins files
+rem
 mkdir platforms
 copy %QTDIR%\plugins\platforms\*.dll platforms\
 mkdir tls
