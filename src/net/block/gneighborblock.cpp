@@ -65,12 +65,6 @@ void GNeighborBlock::block(GPacket* packet) {
 	}
 }
 
-void GNeighborBlock::unblock(GPacket* packet) {
-	if (!enabled_) return;
-	packet->ctrl_.block_ = false;
-	emit unblocked(packet);
-}
-
 #ifdef QT_GUI_LIB
 
 #include "base/prop/gpropitem-interface.h"
