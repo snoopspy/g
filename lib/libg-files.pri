@@ -60,6 +60,7 @@ SOURCES += \
 	$${PWD}/../src/net/block/gblock.cpp \
 	$${PWD}/../src/net/block/gdnsblock.cpp \
 	$${PWD}/../src/net/block/gdot11block.cpp \
+	$${PWD}/../src/net/block/gneighborblock.cpp \
 	$${PWD}/../src/net/block/gtcpblock.cpp \
 	$${PWD}/../src/net/block/gudpblock.cpp \
 	$${PWD}/../src/net/capture/garpspoof.cpp \
@@ -217,6 +218,7 @@ HEADERS += \
 	$${PWD}/../src/net/block/gblock.h \
 	$${PWD}/../src/net/block/gdnsblock.h \
 	$${PWD}/../src/net/block/gdot11block.h \
+	$${PWD}/../src/net/block/gneighborblock.h \
 	$${PWD}/../src/net/block/gtcpblock.h \
 	$${PWD}/../src/net/block/gudpblock.h \
 	$${PWD}/../src/net/capture/garpspoof.h \

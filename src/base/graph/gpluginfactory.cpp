@@ -36,6 +36,7 @@ void GPluginFactory::loadDefault() {
 #include <GBlock>
 #include <GDnsBlock>
 #include <GDot11Block>
+#include <GNeighborBlock>
 #include <GTcpBlock>
 #include <GUdpBlock>
 
@@ -44,6 +45,7 @@ void GPluginFactory::loadBlock() {
 	qRegisterMetaType<GBlock*>();
 	qRegisterMetaType<GDnsBlock*>();
 	qRegisterMetaType<GDot11Block*>();
+	qRegisterMetaType<GNeighborBlock*>();
 	qRegisterMetaType<GTcpBlock*>();
 	qRegisterMetaType<GUdpBlock*>();
 
@@ -52,6 +54,7 @@ void GPluginFactory::loadBlock() {
 	category->items_.push_back(new ItemNode("GBlock"));
 	category->items_.push_back(new ItemNode("GDnsBlock"));
 	category->items_.push_back(new ItemNode("GDot11Block"));
+	category->items_.push_back(new ItemNode("GNeighborBlock"));
 	category->items_.push_back(new ItemNode("GTcpBlock"));
 	category->items_.push_back(new ItemNode("GUdpBlock"));
 
