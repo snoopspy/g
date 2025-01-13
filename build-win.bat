@@ -70,6 +70,7 @@ set QTDIR=C:\Qt\6.5.3\mingw_64
 copy %QTDIR%\bin\Qt6Core.dll .
 copy %QTDIR%\bin\Qt6Gui.dll .
 copy %QTDIR%\bin\Qt6Network.dll .
+copy %QTDIR%\bin\Qt6OpenGL.dll .
 copy %QTDIR%\bin\Qt6Sql.dll .
 copy %QTDIR%\bin\Qt6Svg.dll .
 copy %QTDIR%\bin\Qt6Widgets.dll .
