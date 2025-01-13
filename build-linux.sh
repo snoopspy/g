@@ -44,6 +44,8 @@ cp $QTDIR/lib/libQt6Core.so.6 .
 cp $QTDIR/lib/libQt6DBus.so.6 .
 cp $QTDIR/lib/libQt6Gui.so.6 .
 cp $QTDIR/lib/libQt6Network.so.6 .
+cp $QTDIR/lib/libQt6OpenGL.so.6 .
+cp $QTDIR/lib/libQt6OpenGL.so.6 .
 cp $QTDIR/lib/libQt6Sql.so.6 .
 cp $QTDIR/lib/libQt6Svg.so.6 .
 cp $QTDIR/lib/libQt6Widgets.so.6 .
