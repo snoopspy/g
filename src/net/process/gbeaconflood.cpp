@@ -88,6 +88,8 @@ void GBeaconFlood::BeaconFrame::build(QString message, int channel, GMac mac) {
 	//
 	// beaconHdr
 	//
+	gbyte* p = pbyte(&mac);
+	p[0] &= 0xFC; // b1 to zero(globally unique), b0 to zero(unicast)
 	GBeaconHdr* bh = &beaconHdr_;
 	bh->ver_ = 0;
 	bh->type_ = 0;
@@ -115,7 +117,7 @@ void GBeaconFlood::BeaconFrame::build(QString message, int channel, GMac mac) {
 	// TagSupportedRated
 	tag->num_ = GBeaconHdr::TagSupportedRated;
 	tag->len_ = 8;
-	char* p = pchar(tag->value());
+	p = pbyte(tag->value());
 	*p++ = 0x82; // 1(B)
 	*p++ = 0x84; // 2(B)
 	*p++ = 0x8B; // 5.5(B)
