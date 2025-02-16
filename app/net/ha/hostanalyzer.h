@@ -16,7 +16,7 @@
 
 struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_OBJECT
-	Q_PROPERTY(int admitTimeoutSec MEMBER admitTimeoutSec_)
+	Q_PROPERTY(int connectTimeoutSec MEMBER connectTimeoutSec_)
 	Q_PROPERTY(int extendTimeoutSec MEMBER extendTimeoutSec_)
 	Q_PROPERTY(int updateHostsTimeoutSec MEMBER updateHostsTimeoutSec_)
 	Q_PROPERTY(int updateElapsedTimeoutSec MEMBER updateElapsedTimeoutSec_)
@@ -31,7 +31,7 @@ struct G_EXPORT HostAnalyzer : GGraph, GHostMgr::Managable {
 	Q_PROPERTY(GObjRef webServer READ getWebServer)
 
 public:
-	int admitTimeoutSec_{7200}; // 2 hour
+	int connectTimeoutSec_{7200}; // 2 hour
 	int extendTimeoutSec_{7200}; // 2 hour
 	int updateHostsTimeoutSec_{1}; // 1 seconds
 	int updateElapsedTimeoutSec_{10}; // 10 seconds

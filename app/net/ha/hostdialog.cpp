@@ -64,7 +64,7 @@ HostDialog::~HostDialog() {
 
 void HostDialog::setDateTimeEdit() {
 	GHostDb::Mode mode = GHostDb::Mode(cbMode_->currentIndex());
-	if (!ha_->active() || ha_->admitTimeoutSec_ == 0 || mode != GHostDb::Auto) {
+	if (!ha_->active() || ha_->connectTimeoutSec_ == 0 || mode != GHostDb::Auto) {
 		dteBlockTime_->setEnabled(false);
 		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(0));
 		dteBlockTime_->setDisplayFormat("m");
@@ -80,7 +80,7 @@ void HostDialog::setDateTimeEdit() {
 		Q_ASSERT(haItem != nullptr);
 		time_t blockTime = haItem->blockTime_;
 		if (blockTime == 0)
-			blockTime = hostValue->firstTime_.tv_sec + ha_->admitTimeoutSec_;
+			blockTime = hostValue->firstTime_.tv_sec + ha_->connectTimeoutSec_;
 		dteBlockTime_->setDateTime(QDateTime::fromSecsSinceEpoch(blockTime));
 		dteBlockTime_->setDisplayFormat("MM/dd hh:mm");
 	}
