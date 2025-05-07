@@ -31,6 +31,7 @@ struct UdpClient : NetClient {
 struct SslClient : NetClient {
 	Q_OBJECT
 	Q_PROPERTY(SslProtocol protocol MEMBER protocol_)
+	Q_PROPERTY(bool ignoreSslErrors MEMBER ignoreSslErrors_)
 	Q_ENUMS(SslProtocol)
 
 public:
@@ -58,6 +59,7 @@ public:
 
 public:
 	SslProtocol protocol_{TlsV1_2};
+	bool ignoreSslErrors_{false};
 };
 
 struct Option : GObj {

@@ -263,6 +263,8 @@ void Widget::doPreSharedKeyAuthenticationRequired(QSslPreSharedKeyAuthenticator*
 void Widget::doSslErrors(const QList<QSslError>& errors) {
 	for (const QSslError& error: errors)
 		qDebug() << error.errorString();
+	if (option_.sslClient_.ignoreSslErrors_)
+		reinterpret_cast<QSslSocket*>(currSocket_)->ignoreSslErrors(errors);
 }
 
 void Widget::showOption(NetClient* netClient) {
