@@ -268,7 +268,7 @@ void Widget::doSslErrors(const QList<QSslError>& errors) {
 }
 
 void Widget::showOption(NetClient* netClient) {
-	GProp::showDialog(netClient);
+	GProp::showDialog(netClient, "optionDialog");
 }
 
 void Widget::on_pbOpen_clicked() {

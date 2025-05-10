@@ -326,17 +326,19 @@ void GProp::propCreateItems(void* treeWidget, void* parent, QObject* object) {
 
 #ifdef QT_GUI_LIB
 #include <QDialog>
-#include <QHBoxLayout>
-#include "base/prop/gpropwidget.h"
-void GProp::showDialog(QObject* object) {
-	QDialog dialog;
-	QHBoxLayout* layout = new QHBoxLayout(&dialog);
-	GPropWidget* widget = new GPropWidget(&dialog);
-	widget->setObject(object);
-	layout->addWidget(widget);
-	dialog.setLayout(layout);
+#include "base/gjson.h"
+#include "base/prop/gpropdialog.h"
+void GProp::showDialog(QObject* object, QString jsonKey) {
+	GPropDialog dialog;
+
+	QJsonObject& jo = GJson::instance();
+	if (jsonKey != "") jo[jsonKey] >> dialog;
+
+	dialog.widget_.setObject(object);
 	dialog.setModal(true);
 	dialog.exec();
+
+	if (jsonKey != "") jo[jsonKey] << dialog;
 }
 #endif // QT_GUI_LIB
 

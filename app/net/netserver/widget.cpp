@@ -380,7 +380,7 @@ void Widget::serverStartedEncryptionHandshake(QSslSocket *socket) {
 }
 
 void Widget::showOption(NetServer* netServer) {
-	GProp::showDialog(netServer);
+	GProp::showDialog(netServer, "optionDialog");
 }
 
 #include <QSslKey>

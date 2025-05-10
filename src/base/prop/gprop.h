@@ -37,6 +37,6 @@ struct G_EXPORT GProp {
 #endif
 
 #ifdef QT_GUI_LIB
-	static void showDialog(QObject* object);
+	static void showDialog(QObject* object, QString jsonKey = "");
 #endif // QT_GUI_LIB
 };
