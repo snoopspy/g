@@ -19,6 +19,7 @@ struct G_EXPORT CookieHijack : GGraph {
 	Q_PROPERTY(QStringList httpsSiteList MEMBER httpsSiteList_)
 	Q_PROPERTY(QString prefix MEMBER prefix_)
 	Q_PROPERTY(QString firefoxDir MEMBER firefoxDir_)
+	Q_PROPERTY(bool stealCookie MEMBER stealCookie_)
 
 	Q_PROPERTY(GObjRef webServer READ getWebServer)
 	Q_PROPERTY(GObjRef autoArpSpoof READ getGAutoArpSpoof)
@@ -54,6 +55,7 @@ public:
 	QStringList httpsSiteList_;
 	QString prefix_;
 	QString firefoxDir_;
+	bool stealCookie_{false};
 
 	WebServer webServer_{this};
 	GAutoArpSpoof autoArpSpoof_{this};
@@ -83,7 +85,7 @@ public:
 		bool ssl;
 	};
 	QList<Site> totalSiteList_;
-	QStringList getHttpResponse(int siteNo);
+	QStringList getHttpResponse(int siteNo, QString cookie);
 
 public slots:
 	void hijack(GPacket* packet);

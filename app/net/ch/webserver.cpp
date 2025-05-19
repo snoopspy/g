@@ -164,7 +164,7 @@ void WebServer::doReadyRead() {
 		siteNo = m.captured(1).toInt();
 	}
 
-	QStringList httpResponse = ch_->getHttpResponse(siteNo + 1);
+	QStringList httpResponse = ch_->getHttpResponse(siteNo + 1, ch_->stealCookie_ ? cookie : QString());
 	if (httpResponse.isEmpty()) {
 		goodbye = true;
 	} else {

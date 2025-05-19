@@ -111,7 +111,7 @@ bool CookieHijack::doOpen() {
 		return false;
 	}
 
-	tcpBlock_.backwardFinMsg_ = getHttpResponse(0);
+	tcpBlock_.backwardFinMsg_ = getHttpResponse(0, QString());
 
 	dnsBlock_.dnsBlockItems_.clear();
 	if (prefix_ != "") {
@@ -131,7 +131,7 @@ bool CookieHijack::doClose() {
 	return res;
 }
 
-QStringList CookieHijack::getHttpResponse(int siteNo) {
+QStringList CookieHijack::getHttpResponse(int siteNo, QString cookie) {
 	if (siteNo >= totalSiteList_.size())
 		return QStringList();
 
@@ -140,8 +140,22 @@ QStringList CookieHijack::getHttpResponse(int siteNo) {
 	QString scheme = site.ssl ? "https" : "http";
 	QString status = QString("%1(%2)").arg(site.name).arg(site.ssl ? "ssl" : "tcp");
 
-	QStringList res;
-	res += "HTTP/1.1 302 " + status;
+	QStringList res = QStringList{"HTTP/1.1 302 " + status};
+
+	if (cookie.size() != 0) {
+		QStringList cookies = cookie.split(';');
+		for (QString oneCookie: cookies) {
+			int i = oneCookie.indexOf('=');
+			if (i == -1) {
+				qWarning() << QString("Can not find '=' for cookie(%s)").arg(oneCookie);
+				continue;
+			}
+			QString cookieName = oneCookie.left(i).trimmed();
+			QString setCookieString = QString("Set-Cookie: %1=deleted; expires=Sat, 1-Jan-2000 16:01:17 GMT; path=/").arg(cookieName);
+			res += setCookieString;
+		}
+	}
+
 	QString locationStr;
 	int port = site.ssl ? webServer_.httpsPort_ : webServer_.httpPort_;
 	if (prefix_ == "")
@@ -151,6 +165,7 @@ QStringList CookieHijack::getHttpResponse(int siteNo) {
 	if (port != 80 && port != 443) locationStr += ":" + QString::number(port);
 	locationStr += "/" + QString::number(siteNo) + "/" + site.name;
 	res += locationStr;
+
 	res += "Connection: close";
 	res += "";
 	res += "";
