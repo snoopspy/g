@@ -7,9 +7,9 @@
 using namespace std;
 
 // ----------------------------------------------------------------------------
-// GSsConParam
+// Param
 // ----------------------------------------------------------------------------
-struct GSsConParam {
+struct Param {
 	QString fileName_;
 
 	bool parse(QStringList arguments) {
@@ -52,9 +52,9 @@ protected:
 	GPluginFactory pluginFactory_;
 
 	bool doOpen() override {
-		GSsConParam param;
+		Param param;
 		if (!param.parse(QCoreApplication::arguments())) {
-			GSsConParam::usage();
+			Param::usage();
 			return false;
 		}
 
@@ -98,8 +98,8 @@ public slots:
 };
 
 int main(int argc, char* argv[]) {
-	GApp a(argc, argv, {}, true, true, true);
-	SsCon* sc = new SsCon;;
+	GApp a(argc, argv, {}, false, false, true);
+	SsCon* sc = new SsCon;
 	if (!sc->open()) {
 		delete sc;
 		return -1;
