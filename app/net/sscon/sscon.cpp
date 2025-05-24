@@ -34,7 +34,14 @@ struct G_EXPORT SsCon : GStateObj {
 	Q_OBJECT
 
 public:
-	SsCon(QObject* parent = nullptr) : GStateObj(parent) {}
+	SsCon(QObject* parent = nullptr) : GStateObj(parent) {
+#ifndef Q_OS_WIN
+		GSignal& signal = GSignal::instance();
+		QObject::connect(&signal, &GSignal::signaled, this, &SsCon::doSignaled, Qt::DirectConnection);
+		QObject::connect(&graph_, &GStateObj::closed, this, &SsCon::doClosed);
+		signal.setupAll();
+#endif // Q_OS_WIN
+	}
 
 	~SsCon() override {
 		graph_.close();
@@ -45,13 +52,6 @@ protected:
 	GPluginFactory pluginFactory_;
 
 	bool doOpen() override {
-#ifndef Q_OS_WIN
-		GSignal& signal = GSignal::instance();
-		QObject::connect(&signal, &GSignal::signaled, this, &SsCon::processSignal, Qt::DirectConnection);
-		QObject::connect(&graph_, &GStateObj::closed, this, &SsCon::processClose);
-		signal.setupAll();
-#endif // Q_OS_WIN
-
 		GSsConParam param;
 		if (!param.parse(QCoreApplication::arguments())) {
 			GSsConParam::usage();
@@ -81,7 +81,7 @@ protected:
 	}
 
 public slots:
-	void processSignal(int signo) {
+	void doSignaled(int signo) {
 #ifdef Q_OS_WIN
 		(void)signo;
 #else // Q_OS_WIN
@@ -92,7 +92,7 @@ public slots:
 #endif
 	}
 
-	void processClose() {
+	void doClosed() {
 		QCoreApplication::quit();
 	}
 };
