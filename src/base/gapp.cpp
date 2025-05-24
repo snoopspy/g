@@ -131,7 +131,8 @@ bool GApp::copyFileFromAssets(QString fileName, QString directory, QFile::Permis
 bool GApp::prepareProcess(QString& program, QStringList& arguments, QString preloadFileName) {
 	if (!QFile::exists(program)) return false;
 
-	QString path = QCoreApplication::applicationDirPath();
+	QString path = QDir::currentPath();
+	qDebug() << QString("path=%1").arg(path);
 #ifdef Q_OS_WIN
 	program = path + QDir::separator() + program;
 	return true;
