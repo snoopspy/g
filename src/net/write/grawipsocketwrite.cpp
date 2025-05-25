@@ -101,6 +101,11 @@ GPacket::Result GRawIpSocketWrite::writeBuf(GBuf buf) {
 	GIpHdr* ipHdr = PIpHdr(buf.data_);
 	addr_in_.sin_addr.s_addr = ipHdr->dip_; // network byte order
 
+#ifdef _DEBUG
+	if (ipHdr->tlen() != buf.size_)
+		qWarning() << QString("diff size tlen=%1 buf.size=%2").arg(ipHdr->tlen(), buf.size_);
+#endif // _DEBUG
+
 	int res = ::sendto(sd_, pchar(ipHdr), ipHdr->tlen(), 0, (struct sockaddr*)&addr_in_, sizeof(struct sockaddr_in));
 	if (res < 0) {
 		QString msg = QString("sendto return %1(%2) buf len=%3").arg(res).arg(strerror(errno)).arg(ipHdr->tlen());
