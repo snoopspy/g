@@ -318,7 +318,7 @@ void Widget::serverPendingConnectionAvailable() {
 	Q_ASSERT(server != nullptr);
 
 	while (server->hasPendingConnections()) {
-		QAbstractSocket* socket = server->nextPendingConnection();
+		QTcpSocket* socket = server->nextPendingConnection();
 		QString msg = QString("[connected] %1:%2\r\n").arg(socket->peerAddress().toString()).arg(QString::number(socket->peerPort()));
 		addText(msg, true);
 		prepareAbstractSocket(socket);
