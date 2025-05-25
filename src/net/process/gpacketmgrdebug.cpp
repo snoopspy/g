@@ -65,7 +65,7 @@ void GPacketMgrDebug::ipFlowDeleted(GFlow::IpFlowKey ipFlowKey, GIpFlowMgr::IpFl
 
 void GPacketMgrDebug::tcpFlowCreated(GFlow::TcpFlowKey tcpFlowKey, GTcpFlowMgr::TcpFlowValue* tcpFlowValue) {
 	if (!enabled_) return;
-	qDebug() << QString("tcpFlowCreated %1:%2>%3:%4").arg(QString(tcpFlowKey.sip_)).arg(tcpFlowKey.sport_).arg(QString(tcpFlowKey.dip_)).arg(tcpFlowKey.dport_);
+	qDebug() << QString("tcpFlowCreated %1").arg(QString(tcpFlowKey));
 	Item* item = getItem(tcpFlowValue);
 	new (item) Item;
 }

@@ -214,7 +214,7 @@ namespace GFlow {
 			return TransportFlowKey(dip_, dport_, sip_, sport_);
 		}
 
-		explicit operator QString() const { return QString("%1:%2>%3%4").arg(QString(sip_)).arg(sport_).arg(QString(dip_)).arg(dport_); }
+		explicit operator QString() const { return QString("%1:%2 %3:%4").arg(QString(sip_)).arg(sport_).arg(QString(dip_)).arg(dport_); }
 	};
 
 	typedef TransportFlowKey TcpFlowKey;
@@ -244,7 +244,7 @@ namespace GFlow {
 			return false;
 		}
 
-		explicit operator QString() const { return QString("%1:%2 %3%4").arg(QString(ip1_)).arg(port1_).arg(QString(ip2_)).arg(port2_); }
+		explicit operator QString() const { return QString("%1:%2 %3:%4").arg(QString(ip1_)).arg(port1_).arg(QString(ip2_)).arg(port2_); }
 	};
 
 	typedef TransportSessionKey TcpSessionKey;
