@@ -34,14 +34,18 @@ struct G_EXPORT GNetFilter : GCapture {
 
 public:
 	enum Verdict {
-		ACCEPT = 1, // NF_ACCEPT
-		REPEAT = 4 // NF_REPEAT
+		Drop = NF_DROP, // 0
+		Accept = NF_ACCEPT, // 1
+		Stolen = NF_STOLEN, // 2
+		Queue = NF_QUEUE, // 3
+		Repeat = NF_REPEAT, // 4
+		Stop = NF_STOP // 5
 	};
 
 	uint16_t queueNum_{0};
 	int waitTimeout_{1}; // 1 msec
 	bool nonBlock_{true};
-	Verdict acceptVerdict_{ACCEPT};
+	Verdict acceptVerdict_{Accept};
 	uint32_t mark_{0};
 	GObjRef getCommand() { return &command_; }
 
