@@ -103,7 +103,7 @@ GPacket::Result GRawIpSocketWrite::writeBuf(GBuf buf) {
 
 #ifdef _DEBUG
 	if (ipHdr->tlen() != buf.size_)
-		qWarning() << QString("diff size tlen=%1 buf.size=%2").arg(ipHdr->tlen(), buf.size_);
+		qWarning() << QString("diff size tlen=%1 size=%2").arg(ipHdr->tlen(), buf.size_);
 #endif // _DEBUG
 
 	int res = ::sendto(sd_, pchar(ipHdr), ipHdr->tlen(), 0, (struct sockaddr*)&addr_in_, sizeof(struct sockaddr_in));

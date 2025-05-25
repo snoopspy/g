@@ -285,9 +285,14 @@ GPacket::Result GNetFilter::write(GPacket* packet) {
 
 GPacket::Result GNetFilter::relay(GPacket* packet) {
 	int res;
-	if (packet->ctrl_.changed_)
+	if (packet->ctrl_.changed_) {
+#ifdef _DEBUG
+		GIpHdr* ipHdr = PIpHdr(packet->buf_.data_);
+		if (ipHdr->tlen() != packet->buf_.size_)
+			qWarning() << QString("diff size tlen=%1 size=%2").arg(ipHdr->tlen(), packet->buf_.size_);
+#endif // _DEBUG
 		res = nfq_set_verdict2(qh_, id_, acceptVerdict_, mark_, packet->buf_.size_, packet->buf_.data_);
-	else
+	} else
 		res = nfq_set_verdict2(qh_, id_, acceptVerdict_, mark_, 0, nullptr);
 	id_ = 0;
 	ipPacket_ = nullptr;
