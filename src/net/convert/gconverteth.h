@@ -38,7 +38,7 @@ protected:
 	bool doOpen() override { return true; }
 	bool doClose() override { return true; }
 
-protected:
+public:
 	GEthPacket convertedEthPacket_;
 	QByteArray convertedByteArray_;
 
