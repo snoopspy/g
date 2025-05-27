@@ -105,4 +105,34 @@ TEST(GUdpHdrTest, ipv4FileTest) {
 	EXPECT_TRUE(pcapFile.close());
 }
 
+TEST(GUdpHdrTest, checksumTest) {
+	GSyncPcapFile pcapFile;
+	pcapFile.fileName_ = "pcap/test/eth-udp-port4660-abcd.pcap";
+	ASSERT_TRUE(pcapFile.open());
+	EXPECT_EQ(pcapFile.dlt(), GPacket::Eth);
+
+	uint16_t realIpSums[] = { 0x8CC5, 0x8CC3, 0x8CC1, 0x8CBF };
+	uint16_t realUdpSums[] = { 0xBBDD, 0xBB99, 0x7897, 0x7851 };
+	for (int i = 0; i < 4; i++) {
+		GEthPacket packet;
+		GPacket::Result res = pcapFile.read(&packet);
+		if (res != GPacket::Ok) break;
+
+		GIpHdr* ipHdr = packet.ipHdr_;
+		EXPECT_NE(ipHdr, nullptr);
+		uint16_t realIpSum = realIpSums[i];
+		uint16_t calcIpSum = GIpHdr::calcChecksum(ipHdr);
+		EXPECT_EQ(realIpSum, calcIpSum);
+
+		GUdpHdr* udpHdr = packet.udpHdr_;
+		EXPECT_NE(udpHdr, nullptr);
+		EXPECT_NE(ipHdr, nullptr);
+		uint16_t realUdpSum = realUdpSums[i];
+		uint16_t calcUdpSum = GUdpHdr::calcChecksum(ipHdr, udpHdr);
+		EXPECT_EQ(realUdpSum, calcUdpSum);
+	}
+
+	EXPECT_TRUE(pcapFile.close());
+}
+
 #endif // GTEST
