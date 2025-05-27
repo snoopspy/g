@@ -7,21 +7,15 @@
 #include <gtest/gtest.h>
 
 #include "net/capture/gsyncpcapfile.h"
-struct GEthHdrTest : testing::Test {
-	GSyncPcapFile pcapFile_;
-	void SetUp() override {
-		pcapFile_.fileName_ = "pcap/test/eth-tcp-syn-port80.pcap";
-		ASSERT_TRUE(pcapFile_.open());
-	}
-	void TearDown() override {
-		ASSERT_TRUE(pcapFile_.close());
-	}
-};
+TEST(GEthHdrTest, synFileTest) {
+	GSyncPcapFile pcapFile;
+	pcapFile.fileName_ = "pcap/test/eth-tcp-syn-port80.pcap";
+	ASSERT_TRUE(pcapFile.open());
+	EXPECT_EQ(pcapFile.dlt(), GPacket::Eth);
 
-TEST_F(GEthHdrTest, allTest) {
 	while (true) {
 		GEthPacket packet;
-		GPacket::Result res = pcapFile_.read(&packet);
+		GPacket::Result res = pcapFile.read(&packet);
 		if (res != GPacket::Ok) break;
 
 		GEthHdr* ethHdr = packet.ethHdr_;
@@ -42,6 +36,8 @@ TEST_F(GEthHdrTest, allTest) {
 		uint16_t type = ethHdr->type();
 		EXPECT_EQ(type, GEthHdr::Ip4);
 	}
+
+	EXPECT_TRUE(pcapFile.close());
 }
 
 #endif // GTEST

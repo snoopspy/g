@@ -62,22 +62,15 @@ GBuf GUdpHdr::parseData(GUdpHdr* udpHdr) {
 #include <gtest/gtest.h>
 
 #include "net/capture/gsyncpcapfile.h"
-#include "net/packet/gippacket.h"
-struct GUdpHdrTest : testing::Test {
-	GSyncPcapFile pcapFile_;
-	void SetUp() override {
-		pcapFile_.fileName_ = "pcap/test/ipv4-udp-port1234.pcap";
-		ASSERT_TRUE(pcapFile_.open());
-	}
-	void TearDown() override {
-		ASSERT_TRUE(pcapFile_.close());
-	}
-};
+TEST(GUdpHdrTest, ipv4FileTest) {
+	GSyncPcapFile pcapFile;
+	pcapFile.fileName_ = "pcap/test/ipv4-udp-port1234.pcap";
+	ASSERT_TRUE(pcapFile.open());
+	EXPECT_EQ(pcapFile.dlt(), GPacket::Ip);
 
-TEST_F(GUdpHdrTest, allTest) {
 	while (true) {
 		GIpPacket packet;
-		GPacket::Result res = pcapFile_.read(&packet);
+		GPacket::Result res = pcapFile.read(&packet);
 		if (res != GPacket::Ok) break;
 
 		GIpHdr* ipHdr = packet.ipHdr_;
@@ -108,6 +101,8 @@ TEST_F(GUdpHdrTest, allTest) {
 		EXPECT_NE(data.data_, nullptr);
 		EXPECT_EQ(data.size_, 4);
 	}
+
+	EXPECT_TRUE(pcapFile.close());
 }
 
 #endif // GTEST

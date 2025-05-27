@@ -130,11 +130,11 @@ size_t GRadioHdr::getFcsSize() {
 #ifdef GTEST
 #include <gtest/gtest.h>
 
-#include <GSyncPcapFile>
+#include "net/capture/gsyncpcapfile.h"
 TEST(RadioHdr, beacon_a2000ua_testap5g_pcap) {
 	GSyncPcapFile pcapFile;
 	pcapFile.fileName_ = "pcap/dot11/beacon-a2000ua-testap5g.pcap";
-	EXPECT_TRUE(pcapFile.open());
+	ASSERT_TRUE(pcapFile.open());
 	EXPECT_EQ(pcapFile.dlt(), GPacket::Dot11);
 
 	GDot11Packet packet;
@@ -192,7 +192,7 @@ TEST(RadioHdr, beacon_a2000ua_testap5g_pcap) {
 TEST(RadioHdr, beacon_awus051nh_testap5g_pcap) {
 	GSyncPcapFile pcapFile;
 	pcapFile.fileName_ = "pcap/dot11/beacon-awus051nh-testap5g.pcap";
-	EXPECT_TRUE(pcapFile.open());
+	ASSERT_TRUE(pcapFile.open());
 	EXPECT_EQ(pcapFile.dlt(), GPacket::Dot11);
 
 	GDot11Packet packet;
@@ -241,7 +241,7 @@ TEST(RadioHdr, beacon_awus051nh_testap5g_pcap) {
 TEST(RadioHdr, beacon_forcerecon_testap5g_pcap) {
 	GSyncPcapFile pcapFile;
 	pcapFile.fileName_ = "pcap/dot11/beacon-forcerecon-testap5g.pcap";
-	EXPECT_TRUE(pcapFile.open());
+	ASSERT_TRUE(pcapFile.open());
 	EXPECT_EQ(pcapFile.dlt(), GPacket::Dot11);
 
 	GDot11Packet packet;
@@ -302,7 +302,7 @@ TEST(RadioHdr, beacon_forcerecon_testap5g_pcap) {
 TEST(RadioHdr, beacon_galaxy7_testap5g_pcap) {
 	GSyncPcapFile pcapFile;
 	pcapFile.fileName_ = "pcap/dot11/beacon-galaxy7-testap5g.pcap";
-	EXPECT_TRUE(pcapFile.open());
+	ASSERT_TRUE(pcapFile.open());
 	EXPECT_EQ(pcapFile.dlt(), GPacket::Dot11);
 
 	GDot11Packet packet;
@@ -345,7 +345,7 @@ TEST(RadioHdr, beacon_galaxy7_testap5g_pcap) {
 TEST(RadioHdr, beacon_nexus5_testap5g_pcap) {
 	GSyncPcapFile pcapFile;
 	pcapFile.fileName_ = "pcap/dot11/beacon-nexus5-testap5g.pcap";
-	EXPECT_TRUE(pcapFile.open());
+	ASSERT_TRUE(pcapFile.open());
 	EXPECT_EQ(pcapFile.dlt(), GPacket::Dot11);
 
 	GDot11Packet packet;

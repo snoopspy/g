@@ -61,21 +61,15 @@ uint16_t GIpHdr::recalcChecksum(uint16_t oldChecksum, uint32_t oldValue, uint32_
 #include <gtest/gtest.h>
 
 #include "net/capture/gsyncpcapfile.h"
-struct GIpHdrTest : testing::Test {
-	GSyncPcapFile pcapFile_;
-	void SetUp() override {
-		pcapFile_.fileName_ = "pcap/test/eth-tcp-syn-port80.pcap";
-		ASSERT_TRUE(pcapFile_.open());
-	}
-	void TearDown() override {
-		ASSERT_TRUE(pcapFile_.close());
-	}
-};
+TEST(GIpHdrTest, synFileTest) {
+	GSyncPcapFile pcapFile;
+	pcapFile.fileName_ = "pcap/test/eth-tcp-syn-port80.pcap";
+	ASSERT_TRUE(pcapFile.open());
+	EXPECT_EQ(pcapFile.dlt(), GPacket::Eth);
 
-TEST_F(GIpHdrTest, allTest) {
 	while (true) {
 		GEthPacket packet;
-		GPacket::Result res = pcapFile_.read(&packet);
+		GPacket::Result res = pcapFile.read(&packet);
 		if (res != GPacket::Ok) break;
 
 		GIpHdr* ipHdr = packet.ipHdr_;
@@ -125,6 +119,8 @@ TEST_F(GIpHdrTest, allTest) {
 			EXPECT_EQ(newChecksum, recalcChecksum);
 		}
 	}
+
+	EXPECT_TRUE(pcapFile.close());
 }
 
 #endif // GTEST

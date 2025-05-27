@@ -71,21 +71,15 @@ GBuf GTcpHdr::parseData(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
 #include <gtest/gtest.h>
 
 #include "net/capture/gsyncpcapfile.h"
-struct GTcpHdrTest : testing::Test {
-	GSyncPcapFile pcapFile_;
-	void SetUp() override {
-		pcapFile_.fileName_ = "pcap/test/eth-tcp-syn-port80.pcap";
-		ASSERT_TRUE(pcapFile_.open());
-	}
-	void TearDown() override {
-		ASSERT_TRUE(pcapFile_.close());
-	}
-};
+TEST(GTcpHdrTest, synFileTest) {
+	GSyncPcapFile pcapFile;
+	pcapFile.fileName_ = "pcap/test/eth-tcp-syn-port80.pcap";
+	ASSERT_TRUE(pcapFile.open());
+	EXPECT_EQ(pcapFile.dlt(), GPacket::Eth);
 
-TEST_F(GTcpHdrTest, allTest) {
 	while (true) {
 		GEthPacket packet;
-		GPacket::Result res = pcapFile_.read(&packet);
+		GPacket::Result res = pcapFile.read(&packet);
 		if (res != GPacket::Ok) break;
 
 		GIpHdr* ipHdr = packet.ipHdr_;
@@ -119,6 +113,8 @@ TEST_F(GTcpHdrTest, allTest) {
 		EXPECT_EQ(data.data_, nullptr);
 		EXPECT_EQ(data.size_, 0);
 	}
+
+	EXPECT_TRUE(pcapFile.close());
 }
 
 #endif // GTEST
