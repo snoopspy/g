@@ -210,9 +210,9 @@ public slots:
 	void doHandshakeDetected(GTls::Handshake* hs) {
 		hsList_.push_back(*hs);
 	}
-	void doCertificatesDetected(QString serverName, struct timeval st, QList<QByteArray> certs) {
+	void doCertificatesDetected(QString serverName, GIp serverIp, struct timeval st, QList<QByteArray> certs) {
 		(void)st;
-		qDebug() << serverName << certs.size();
+		qDebug() << serverName << QString(serverIp) << certs.size();
 	}
 };
 
