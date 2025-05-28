@@ -78,14 +78,21 @@ protected:
 
 	gbyte* recvBuf_{nullptr};
 
+#ifdef Q_OS_ANDROID
 private:
 	uint32_t id_;
 	GIpPacket* ipPacket_;
-
-#ifdef Q_OS_ANDROID
 public:
 	GDemonClient* demonClient_{nullptr};
 #else
+
+private:
+	struct Pkt {
+		struct timeval ts_;
+		GBuf buf_;
+		uint32_t id_;
+	};
+	struct Pkts : QList<Pkt> {} pkts_;
 protected:
 	nfq_callback* cb_;
 

@@ -185,8 +185,7 @@ bool GNetFilter::doOpen() {
 	Q_ASSERT(recvBuf_ == nullptr);
 	recvBuf_ = new gbyte[bufSize_];
 
-	id_ = 0;
-	ipPacket_ = nullptr;
+	pkts_.clear();
 
 	return GCapture::doOpen();
 }
@@ -230,46 +229,44 @@ bool GNetFilter::doClose() {
 	return true;
 }
 
-#ifdef _DEBUG
-static int recvFromCount = 0; // gilgil temp 2021.05.21
-#endif // _DEBUG
-
 GPacket::Result GNetFilter::read(GPacket* packet) {
-#ifdef _DEBUG
-	if (id_ != 0 || ipPacket_ != nullptr) {
-		qWarning() << "relay() or drop() must be called after read";
-	}
-#endif // _DEBUG
-
-	ipPacket_ = PIpPacket(packet);
-	int res;
 	while (true) {
-		if (!active()) return GPacket::Fail;
-		// qDebug() << "bef call recv"; // gilgil temp 2021.05.22
-		res = int(::recv(fd_, recvBuf_, bufSize_, 0));
-		// qDebug() << "aft call recv" << res; // gilgil temp 2021.05.22
-		if (res >= 0) break;
-		if (res < 0) {
-			if(errno == EWOULDBLOCK) {
-				if (waitTimeout_ != 0)
-					QThread::msleep(waitTimeout_);
-				continue;
-			}
-			if (errno == ENOBUFS) {
-				qWarning() << "losing packets!";
-				return GPacket::None;
-			}
-			qWarning() << QString("recv return %1 errno=%2").arg(res, errno);
-			return GPacket::Fail;
+		if (!pkts_.empty()) {
+#ifdef _DEBUG
+			int count = pkts_.count();
+			if (count > 1)
+				qWarning() << QString("packet count is greater than one(%1)") << count;
+#endif // __DEBUG
+			Pkts::iterator it = pkts_.begin();
+			Pkt& pkt = *it;
+			packet->ts_ = pkt.ts_;
+			packet->buf_ = pkt.buf_;
+			if (autoParse_) packet->parse();
+			return GPacket::Ok;
 		}
+		int res;
+		while (true) {
+			if (!active()) return GPacket::Fail;
+			// qDebug() << "bef call recv"; // gilgil temp 2021.05.22
+			res = int(::recv(fd_, recvBuf_, bufSize_, 0));
+			// qDebug() << "aft call recv" << res; // gilgil temp 2021.05.22
+			if (res >= 0) break;
+			if (res < 0) {
+				if(errno == EWOULDBLOCK) {
+					if (waitTimeout_ != 0)
+						QThread::msleep(waitTimeout_);
+					continue;
+				}
+				if (errno == ENOBUFS) {
+					qWarning() << "losing packets!";
+					return GPacket::None;
+				}
+				qWarning() << QString("recv return %1 errno=%2").arg(res, errno);
+				return GPacket::Fail;
+			}
+		}
+		nfq_handle_packet(h_, pchar(recvBuf_), res);
 	}
-
-	#ifdef _DEBUG
-	if (++recvFromCount != 1)
-		qWarning() << QString("recvFromCount=%1 res=%2").arg(recvFromCount).arg(res);
-	#endif // _DEBUG
-	nfq_handle_packet(h_, pchar(recvBuf_), res);
-	return GPacket::Ok;
 }
 
 GPacket::Result GNetFilter::writeBuf(GBuf buf) {
@@ -285,18 +282,26 @@ GPacket::Result GNetFilter::write(GPacket* packet) {
 }
 
 GPacket::Result GNetFilter::relay(GPacket* packet) {
+	if (pkts_.count() < 1) {
+		qCritical() << QString("packets_.count is less than one(%1)").arg(pkts_.count());
+		return GPacket::Fail;
+	}
+	Pkt pkt = pkts_.first();
+	pkts_.removeAt(0);
+
 	int res;
 	if (packet->ctrl_.changed_) {
+		res = nfq_set_verdict2(qh_, pkt.id_, acceptVerdict_, mark_, packet->buf_.size_, packet->buf_.data_);
+	} else {
 #ifdef _DEBUG
 		GIpHdr* ipHdr = PIpHdr(packet->buf_.data_);
-		if (ipHdr->tlen() != packet->buf_.size_)
-			qWarning() << QString("diff size tlen=%1 size=%2").arg(ipHdr->tlen(), packet->buf_.size_);
+		uint16_t tlen = ipHdr->tlen();
+		Q_ASSERT(tlen == packet->buf_.size_);
+		Q_ASSERT(packet->buf_.data_ == pkt.buf_.data_);
+		Q_ASSERT(packet->buf_.size_ == pkt.buf_.size_);
 #endif // _DEBUG
-		res = nfq_set_verdict2(qh_, id_, acceptVerdict_, mark_, packet->buf_.size_, packet->buf_.data_);
-	} else
-		res = nfq_set_verdict2(qh_, id_, acceptVerdict_, mark_, 0, nullptr);
-	id_ = 0;
-	ipPacket_ = nullptr;
+		res = nfq_set_verdict2(qh_, pkt.id_, acceptVerdict_, mark_, 0, nullptr);
+	}
 	if (res > 0)
 		return GPacket::Ok;
 	else {
@@ -306,10 +311,15 @@ GPacket::Result GNetFilter::relay(GPacket* packet) {
 }
 
 GPacket::Result GNetFilter::drop(GPacket* packet) {
+	if (pkts_.count() < 1) {
+		qCritical() << QString("packets_.count is less than one(%1)").arg(pkts_.count());
+		return GPacket::Fail;
+	}
+	Pkt pkt = pkts_.first();
+	pkts_.removeAt(0);
+
 	(void)packet;
-	int res = nfq_set_verdict2(qh_, id_, NF_DROP, mark_, 0, nullptr);
-	id_ = 0;
-	ipPacket_ = nullptr;
+	int res = nfq_set_verdict2(qh_, pkt.id_, NF_DROP, mark_, 0, nullptr);
 	if (res > 0)
 		return GPacket::Ok;
 	else {
@@ -324,32 +334,25 @@ int GNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struc
 
 	GNetFilter* netFilter = static_cast<GNetFilter*>(data);
 	Q_ASSERT(netFilter->qh_ == qh);
-	GIpPacket* ipPacket = netFilter->ipPacket_;
-
-	ipPacket->clear();
-	gettimeofday(&ipPacket->ts_, nullptr);
-	int res = nfq_get_payload(nfad, &ipPacket->buf_.data_);
+	Pkt pkt;
+	gettimeofday(&pkt.ts_, nullptr);
+	int res = nfq_get_payload(nfad, &pkt.buf_.data_);
 	if (res == -1) {
 		qCritical() << "nfq_get_payload return -1";
 		return -1;
 	}
-#ifdef _DEBUG
-	if (--recvFromCount != 0)
-		qWarning() << QString("recvFromCount=%1 res=%2").arg(recvFromCount).arg(res);
-#endif // _DEBUG
-
 	if (res > netFilter->bufSize_) {
 		qWarning() << QString("res(%1) > bufSize_(%2)").arg(res).arg(netFilter->bufSize_);
 		return -1; // gilgil temp 2021.06.17
 	}
-	ipPacket->buf_.size_ = size_t(res);
-	if (netFilter->autoParse_) ipPacket->parse();
+	pkt.buf_.size_ = size_t(res);
 
-	netFilter->id_ = 0;
+	pkt.id_ = 0;
 	struct nfqnl_msg_packet_hdr* ph = nfq_get_msg_packet_hdr(nfad);
 	if (ph != nullptr)
-		netFilter->id_ = ntohl(ph->packet_id);
+		pkt.id_ = ntohl(ph->packet_id);
 
+	netFilter->pkts_.push_back(pkt);
 	return 0;
 }
 #endif // Q_OS_ANDROID
