@@ -230,43 +230,58 @@ bool GNetFilter::doClose() {
 }
 
 GPacket::Result GNetFilter::read(GPacket* packet) {
-	while (true) {
-		if (!pkts_.empty()) {
+	if (!pkts_.empty()) {
 #ifdef _DEBUG
-			int count = pkts_.count();
-			if (count > 1)
-				qWarning() << QString("packet count is greater than one(%1)") << count;
+		int count = pkts_.count();
+		qWarning() << QString("packet already exists(%1)") << count;
 #endif // __DEBUG
-			Pkts::iterator it = pkts_.begin();
-			Pkt& pkt = *it;
-			packet->ts_ = pkt.ts_;
-			packet->buf_ = pkt.buf_;
-			if (autoParse_) packet->parse();
-			return GPacket::Ok;
-		}
-		int res;
-		while (true) {
-			if (!active()) return GPacket::Fail;
-			// qDebug() << "bef call recv"; // gilgil temp 2021.05.22
-			res = int(::recv(fd_, recvBuf_, bufSize_, 0));
-			// qDebug() << "aft call recv" << res; // gilgil temp 2021.05.22
-			if (res >= 0) break;
-			if (res < 0) {
-				if(errno == EWOULDBLOCK) {
-					if (waitTimeout_ != 0)
-						QThread::msleep(waitTimeout_);
-					continue;
-				}
-				if (errno == ENOBUFS) {
-					qWarning() << "losing packets!";
-					return GPacket::None;
-				}
-				qWarning() << QString("recv return %1 errno=%2").arg(res, errno);
-				return GPacket::Fail;
-			}
-		}
-		nfq_handle_packet(h_, pchar(recvBuf_), res);
+		Pkts::iterator it = pkts_.begin();
+		Pkt& pkt = *it;
+		packet->clear();
+		packet->ts_ = pkt.ts_;
+		packet->buf_ = pkt.buf_;
+		if (autoParse_) packet->parse();
+		return GPacket::Ok;
 	}
+	int res;
+	while (true) {
+		if (!active()) return GPacket::Fail;
+		// qDebug() << "bef call recv"; // gilgil temp 2021.05.22
+		res = int(::recv(fd_, recvBuf_, bufSize_, 0));
+		// qDebug() << "aft call recv" << res; // gilgil temp 2021.05.22
+		if (res >= 0) break;
+		if (res < 0) {
+			if(errno == EWOULDBLOCK) {
+				if (waitTimeout_ != 0)
+					QThread::msleep(waitTimeout_);
+				continue;
+			}
+			if (errno == ENOBUFS) {
+				qWarning() << "losing packets!";
+				return GPacket::None;
+			}
+			qWarning() << QString("recv return %1 errno=%2").arg(res, errno);
+			return GPacket::Fail;
+		}
+	}
+	nfq_handle_packet(h_, pchar(recvBuf_), res);
+
+	if (!pkts_.empty()) {
+#ifdef _DEBUG
+		int count = pkts_.count();
+		if (count > 1)
+			qWarning() << QString("packet count is greater than one(%1)") << count;
+#endif // __DEBUG
+		Pkts::iterator it = pkts_.begin();
+		Pkt& pkt = *it;
+		packet->clear();
+		packet->ts_ = pkt.ts_;
+		packet->buf_ = pkt.buf_;
+		if (autoParse_) packet->parse();
+		return GPacket::Ok;
+	}
+	qWarning() << "packet is empty";
+	return GPacket::None;
 }
 
 GPacket::Result GNetFilter::writeBuf(GBuf buf) {
@@ -336,7 +351,8 @@ int GNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struc
 	Q_ASSERT(netFilter->qh_ == qh);
 	Pkt pkt;
 	gettimeofday(&pkt.ts_, nullptr);
-	int res = nfq_get_payload(nfad, &pkt.buf_.data_);
+	gbyte* payloadData;
+	int res = nfq_get_payload(nfad, &payloadData);
 	if (res == -1) {
 		qCritical() << "nfq_get_payload return -1";
 		return -1;
@@ -345,6 +361,7 @@ int GNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struc
 		qWarning() << QString("res(%1) > bufSize_(%2)").arg(res).arg(netFilter->bufSize_);
 		return -1; // gilgil temp 2021.06.17
 	}
+	pkt.buf_.data_ = payloadData;
 	pkt.buf_.size_ = size_t(res);
 
 	pkt.id_ = 0;
