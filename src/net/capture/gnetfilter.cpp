@@ -231,7 +231,7 @@ bool GNetFilter::doClose() {
 }
 
 #ifdef _DEBUG
-static int count = 0; // gilgil temp 2021.05.21
+static int recvFromCount = 0; // gilgil temp 2021.05.21
 #endif // _DEBUG
 
 GPacket::Result GNetFilter::read(GPacket* packet) {
@@ -246,7 +246,7 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 	while (true) {
 		if (!active()) return GPacket::Fail;
 		// qDebug() << "bef call recv"; // gilgil temp 2021.05.22
-		res = int(::recv(fd_, recvBuf_, GPacket::MaxBufSize, 0));
+		res = int(::recv(fd_, recvBuf_, bufSize_, 0));
 		// qDebug() << "aft call recv" << res; // gilgil temp 2021.05.22
 		if (res >= 0) break;
 		if (res < 0) {
@@ -263,9 +263,10 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 			return GPacket::Fail;
 		}
 	}
+
 	#ifdef _DEBUG
-	if (++count != 1)
-		qWarning() << "count is" << count;
+	if (++recvFromCount != 1)
+		qWarning() << QString("recvFromCount=%1 res=%2").arg(recvFromCount).arg(res);
 	#endif // _DEBUG
 	nfq_handle_packet(h_, pchar(recvBuf_), res);
 	return GPacket::Ok;
@@ -320,10 +321,6 @@ GPacket::Result GNetFilter::drop(GPacket* packet) {
 int GNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struct nfq_data* nfad, void* data) {
 	(void)qh;
 	(void)nfmsg;
-#ifdef _DEBUG
-	if (--count != 0)
-		qWarning() << "count is" << count;
-#endif // _DEBUG
 
 	GNetFilter* netFilter = static_cast<GNetFilter*>(data);
 	Q_ASSERT(netFilter->qh_ == qh);
@@ -336,6 +333,10 @@ int GNetFilter::_callback(struct nfq_q_handle* qh, struct nfgenmsg* nfmsg, struc
 		qCritical() << "nfq_get_payload return -1";
 		return -1;
 	}
+#ifdef _DEBUG
+	if (--recvFromCount != 0)
+		qWarning() << QString("recvFromCount=%1 res=%2").arg(recvFromCount).arg(res);
+#endif // _DEBUG
 
 	if (res > netFilter->bufSize_) {
 		qWarning() << QString("res(%1) > bufSize_(%2)").arg(res).arg(netFilter->bufSize_);
