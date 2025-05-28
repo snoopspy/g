@@ -111,9 +111,10 @@ TEST(GUdpHdrTest, checksumTest) {
 	ASSERT_TRUE(pcapFile.open());
 	EXPECT_EQ(pcapFile.dlt(), GPacket::Eth);
 
-	uint16_t realIpSums[] = { 0x8CC5, 0x8CC3, 0x8CC1, 0x8CBF };
-	uint16_t realUdpSums[] = { 0xBBDD, 0xBB99, 0x7897, 0x7851 };
-	for (int i = 0; i < 4; i++) {
+	uint16_t realIpSums[] = { 0x965E, 0xD0B5, 0x965C, 0xCE99, 0x965A, 0xCE11, 0x9658, 0xCCAC };
+	uint16_t realUdpSums[] = { 0x846E, 0x846E, 0x842A, 0x842A, 0x4128, 0x4128, 0x40E2, 0x40E2 };
+
+	for (int i = 0; i < 8; i++) {
 		GEthPacket packet;
 		GPacket::Result res = pcapFile.read(&packet);
 		if (res != GPacket::Ok) break;
@@ -126,7 +127,6 @@ TEST(GUdpHdrTest, checksumTest) {
 
 		GUdpHdr* udpHdr = packet.udpHdr_;
 		EXPECT_NE(udpHdr, nullptr);
-		EXPECT_NE(ipHdr, nullptr);
 		uint16_t realUdpSum = realUdpSums[i];
 		uint16_t calcUdpSum = GUdpHdr::calcChecksum(ipHdr, udpHdr);
 		EXPECT_EQ(realUdpSum, calcUdpSum);

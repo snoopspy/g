@@ -20,9 +20,8 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disab
 	}
 
 	// If length is odd, add last data(padding)
-	if (tcpHdrDataLen % 2 != 0) {
+	if (tcpHdrDataLen % 2 != 0)
 		res += uint32_t(*puint8_t(p) << 8);
-	}
 
 	// Decrease checksum from sum
 	res -= tcpHdr->sum();
@@ -112,6 +111,36 @@ TEST(GTcpHdrTest, synFileTest) {
 		GBuf data = GTcpHdr::parseData(ipHdr, tcpHdr);
 		EXPECT_EQ(data.data_, nullptr);
 		EXPECT_EQ(data.size_, 0);
+	}
+
+	EXPECT_TRUE(pcapFile.close());
+}
+
+TEST(GTcpHdrTest, checksumTest) {
+	GSyncPcapFile pcapFile;
+	pcapFile.fileName_ = "pcap/test/eth-tcp-port4660-abcd.pcap";
+	ASSERT_TRUE(pcapFile.open());
+	EXPECT_EQ(pcapFile.dlt(), GPacket::Eth);
+
+	uint16_t realIpSums[] = { 0xC7F9, 0x24B6, 0xC800, 0xC7FE, 0x2A18, 0x2A16, 0xC7FE, 0xC7FB, 0x2A14, 0xC7FC, 0xC7F8, 0x2A12, 0xC7FA, 0xC7F5, 0x2A10, 0xC7F8, 0xC7F7, 0x2A13, 0xC7F6 };
+	uint16_t realTcpSums[] = { 0x6131, 0x758A, 0xA079, 0x5B54, 0x97ED, 0x56E3, 0x97A4, 0x4DA9, 0x44D4, 0x860D, 0xFAC5, 0xF386, 0x77A0, 0xEC62, 0xE583, 0x69EE, 0x629F, 0x5B04, 0x5ACC };
+
+	for (int i = 0; i < 19; i++) {
+		GEthPacket packet;
+		GPacket::Result res = pcapFile.read(&packet);
+		if (res != GPacket::Ok) break;
+
+		GIpHdr* ipHdr = packet.ipHdr_;
+		EXPECT_NE(ipHdr, nullptr);
+		uint16_t realIpSum = realIpSums[i];
+		uint16_t calcIpSum = GIpHdr::calcChecksum(ipHdr);
+		EXPECT_EQ(realIpSum, calcIpSum);
+
+		GTcpHdr* tcpHdr = packet.tcpHdr_;
+		EXPECT_NE(tcpHdr, nullptr);
+		uint16_t realTcpSum = realTcpSums[i];
+		uint16_t calcTcpSum = GTcpHdr::calcChecksum(ipHdr, tcpHdr);
+		EXPECT_EQ(realTcpSum, calcTcpSum);
 	}
 
 	EXPECT_TRUE(pcapFile.close());
