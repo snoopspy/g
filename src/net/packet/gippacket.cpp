@@ -13,20 +13,24 @@ void GIpPacket::parse() {
 	gbyte* p = buf_.data_;
 	uint8_t proto;
 	switch (*p & 0xF0) {
-		case 0x40: // version 4
+		case 0x40: { // version 4
 			ipHdr_ = PIpHdr(p);
 			proto = ipHdr_->p();
 			p += ipHdr_->hlen() * 4;
-			if (buf_.size_ < ipHdr_->tlen())
-				qWarning() << QString("buf size(%1) is less than ip total len(%2)").arg(buf_.size_).arg(ipHdr_->tlen());
+			uint16_t tlen = ipHdr_->tlen();
+			if (buf_.size_ < tlen)
+				qWarning() << QString("buf size(%1) is less than ip total len(%2 %3)").arg(buf_.size_).arg(tlen).arg(ipHdr_->tlen());
 			break;
-		case 0x60: // version 6
+		}
+		case 0x60: { // version 6
 			ip6Hdr_= PIp6Hdr(p);
 			proto = ip6Hdr_->nh();
 			p += sizeof(GIp6Hdr);
+			uint16_t plen = ip6Hdr_->plen();
 			if (buf_.size_ < sizeof(GIp6Hdr) + ip6Hdr_->plen())
-				qWarning() << QString("buf size(%1) is less than ip6 payload len(%2)").arg(buf_.size_).arg(ip6Hdr_->plen());
+				qWarning() << QString("buf size(%1) is less than ip6 payload len(%2 %3)").arg(buf_.size_).arg(plen).arg(ip6Hdr_->plen());
 			break;
+		}
 		default:
 			qWarning() << QString("invalid ip header version(0x%1)").arg(QString::number(*p, 16));
 			proto = 0; // unknown
