@@ -21,7 +21,7 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disab
 
 	// If length is odd, add last data(padding)
 	if (tcpHdrDataLen % 2 != 0)
-		res += uint32_t(*puint8_t(p) << 8);
+		res += uint16_t(*puint8_t(p) << 8);
 
 	// Decrease checksum from sum
 	res -= tcpHdr->sum();

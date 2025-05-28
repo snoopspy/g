@@ -21,7 +21,7 @@ uint16_t GUdpHdr::calcChecksum(GIpHdr* ipHdr, GUdpHdr* udpHdr) {
 
 	// If length is odd, add last data(padding)
 	if (udpHdrDataLen % 2 != 0)
-		res += uint32_t(*puint8_t(p) << 8);
+		res += uint16_t(*puint8_t(p) << 8);
 
 	// Decrease checksum from sum
 	res -= udpHdr->sum();
