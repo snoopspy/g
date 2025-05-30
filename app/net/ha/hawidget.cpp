@@ -138,7 +138,6 @@ void HaWidget::tbOption_clicked(bool checked) {
 	(void)checked;
 
 	GPropDialog propDialog;
-	propDialog.setModal(true);
 	propDialog.setWindowTitle("Option");
 	propDialog.widget_.setObject(&hostAnalyzer_);
 
@@ -146,6 +145,7 @@ void HaWidget::tbOption_clicked(bool checked) {
 	bool isFirst = jo.find("propDialog") == jo.end();
 	jo["propDialog"] >> propDialog;
 
+	propDialog.setModal(true);
 #ifdef Q_OS_ANDROID
 	propDialog.showMaximized();
 #else
@@ -176,12 +176,12 @@ void HaWidget::tbDb_clicked(bool checked) {
 	}
 
 	DbDialog dbDialog(this, hostDb);
-	dbDialog.setModal(true);
 
 	QJsonObject& jo = GJson::instance();
 	jo["dbDialog"] >> dbDialog;
 	dbDialog.setPeriod();
 
+	dbDialog.setModal(true);
 #ifdef Q_OS_ANDROID
 	dbDialog.showMaximized();
 #else // Q_OS_ANDROID
@@ -214,11 +214,11 @@ void HaWidget::tbEdit_clicked(bool checked) {
 	}
 
 	HostDialog hostDialog(this, mac, &hostAnalyzer_);
-	hostDialog.setModal(true);
 
 	QJsonObject& jo = GJson::instance();
 	jo["hostDialog"] >> hostDialog;
 
+	hostDialog.setModal(true);
 #ifdef Q_OS_ANDROID
 	hostDialog.showMaximized();
 #else
@@ -237,11 +237,11 @@ void HaWidget::tbQrCode_clicked(bool checked) {
 	(void)checked;
 
 	QrCodeDialog qrCodeDialog(this);
-	qrCodeDialog.setModal(true);
 
 	QJsonObject& jo = GJson::instance();
 	jo["qrCodeDialog"] >> qrCodeDialog;
 
+	qrCodeDialog.setModal(true);
 #ifdef Q_OS_ANDROID
 	qrCodeDialog.showMaximized();
 #else

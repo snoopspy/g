@@ -78,13 +78,14 @@ void PaWidget::tbStop_clicked(bool checked) {
 void PaWidget::tbOption_clicked(bool checked) {
 	(void)checked;
 
-	GPropDialog propDialog;
+	GPropDialog propDialog(this);
 	propDialog.widget_.setObject(&probeAnalyzer_);
 
 	QJsonObject& jo = GJson::instance();
 	bool isFirst = jo.find("propDialog") == jo.end();
 	jo["propDialog"] >> propDialog;
 
+	propDialog.setModal(true);
 #ifdef Q_OS_ANDROID
 	propDialog.showMaximized();
 #else

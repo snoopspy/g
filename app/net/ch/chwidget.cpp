@@ -194,6 +194,7 @@ void ChWidget::tbOption_clicked(bool checked) {
 	bool isFirst = jo.find("propDialog") == jo.end();
 	jo["propDialog"] >> propDialog;
 
+	propDialog.setModal(true);
 #ifdef Q_OS_ANDROID
 	propDialog.showMaximized();
 #else
@@ -223,12 +224,12 @@ void ChWidget::tbDb_clicked(bool checked) {
 	}
 
 	DbDialog dbDialog(this, &cookieHijack_.cookieHijack_);
-	dbDialog.setModal(true);
 
 	QJsonObject& jo = GJson::instance();
 	jo["dbDialog"] >> dbDialog;
 	dbDialog.setPeriod();
 
+	dbDialog.setModal(true);
 #ifdef Q_OS_ANDROID
 	dbDialog.showMaximized();
 #else // Q_OS_ANDROID
