@@ -13,14 +13,14 @@ GNetFilter::GNetFilter(QObject* parent) : GCapture(parent) {
 #endif // _DEBUG
 		"su -c \"iptables -A OUTPUT -o lo -j ACCEPT\"",
 		"su -c \"iptables -A INPUT -i lo -j ACCEPT\"",
-		"su -c \"iptables -A OUTPUT -j NFQUEUE\"",
-		"su -c \"iptables -A INPUT -j NFQUEUE\""
+		"su -c \"iptables -A OUTPUT -j NFQUEUE --queue-num 0\"",
+		"su -c \"iptables -A INPUT -j NFQUEUE --queue-num 0\""
 	}));
 
 	command_.closeCommands_.clear();
 	command_.closeCommands_.push_back(new GCommandItem(this, QStringList{
-		"su -c \"iptables -D INPUT -j NFQUEUE\"",
-		"su -c \"iptables -D OUTPUT -j NFQUEUE\"",
+		"su -c \"iptables -D INPUT -j NFQUEUE --queue-num 0\"",
+		"su -c \"iptables -D OUTPUT -j NFQUEUE --queue-num 0\"",
 		"su -c \"iptables -D INPUT -i lo -j ACCEPT\"",
 		"su -c \"iptables -D OUTPUT -o lo -j ACCEPT\""
 	}));
