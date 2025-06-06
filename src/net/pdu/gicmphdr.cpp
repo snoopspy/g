@@ -22,9 +22,8 @@ uint16_t GIcmpHdr::calcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr) {
 	// Decrease checksum from sum
 	res -= icmpHdr->sum();
 
-	// Recalculate sum
-	if (res >> 16)
-		res = (res & 0xFFFF) + (res >> 16);
+	// Add overflow value to the lower 16
+	res = (res & 0xFFFF) + (res >> 16);
 	res = ~res;
 
 	return uint16_t(res);

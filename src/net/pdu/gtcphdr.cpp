@@ -6,7 +6,7 @@
 //
 // All tcpHdr field except tcpHdr.sum
 // All data buffer(padding)
-// ipHdr.ip_src, ipHdr.ip_dst, tcpHdrDataLen and IPPROTO_TCP
+// ipHdr.sip, ipHdr.dip, tcpHdrDataLen and IPPROTO_TCP
 //
 uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disable compile optimization for GIPHdr(sip_ and dip_)
 	uint32_t res = 0;
@@ -46,7 +46,7 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disab
 	// Add extra information
 	res += uint32_t(tcpHdrDataLen) + IPPROTO_TCP;
 
-	// Recalculate sum
+	// Add overflow value to the lower 16
 	res = (res >> 16) + (res & 0xFFFF);
 	res = ~res;
 
@@ -84,10 +84,8 @@ uint16_t GTcpHdr::inetCalcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
 #endif
 	res += ((dst & 0xFFFF0000) >> 16) + (dst & 0x0000FFFF);
 
-	// Add extra information
 	res += htons(uint32_t(tcpHdrDataLen)) + htons(IPPROTO_TCP);
 
-	// Recalculate sum
 	res = (res >> 16) + (res & 0xFFFF);
 	res = ~res;
 

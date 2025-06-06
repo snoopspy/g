@@ -38,7 +38,7 @@ uint16_t GUdpHdr::calcChecksum(GIpHdr* ipHdr, GUdpHdr* udpHdr) {
 	// Add extra information
 	res += uint32_t(udpHdrDataLen) + IPPROTO_UDP;
 
-	// Recalculate sum
+	// Add overflow value to the lower 16
 	res = (res >> 16) + (res & 0xFFFF);
 	res = ~res;
 
@@ -61,18 +61,14 @@ uint16_t GUdpHdr::inetCalcChecksum(GIpHdr* ipHdr, GUdpHdr* udpHdr) {
 
 	res -= udpHdr->sum_;
 
-	// Add src address
 	uint32_t src = ipHdr->sip_;
 	res += ((src & 0xFFFF0000) >> 16) + (src & 0x0000FFFF);
 
-	// Add dst address
 	uint32_t dst = ipHdr->dip_;
 	res += ((dst & 0xFFFF0000) >> 16) + (dst & 0x0000FFFF);
 
-	// Add extra information
 	res += htons(uint32_t(udpHdrDataLen)) + htons(IPPROTO_UDP);
 
-	// Recalculate sum
 	res = (res >> 16) + (res & 0xFFFF);
 	res = ~res;
 
