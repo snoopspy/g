@@ -7,6 +7,8 @@
 // All ipHdr field except ipHdr.sum
 //
 uint16_t GIpHdr::calcSum(GIpHdr* ipHdr) {
+	qWarning() << "should change to inetCalcSum"; // gilgil temp 2025.06.07
+
 	uint32_t res = 0;
 	uint16_t *p;
 
