@@ -46,7 +46,7 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disab
 	res += uint32_t(tcpHdrDataLen) + IPPROTO_TCP;
 
 	// Recalculate sum
-	res = (res & 0xFFFF) + (res >> 16);
+	res = (res >> 16) + (res & 0xFFFF);
 	res = ~res;
 
 	return uint16_t(res);
