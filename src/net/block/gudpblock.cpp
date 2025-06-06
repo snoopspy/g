@@ -93,8 +93,8 @@ void GUdpBlock::block(GPacket* packet) {
 	//
 	// checksum
 	//
-	blockIpHdr->sum_ = htons(GIpHdr::calcSum(blockIpHdr));
-	blockIcmpIpHdr->sum_ = htons(GIcmpHdr::calcSum(blockIpHdr, blockIcmpIpHdr));
+	blockIpHdr->sum_ = GIpHdr::inetCalcSum(blockIpHdr);
+	blockIcmpIpHdr->sum_ = GIcmpHdr::inetCalcSum(blockIpHdr, blockIcmpIpHdr);
 
 	writer_.write(&blockIpPacket_);
 	emit blocked(packet);

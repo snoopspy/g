@@ -206,27 +206,41 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 
 		uint16_t type = ethHdr->type();
 		if (type == GEthHdr::Arp) {
-			GArpHdr* arpHdr = packet->arpHdr_;
+			GArpHdr *arpHdr = packet->arpHdr_;
 			Q_ASSERT(arpHdr != nullptr);
 			{
 				QMutexLocker ml(&flowList_.m_);
-				for (Flow& flow: flowList_) {
+				for (Flow &flow : flowList_) {
 					bool infect = false;
-					if (arpHdr->op() == GArpHdr::Request && arpHdr->sip() == flow.senderIp_ && /*arpHdr->smac() == flow.senderMac_ &&*/ arpHdr->tip() == flow.targetIp_) { // sender > target ARP packet
-						qDebug() << QString("sender(%1) to target(%2) ARP packet").arg(QString(flow.senderIp_), QString(flow.targetIp_));
+					if (arpHdr->op() == GArpHdr::Request &&
+						arpHdr->sip() == flow.senderIp_ &&
+						/*arpHdr->smac() == flow.senderMac_ &&*/
+						arpHdr->tip() ==
+						flow.targetIp_) { // sender > target ARP packet
+						qDebug()
+								<< QString("sender(%1) to target(%2) ARP packet")
+								   .arg(QString(flow.senderIp_),
+										QString(flow.targetIp_));
 						infect = true;
-					} else
-						if (arpHdr->sip() == flow.targetIp_ && /*arpHdr->smac() == flow.targetMac_ &&*/ ethHdr->dmac() == GMac::broadcastMac()) { // target to any ARP packet
-							qDebug() << QString("target(%1) to any(%2) ARP packet").arg(QString(flow.targetIp_), QString(flow.senderIp_));
-							infect = true;
-						}
+					} else if (arpHdr->sip() == flow.targetIp_ &&
+							   /*arpHdr->smac() == flow.targetMac_ &&*/ ethHdr
+							   ->dmac() ==
+							   GMac::broadcastMac()) { // target to any
+						// ARP packet
+						qDebug() << QString("target(%1) to any(%2) ARP packet")
+									.arg(QString(flow.targetIp_),
+										 QString(flow.senderIp_));
+						infect = true;
+					}
 					if (infect)
 						sendArpInfect(&flow, GArpHdr::Reply);
 				}
 			}
 			continue;
 		} else if (type == GEthHdr::Ip4) {
-			GIpHdr* ipHdr = packet->ipHdr_; // Should disable compile optimization for GIPHdr(sip_ and dip_)
+			GIpHdr *ipHdr =
+					packet->ipHdr_; // Should disable compile optimization for
+			// GIPHdr(sip_ and dip_)
 			Q_ASSERT(ipHdr != nullptr);
 			GIp adjSrcIp = intf_->getAdjIp(ipHdr->sip());
 			GIp adjDstIp = intf_->getAdjIp(ipHdr->dip());
@@ -234,8 +248,9 @@ GPacket::Result GArpSpoof::read(GPacket* packet) {
 			{
 				QMutexLocker ml(&flowMap_.m_);
 				FlowMap::iterator it = flowMap_.find(key);
-				if (it == flowMap_.end()) continue;
-				Flow& flow = it.value();
+				if (it == flowMap_.end())
+					continue;
+				Flow &flow = it.value();
 				ethHdr->dmac_ = flow.targetMac_;
 				if (bpFilter_ != nullptr) {
 					if (!bpFilter_->filterBuf(packet->buf_)) {

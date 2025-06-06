@@ -16,7 +16,7 @@ void GTtlReplace::replace(GPacket* packet) {
 		qInfo() << QString("replaced %1 > %2").arg(ipHdr->ttl_).arg(ttl_);
 
 	ipHdr->ttl_ = ttl_;
-	ipHdr->sum_ = htons(GIpHdr::calcSum(ipHdr));
+	ipHdr->sum_ = GIpHdr::inetCalcSum(ipHdr);
 
 	packet->ctrl_.changed_ = true;
 	emit replaced(packet);

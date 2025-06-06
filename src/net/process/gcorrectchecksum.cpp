@@ -9,14 +9,14 @@ void GCorrectChecksum::correct(GPacket* packet) {
 	bool changed = false;
 
 	if (ipChecksum_) {
-		ipHdr->sum_ = htons(GIpHdr::calcSum(ipHdr));
+		ipHdr->sum_ = GIpHdr::inetCalcSum(ipHdr);
 		changed = true;
 	}
 
 	if (tcpChecksum_) {
 		GTcpHdr* tcpHdr = packet->tcpHdr_;
 		if (tcpHdr != nullptr) {
-			tcpHdr->sum_ = htons(GTcpHdr::calcSum(ipHdr, tcpHdr));
+			tcpHdr->sum_ = GTcpHdr::inetCalcSum(ipHdr, tcpHdr);
 			changed = true;
 		}
 	}
@@ -24,7 +24,7 @@ void GCorrectChecksum::correct(GPacket* packet) {
 	if (udpChecksum_) {
 		GUdpHdr* udpHdr = packet->udpHdr_;
 		if (udpHdr != nullptr) {
-			udpHdr->sum_ = htons(GUdpHdr::calcSum(ipHdr, udpHdr));
+			udpHdr->sum_ = GUdpHdr::inetCalcSum(ipHdr, udpHdr);
 			changed = true;
 		}
 	}
@@ -32,7 +32,7 @@ void GCorrectChecksum::correct(GPacket* packet) {
 	if (icmpChecksum_) {
 		GIcmpHdr* icmpHdr = packet->icmpHdr_;
 		if (icmpHdr != nullptr) {
-			icmpHdr->sum_ = htons(GIcmpHdr::calcSum(ipHdr, icmpHdr));
+			icmpHdr->sum_ = GIcmpHdr::inetCalcSum(ipHdr, icmpHdr);
 			changed = true;
 		}
 	}

@@ -185,7 +185,7 @@ GPacket::Result GWinDivert::read(GPacket* packet) {
 	if (correctIpChecksum_) {
 		GIpHdr* ipHdr = packet->ipHdr_;
 		if (ipHdr != nullptr) {
-			ipHdr->sum_ = ntohs(GIpHdr::calcSum(ipHdr));
+			ipHdr->sum_ = GIpHdr::inetCalcSum(ipHdr));
 		}
 	}
 	return GPacket::Ok;
