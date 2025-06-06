@@ -38,8 +38,7 @@ uint16_t GUdpHdr::calcChecksum(GIpHdr* ipHdr, GUdpHdr* udpHdr) {
 	res += uint32_t(udpHdrDataLen) + IPPROTO_UDP;
 
 	// Recalculate sum
-	if (res >> 16)
-		res = (res & 0xFFFF) + (res >> 16);
+	res = (res >> 16) + (res & 0xFFFF);
 	res = ~res;
 
 	return uint16_t(res);

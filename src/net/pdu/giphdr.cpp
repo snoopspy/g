@@ -23,9 +23,7 @@ uint16_t GIpHdr::calcChecksum(GIpHdr* ipHdr) {
 	res -= ipHdr->sum();
 
 	// Recalculate sum
-	while (res >> 16) {
-		res = (res & 0xFFFF) + (res >> 16);
-	}
+	res = (res & 0xFFFF) + (res >> 16);
 	res = ~res;
 
 	return uint16_t(res);
