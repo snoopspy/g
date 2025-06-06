@@ -34,6 +34,7 @@ struct G_EXPORT GIcmpHdr {
 	};
 
 	static uint16_t calcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr);
+	static uint16_t inetCalcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr);
 };
 typedef GIcmpHdr *PIcmpHdr;
 

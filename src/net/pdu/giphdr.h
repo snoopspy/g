@@ -55,8 +55,9 @@ struct G_EXPORT GIpHdr final {
 	};
 
 	static uint16_t calcChecksum(GIpHdr* ipHdr);
-	static uint16_t recalcChecksum(uint16_t oldChecksum, uint16_t oldValue, uint16_t newValue);
-	static uint16_t recalcChecksum(uint16_t oldChecksum, uint32_t oldValue, uint32_t newValue);
+	static uint16_t inetCalcChecksum(GIpHdr* ipHdr);
+	static uint16_t recalcChecksum(uint16_t oldSum, uint16_t oldValue, uint16_t newValue);
+	static uint16_t recalcChecksum(uint16_t oldSum, uint32_t oldValue, uint32_t newValue);
 };
 typedef GIpHdr *PIpHdr;
 

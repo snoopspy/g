@@ -11,10 +11,11 @@
 uint16_t GUdpHdr::calcChecksum(GIpHdr* ipHdr, GUdpHdr* udpHdr) {
 	uint32_t res = 0;
 	int udpHdrDataLen = udpHdr->len();
+	int loopCount = udpHdrDataLen / 2;
 
 	// Add udpHdr & data buffer as array of uint16_t
 	uint16_t* p = puint16_t(udpHdr);
-	for (int i = 0; i < udpHdrDataLen / 2; i++) {
+	for (int i = 0; i < loopCount; i++) {
 		res += htons(*p);
 		p++;
 	}
@@ -36,6 +37,40 @@ uint16_t GUdpHdr::calcChecksum(GIpHdr* ipHdr, GUdpHdr* udpHdr) {
 
 	// Add extra information
 	res += uint32_t(udpHdrDataLen) + IPPROTO_UDP;
+
+	// Recalculate sum
+	res = (res >> 16) + (res & 0xFFFF);
+	res = ~res;
+
+	return uint16_t(res);
+}
+
+uint16_t GUdpHdr::inetCalcChecksum(GIpHdr* ipHdr, GUdpHdr* udpHdr) {
+	uint32_t res = 0;
+	int udpHdrDataLen = udpHdr->len();
+	int loopCount = udpHdrDataLen / 2;
+
+	uint16_t* p = puint16_t(udpHdr);
+	for (int i = 0; i < loopCount; i++) {
+		res += *p;
+		p++;
+	}
+
+	if (udpHdrDataLen % 2 != 0)
+		res += uint16_t(*puint8_t(p));
+
+	res -= udpHdr->sum_;
+
+	// Add src address
+	uint32_t src = ipHdr->sip_;
+	res += ((src & 0xFFFF0000) >> 16) + (src & 0x0000FFFF);
+
+	// Add dst address
+	uint32_t dst = ipHdr->dip_;
+	res += ((dst & 0xFFFF0000) >> 16) + (dst & 0x0000FFFF);
+
+	// Add extra information
+	res += htons(uint32_t(udpHdrDataLen)) + htons(IPPROTO_UDP);
 
 	// Recalculate sum
 	res = (res >> 16) + (res & 0xFFFF);
@@ -93,6 +128,28 @@ TEST(GUdpHdrTest, ipv4FileTest) {
 		uint16_t calcSum = GUdpHdr::calcChecksum(ipHdr, udpHdr);
 		EXPECT_EQ(realSum, calcSum);
 
+		uint16_t inetCalcSum = GUdpHdr::inetCalcChecksum(ipHdr, udpHdr);
+		EXPECT_EQ(realSum, ntohs(inetCalcSum));
+
+		//
+		// recalcChecksum(change dip - 32 bit) test
+		//
+		uint32_t backupInetDip = ipHdr->dip_;
+		{
+			uint16_t oldSum = udpHdr->sum();
+			uint32_t oldValue = ipHdr->dip();
+			ipHdr->dip_ = htonl(GIp("1.2.3.5"));
+			uint32_t newValue = ipHdr->dip();
+
+			uint16_t newSum = GUdpHdr::calcChecksum(ipHdr, udpHdr);
+			uint16_t recalcSum = GIpHdr::recalcChecksum(oldSum, oldValue, newValue);
+			EXPECT_EQ(newSum, recalcSum);
+
+			uint16_t inetNewSum = GUdpHdr::inetCalcChecksum(ipHdr, udpHdr);
+			EXPECT_EQ(ntohs(inetNewSum), recalcSum);
+		}
+		ipHdr->dip_ = backupInetDip;
+
 		//
 		// data test
 		//
@@ -120,15 +177,23 @@ TEST(GUdpHdrTest, checksumTest) {
 
 		GIpHdr* ipHdr = packet.ipHdr_;
 		EXPECT_NE(ipHdr, nullptr);
+
 		uint16_t realIpSum = realIpSums[i];
 		uint16_t calcIpSum = GIpHdr::calcChecksum(ipHdr);
 		EXPECT_EQ(realIpSum, calcIpSum);
 
+		uint16_t inetCalcIpSum = GIpHdr::inetCalcChecksum(ipHdr);
+		EXPECT_EQ(realIpSum, ntohs(inetCalcIpSum));
+
 		GUdpHdr* udpHdr = packet.udpHdr_;
 		EXPECT_NE(udpHdr, nullptr);
+
 		uint16_t realUdpSum = realUdpSums[i];
 		uint16_t calcUdpSum = GUdpHdr::calcChecksum(ipHdr, udpHdr);
 		EXPECT_EQ(realUdpSum, calcUdpSum);
+
+		uint16_t inetCalcUdpSum = GUdpHdr::inetCalcChecksum(ipHdr, udpHdr);
+		EXPECT_EQ(realUdpSum, htons(inetCalcUdpSum));
 	}
 
 	EXPECT_TRUE(pcapFile.close());

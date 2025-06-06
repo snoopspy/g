@@ -11,10 +11,11 @@
 uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disable compile optimization for GIPHdr(sip_ and dip_)
 	uint32_t res = 0;
 	int tcpHdrDataLen = ipHdr->tlen() - ipHdr->hlen() * 4;
+	int loopCount = tcpHdrDataLen / 2;
 
 	// Add tcpHdr & data buffer as array of uint16_t
 	uint16_t* p = puint16_t(tcpHdr);
-	for (int i = 0; i < tcpHdrDataLen / 2; i++) {
+	for (int i = 0; i < loopCount; i++) {
 		res += htons(*p);
 		p++;
 	}
@@ -51,6 +52,48 @@ uint16_t GTcpHdr::calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disab
 
 	return uint16_t(res);
 }
+
+uint16_t GTcpHdr::inetCalcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
+	uint32_t res = 0;
+	int tcpHdrDataLen = ipHdr->tlen() - ipHdr->hlen() * 4;
+	int loopCount = tcpHdrDataLen / 2;
+
+	uint16_t* p = puint16_t(tcpHdr);
+	for (int i = 0; i < loopCount; i++) {
+		res += *p;
+		p++;
+	}
+
+	if (tcpHdrDataLen % 2 != 0)
+		res += uint16_t(*puint8_t(p));
+
+	res -= tcpHdr->sum_;
+
+#ifndef Q_OS_ANDROID
+	uint32_t src = ipHdr->sip_;
+#else
+	volatile uint32_t src = ipHdr->sip_;
+#endif
+	res += ((src & 0xFFFF0000) >> 16) + (src & 0x0000FFFF);
+
+	// Add dst address
+#ifndef Q_OS_ANDROID
+	uint32_t dst = ipHdr->dip_;
+#else
+	volatile uint32_t dst = ipHdr->dip_;
+#endif
+	res += ((dst & 0xFFFF0000) >> 16) + (dst & 0x0000FFFF);
+
+	// Add extra information
+	res += htons(uint32_t(tcpHdrDataLen)) + htons(IPPROTO_TCP);
+
+	// Recalculate sum
+	res = (res >> 16) + (res & 0xFFFF);
+	res = ~res;
+
+	return uint16_t(res);
+}
+
 
 GBuf GTcpHdr::parseData(GIpHdr* ipHdr, GTcpHdr* tcpHdr) {
 	GBuf res;
@@ -104,6 +147,28 @@ TEST(GTcpHdrTest, synFileTest) {
 		uint16_t calcSum = GTcpHdr::calcChecksum(ipHdr, tcpHdr);
 		EXPECT_EQ(realSum, calcSum);
 
+		uint16_t inetCalcSum = GTcpHdr::inetCalcChecksum(ipHdr, tcpHdr);
+		EXPECT_EQ(realSum, ntohs(inetCalcSum));
+
+		//
+		// recalcChecksum(change dip - 32 bit) test
+		//
+		uint32_t backupInetDip = ipHdr->dip_;
+		{
+			uint16_t oldSum = tcpHdr->sum();
+			uint32_t oldValue = ipHdr->dip();
+			ipHdr->dip_ = htonl(GIp("8.8.8.9"));
+			uint32_t newValue = ipHdr->dip();
+
+			uint16_t newSum = GTcpHdr::calcChecksum(ipHdr, tcpHdr);
+			uint16_t recalcSum = GIpHdr::recalcChecksum(oldSum, oldValue, newValue);
+			EXPECT_EQ(newSum, recalcSum);
+
+			uint16_t inetNewSum = GTcpHdr::inetCalcChecksum(ipHdr, tcpHdr);
+			EXPECT_EQ(ntohs(inetNewSum), recalcSum);
+		}
+		ipHdr->dip_ = backupInetDip;
+
 		//
 		// data test
 		//
@@ -131,15 +196,23 @@ TEST(GTcpHdrTest, checksumTest) {
 
 		GIpHdr* ipHdr = packet.ipHdr_;
 		EXPECT_NE(ipHdr, nullptr);
+
 		uint16_t realIpSum = realIpSums[i];
 		uint16_t calcIpSum = GIpHdr::calcChecksum(ipHdr);
 		EXPECT_EQ(realIpSum, calcIpSum);
 
+		uint16_t inetCalcIpSum = GIpHdr::inetCalcChecksum(ipHdr);
+		EXPECT_EQ(realIpSum, ntohs(inetCalcIpSum));
+
 		GTcpHdr* tcpHdr = packet.tcpHdr_;
 		EXPECT_NE(tcpHdr, nullptr);
+
 		uint16_t realTcpSum = realTcpSums[i];
 		uint16_t calcTcpSum = GTcpHdr::calcChecksum(ipHdr, tcpHdr);
 		EXPECT_EQ(realTcpSum, calcTcpSum);
+
+		uint16_t inetCalcTcpSum = GTcpHdr::inetCalcChecksum(ipHdr, tcpHdr);
+		EXPECT_EQ(realTcpSum, htons(inetCalcTcpSum));
 	}
 
 	EXPECT_TRUE(pcapFile.close());

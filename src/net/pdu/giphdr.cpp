@@ -29,21 +29,39 @@ uint16_t GIpHdr::calcChecksum(GIpHdr* ipHdr) {
 	return uint16_t(res);
 }
 
-uint16_t GIpHdr::recalcChecksum(uint16_t oldChecksum, uint16_t oldValue, uint16_t newValue) {
+uint16_t GIpHdr::inetCalcChecksum(GIpHdr* ipHdr) {
+	uint32_t res = 0;
+	uint16_t *p;
+
+	p = puint16_t(ipHdr);
+	for (int i = 0; i < int(sizeof(GIpHdr)) / 2; i++) {
+		res += *p;
+		p++;
+	}
+
+	res -= ipHdr->sum_;
+
+	res = (res >> 16) + (res & 0xFFFF);
+	res = ~res;
+
+	return uint16_t(res);
+}
+
+uint16_t GIpHdr::recalcChecksum(uint16_t oldSum, uint16_t oldValue, uint16_t newValue) {
 	uint32_t res = oldValue + (~newValue & 0xFFFF);
-	res += oldChecksum;
+	res += oldSum;
 	res = (res & 0xFFFF) + (res >> 16);
 	return uint16_t(res + (res >> 16));
 }
 
-uint16_t GIpHdr::recalcChecksum(uint16_t oldChecksum, uint32_t oldValue, uint32_t newValue) {
+uint16_t GIpHdr::recalcChecksum(uint16_t oldSum, uint32_t oldValue, uint32_t newValue) {
 	uint16_t oldValue16;
 	uint16_t newValue16;
 	uint16_t res;
 
 	oldValue16 = (oldValue & 0xFFFF0000) >> 16;
 	newValue16 = (newValue & 0xFFFF0000) >> 16;
-	res = recalcChecksum(oldChecksum, oldValue16, newValue16);
+	res = recalcChecksum(oldSum, oldValue16, newValue16);
 
 	oldValue16 = oldValue & 0x0000FFFF;
 	newValue16 = newValue & 0x0000FFFF;
@@ -81,41 +99,55 @@ TEST(GIpHdrTest, synFileTest) {
 		EXPECT_EQ(ipHdr->sip(), GIp("10.1.1.48"));
 		EXPECT_EQ(ipHdr->dip(), GIp("8.8.8.8"));
 
+		//
+		// calcChecksum test
+		//
+		uint16_t realSum = ipHdr->sum();
+		uint16_t calcSum = GIpHdr::calcChecksum(ipHdr);
+		EXPECT_EQ(realSum, calcSum);
+
+		uint16_t inetCalcSum = GIpHdr::inetCalcChecksum(ipHdr);
+		EXPECT_EQ(realSum, ntohs(inetCalcSum));
+
+		//
+		// recalcChecksum(decrease ttl - 16 bit) test
+		//
+		uint8_t backupTtl = ipHdr->ttl();
 		{
-			//
-			// calcChecksum test
-			//
-			GIpHdr ipHdr = *packet.ipHdr_;
-			uint16_t realSum = ipHdr.sum();
-			uint16_t calcSum = GIpHdr::calcChecksum(&ipHdr);
-			EXPECT_EQ(realSum, calcSum);
+
+			uint16_t oldSum = ipHdr->sum();
+			uint16_t oldValue = uint16_t(ipHdr->ttl() << 8) + ipHdr->p();
+			ipHdr->ttl_--;
+			uint16_t newValue = uint16_t(ipHdr->ttl() << 8) + ipHdr->p();
+
+			uint16_t newSum = GIpHdr::calcChecksum(ipHdr);
+			uint16_t recalcSum = GIpHdr::recalcChecksum(oldSum, oldValue, newValue);
+			EXPECT_EQ(newSum, recalcSum);
+
+			uint16_t inetNewSum = GIpHdr::inetCalcChecksum(ipHdr);
+			EXPECT_EQ(ntohs(inetNewSum), recalcSum);
 		}
+		ipHdr->ttl_ = backupTtl;
+
+		//
+		// recalcChecksum(change dip - 32 bit) test
+		//
+		uint32_t backupInetDip = ipHdr->dip_;
 		{
-			//
-			// recalcChecksum(decrease ttl - 16 bit) test
-			//
-			GIpHdr ipHdr = *packet.ipHdr_;
-			uint16_t oldChecksum = ipHdr.sum();
-			uint16_t oldValue = uint16_t(ipHdr.ttl() << 8) + ipHdr.p();
-			ipHdr.ttl_--;
-			uint16_t newValue = uint16_t(ipHdr.ttl() << 8) + ipHdr.p();
-			uint16_t newChecksum = GIpHdr::calcChecksum(&ipHdr);
-			uint16_t recalcChecksum = GIpHdr::recalcChecksum(oldChecksum, oldValue, newValue);
-			EXPECT_EQ(newChecksum, recalcChecksum);
+			uint16_t oldSum = ipHdr->sum();
+			uint32_t oldValue = ipHdr->dip();
+			ipHdr->dip_ = htonl(GIp("8.8.8.9"));
+			uint32_t newValue = ipHdr->dip();
+
+			uint16_t newSum = GIpHdr::calcChecksum(ipHdr);
+			uint16_t recalcSum = GIpHdr::recalcChecksum(oldSum, oldValue, newValue);
+			EXPECT_EQ(newSum, recalcSum);
+
+			uint16_t inetNewSum = GIpHdr::inetCalcChecksum(ipHdr);
+			EXPECT_EQ(ntohs(inetNewSum), recalcSum);
+
 		}
-		{
-			//
-			// recalcChecksum(change dip - 32 bit) test
-			//
-			GIpHdr ipHdr = *packet.ipHdr_;
-			uint16_t oldChecksum = ipHdr.sum();
-			uint32_t oldValue = ipHdr.dip();
-			ipHdr.dip_ = GIp("1.2.3.4");
-			uint32_t newValue = ipHdr.dip();
-			uint16_t newChecksum = GIpHdr::calcChecksum(&ipHdr);
-			uint16_t recalcChecksum = GIpHdr::recalcChecksum(oldChecksum, oldValue, newValue);
-			EXPECT_EQ(newChecksum, recalcChecksum);
-		}
+		ipHdr->dip_ = backupInetDip;
 	}
 
 	EXPECT_TRUE(pcapFile.close());
