@@ -33,8 +33,8 @@ struct G_EXPORT GIcmpHdr {
 		TtlExceeded = 11
 	};
 
-	static uint16_t calcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr);
-	static uint16_t inetCalcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr);
+	static uint16_t calcSum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr);
+	static uint16_t inetCalcSum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr);
 };
 typedef GIcmpHdr *PIcmpHdr;
 

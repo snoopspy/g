@@ -48,8 +48,8 @@ struct G_EXPORT GTcpHdr final {
 		Fin = 0x01
 	};
 
-	static uint16_t calcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr);
-	static uint16_t inetCalcChecksum(GIpHdr* ipHdr, GTcpHdr* tcpHdr);
+	static uint16_t calcSum(GIpHdr* ipHdr, GTcpHdr* tcpHdr);
+	static uint16_t inetCalcSum(GIpHdr* ipHdr, GTcpHdr* tcpHdr);
 	static GBuf parseData(GIpHdr* ipHdr, GTcpHdr* tcpHdr);
 };
 typedef GTcpHdr *PTcpHdr;

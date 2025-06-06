@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 // GIcmpHdr
 // ----------------------------------------------------------------------------
-uint16_t GIcmpHdr::calcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr) {
+uint16_t GIcmpHdr::calcSum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr) {
 	uint32_t res = 0;
 	int icmpHdrDataLen = ipHdr->tlen() - ipHdr->hlen() * 4;
 	int loopCount = icmpHdrDataLen / 2;
@@ -29,7 +29,7 @@ uint16_t GIcmpHdr::calcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr) {
 	return uint16_t(res);
 }
 
-uint16_t GIcmpHdr::inetCalcChecksum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr) {
+uint16_t GIcmpHdr::inetCalcSum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr) {
 	uint32_t res = 0;
 	int icmpHdrDataLen = ipHdr->tlen() - ipHdr->hlen() * 4;
 	int loopCount = icmpHdrDataLen / 2;
@@ -86,13 +86,16 @@ TEST(GIcmpHdrTest, icmp8Test) {
 		EXPECT_EQ(icmpHdr->code(), 0);
 
 		//
-		// checksum test
+		// calcSum test
 		//
 		uint16_t realSum = icmpHdr->sum();
-		uint16_t calcSum = GIcmpHdr::calcChecksum(ipHdr, icmpHdr);
+		uint16_t calcSum = GIcmpHdr::calcSum(ipHdr, icmpHdr);
 		EXPECT_EQ(realSum, calcSum);
 
-		uint16_t inetCalcSum = GIcmpHdr::inetCalcChecksum(ipHdr, icmpHdr);
+		//
+		// inetCalcSum test
+		//
+		uint16_t inetCalcSum = GIcmpHdr::inetCalcSum(ipHdr, icmpHdr);
 		EXPECT_EQ(realSum, ntohs(inetCalcSum));
 	}
 }
@@ -115,20 +118,20 @@ TEST(GIcmpHdrTest, checksumTest) {
 		EXPECT_NE(ipHdr, nullptr);
 
 		uint16_t realIpSum = realIpSums[i];
-		uint16_t calcIpSum = GIpHdr::calcChecksum(ipHdr);
+		uint16_t calcIpSum = GIpHdr::calcSum(ipHdr);
 		EXPECT_EQ(realIpSum, calcIpSum);
 
-		uint16_t inetCalcIpSum = GIpHdr::inetCalcChecksum(ipHdr);
+		uint16_t inetCalcIpSum = GIpHdr::inetCalcSum(ipHdr);
 		EXPECT_EQ(realIpSum, ntohs(inetCalcIpSum));
 
 		GIcmpHdr* icmpHdr = packet.icmpHdr_;
 		EXPECT_NE(icmpHdr, nullptr);
 
 		uint16_t realIcmpSum = realIcmpSums[i];
-		uint16_t calcUdpSum = GIcmpHdr::calcChecksum(ipHdr, icmpHdr);
+		uint16_t calcUdpSum = GIcmpHdr::calcSum(ipHdr, icmpHdr);
 		EXPECT_EQ(realIcmpSum, calcUdpSum);
 
-		uint16_t inetCalcIcmpSum = GIcmpHdr::inetCalcChecksum(ipHdr, icmpHdr);
+		uint16_t inetCalcIcmpSum = GIcmpHdr::inetCalcSum(ipHdr, icmpHdr);
 		EXPECT_EQ(realIcmpSum, htons(inetCalcIcmpSum));
 	}
 
