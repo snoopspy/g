@@ -93,8 +93,8 @@ void GClientHelloSplit::split(GPacket* packet) {
 		uint16_t newIpHdrLen = ipHdr->hlen() * 4 + tcpHdr->off() * 4 + uint16_t(firstDataSize);
 		ssize_t ipHdrLenDiff = newIpHdrLen - oldIpHdrLen;
 		ipHdr->tlen_ = htons(newIpHdrLen);
-		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
-		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
+		tcpHdr->sum_ = htons(GTcpHdr::calcSum(ipHdr, tcpHdr));
+		ipHdr->sum_ = htons(GIpHdr::calcSum(ipHdr));
 		packet->buf_.size_ += ipHdrLenDiff;
 		GPacket::Result res = writer_.write(packet);
 		if (res != GPacket::Ok) {
@@ -114,8 +114,8 @@ void GClientHelloSplit::split(GPacket* packet) {
 		ipHdr->tlen_ = htons(newIpHdrLen);
 		memcpy(tcpData.data_, splittedTcpDataBuf_ + firstDataSize, secondDataSize);
 		tcpHdr->seq_ = htonl(tcpHdr->seq() + 16);
-		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
-		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
+		tcpHdr->sum_ = htons(GTcpHdr::calcSum(ipHdr, tcpHdr));
+		ipHdr->sum_ = htons(GIpHdr::calcSum(ipHdr));
 		packet->buf_.size_ += ipHdrLenDiff;
 		GPacket::Result res = writer_.write(packet);
 		if (res != GPacket::Ok) {

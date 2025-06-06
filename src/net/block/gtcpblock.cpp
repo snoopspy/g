@@ -93,8 +93,8 @@ void GTcpBlock::sendBlockPacket(GPacket* packet, GTcpBlock::Direction direction,
 	//
 	// checksum
 	//
-	blockIpHdr->sum_ = htons(GIpHdr::calcChecksum(blockIpHdr));
-	blockTcpHdr->sum_ = htons(GTcpHdr::calcChecksum(blockIpHdr, blockTcpHdr));
+	blockIpHdr->sum_ = htons(GIpHdr::calcSum(blockIpHdr));
+	blockTcpHdr->sum_ = htons(GTcpHdr::calcSum(blockIpHdr, blockTcpHdr));
 
 	// write
 	writer_.write(&blockIpPacket_);

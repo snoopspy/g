@@ -52,8 +52,8 @@ GPacket::Result GWritable::writeMtuSplit(GPacket* packet, size_t mtu, GPacket::D
 
 		sendPacket->buf_.size_ = ethernetSize + ipTcpHdrSize + onceTcpDataSize;
 		ipHdr->tlen_ = htons(ipTcpHdrSize + onceTcpDataSize);
-		tcpHdr->sum_ = htons(GTcpHdr::calcChecksum(ipHdr, tcpHdr));
-		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
+		tcpHdr->sum_ = htons(GTcpHdr::calcSum(ipHdr, tcpHdr));
+		ipHdr->sum_ = htons(GIpHdr::calcSum(ipHdr));
 
 		GPacket::Result res = writeBuf(sendPacket->buf_);
 		if (res != GPacket::Ok) {

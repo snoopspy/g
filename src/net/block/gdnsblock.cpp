@@ -170,8 +170,8 @@ void GDnsBlock::block(GPacket* packet) {
 			//
 			// checksum
 			//
-			blockIpHdr->sum_ = htons(GIpHdr::calcChecksum(PIpHdr(blockIpHdr)));
-			blockUdpHdr->sum_ = htons(GUdpHdr::calcChecksum(PIpHdr(blockIpHdr), blockUdpHdr));
+			blockIpHdr->sum_ = htons(GIpHdr::calcSum(PIpHdr(blockIpHdr)));
+			blockUdpHdr->sum_ = htons(GUdpHdr::calcSum(PIpHdr(blockIpHdr), blockUdpHdr));
 
 			// write
 			writer_.write(&blockIpPacket_);

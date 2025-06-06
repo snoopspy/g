@@ -230,7 +230,7 @@ void GTraceRoute::ProbeThread::run() {
 	for (uint8_t ttl = 1; ttl <= tr->maxHop_; ttl++) {
 		ipHdr->id_ = htons(ttl);
 		ipHdr->ttl_ = ttl;
-		ipHdr->sum_ = htons(GIpHdr::calcChecksum(ipHdr));
+		ipHdr->sum_ = htons(GIpHdr::calcSum(ipHdr));
 
 		for (int q = 0; q < tr->queryCount_; q++) {
 			tr->rawIpSocketWrite_.write(&sendPacket_);
