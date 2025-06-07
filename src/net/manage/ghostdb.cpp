@@ -1,5 +1,7 @@
 #include "ghostdb.h"
 
+#ifdef QT_SQL_LIB
+
 // ----------------------------------------------------------------------------
 // GHostDb
 // ----------------------------------------------------------------------------
@@ -228,3 +230,5 @@ GPropItem* GHostDb::propCreateItem(GPropItemParam* param) {
 }
 
 #endif // QT_GUI_LIB
+
+#endif // QT_SQL_LIB

@@ -1,4 +1,4 @@
-QT += widgets network
+QT += widgets network sql
 include(../../../g.pri)
 DESTDIR = $$PWD/../../../bin
 

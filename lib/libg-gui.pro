@@ -1,6 +1,6 @@
 TEMPLATE = lib
 CONFIG += staticlib
-QT += widgets
+QT += widgets sql
 CONFIG += G_BUILD
 DEFINES += G_BUILD
 include(../g.pri)

@@ -10,6 +10,8 @@
 
 #pragma once
 
+#ifdef QT_SQL_LIB
+
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -92,3 +94,5 @@ public:
 	GPropItem* propCreateItem(GPropItemParam* param) override;
 #endif // QT_GUI_LIB
 };
+
+#endif // QT_SQL_LIB

@@ -1,5 +1,5 @@
 TEMPLATE = app
-QT += widgets
+QT += widgets sql
 CONFIG += console c++17
 CONFIG += G_BUILD
 DEFINES += G_BUILD

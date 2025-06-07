@@ -1,5 +1,7 @@
 #include "gcookiehijack.h"
 
+#ifdef QT_SQL_LIB
+
 // ----------------------------------------------------------------------------
 // GCookieHijack
 // ----------------------------------------------------------------------------
@@ -154,3 +156,5 @@ GPropItem* GCookieHijack::propCreateItem(GPropItemParam* param) {
 }
 
 #endif // QT_GUI_LIB
+
+#endif // QT_SQL_LIB
