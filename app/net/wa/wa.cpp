@@ -5,7 +5,9 @@
 
 int main(int argc, char *argv[])
 {
-	GApp a(argc, argv, {"ssdemon"}, true, true, true);
+	GApp a(argc, argv, {"ssdemon"}, true);
+	a.launchDemon(true);
+
 	WaWidget wa;
 
 	QJsonObject& jo = GJson::instance();

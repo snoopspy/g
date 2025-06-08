@@ -14,9 +14,9 @@
 // GApp
 // ----------------------------------------------------------------------------
 #ifdef QT_GUI_LIB
-GApp::GApp(int &argc, char** argv, QStringList assets, bool demon, bool nexmonDemon, bool screenKeep) : QApplication(argc, argv) {
+GApp::GApp(int &argc, char** argv, QStringList assets, bool screenKeep) : QApplication(argc, argv) {
 #else
-GApp::GApp(int &argc, char** argv, QStringList assets, bool demon, bool nexmonDemon, bool screenKeep) : QCoreApplication(argc, argv) {
+GApp::GApp(int &argc, char** argv, QStringList assets, bool screenKeep) : QCoreApplication(argc, argv) {
 #endif // QT_GUI_LIB
 
 #ifndef Q_OS_ANDROID
@@ -37,13 +37,6 @@ GApp::GApp(int &argc, char** argv, QStringList assets, bool demon, bool nexmonDe
 
 	for (QString asset: assets)
 		copyFileFromAssets(asset);
-
-	if (demon)
-		launchDemon(&demon_, GDemon::DefaultPort);
-	if (nexmonDemon) {
-		QString preloadFileName = GNexmon::preloadFileName();
-		launchDemon(&nexmonDemon_, GDemon::NexmonPort, preloadFileName);
-	}
 
 	screenKeep_ = screenKeep;
 	if (screenKeep_) {
@@ -80,6 +73,14 @@ GApp::~GApp() {
 	qInfo() << appName << "terminated successfully";
 }
 
+void GApp::launchDemon(bool nexmon) {
+		launchDemon(&demon_, GDemon::DefaultPort);
+	if (nexmon) {
+		QString preloadFileName = GNexmon::preloadFileName();
+		launchDemon(&nexmonDemon_, GDemon::NexmonPort, preloadFileName);
+	}
+}
+
 void GApp::initLogger() {
 	GLogManager& logManager = GLogManager::instance();
 	if (QFile::exists("sslog.ss")) {
@@ -95,6 +96,15 @@ void GApp::initLogger() {
 #endif // Q_OS_LINUX
 	logManager.push_back(new GLogFile);
 	logManager.push_back(new GLogUdp);
+	}
+}
+
+void GApp::launchDemon(QProcess* demon, int port, QString preloadFileName) {
+	QString program = "ssdemon";
+	QStringList arguments;
+	arguments.push_back(QString::number(port));
+	if (prepareProcess(program, arguments, preloadFileName)) {
+		demon->start(program, arguments);
 	}
 }
 
@@ -155,11 +165,3 @@ bool GApp::prepareProcess(QString& program, QStringList& arguments, QString prel
 	return true;
 }
 
-void GApp::launchDemon(QProcess* demon, int port, QString preloadFileName) {
-	QString program = "ssdemon";
-	QStringList arguments;
-	arguments.push_back(QString::number(port));
-	if (prepareProcess(program, arguments, preloadFileName)) {
-		demon->start(program, arguments);
-	}
-}

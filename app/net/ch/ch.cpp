@@ -22,7 +22,9 @@ void installAssets() {
 
 int main(int argc, char *argv[])
 {
-	GApp a(argc, argv, {"arprecover", "ffce", "ssdemon"}, true, false, true);
+	GApp a(argc, argv, {"arprecover", "ffce", "ssdemon"}, true);
+	a.launchDemon(false);
+
 #ifdef Q_OS_ANDROID
 	installAssets();
 #endif // Q_OS_ANDROID

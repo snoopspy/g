@@ -68,7 +68,9 @@ public slots:
 };
 
 int main(int argc, char *argv[]) {
-	GApp a(argc, argv, {"arprecover", "corepcap", "ssdemon"}, true, true, true);
+	GApp a(argc, argv, {"arprecover", "corepcap", "ssdemon"}, true);
+	a.launchDemon(true);
+
 	SnoopSpy* ss = new SnoopSpy;
 	if (!ss->open())
 		return -1;

@@ -98,7 +98,9 @@ public slots:
 };
 
 int main(int argc, char* argv[]) {
-	GApp a(argc, argv, {}, false, false, true);
+	GApp a(argc, argv, {}, true);
+	a.launchDemon(true);
+
 	SsCon* sc = new SsCon;
 	if (!sc->open()) {
 		delete sc;
