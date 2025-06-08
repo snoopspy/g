@@ -190,12 +190,14 @@ void GApp::doSignaled(int signo) {
 				stateObj->close();
 			});
 		}
+#ifdef QT_GUI_LIB
 		QWidget* widget = dynamic_cast<QWidget*>(signalObj_);
 		if (widget != nullptr) {
 			QMetaObject::invokeMethod(this, [widget]() {
 				widget->close();
 			});
 		}
+#endif // QT_GUI_LIB
 	}
 #endif
 }
