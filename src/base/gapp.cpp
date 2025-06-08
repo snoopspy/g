@@ -7,6 +7,7 @@
 #include "base/log/glogudp.h"
 #include "base/sys/gnexmon.h"
 #include "net/demon/gdemon.h"
+#include "base/sys/gsignal.h"
 
 #include <unistd.h> // for chdir
 
@@ -165,3 +166,36 @@ bool GApp::prepareProcess(QString& program, QStringList& arguments, QString prel
 	return true;
 }
 
+void GApp::setSignalObject(QObject* signalObj) {
+#ifndef Q_OS_WIN
+		GSignal& signal = GSignal::instance();
+		QObject::connect(&signal, &GSignal::signaled, this, &GApp::doSignaled, Qt::DirectConnection);
+		signal.setupAll();
+#endif // Q_OS_WIN
+
+	signalObj_ = signalObj;
+}
+
+void GApp::doSignaled(int signo) {
+#ifdef Q_OS_WIN
+	(void)signo;
+#else // Q_OS_WIN
+	QString str1 = GSignal::getString(signo);
+	QString str2 = strsignal(signo);
+	qWarning() << QString("signo=%1 signal=%2 msg=%3 _debug_gilgil=%4 _thread_gilgil=%5").arg(signo).arg(str1).arg(str2).arg(_debug_gilgil).arg(_thread_gilgil);
+	if (signalObj_ != nullptr) {
+		GStateObj* stateObj = dynamic_cast<GStateObj*>(signalObj_);
+		if (stateObj != nullptr) {
+			QMetaObject::invokeMethod(this, [stateObj]() {
+				stateObj->close();
+			});
+		}
+		QWidget* widget = dynamic_cast<QWidget*>(signalObj_);
+		if (widget != nullptr) {
+			QMetaObject::invokeMethod(this, [widget]() {
+				widget->close();
+			});
+		}
+	}
+#endif
+}

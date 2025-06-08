@@ -40,11 +40,20 @@ protected:
 	static void initLogger();
 	void launchDemon(QProcess* demon, int port, QString preloadFileName = "");
 
+protected:
+	bool screenKeep_;
+	GScreenKeeper screenKeeper_;
+
 public:
 	static bool copyFileFromAssets(QString fileName, QString directory = "", QFile::Permissions permissions = QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 	static bool prepareProcess(QString& program, QStringList& arguments, QString preloadFileName = "");
 
+public:
+	void setSignalObject(QObject* signalObj);
+
 protected:
-	bool screenKeep_;
-	GScreenKeeper screenKeeper_;
+	QObject* signalObj_{nullptr};
+
+protected slots:
+	void doSignaled(int signo);
 };

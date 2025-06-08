@@ -1,6 +1,5 @@
 #include <GApp>
 #include <GGraphWidget>
-#include <GSignal>
 #include <GPluginFactory>
 
 struct G_EXPORT SnoopSpy : GStateObj {
@@ -13,18 +12,13 @@ public:
 		graph_.close();
 	}
 
-protected:
+public:
 	GGraph graph_;
 	GPluginFactory pluginFactory_;
 	GGraphWidget graphWidget_;
 
+protected:
 	bool doOpen() override {
-#ifndef Q_OS_WIN
-		GSignal& signal = GSignal::instance();
-		QObject::connect(&signal, &GSignal::signaled, this, &SnoopSpy::processSignal, Qt::DirectConnection);
-		signal.setupAll();
-#endif // Q_OS_WIN
-
 		graph_.setFactory(&pluginFactory_);
 		graphWidget_.setGraph(&graph_);
 
@@ -53,18 +47,6 @@ protected:
 
 		return true;
 	}
-
-public slots:
-	void processSignal(int signo) {
-#ifdef Q_OS_WIN
-		(void)signo;
-#else // Q_OS_WIN
-		QString str1 = GSignal::getString(signo);
-		QString str2 = strsignal(signo);
-		qWarning() << QString("signo=%1 signal=%2 msg=%3 _debug_gilgil=%4 _thread_gilgil=%5").arg(signo).arg(str1).arg(str2).arg(_debug_gilgil).arg(_thread_gilgil);
-		graphWidget_.close();
-#endif
-	}
 };
 
 int main(int argc, char *argv[]) {
@@ -72,6 +54,7 @@ int main(int argc, char *argv[]) {
 	a.launchDemon(true);
 
 	SnoopSpy* ss = new SnoopSpy;
+	a.setSignalObject(&ss->graphWidget_);
 	if (!ss->open())
 		return -1;
 	int res = a.exec();

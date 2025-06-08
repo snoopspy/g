@@ -1,7 +1,6 @@
 #include <iostream>
 #include <GApp>
 #include <GGraph>
-#include <GSignal>
 #include <GPluginFactory>
 
 using namespace std;
@@ -35,12 +34,7 @@ struct G_EXPORT SsCon : GStateObj {
 
 public:
 	SsCon(QObject* parent = nullptr) : GStateObj(parent) {
-#ifndef Q_OS_WIN
-		GSignal& signal = GSignal::instance();
-		QObject::connect(&signal, &GSignal::signaled, this, &SsCon::doSignaled, Qt::DirectConnection);
 		QObject::connect(&graph_, &GStateObj::closed, this, &SsCon::doClosed);
-		signal.setupAll();
-#endif // Q_OS_WIN
 	}
 
 	~SsCon() override {
@@ -81,17 +75,6 @@ protected:
 	}
 
 public slots:
-	void doSignaled(int signo) {
-#ifdef Q_OS_WIN
-		(void)signo;
-#else // Q_OS_WIN
-		QString str1 = GSignal::getString(signo);
-		QString str2 = strsignal(signo);
-		qWarning() << QString("signo=%1 signal=%2 msg=%3 _debug_gilgil=%4 _thread_gilgil=%5").arg(signo).arg(str1).arg(str2).arg(_debug_gilgil).arg(_thread_gilgil);
-		graph_.close();
-#endif
-	}
-
 	void doClosed() {
 		QCoreApplication::quit();
 	}
@@ -102,6 +85,7 @@ int main(int argc, char* argv[]) {
 	a.launchDemon(true);
 
 	SsCon* sc = new SsCon;
+	a.setSignalObject(sc);
 	if (!sc->open()) {
 		delete sc;
 		return -1;
