@@ -113,7 +113,7 @@ void GDnsBlock::block(GPacket* packet) {
 			msg += char('\x00'); // Class: IN (0x0001)
 			msg += char('\x01');
 
-			msg += char('\x00'); // Time t oLive : 300 (5 minutes)
+			msg += char('\x00'); // Time to Live : 300 (5 minutes)
 			msg += char('\x00');
 			msg += char('\x01');
 			msg += char('\x2c');
