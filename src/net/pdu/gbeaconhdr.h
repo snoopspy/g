@@ -17,6 +17,9 @@ struct G_EXPORT GBeaconHdr : GDot11Hdr {
 		le16_t capabilities_;
 	} fix_;
 
+	//
+	// Tag
+	//
 	struct Tag {
 		le8_t num_;
 		le8_t len_;
@@ -34,7 +37,7 @@ struct G_EXPORT GBeaconHdr : GDot11Hdr {
 	typedef Tag *PTag;
 
 	Tag* firstTag() {
-		char* p = pchar(this);
+		gbyte* p = pbyte(this);
 		p += sizeof(GBeaconHdr);
 		return PTag(p);
 	}

@@ -51,6 +51,44 @@ struct G_EXPORT GTcpHdr final {
 	static uint16_t calcSum(GIpHdr* ipHdr, GTcpHdr* tcpHdr);
 	static uint16_t inetCalcSum(GIpHdr* ipHdr, GTcpHdr* tcpHdr);
 	static GBuf parseData(GIpHdr* ipHdr, GTcpHdr* tcpHdr);
+
+	//
+	// Option
+	//
+	struct Option {
+		uint8_t kind_;
+		uint8_t len_;
+
+		void* value() {
+			return pbyte(this) + sizeof(Option);
+		}
+
+		Option* next() {
+			gbyte* res = pbyte(this);
+			if (*res == Nop)
+				return POption(++res);
+			res += this->len_;
+			return POption(res);
+		}
+	};
+	typedef Option* POption;
+
+	Option* firstOption() {
+		return POption(pbyte(this) + sizeof(GTcpHdr));
+	}
+
+	// option kind
+	enum: uint8_t {
+		Eof = 0,
+		Nop = 1,
+		Mss = 2,
+		WindowScale = 3,
+		SackPermitted = 4,
+		Sack = 5,
+		Echo = 6,
+		EchoReply = 7,
+		TimeStamps = 8
+	};
 };
 typedef GTcpHdr *PTcpHdr;
 #pragma pack(pop)
