@@ -36,8 +36,12 @@ GApp::GApp(int &argc, char** argv, QStringList assets, bool screenKeep) : QCoreA
 	qInfo() << "Copyright (c) Gilbert Lee All rights reserved";
 	qInfo() << G::pcapLibVersion();
 
+#ifdef Q_OS_ANDROID
 	for (QString asset: assets)
 		copyFileFromAssets(asset);
+#else
+	(void)assets;
+#endif // Q_OS_ANDROID
 
 	screenKeep_ = screenKeep;
 	if (screenKeep_) {
@@ -116,9 +120,7 @@ bool GApp::copyFileFromAssets(QString fileName, QString directory, QFile::Permis
 	QFile dstFile(dstFileName);
 
 	if (!srcFile.exists()) {
-#ifdef Q_OS_ANDROID
 		qWarning() << QString("src file(%1) not exists").arg(srcFileName);
-#endif // Q_OS_ANDROID
 		return false;
 	}
 
@@ -162,11 +164,7 @@ bool GApp::prepareProcess(QString& program, QStringList& arguments, QString prel
 	QString preloadStr = " ";
 	if (preloadFileName != "")
 		preloadStr = "export LD_PRELOAD=" + preloadFileName + "; ";
-#ifdef Q_OS_ANDROID
-	QString run = QString("export LD_LIBRARY_PATH=%1; %2%3/%4 %5").arg(path + "/../lib", preloadStr, path, program, arguments.join(" "));
-#else // Q_OS_ANDROID
 	QString run = QString("%1%2/%3 %4").arg(preloadStr, path, program, arguments.join(" "));
-#endif // Q_OS_ANDROID
 
 	QStringList newArguments;
 	newArguments.append("-c");

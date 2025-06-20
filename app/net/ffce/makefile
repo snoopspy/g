@@ -8,6 +8,9 @@ OBJS+=$(CPPFILES:%.cpp=%.o)
 CPPFLAGS+=-g -I..
 CPPFLAGS+=-O2 # for release
 CPPFLAGS+=-Wall -Wextra
+ifdef ANDROID_NDK_ROOT
+LDFLAGS+=-static-libstdc++
+endif
 LDLIBS+=-lpcap -pthread
 
 all: $(TARGET)
