@@ -5,10 +5,9 @@
 #include <windows.h>
 #endif // WIN32
 
-#include "gtrace.h"
 #include "gaux.h"
-
 #include "cookieedit.h"
+#include "gtrace.h"
 
 using namespace std;
 

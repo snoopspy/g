@@ -1,9 +1,10 @@
+#include <cstring>
 #include <iostream>
 #include <unistd.h>
 
-#include "gtrace.h"
 #include "gaux.h"
 #include "gdemonserver.h"
+#include "gtrace.h"
 
 using namespace std;
 

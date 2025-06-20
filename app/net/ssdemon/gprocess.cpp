@@ -1,5 +1,6 @@
 #include "gprocess.h"
-#include "errno.h"
+#include <errno.h>
+#include <unistd.h>
 
 // ----------------------------------------------------------------------------
 // GProcess
@@ -22,14 +23,14 @@ pid_t GProcess::start(std::string command, std::string& error) {
 		return 0;
 	}
 
-	char *argv[count + 1];
+	std::vector<char*> argv(count + 1);
 	for (size_t i = 0; i < count; i++)
 		argv[i] = (char*)(arguments[i].data());
 	argv[count] = nullptr;
 
 	pid_t pid = fork();
 	if (pid == 0) { // child
-		int res = execvp(argv[0], argv);
+		int res = execvp(argv[0], &argv[0]);
 		fprintf(stderr, "not reachable execvp(%s) return %d", command.data(), res);
 		exit(EXIT_FAILURE);
 	}
