@@ -123,6 +123,16 @@ bool GApp::copyFileFromAssets(QString fileName, QString directory, QFile::Permis
 	}
 
 	if (dstFile.exists()) {
+		QString libFolder(QDir::currentPath() + "/../lib/");
+		QFileInfo srcFileInfo(libFolder);
+		QFileInfo dstFileInfo(dstFileName);
+		QDateTime srcTime = srcFileInfo.lastModified();
+		QDateTime dstTime = dstFileInfo.lastModified();
+		qDebug() << srcTime << dstTime; // gilgil temp 2025.06.20
+		if (srcTime.isValid() && dstTime.isValid() && srcTime <= dstTime)
+			return true;
+
+		qDebug() << QString("remove file(%1)").arg(dstFileName);
 		bool res = dstFile.remove();
 		if (!res) {
 			qWarning() << QString("file remove(%1) return false").arg(dstFileName);
@@ -130,8 +140,9 @@ bool GApp::copyFileFromAssets(QString fileName, QString directory, QFile::Permis
 		}
 	}
 
+	qInfo() << QString("copy file(%1 %2)").arg(srcFileName).arg(dstFileName);
 	if (!srcFile.copy(dstFileName)) {
-		qWarning() << QString("file copy(%1 %2) return false").arg(srcFileName).arg(dstFileName);
+		qWarning() << QString("copy file(%1 %2) return false").arg(srcFileName).arg(dstFileName);
 		return false;
 	}
 	QFile::setPermissions(fileName, permissions);
@@ -143,7 +154,6 @@ bool GApp::prepareProcess(QString& program, QStringList& arguments, QString prel
 	if (!QFile::exists(program)) return false;
 
 	QString path = QDir::currentPath();
-	qDebug() << QString("path=%1").arg(path);
 #ifdef Q_OS_WIN
 	program = path + QDir::separator() + program;
 	return true;
