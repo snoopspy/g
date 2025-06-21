@@ -144,7 +144,7 @@ bool GApp::copyFileFromAssets(QString fileName, QString directory, QFile::Permis
 
 	qInfo() << QString("copy file(%1 %2)").arg(srcFileName).arg(dstFileName);
 	if (!srcFile.copy(dstFileName)) {
-		qWarning() << QString("copy file(%1 %2) return false").arg(srcFileName).arg(dstFileName);
+		qWarning() << QString("copy file(%1 %2) return false %3").arg(srcFileName).arg(dstFileName).arg(srcFile.errorString());
 		return false;
 	}
 	QFile::setPermissions(fileName, permissions);
