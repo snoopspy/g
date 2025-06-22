@@ -72,7 +72,7 @@ if true; then
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./android-build install
 	$QTDIR/../gcc_64/bin/androiddeployqt --input android-snoopspy-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp android-build//build/outputs/apk/debug/android-build-debug.apk ../../../../setup/snoopspy-$(sed 's/"//g' ../../../../version.txt).apk
+	cp android-build/build/outputs/apk/debug/android-build-debug.apk ../../../../setup/snoopspy-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
 
@@ -86,7 +86,7 @@ if true; then
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./android-build install
 	$QTDIR/../gcc_64/bin/androiddeployqt --input android-bf-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp android-build//build/outputs/apk/debug/android-build-debug.apk ../../../../setup/bf-$(sed 's/"//g' ../../../../version.txt).apk
+	cp android-build/build/outputs/apk/debug/android-build-debug.apk ../../../../setup/bf-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
 
@@ -100,7 +100,7 @@ if true; then
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./android-build install
 	$QTDIR/../gcc_64/bin/androiddeployqt --input android-ch-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp android-build//build/outputs/apk/debug/android-build-debug.apk ../../../../setup/ch-$(sed 's/"//g' ../../../../version.txt).apk
+	cp android-build/build/outputs/apk/debug/android-build-debug.apk ../../../../setup/ch-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
 
@@ -114,7 +114,7 @@ if true; then
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./android-build install
 	$QTDIR/../gcc_64/bin/androiddeployqt --input android-ha-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp android-build//build/outputs/apk/debug/android-build-debug.apk ../../../../setup/ha-$(sed 's/"//g' ../../../../version.txt).apk
+	cp android-build/build/outputs/apk/debug/android-build-debug.apk ../../../../setup/ha-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
 
@@ -128,7 +128,7 @@ if true; then
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=././android-build install
 	$QTDIR/../gcc_64/bin/androiddeployqt --input android-pa-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp android-build//build/outputs/apk/debug/android-build-debug.apk ../../../../setup/pa-$(sed 's/"//g' ../../../../version.txt).apk
+	cp android-build/build/outputs/apk/debug/android-build-debug.apk ../../../../setup/pa-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
 
@@ -142,6 +142,6 @@ if true; then
 	$MAKEDIR/make -j$(nproc)
 	$MAKEDIR/make INSTALL_ROOT=./android-build install
 	$QTDIR/../gcc_64/bin/androiddeployqt --input android-wa-deployment-settings.json --output ./android-build --android-platform android-31 --jdk /usr/lib/jvm/java-11-openjdk-amd64 --gradle
-	cp android-build//build/outputs/apk/debug/android-build-debug.apk ../../../../setup/wa-$(sed 's/"//g' ../../../../version.txt).apk
+	cp android-build/build/outputs/apk/debug/android-build-debug.apk ../../../../setup/wa-$(sed 's/"//g' ../../../../version.txt).apk
 	cd ../../../..
 fi
