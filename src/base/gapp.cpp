@@ -130,7 +130,6 @@ bool GApp::copyFileFromAssets(QString fileName, QString directory, QFile::Permis
 		QFileInfo dstFileInfo(dstFileName);
 		QDateTime srcTime = srcFileInfo.lastModified();
 		QDateTime dstTime = dstFileInfo.lastModified();
-		qDebug() << srcTime << dstTime; // gilgil temp 2025.06.20
 		if (srcTime.isValid() && dstTime.isValid() && srcTime <= dstTime)
 			return true;
 
