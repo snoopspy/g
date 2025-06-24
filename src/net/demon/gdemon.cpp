@@ -55,18 +55,18 @@ int32_t GDemon::Header::decode(pchar buffer, int32_t size) {
 	return buf - buffer;
 }
 
-int32_t GDemon::Header::recv(int sd) {
+bool GDemon::Header::recv(int sd) {
 	if (!recvAll(sd, pvoid(this), sizeof(Header))) {
 		GTRACE("recvAll(Header) return false");
-		return -1;
+		return false;
 	}
 
 	if (this->len_ < 0 || sizeof(Header) + len_ > MaxBufSize) {
 		GTRACE("invalid header len(%d)", len_);
-		return -1;
+		return false;
 	}
 
-	return sizeof(Header);
+	return true;
 }
 
 //

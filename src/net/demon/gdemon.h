@@ -72,27 +72,29 @@ struct GDemon {
 	virtual ~GDemon() {}
 
 	enum Cmd: int32_t {
-		CmdCmdExecute = 0,
-		CmdCmdStart = 1,
-		CmdCmdStop = 2,
-		CmdCmdStartDetached = 3,
+		CmdNone = 0,
 
-		CmdGetInterfaceList = 4,
-		CmdGetRtm = 5,
+		CmdCmdExecute = 1,
+		CmdCmdStart = 2,
+		CmdCmdStop = 3,
+		CmdCmdStartDetached = 4,
 
-		CmdPcapOpen = 6,
-		CmdPcapClose = 7,
-		CmdPcapRead = 8,
-		CmdPcapWrite = 9,
+		CmdGetInterfaceList = 5,
+		CmdGetRtm = 6,
 
-		CmdNfOpen = 10,
-		CmdNfClose = 11,
-		CmdNfRead = 12,
-		CmdNfVerdict = 13,
+		CmdPcapOpen = 7,
+		CmdPcapClose = 8,
+		CmdPcapRead = 9,
+		CmdPcapWrite = 10,
 
-		CmdRiOpen = 14,
-		CmdRiClose = 15,
-		CmdRiWrite = 16
+		CmdNfOpen = 11,
+		CmdNfClose = 12,
+		CmdNfRead = 13,
+		CmdNfVerdict = 14,
+
+		CmdRiOpen = 15,
+		CmdRiClose = 16,
+		CmdRiWrite = 17
 	};
 	typedef Cmd *PCmd;
 
@@ -100,11 +102,11 @@ struct GDemon {
 	// header
 	//
 	struct Header {
-		int32_t len_;
-		Cmd cmd_;
+		int32_t len_{0};
+		Cmd cmd_{CmdNone};
 		int32_t encode(pchar buffer, int32_t size);
 		int32_t decode(pchar buffer, int32_t size);
-		int32_t recv(int sd);
+		bool recv(int sd);
 	};
 	typedef Header* PHeader;
 

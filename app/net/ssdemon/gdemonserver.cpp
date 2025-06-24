@@ -155,7 +155,7 @@ void GDemonSession::run() {
 	while (active) {
 		Header* header = GDemon::PHeader(recvBuf_);
 
-		if (header->recv(sd_) == -1)
+		if (!header->recv(sd_))
 			break;
 
 		if (!recvAll(sd_, recvBuf_ + sizeof(Header), header->len_)) {
