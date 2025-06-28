@@ -9,7 +9,7 @@
 // ipHdr.ip_src, ipHdr.ip_dst, udpHdrDataLen and IPPROTO_UDP
 //
 uint16_t GUdpHdr::calcSum(GIpHdr* ipHdr, GUdpHdr* udpHdr) {
-	qWarning() << "should change to inetCalcSum"; // gilgil temp 2025.06.07
+	qWarning() << "should change to inetCalcSum"; // by gilgil 2025.06.07
 
 	uint32_t res = 0;
 	int udpHdrDataLen = udpHdr->len();

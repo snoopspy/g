@@ -9,7 +9,7 @@
 // ipHdr.sip, ipHdr.dip, tcpHdrDataLen and IPPROTO_TCP
 //
 uint16_t GTcpHdr::calcSum(GIpHdr* ipHdr, GTcpHdr* tcpHdr) { // Should disable compile optimization for GIPHdr(sip_ and dip_)
-	qWarning() << "should change to inetCalcSum"; // gilgil temp 2025.06.07
+	qWarning() << "should change to inetCalcSum"; // by gilgil 2025.06.07
 
 	uint32_t res = 0;
 	int tcpHdrDataLen = ipHdr->tlen() - ipHdr->hlen() * 4;

@@ -4,7 +4,7 @@
 // GIcmpHdr
 // ----------------------------------------------------------------------------
 uint16_t GIcmpHdr::calcSum(GIpHdr* ipHdr, GIcmpHdr* icmpHdr) {
-	qWarning() << "should change to inetCalcSum"; // gilgil temp 2025.06.07
+	qWarning() << "should change to inetCalcSum"; // by gilgil 2025.06.07
 
 	uint32_t res = 0;
 	int icmpHdrDataLen = ipHdr->tlen() - ipHdr->hlen() * 4;
