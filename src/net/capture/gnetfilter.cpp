@@ -232,7 +232,7 @@ bool GNetFilter::doClose() {
 GPacket::Result GNetFilter::read(GPacket* packet) {
 	if (!pkts_.empty()) {
 #ifdef _DEBUG
-		int count = pkts_.count();
+		int count = pkts_.size();
 		qWarning() << QString("packet already exists(%1)") << count;
 #endif // __DEBUG
 		Pkts::iterator it = pkts_.begin();
@@ -268,7 +268,7 @@ GPacket::Result GNetFilter::read(GPacket* packet) {
 
 	if (!pkts_.empty()) {
 #ifdef _DEBUG
-		int count = pkts_.count();
+		int count = pkts_.size();
 		if (count > 1)
 			qWarning() << QString("packet count is greater than one(%1)") << count;
 #endif // __DEBUG
@@ -297,12 +297,12 @@ GPacket::Result GNetFilter::write(GPacket* packet) {
 }
 
 GPacket::Result GNetFilter::relay(GPacket* packet) {
-	if (pkts_.count() < 1) {
-		qCritical() << QString("packets_.count is less than one(%1)").arg(pkts_.count());
+	if (pkts_.size() < 1) {
+		qCritical() << QString("packets_.count is less than one(%1)").arg(pkts_.size());
 		return GPacket::Fail;
 	}
-	Pkt pkt = pkts_.first();
-	pkts_.removeAt(0);
+	Pkt pkt = *pkts_.begin();
+	pkts_.pop_front();
 
 	int res;
 	if (packet->ctrl_.changed_) {
@@ -326,12 +326,12 @@ GPacket::Result GNetFilter::relay(GPacket* packet) {
 }
 
 GPacket::Result GNetFilter::drop(GPacket* packet) {
-	if (pkts_.count() < 1) {
-		qCritical() << QString("packets_.count is less than one(%1)").arg(pkts_.count());
+	if (pkts_.size() < 1) {
+		qCritical() << QString("packets_.count is less than one(%1)").arg(pkts_.size());
 		return GPacket::Fail;
 	}
-	Pkt pkt = pkts_.first();
-	pkts_.removeAt(0);
+	Pkt pkt = *pkts_.begin();
+	pkts_.pop_front();
 
 	(void)packet;
 	int res = nfq_set_verdict2(qh_, pkt.id_, NF_DROP, mark_, 0, nullptr);
