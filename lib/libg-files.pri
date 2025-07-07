@@ -46,6 +46,7 @@ SOURCES += \
 	$${PWD}/../src/base/prop/gpropitem.cpp \
 	$${PWD}/../src/base/prop/gpropwidget.cpp \
 	$${PWD}/../src/base/sys/gsignal.cpp \
+	$${PWD}/../src/base/sys/gspinlock.cpp \
 	$${PWD}/../src/base/sys/gthread.cpp \
 	$${PWD}/../src/base/sys/gnexmon.cpp \
 	$${PWD}/../src/base/sys/gwaitevent.cpp \
@@ -202,6 +203,7 @@ HEADERS += \
 	$${PWD}/../src/base/prop/gpropitem.h \
 	$${PWD}/../src/base/prop/gpropwidget.h \
 	$${PWD}/../src/base/sys/gsignal.h \
+	$${PWD}/../src/base/sys/gspinlock.h \
 	$${PWD}/../src/base/sys/gthread.h \
 	$${PWD}/../src/base/sys/gnexmon.h \
 	$${PWD}/../src/base/sys/gwaitevent.h \
