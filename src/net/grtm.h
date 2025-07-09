@@ -47,8 +47,9 @@ struct G_EXPORT GRtm : QList<GRtmEntry> {
 	friend struct GRtmEntry;
 
 protected: // inherited singleton
-	GRtm();
-	virtual ~GRtm();
+	GRtm() {}
+	virtual ~GRtm() {}
+	void init();
 
 public:
 	GRtmEntry* getBestEntry(GIp ip);

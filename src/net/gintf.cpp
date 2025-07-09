@@ -50,7 +50,9 @@ static GMac getMac(char* intfName) {
 #endif
 
 #if (defined(Q_OS_LINUX) || defined(Q_OS_WIN)) && !defined(Q_OS_ANDROID)
-GIntfList::GIntfList() {
+void GIntfList::init() {
+	clear();
+
 	//
 	// Initialize allDevs using pcap API.
 	//
@@ -115,7 +117,9 @@ GIntfList::GIntfList() {
 #ifdef Q_OS_ANDROID
 #include "net/demon/gdemonclient.h"
 
-GIntfList::GIntfList() {
+void GIntfList::init() {
+	clear();
+
 	GDemonClient& client = GDemonClient::instance("127.0.0.1", GDemonClient::DefaultPort);
 	GDemon::GetInterfaceListRes res = client.getInterfaceList();
 	for (GDemon::Interface& dIntf: res.interfaceList_) {

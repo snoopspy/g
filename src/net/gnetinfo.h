@@ -18,8 +18,8 @@
 // ----------------------------------------------------------------------------
 struct G_EXPORT GNetInfo {
 protected:
-	GNetInfo();
-	~GNetInfo() {}
+	GNetInfo() { init(); }
+	virtual ~GNetInfo() {}
 
 	GIntfList intfList_;
 	GRtm rtm_;
@@ -27,6 +27,10 @@ protected:
 public:
 	GIntfList& intfList() { return intfList_; }
 	GRtm& rtm() { return rtm_; }
+
+public:
+	void init();
+	void clear();
 
 	static GNetInfo& instance() {
 		static GNetInfo netInfo;

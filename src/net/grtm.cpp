@@ -27,7 +27,9 @@ uint qHash(GRtmEntry q) {
 #ifdef Q_OS_ANDROID
 #include "net/demon/gdemonclient.h"
 
-GRtm::GRtm() {
+void GRtm::init() {
+	clear();
+
 	GDemonClient& client = GDemonClient::instance("127.0.0.1", GDemon::DefaultPort);
 	GDemon::GetRtmRes res = client.getRtm();
 	for (GDemon::RtmEntry& entry: res.rtm_) {
@@ -54,7 +56,9 @@ GRtm::GRtm() {
 // default via 10.2.2.1 dev wlan0  table 1021  proto static (C)
 // 10.2.2.0/24 dev wlan0  proto kernel  scope link  src 10.2.2.189 (D)
 //
-GRtm::GRtm() {
+void GRtm::init() {
+	clear();
+
 	std::string command("ip route show table 0");
 	FILE* p = popen(command.data(), "r");
 	if (p == nullptr) {
@@ -83,7 +87,9 @@ GRtm::GRtm() {
 #include "_win/gipadapterinfo.h"
 #include "_win/gipforwardtable.h"
 
-GRtm::GRtm() {
+void GRtm::init() {
+	clear();
+
 	PMIB_IPFORWARDTABLE table = GIpForwardTable::instance().ipForwardTable_;
 	for (int i = 0; i < int(table->dwNumEntries); i++) {
 		PMIB_IPFORWARDROW row = &table->table[i];
@@ -103,10 +109,6 @@ GRtm::GRtm() {
 	}
 }
 #endif
-
-GRtm::~GRtm() {
-	clear();
-}
 
 GRtmEntry* GRtm::getBestEntry(GIp ip) {
 	GRtmEntry* res = nullptr;

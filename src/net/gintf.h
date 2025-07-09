@@ -64,8 +64,9 @@ struct G_EXPORT GIntfList : QList<GIntf> {
 	friend struct GNetInfo;
 
 protected: // singleton
-	GIntfList();
+	GIntfList() {};
 	virtual ~GIntfList() {}
+	void init();
 
 public:
 	GIntf* findByName(QString name);
